@@ -31,7 +31,7 @@ namespace Microsoft.IO
     /// There are two pools managed in here. The small pool contains same-sized buffers that are handed to streams
     /// as they write more data.
     /// 
-    /// For those queries that need to call GetBuffer(), the large pool contains buffers of various sizes, all
+    /// For scenarios that need to call GetBuffer(), the large pool contains buffers of various sizes, all
     /// multiples of LargeBufferMultiple (1 MB by default). They are split by size to avoid overly-wasteful buffer
     /// usage. There should be far fewer 8 MB buffers than 1 MB buffers, for example.
     /// </remarks>
@@ -294,9 +294,10 @@ namespace Microsoft.IO
 
         /// <summary>
         /// Returns a buffer of arbitrary size from the large buffer pool. This buffer
-        /// will be at least the requiredSize and always be a multiple of 1 MB.
+        /// will be at least the requiredSize and always be a multiple of largeBufferMultiple.
         /// </summary>
         /// <param name="requiredSize">The minimum length of the buffer</param>
+        /// <param name="tag">The tag of the stream returning this buffer, for logging if necessary.</param>
         /// <returns>A buffer of at least the required size.</returns>
         internal byte[] GetLargeBuffer(int requiredSize, string tag)
         {
@@ -365,6 +366,7 @@ namespace Microsoft.IO
         /// Returns the buffer to the large pool
         /// </summary>
         /// <param name="buffer">The buffer to return.</param>
+        /// <param name="tag">The tag of the stream returning this buffer, for logging if necessary.</param>
         /// <exception cref="ArgumentNullException">buffer is null</exception>
         /// <exception cref="ArgumentException">buffer.Length is not a multiple of LargeBufferMultiple (it did not originate from this pool)</exception>
         internal void ReturnLargeBuffer(byte[] buffer, string tag)
@@ -429,6 +431,7 @@ namespace Microsoft.IO
         /// Returns the blocks to the pool
         /// </summary>
         /// <param name="blocks">Collection of blocks to return to the pool</param>
+        /// <param name="tag">The tag of the stream returning these blocks, for logging if necessary.</param>
         /// <exception cref="ArgumentNullException">blocks is null</exception>
         /// <exception cref="ArgumentException">blocks contains buffers that are the wrong size (or null) for this memory manager</exception>
         internal void ReturnBlocks(ICollection<byte[]> blocks, string tag)

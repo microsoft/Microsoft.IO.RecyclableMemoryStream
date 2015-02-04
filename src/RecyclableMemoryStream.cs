@@ -34,7 +34,8 @@ namespace Microsoft.IO
     /// leads to continual memory growth as each stream approaches the maximum allowed size.
     /// 3. Memory copying - Each time a MemoryStream grows, all the bytes are copied into new buffers.
     /// This implementation only copies the bytes when GetBuffer is called.
-    /// 4. Memory fragmentation - 
+    /// 4. Memory fragmentation - By using homogenous buffer sizes, it ensures that blocks of memory
+    /// can be easily reused.
     /// 
     /// The stream is implemented on top of a series of uniformly-sized blocks. As the stream's length grows,
     /// additional blocks are retrieved from the memory manager. It is these blocks that are pooled, not the stream
@@ -47,7 +48,7 @@ namespace Microsoft.IO
     /// 
     /// Once a large buffer is assigned to the stream the blocks are NEVER again used for this stream. All operations take place on the 
     /// large buffer. The large buffer can be replaced by a larger buffer from the pool as needed. All blocks and large buffers 
-    /// are maintained in the stream until the stream is disposed. 
+    /// are maintained in the stream until the stream is disposed (unless AggressiveBufferReturn is enabled in the stream manager).
     /// 
     /// </remarks>
     public sealed class RecyclableMemoryStream : MemoryStream
@@ -70,9 +71,8 @@ namespace Microsoft.IO
 
         /// <summary>
         /// This list is used to store buffers once they're replaced by something larger.
-        /// We can't release them back the pool before the stream is disposed because
-        /// need to protect against poorly-written plugins that may reuse buffers after
-        /// they've been invalidated by a resize.
+        /// This is for the cases where you have users of this class that may hold onto the buffers longer
+        /// than they should and you want to prevent race conditions which could corrupt the data.
         /// </summary>
         private List<byte[]> dirtyBuffers;
         
@@ -107,21 +107,20 @@ namespace Microsoft.IO
 
         private bool disposed;
 
-        /// <summary>
-        /// This is the callstack of the constructor. It is only set if MemoryManager.GenerateCallStacks is true,
-        /// which should only be in debugging situations.
-        /// </summary>
         private readonly string allocationStack;
-
-        /// <summary>
-        /// Save our dispose stack in case someone double-disposes us
-        /// </summary>
         private string disposeStack;
 
         /// <summary>
-        /// Gets this stream's allocation stack
+        /// Callstack of the constructor. It is only set if MemoryManager.GenerateCallStacks is true,
+        /// which should only be in debugging situations.
         /// </summary>
         internal string AllocationStack { get { return this.allocationStack; } }
+
+        /// <summary>
+        /// Callstack of the Dispose call. It is only set if MemoryManager.GenerateCallStacks is true,
+        /// which should only be in debugging situations.
+        /// </summary>
+        internal string DisposeStack { get { return this.disposeStack; } }
 
         /// <summary>
         /// This buffer exists so that WriteByte can forward all of its calls to Write
@@ -130,23 +129,45 @@ namespace Microsoft.IO
         private readonly byte[] byteBuffer = new byte[1];
 
         #region Constructors
+        /// <summary>
+        /// Allocate a new RecyclableMemoryStream object.
+        /// </summary>
+        /// <param name="memoryManager">The memory manager</param>
         public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager)
             : this(memoryManager, null)
         {
 
         }
 
+        /// <summary>
+        /// Allocate a new RecyclableMemoryStream object
+        /// </summary>
+        /// <param name="memoryManager">The memory manager</param>
+        /// <param name="tag">A string identifying this stream for logging and debugging purposes</param>
         public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string tag)
             : this(memoryManager, tag, 0)
         {
 
         }
 
+        /// <summary>
+        /// Allocate a new RecyclableMemoryStream object
+        /// </summary>
+        /// <param name="memoryManager">The memory manager</param>
+        /// <param name="tag">A string identifying this stream for logging and debugging purposes</param>
+        /// <param name="requestedSize">The initial requested size to prevent future allocations</param>
         public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string tag, int requestedSize)
             : this(memoryManager, tag, requestedSize, null)
         {
         }
 
+        /// <summary>
+        /// Allocate a new RecyclableMemoryStream object
+        /// </summary>
+        /// <param name="memoryManager">The memory manager</param>
+        /// <param name="tag">A string identifying this stream for logging and debugging purposes</param>
+        /// <param name="requestedSize">The initial requested size to prevent future allocations</param>
+        /// <param name="initialLargeBuffer">An initial buffer to use. This buffer will be owned by the stream and returned to the memory manager upon Dispose.</param>
         internal RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string tag, int requestedSize,
                                       byte[] initialLargeBuffer)
         {
@@ -191,9 +212,7 @@ namespace Microsoft.IO
         /// Returns the memory used by this stream back to the pool.
         /// </summary>
         /// <param name="disposing">Whether we're disposing (true), or being called by the finalizer (false)</param>
-        /// <remarks>Not only is this not thread-safe, it's an error to call this method more than once per stream because of 
-        /// the pooling semantics. We could decide to relax this if we want--since the stream object itself isn't pooled,
-        /// we can choose to ignore double-disposes. However, I prefer the more stringent requirements for this.</remarks>
+        /// <remarks>This method is not thread safe and it may not be called more than once.</remarks>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1816:CallGCSuppressFinalizeCorrectly", Justification = "We have different disposal semantics, so SuppressFinalize is in a different spot.")]
         protected override void Dispose(bool disposing)
         {
@@ -234,8 +253,8 @@ namespace Microsoft.IO
                 if (AppDomain.CurrentDomain.IsFinalizingForUnload())
                 {
                     // If we're being finalized because of a shutdown, don't go any further.
-                    // Reporting counters can cause a crash because a lot of
-                    // objects are already cleaned up and invalid.
+                    // We have no idea what's already been cleaned up. Triggering events may cause
+                    // a crash.
                     base.Dispose(disposing);
                     return;
                 }
@@ -264,7 +283,7 @@ namespace Microsoft.IO
         }
 
         /// <summary>
-        /// Just calls Dispose().
+        /// Equivalent to Dispose
         /// </summary>
         public override void Close()
         {
@@ -277,10 +296,11 @@ namespace Microsoft.IO
         /// <summary>
         /// Gets or sets the capacity
         /// </summary>
-        /// <remarks>Capacity is always in multiples of the memory manager's block size.
-        /// Capacity never decreases during a stream's lifetime. Explicitly setting the capacity
-        /// to a lower value than the current value will have no effect. This is because the buffers are all
-        /// pooled by chunks and there's little reason to allow stream truncation.
+        /// <remarks>Capacity is always in multiples of the memory manager's block size, unless
+        /// the large buffer is in use.  Capacity never decreases during a stream's lifetime. 
+        /// Explicitly setting the capacity to a lower value than the current value will have no effect. 
+        /// This is because the buffers are all pooled by chunks and there's little reason to 
+        /// allow stream truncation.
         /// </remarks>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public override int Capacity
@@ -303,6 +323,7 @@ namespace Microsoft.IO
         }
 
         private int length;
+
         /// <summary>
         /// Gets the number of bytes written to this stream.
         /// </summary>
@@ -317,6 +338,7 @@ namespace Microsoft.IO
         }
 
         private int position;
+
         /// <summary>
         /// Gets the current position in the stream
         /// </summary>
@@ -420,9 +442,9 @@ namespace Microsoft.IO
 
         /// <summary>
         /// Returns a new array with a copy of the buffer's contents. You should almost certainly be using GetBuffer combined with the Length to 
-        /// access the bytes in this stream. Uses of this method will be logged and punished.
+        /// access the bytes in this stream. Calling ToArray will destroy the benefits of pooled buffers, but it is included
+        /// for the sake of completeness.
         /// </summary>
-        /// <remarks>So why allow it? Simply, I believe throwing an exception here would be overkill.</remarks>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public override byte[] ToArray()
         {
