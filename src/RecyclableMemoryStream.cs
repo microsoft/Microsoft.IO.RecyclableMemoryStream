@@ -452,6 +452,7 @@ namespace Microsoft.IO
         /// for the sake of completeness.
         /// </summary>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+        [Obsolete("This method has degraded performance vs. GetBuffer and should be avoided.")]
         public override byte[] ToArray()
         {
             this.CheckDisposed();
