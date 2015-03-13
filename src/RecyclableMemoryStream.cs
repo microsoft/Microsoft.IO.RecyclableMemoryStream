@@ -140,7 +140,7 @@ namespace Microsoft.IO
         /// </summary>
         /// <param name="memoryManager">The memory manager</param>
         public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager)
-            : this(memoryManager, null)
+            : this(memoryManager, null, 0, null)
         {
 
         }
@@ -151,7 +151,7 @@ namespace Microsoft.IO
         /// <param name="memoryManager">The memory manager</param>
         /// <param name="tag">A string identifying this stream for logging and debugging purposes</param>
         public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string tag)
-            : this(memoryManager, tag, 0)
+            : this(memoryManager, tag, 0, null)
         {
 
         }
@@ -222,10 +222,11 @@ namespace Microsoft.IO
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1816:CallGCSuppressFinalizeCorrectly", Justification = "We have different disposal semantics, so SuppressFinalize is in a different spot.")]
         protected override void Dispose(bool disposing)
         {
+            var manager = this.memoryManager;
             if (this.disposed)
             {
                 string doubleDisposeStack = null;
-                if (this.memoryManager.GenerateCallStacks)
+                if (manager.GenerateCallStacks)
                 {
                     doubleDisposeStack = Environment.StackTrace;
                 }
@@ -236,7 +237,7 @@ namespace Microsoft.IO
             
             Events.Write.MemoryStreamDisposed(this.id, this.tag);
 
-            if (this.memoryManager.GenerateCallStacks)
+            if (manager.GenerateCallStacks)
             {
                 this.disposeStack = Environment.StackTrace;
             }
@@ -246,7 +247,7 @@ namespace Microsoft.IO
                 // Once this flag is set, we can't access any properties -- use fields directly
                 this.disposed = true;
 
-                this.memoryManager.ReportStreamDisposed();
+                manager.ReportStreamDisposed();
                                 
                 GC.SuppressFinalize(this);
             }
@@ -265,25 +266,25 @@ namespace Microsoft.IO
                     return;
                 }
                 
-                this.memoryManager.ReportStreamFinalized(); 
+                manager.ReportStreamFinalized(); 
             }
 
-            this.memoryManager.ReportStreamLength(this.length);
+            manager.ReportStreamLength(this.length);
 
             if (this.largeBuffer != null)
             {
-                this.memoryManager.ReturnLargeBuffer(this.largeBuffer, this.tag);
+                manager.ReturnLargeBuffer(this.largeBuffer, this.tag);
             }
 
             if (this.dirtyBuffers != null)
             {
                 foreach (var buffer in this.dirtyBuffers)
                 {
-                    this.memoryManager.ReturnLargeBuffer(buffer, this.tag);
+                    manager.ReturnLargeBuffer(buffer, this.tag);
                 }
             }
 
-            this.memoryManager.ReturnBlocks(this.blocks, this.tag);
+            manager.ReturnBlocks(this.blocks, this.tag);
             
             base.Dispose(disposing);
         }
@@ -426,20 +427,22 @@ namespace Microsoft.IO
                 return this.blocks[0];
             }
 
+            var manager = this.memoryManager;   // we've already CheckDisposed()
+
             // Buffer needs to reflect the capacity, not the length, because
             // it's possible that people will manipulate the buffer directly
             // and set the length afterward. Capacity sets the expectation
             // for the size of the buffer.
-            var newBuffer = this.MemoryManager.GetLargeBuffer(this.Capacity, this.tag);
+            var newBuffer = manager.GetLargeBuffer(this.Capacity, this.tag);
             
             // InternalRead will check for existence of largeBuffer, so make sure we
             // don't set it until after we've copied the data.
             this.InternalRead(newBuffer, 0, this.length, 0);
             this.largeBuffer = newBuffer;
 
-            if (this.blocks.Count > 0 && this.memoryManager.AggressiveBufferReturn)
+            if (this.blocks.Count > 0 && manager.AggressiveBufferReturn)
             {
-                this.memoryManager.ReturnBlocks(this.blocks, this.tag);
+                manager.ReturnBlocks(this.blocks, this.tag);
                 this.blocks.Clear();
             }
 
@@ -456,12 +459,13 @@ namespace Microsoft.IO
         public override byte[] ToArray()
         {
             this.CheckDisposed();
+            var manager = this.memoryManager;
             var newBuffer = new byte[this.Length];
 
             this.InternalRead(newBuffer, 0, this.length, 0);
-            string stack = this.memoryManager.GenerateCallStacks ? Environment.StackTrace : null;
+            string stack = manager.GenerateCallStacks ? Environment.StackTrace : null;
             Events.Write.MemoryStreamToArray(this.id, this.tag, stack, 0);
-            this.memoryManager.ReportStreamToArray();
+            manager.ReportStreamToArray();
 
             return newBuffer;
         }
@@ -539,21 +543,23 @@ namespace Microsoft.IO
             }
 
             // Check for overflow
-            if (this.Position + count > MaxStreamLength)
+            var manager = this.memoryManager;
+            int blockSize = manager.BlockSize;
+            long farEnd = this.Position + count;
+            
+            if (farEnd > MaxStreamLength)
             {
                 throw new IOException("Maximum capacity exceeded");
             }
-            
-            int end = (int)this.Position + count;
 
-            int blockSize = this.memoryManager.BlockSize;
+            long requiredBuffers = (farEnd + blockSize - 1L) / blockSize;
 
-            int requiredBuffers = (end + blockSize - 1) / blockSize;
-            
             if (requiredBuffers * blockSize > MaxStreamLength)
             {
                 throw new IOException("Maximum capacity exceeded");
             }
+
+            int end = (int)farEnd;
 
             EnsureCapacity(end);
 
@@ -561,9 +567,9 @@ namespace Microsoft.IO
             {
                 int bytesRemaining = count;
                 int bytesWritten = 0;
-                int currentBlockIndex = this.OffsetToBlockIndex(this.position);
-
-                int blockOffset = this.OffsetToBlockOffset(this.position);
+                var blockAndOffset = this.OffsetToBlockAndOffset(this.position, manager.BlockSize);
+                int currentBlockIndex = blockAndOffset.Block;
+                int blockOffset = blockAndOffset.Offset;
 
                 while (bytesRemaining > 0)
                 {
@@ -623,9 +629,8 @@ namespace Microsoft.IO
             byte value = 0;
             if (this.largeBuffer == null)
             {
-                int block = OffsetToBlockIndex(this.position);
-                int blockOffset = OffsetToBlockOffset(this.position);
-                value = this.blocks[block][blockOffset];
+                var blockAndOffset = OffsetToBlockAndOffset(this.position, this.memoryManager.BlockSize);
+                value = this.blocks[blockAndOffset.Block][blockAndOffset.Offset];
             }
             else
             {
@@ -750,10 +755,11 @@ namespace Microsoft.IO
             }
             if (this.largeBuffer == null)
             {
-                int currentBlock = this.OffsetToBlockIndex(fromPosition);
+                var blockAndOffset = OffsetToBlockAndOffset(this.position, this.memoryManager.BlockSize);
+                int currentBlock = blockAndOffset.Block;
+                int blockOffset = blockAndOffset.Offset;
                 int bytesWritten = 0;
                 int bytesRemaining = Math.Min(count, this.length - fromPosition);
-                int blockOffset = this.OffsetToBlockOffset(fromPosition);
 
                 while (bytesRemaining > 0)
                 {
@@ -776,29 +782,39 @@ namespace Microsoft.IO
             }
         }
 
-        private int OffsetToBlockIndex(int offset)
+        private struct BlockAndOffset
         {
-            return offset / this.memoryManager.BlockSize;
+            public readonly int Block;
+            public readonly int Offset;
+
+            public BlockAndOffset(int block, int offset)
+            {
+                Block = block;
+                Offset = offset;
+            }
         }
 
-        private int OffsetToBlockOffset(int offset)
+        private BlockAndOffset OffsetToBlockAndOffset(int offset, int blockSize)
         {
-            return offset % this.memoryManager.BlockSize;
+            return new BlockAndOffset(offset / blockSize, offset % blockSize);
         }
 
         private void EnsureCapacity(int newCapacity)
         {
-            if (newCapacity > this.memoryManager.MaximumStreamCapacity && this.memoryManager.MaximumStreamCapacity > 0)
+            var manager = this.memoryManager;
+            var maximumStreamCapacity = manager.MaximumStreamCapacity;
+
+            if (newCapacity > maximumStreamCapacity && maximumStreamCapacity > 0)
             {
-                Events.Write.MemoryStreamOverCapacity(newCapacity, this.memoryManager.MaximumStreamCapacity, this.tag, this.allocationStack);
-                throw new InvalidOperationException("Requested capacity is too large: " + newCapacity + ". Limit is " + this.memoryManager.MaximumStreamCapacity);
+                Events.Write.MemoryStreamOverCapacity(newCapacity, maximumStreamCapacity, this.tag, this.allocationStack);
+                throw new InvalidOperationException("Requested capacity is too large: " + newCapacity + ". Limit is " + maximumStreamCapacity);
             }
 
             if (this.largeBuffer != null)
             {
                 if (newCapacity > this.largeBuffer.Length)
                 {
-                    var newBuffer = this.memoryManager.GetLargeBuffer(newCapacity, this.tag);
+                    var newBuffer = manager.GetLargeBuffer(newCapacity, this.tag);
                     this.InternalRead(newBuffer, 0, this.length, 0);
                     this.ReleaseLargeBuffer();
                     this.largeBuffer = newBuffer;
@@ -808,7 +824,7 @@ namespace Microsoft.IO
             {
                 while (this.Capacity < newCapacity)
                 {
-                    blocks.Add((this.MemoryManager.GetBlock()));
+                    blocks.Add((manager.GetBlock()));
                 }
             }
         }
@@ -818,9 +834,10 @@ namespace Microsoft.IO
         /// </summary>
         private void ReleaseLargeBuffer()
         {
-            if (this.memoryManager.AggressiveBufferReturn)
+            var manager = this.memoryManager;
+            if (manager.AggressiveBufferReturn)
             {
-                this.memoryManager.ReturnLargeBuffer(this.largeBuffer, this.tag);
+                manager.ReturnLargeBuffer(this.largeBuffer, this.tag);
             }
             else
             {
