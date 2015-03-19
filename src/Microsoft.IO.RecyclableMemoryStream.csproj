@@ -47,9 +47,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Events.cs" />
+    <Compile Include="IRecyclableMemoryStreamManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecyclableMemoryStream.cs" />
     <Compile Include="RecyclableMemoryStreamManager.cs" />
+    <Compile Include="RecyclableMemoryStreamManagerEvents.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Microsoft.IO.RecyclableMemoryStream.nuspec" />

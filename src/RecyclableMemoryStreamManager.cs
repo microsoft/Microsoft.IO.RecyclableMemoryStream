@@ -41,35 +41,8 @@ namespace Microsoft.IO
     /// multiples of LargeBufferMultiple (1 MB by default). They are split by size to avoid overly-wasteful buffer
     /// usage. There should be far fewer 8 MB buffers than 1 MB buffers, for example.
     /// </remarks>
-    public partial class RecyclableMemoryStreamManager
+    public partial class RecyclableMemoryStreamManager : IRecyclableMemoryStreamManager
     {
-        /// <summary>
-        /// Generic delegate for handling events without any arguments.
-        /// </summary>
-        public delegate void EventHandler();
-
-        /// <summary>
-        /// Delegate for handling large buffer discard reports.
-        /// </summary>
-        /// <param name="reason">Reason the buffer was discarded.</param>
-        public delegate void LargeBufferDiscardedEventHandler(Events.MemoryStreamDiscardReason reason);
-
-        /// <summary>
-        /// Delegate for handling reports of stream size when streams are allocated
-        /// </summary>
-        /// <param name="bytes">Bytes allocated.</param>
-        public delegate void StreamLengthReportHandler(long bytes);
-
-        /// <summary>
-        /// Delegate for handling periodic reporting of memory use statistics.
-        /// </summary>
-        /// <param name="smallPoolInUseBytes">Bytes currently in use in the small pool.</param>
-        /// <param name="smallPoolFreeBytes">Bytes currently free in the small pool.</param>
-        /// <param name="largePoolInUseBytes">Bytes currently in use in the large pool.</param>
-        /// <param name="largePoolFreeBytes">Bytes currently free in the large pool.</param>
-        public delegate void UsageReportEventHandler(
-            long smallPoolInUseBytes, long smallPoolFreeBytes, long largePoolInUseBytes, long largePoolFreeBytes);
-
         public const int DefaultBlockSize = 128 * 1024;
         public const int DefaultLargeBufferMultiple = 1024 * 1024;
         public const int DefaultMaximumBufferSize = 128 * 1024 * 1024;
@@ -402,11 +375,11 @@ namespace Microsoft.IO
                 else
                 {
                     Events.Write.MemoryStreamDiscardBuffer(Events.MemoryStreamBufferType.Large, tag,
-                                                           Events.MemoryStreamDiscardReason.EnoughFree);
+                                                           RecyclableMemoryStreamManagerEvents.MemoryStreamDiscardReason.EnoughFree);
 
                     if (this.LargeBufferDiscarded != null)
                     {
-                        this.LargeBufferDiscarded(Events.MemoryStreamDiscardReason.EnoughFree);
+                        this.LargeBufferDiscarded(RecyclableMemoryStreamManagerEvents.MemoryStreamDiscardReason.EnoughFree);
                     }
                 }
             }
@@ -417,10 +390,10 @@ namespace Microsoft.IO
                 poolIndex = this.largeBufferInUseSize.Length - 1;
 
                 Events.Write.MemoryStreamDiscardBuffer(Events.MemoryStreamBufferType.Large, tag,
-                                                       Events.MemoryStreamDiscardReason.TooLarge);
+                                                       RecyclableMemoryStreamManagerEvents.MemoryStreamDiscardReason.TooLarge);
                 if (this.LargeBufferDiscarded != null)
                 {
-                    this.LargeBufferDiscarded(Events.MemoryStreamDiscardReason.TooLarge);
+                    this.LargeBufferDiscarded(RecyclableMemoryStreamManagerEvents.MemoryStreamDiscardReason.TooLarge);
                 }
             }
 
@@ -468,7 +441,7 @@ namespace Microsoft.IO
                 else
                 {
                     Events.Write.MemoryStreamDiscardBuffer(Events.MemoryStreamBufferType.Small, tag,
-                                                           Events.MemoryStreamDiscardReason.EnoughFree);
+                                                           RecyclableMemoryStreamManagerEvents.MemoryStreamDiscardReason.EnoughFree);
                     if (this.BlockDiscarded != null)
                     {
                         this.BlockDiscarded();
@@ -598,51 +571,51 @@ namespace Microsoft.IO
         /// <summary>
         /// Triggered when a new block is created.
         /// </summary>
-        public event EventHandler BlockCreated;
+        public event RecyclableMemoryStreamManagerEvents.EventHandler BlockCreated;
 
         /// <summary>
         /// Triggered when a new block is created.
         /// </summary>
-        public event EventHandler BlockDiscarded;
+        public event RecyclableMemoryStreamManagerEvents.EventHandler BlockDiscarded;
 
         /// <summary>
         /// Triggered when a new large buffer is created.
         /// </summary>
-        public event EventHandler LargeBufferCreated;
+        public event RecyclableMemoryStreamManagerEvents.EventHandler LargeBufferCreated;
 
         /// <summary>
         /// Triggered when a new stream is created.
         /// </summary>
-        public event EventHandler StreamCreated;
+        public event RecyclableMemoryStreamManagerEvents.EventHandler StreamCreated;
 
         /// <summary>
         /// Triggered when a stream is disposed.
         /// </summary>
-        public event EventHandler StreamDisposed;
+        public event RecyclableMemoryStreamManagerEvents.EventHandler StreamDisposed;
 
         /// <summary>
         /// Triggered when a stream is finalized.
         /// </summary>
-        public event EventHandler StreamFinalized;
+        public event RecyclableMemoryStreamManagerEvents.EventHandler StreamFinalized;
 
         /// <summary>
         /// Triggered when a stream is finalized.
         /// </summary>
-        public event StreamLengthReportHandler StreamLength;
+        public event RecyclableMemoryStreamManagerEvents.StreamLengthReportHandler StreamLength;
 
         /// <summary>
         /// Triggered when a user converts a stream to array.
         /// </summary>
-        public event EventHandler StreamConvertedToArray;
+        public event RecyclableMemoryStreamManagerEvents.EventHandler StreamConvertedToArray;
 
         /// <summary>
         /// Triggered when a large buffer is discarded, along with the reason for the discard.
         /// </summary>
-        public event LargeBufferDiscardedEventHandler LargeBufferDiscarded;
+        public event RecyclableMemoryStreamManagerEvents.LargeBufferDiscardedEventHandler LargeBufferDiscarded;
 
         /// <summary>
         /// Periodically triggered to report usage statistics.
         /// </summary>
-        public event UsageReportEventHandler UsageReport;
+        public event RecyclableMemoryStreamManagerEvents.UsageReportEventHandler UsageReport;
     }
 }
