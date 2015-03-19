@@ -29,7 +29,7 @@ namespace Microsoft.IO.UnitTests
     using NUnit.Framework;
 
     /// <summary>
-    /// Full test suite. It is abstract to allow paramters of the memory manager to be modified and tested in different
+    /// Full test suite. It is abstract to allow parameters of the memory manager to be modified and tested in different
     /// combinations.
     /// </summary>
     public abstract class BaseRecyclableMemoryStreamTests
