@@ -1427,8 +1427,8 @@ namespace Microsoft.IO.UnitTests
             Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(0));
         }
 
-        [Test, ExpectedException(typeof(InvalidOperationException))]
-        public void DisposeTwiceThrowsException()
+        [Test]
+        public void DisposeTwiceDoesNotThrowException()
         {
             var stream = this.GetDefaultStream();
             stream.Dispose();
