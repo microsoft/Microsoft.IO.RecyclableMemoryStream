@@ -540,7 +540,7 @@ namespace Microsoft.IO
             }
 
             int blockSize = this.memoryManager.BlockSize;
-            long end = this.Position + count;
+            long end = (long)this.position + count;
             // Check for overflow
             if (end > MaxStreamLength)
             {
@@ -581,7 +581,7 @@ namespace Microsoft.IO
             {
                 Buffer.BlockCopy(buffer, offset, this.largeBuffer, this.position, count);
             }
-            this.Position = end;
+            this.position = (int)end;
             this.length = Math.Max(this.position, this.length);
         }
 
