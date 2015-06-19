@@ -29,12 +29,11 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>
-    </AssemblyOriginatorKeyFile>
+  <PropertyGroup Condition=" '$(StrongNameSignPublicKeyFile)' != '' ">
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(StrongNameSignPublicKeyFile)</AssemblyOriginatorKeyFile>
+    <DelaySign>true</DelaySign>
+    <DefineConstants>NOFRIENDASSEMBLY</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
