@@ -30,18 +30,12 @@ namespace Microsoft.IO
         [EventSource(Name = "Microsoft-IO-RecyclableMemoryStream", Guid = "{B80CD4E4-890E-468D-9CBA-90EB7C82DFC7}")]
         public sealed class Events : EventSource
         {
-            public static Events Write = new Events();
+            public static readonly Events Write = new Events();
 
             public enum MemoryStreamBufferType
             {
                 Small,
                 Large
-            }
-
-            public enum MemoryStreamDiscardReason
-            {
-                TooLarge,
-                EnoughFree
             }
 
             [Event(1, Level = EventLevel.Verbose)]
@@ -129,7 +123,7 @@ namespace Microsoft.IO
 
             [Event(10, Level = EventLevel.Warning)]
             public void MemoryStreamDiscardBuffer(MemoryStreamBufferType bufferType, string tag,
-                                                  MemoryStreamDiscardReason reason)
+                                                  RecyclableMemoryStreamManagerEvents.MemoryStreamDiscardReason reason)
             {
                 if (this.IsEnabled())
                 {
