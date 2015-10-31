@@ -1,4 +1,5 @@
-# Microsoft.IO.RecyclableMemoryStream
+# Microsoft.IO.RecyclableMemoryStream [![NuGet Version](https://img.shields.io/nuget/v/Microsoft.IO.RecyclableMemoryStream.svg?style=flat)](https://www.nuget.org/packages/Microsoft.IO.RecyclableMemoryStream/) 
+
 A library to provide pooling for .NET MemoryStream objects to improve application performance. 
 
 ### Get Started
