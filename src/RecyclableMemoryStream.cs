@@ -480,6 +480,23 @@ namespace Microsoft.IO
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public override int Read(byte[] buffer, int offset, int count)
         {
+            return this.SafeRead(buffer, offset, count, ref this.position);
+        }
+
+        /// <summary>
+        /// Reads from the specified position into the provided buffer
+        /// </summary>
+        /// <param name="buffer">Destination buffer</param>
+        /// <param name="offset">Offset into buffer at which to start placing the read bytes.</param>
+        /// <param name="count">Number of bytes to read.</param>
+        /// <param name="streamPosition">Position in the stream to start reading from</param>
+        /// <returns>The number of bytes read</returns>
+        /// <exception cref="ArgumentNullException">buffer is null</exception>
+        /// <exception cref="ArgumentOutOfRangeException">offset or count is less than 0</exception>
+        /// <exception cref="ArgumentException">offset subtracted from the buffer length is less than count</exception>
+        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+        public int SafeRead(byte[] buffer, int offset, int count, ref int streamPosition)
+        {
             this.CheckDisposed();
             if (buffer == null)
             {
@@ -501,8 +518,8 @@ namespace Microsoft.IO
                 throw new ArgumentException("buffer length must be at least offset + count");
             }
 
-            int amountRead = this.InternalRead(buffer, offset, count, this.position);
-            this.position += amountRead;
+            int amountRead = this.InternalRead(buffer, offset, count, streamPosition);
+            streamPosition += amountRead;
             return amountRead;
         }
 
@@ -612,22 +629,33 @@ namespace Microsoft.IO
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public override int ReadByte()
         {
+            return this.SafeReadByte(ref this.position);
+        }
+
+        /// <summary>
+        /// Reads a single byte from the specified position in the stream.
+        /// </summary>
+        /// <param name="streamPosition">The position in the stream to read from</param>
+        /// <returns>The byte at the current position, or -1 if the position is at the end of the stream.</returns>
+        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+        public int SafeReadByte(ref int streamPosition)
+        {
             this.CheckDisposed();
-            if (this.position == this.length)
+            if (streamPosition == this.length)
             {
                 return -1;
             }
             byte value = 0;
             if (this.largeBuffer == null)
             {
-                var blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
+                var blockAndOffset = this.GetBlockAndRelativeOffset(streamPosition);
                 value = this.blocks[blockAndOffset.Block][blockAndOffset.Offset];
             }
             else
             {
-                value = this.largeBuffer[position];
+                value = this.largeBuffer[streamPosition];
             }
-            this.position++;
+            streamPosition++;
             return value;
         }
 
