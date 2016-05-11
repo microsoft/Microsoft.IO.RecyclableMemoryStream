@@ -60,6 +60,8 @@ namespace Microsoft.IO
     public sealed class RecyclableMemoryStream : MemoryStream
     {
         private const long MaxStreamLength = Int32.MaxValue;
+        
+        private static readonly byte[] emptyArray = new byte[0];
 
         /// <summary>
         /// All of these blocks must be the same size
@@ -174,6 +176,7 @@ namespace Microsoft.IO
         /// <param name="initialLargeBuffer">An initial buffer to use. This buffer will be owned by the stream and returned to the memory manager upon Dispose.</param>
         internal RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string tag, int requestedSize,
                                       byte[] initialLargeBuffer)
+            : base(emptyArray)
         {
             this.memoryManager = memoryManager;
             this.id = Guid.NewGuid();
