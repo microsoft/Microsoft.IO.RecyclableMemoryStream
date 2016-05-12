@@ -25,6 +25,7 @@ namespace Microsoft.IO.UnitTests
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Threading.Tasks;
 
     using NUnit.Framework;
 
@@ -766,6 +767,60 @@ namespace Microsoft.IO.UnitTests
         }
         #endregion
 
+        #region SafeReadByte Tests
+        [Test]
+        public void SafeReadByteDoesNotUpdateStreamPosition()
+        {
+            var stream = this.GetRandomStream();
+            for (var i = 0; i < stream.Length; i++)
+            {
+                var position = i;
+                stream.SafeReadByte(ref position);
+                Assert.That(position, Is.EqualTo(i + 1));
+                Assert.That(stream.Position, Is.EqualTo(0));
+            }
+        }
+
+        [Test]
+        public void SafeReadByteDoesNotDependOnStreamPosition()
+        {
+            var stream = this.GetDefaultStream();
+            var buffer = this.GetRandomBuffer(stream.Capacity * 2);
+            stream.Write(buffer, 0, buffer.Length);
+
+            for (var i = 0; i < stream.Length; i++)
+            {
+                stream.Position = this.random.Next(0, buffer.Length - 1);
+                var position = i;
+                var read = stream.SafeReadByte(ref position);
+                Assert.That(read, Is.EqualTo(buffer[i]));
+                Assert.That(position, Is.EqualTo(i + 1));
+            }
+        }
+
+        [Test]
+        public void SafeReadByteCanBeUsedInParallel()
+        {
+            var stream = this.GetDefaultStream();
+            var bufferLength = 1000;
+            var buffer = this.GetRandomBuffer(bufferLength);
+            stream.Write(buffer, 0, bufferLength);
+
+            Action read = () =>
+            {
+                for (var i = 0; i < 1000; i++)
+                {
+                    var position = this.random.Next(0, bufferLength);
+                    var byteRead = stream.SafeReadByte(ref position);
+
+                    Assert.That(byteRead, Is.EqualTo(buffer[position - 1]));
+                }
+            };
+
+            Parallel.For(0, 100, i => read());
+        }
+        #endregion
+
         #region ReadByte Tests
         [Test]
         public void ReadByteUpdatesPosition()
@@ -820,6 +875,113 @@ namespace Microsoft.IO.UnitTests
                 Assert.That(b, Is.EqualTo(buffer[i]));
                 Assert.That(b, Is.EqualTo(stream.GetBuffer()[i]));
             }
+        }
+        #endregion
+
+        #region SafeRead Tests
+        [Test]
+        public void SafeReadDoesNotUpdateStreamPosition()
+        {
+            var stream = this.GetRandomStream();
+
+            var step = stream.MemoryManager.BlockSize / 2;
+            var destBuffer = new byte[step];
+            var bytesRead = 0;
+            var position = 0;
+
+            while (position < stream.Length)
+            {
+                bytesRead += stream.SafeRead(destBuffer, 0, Math.Min(step, (int)stream.Length - bytesRead), ref position);
+                Assert.That(position, Is.EqualTo(bytesRead));
+                Assert.That(stream.Position, Is.EqualTo(0));
+            }
+        }
+
+        [Test]
+        public void SafeReadDoesNotDependOnStreamPosition()
+        {
+            var stream = this.GetDefaultStream();
+            var bufferLength = 1000000;
+            var buffer = this.GetRandomBuffer(bufferLength);
+            stream.Write(buffer, 0, bufferLength);
+
+            var step = stream.MemoryManager.BlockSize / 2;
+            var destBuffer = new byte[step];
+            var expected = new byte[step];
+            var bytesRead = 0;
+            var position = 0;
+
+            while (position < stream.Length)
+            {
+                stream.Position = this.random.Next(0, bufferLength);
+                var lastPosition = position;
+                var lastRead = stream.SafeRead(destBuffer, 0, Math.Min(step, (int)stream.Length - bytesRead), ref position);
+                bytesRead += lastRead;
+
+                Array.Copy(buffer, lastPosition, expected, 0, lastRead);
+
+                Assert.That(position, Is.EqualTo(bytesRead));
+                RMSAssert.BuffersAreEqual(destBuffer, expected, lastRead);
+            }
+        }
+
+        [Test]
+        public void SafeReadCallsDontAffectOtherSafeReadCalls()
+        {
+            var stream = this.GetDefaultStream();
+            var bufferLength = 1000000;
+            var buffer = this.GetRandomBuffer(bufferLength);
+            stream.Write(buffer, 0, bufferLength);
+
+            var stepSlow = stream.MemoryManager.BlockSize / 4;
+            var stepFast = stream.MemoryManager.BlockSize / 2;
+            var readBuffer = new byte[stepFast];
+            var readSlow = new MemoryStream();
+            var readFast = new MemoryStream();
+
+            var positionSlow = 0;
+            var positionFast = 0;
+
+            while (positionFast < stream.Length)
+            {
+                var read = stream.SafeRead(readBuffer, 0, stepFast, ref positionFast);
+                readFast.Write(readBuffer, 0, read);
+                read = stream.SafeRead(readBuffer, 0, stepSlow, ref positionSlow);
+                readSlow.Write(readBuffer, 0, read);
+            }
+            while (positionSlow < stream.Length)
+            {
+                var read = stream.SafeRead(readBuffer, 0, stepSlow, ref positionSlow);
+                readSlow.Write(readBuffer, 0, read);
+            }
+
+            CollectionAssert.AreEqual(readSlow.ToArray(), buffer);
+            CollectionAssert.AreEqual(readFast.ToArray(), buffer);
+        }
+
+        [Test]
+        public void SafeReadCanBeUsedInParallel()
+        {
+            var stream = this.GetDefaultStream();
+            var bufferLength = 1000000;
+            var buffer = this.GetRandomBuffer(bufferLength);
+            stream.Write(buffer, 0, bufferLength);
+
+            Action read = () =>
+            {
+                for (var i = 0; i < 5; i++)
+                {
+                    var position = this.random.Next(0, bufferLength);
+                    var startPosition = position;
+                    var length = this.random.Next(0, bufferLength - position);
+                    var readBuffer = new byte[length];
+                    var bytesRead = stream.SafeRead(readBuffer, 0, length, ref position);
+
+                    RMSAssert.BuffersAreEqual(readBuffer, 0, buffer, startPosition, bytesRead);
+                }
+            };
+
+            Parallel.For(0, 5, i => read());
         }
         #endregion
 
@@ -1669,6 +1831,15 @@ namespace Microsoft.IO.UnitTests
                    {
                        AggressiveBufferReturn = this.AggressiveBufferRelease,
                    };
+        }
+
+        private RecyclableMemoryStream GetRandomStream()
+        {
+            var stream = this.GetDefaultStream();
+            var buffer = this.GetRandomBuffer(stream.Capacity * 2);
+            stream.Write(buffer, 0, buffer.Length);
+            stream.Position = 0;
+            return stream;
         }
         #endregion
 
