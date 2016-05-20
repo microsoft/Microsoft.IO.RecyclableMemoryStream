@@ -283,11 +283,7 @@ namespace Microsoft.IO
                 // (unless our free pool is too large)
                 block = new byte[this.BlockSize];
                 Events.Write.MemoryStreamNewBlockCreated(this.smallPoolInUseSize);
-
-                if (this.BlockCreated != null)
-                {
-                    this.BlockCreated();
-                }
+                ReportBlockCreated();
             }
             else
             {
@@ -319,10 +315,7 @@ namespace Microsoft.IO
                     buffer = new byte[requiredSize];
 
                     Events.Write.MemoryStreamNewLargeBufferCreated(requiredSize, this.LargePoolInUseSize);
-                    if (this.LargeBufferCreated != null)
-                    {
-                        this.LargeBufferCreated();
-                    }
+                    ReportLargeBufferCreated();
                 }
                 else
                 {
@@ -346,11 +339,7 @@ namespace Microsoft.IO
                     callStack = Environment.StackTrace;
                 }
                 Events.Write.MemoryStreamNonPooledLargeBufferCreated(requiredSize, tag, callStack);
-
-                if (this.LargeBufferCreated != null)
-                {
-                    this.LargeBufferCreated();
-                }
+                ReportLargeBufferCreated();
             }
 
             Interlocked.Add(ref this.largeBufferInUseSize[poolIndex], buffer.Length);
@@ -403,11 +392,7 @@ namespace Microsoft.IO
                 {
                     Events.Write.MemoryStreamDiscardBuffer(Events.MemoryStreamBufferType.Large, tag,
                                                            Events.MemoryStreamDiscardReason.EnoughFree);
-
-                    if (this.LargeBufferDiscarded != null)
-                    {
-                        this.LargeBufferDiscarded(Events.MemoryStreamDiscardReason.EnoughFree);
-                    }
+                    ReportLargeBufferDiscarded(Events.MemoryStreamDiscardReason.EnoughFree);
                 }
             }
             else
@@ -418,19 +403,13 @@ namespace Microsoft.IO
 
                 Events.Write.MemoryStreamDiscardBuffer(Events.MemoryStreamBufferType.Large, tag,
                                                        Events.MemoryStreamDiscardReason.TooLarge);
-                if (this.LargeBufferDiscarded != null)
-                {
-                    this.LargeBufferDiscarded(Events.MemoryStreamDiscardReason.TooLarge);
-                }
+                ReportLargeBufferDiscarded(Events.MemoryStreamDiscardReason.TooLarge);
             }
 
             Interlocked.Add(ref this.largeBufferInUseSize[poolIndex], -buffer.Length);
 
-            if (this.UsageReport != null)
-            {
-                this.UsageReport(this.smallPoolInUseSize, this.smallPoolFreeSize, this.LargePoolInUseSize,
-                                 this.LargePoolFreeSize);
-            }
+            ReportUsageReport(this.smallPoolInUseSize, this.smallPoolFreeSize, this.LargePoolInUseSize,
+                              this.LargePoolFreeSize);
         }
 
         /// <summary>
@@ -469,58 +448,103 @@ namespace Microsoft.IO
                 {
                     Events.Write.MemoryStreamDiscardBuffer(Events.MemoryStreamBufferType.Small, tag,
                                                            Events.MemoryStreamDiscardReason.EnoughFree);
-                    if (this.BlockDiscarded != null)
-                    {
-                        this.BlockDiscarded();
-                    }
+                    ReportBlockDiscarded();
                     break;
                 }
             }
 
-            if (this.UsageReport != null)
+            ReportUsageReport(this.smallPoolInUseSize, this.smallPoolFreeSize, this.LargePoolInUseSize,
+                              this.LargePoolFreeSize);
+        }
+
+        internal void ReportBlockCreated()
+        {
+            var blockCreated = Interlocked.CompareExchange(ref this.BlockCreated, null, null);
+            if (blockCreated != null)
             {
-                this.UsageReport(this.smallPoolInUseSize, this.smallPoolFreeSize, this.LargePoolInUseSize,
-                                 this.LargePoolFreeSize);
+                blockCreated();
+            }
+        }
+
+        internal void ReportBlockDiscarded()
+        {
+            var blockDiscarded = Interlocked.CompareExchange(ref this.BlockDiscarded, null, null);
+            if (blockDiscarded != null)
+            {
+                blockDiscarded();
+            }
+        }
+
+        internal void ReportLargeBufferCreated()
+        {
+            var largeBufferCreated = Interlocked.CompareExchange(ref this.LargeBufferCreated, null, null);
+            if (largeBufferCreated != null)
+            {
+                largeBufferCreated();
+            }
+        }
+
+        internal void ReportLargeBufferDiscarded(Events.MemoryStreamDiscardReason reason)
+        {
+            var largeBufferDiscarded = Interlocked.CompareExchange(ref this.LargeBufferDiscarded, null, null);
+            if (largeBufferDiscarded != null)
+            {
+                largeBufferDiscarded(reason);
             }
         }
 
         internal void ReportStreamCreated()
         {
-            if (this.StreamCreated != null)
+            var streamCreated = Interlocked.CompareExchange(ref this.StreamCreated, null, null);
+            if (streamCreated != null)
             {
-                this.StreamCreated();
+                streamCreated();
             }
         }
 
         internal void ReportStreamDisposed()
         {
-            if (this.StreamDisposed != null)
+            var streamDisposed = Interlocked.CompareExchange(ref this.StreamDisposed, null, null);
+            if (streamDisposed != null)
             {
-                this.StreamDisposed();
+                streamDisposed();
             }
         }
 
         internal void ReportStreamFinalized()
         {
-            if (this.StreamFinalized != null)
+            var streamFinalized = Interlocked.CompareExchange(ref this.StreamFinalized, null, null);
+            if (streamFinalized != null)
             {
-                this.StreamFinalized();
+                streamFinalized();
             }
         }
 
         internal void ReportStreamLength(long bytes)
         {
-            if (this.StreamLength != null)
+            var streamLength = Interlocked.CompareExchange(ref this.StreamLength, null, null);
+            if (streamLength != null)
             {
-                this.StreamLength(bytes);
+                streamLength(bytes);
             }
         }
 
         internal void ReportStreamToArray()
         {
-            if (this.StreamConvertedToArray != null)
+            var streamConvertedToArray = Interlocked.CompareExchange(ref this.StreamConvertedToArray, null, null);
+            if (streamConvertedToArray != null)
             {
-                this.StreamConvertedToArray();
+                streamConvertedToArray();
+            }
+        }
+
+        internal void ReportUsageReport(
+            long smallPoolInUseBytes, long smallPoolFreeBytes, long largePoolInUseBytes, long largePoolFreeBytes)
+        {
+            var usageReport = Interlocked.CompareExchange(ref this.UsageReport, null, null);
+            if (usageReport != null)
+            {
+                usageReport(smallPoolInUseBytes, smallPoolFreeBytes, largePoolInUseBytes, largePoolFreeBytes);
             }
         }
 
