@@ -318,11 +318,8 @@ namespace Microsoft.IO
                     return this.largeBuffer.Length;
                 }
 
-                if (this.blocks.Count > 0)
-                {
-                    return this.blocks.Count * this.memoryManager.BlockSize;
-                }
-                return 0;
+                long size = this.blocks.Count * this.memoryManager.BlockSize;
+                return (int)Math.Min(int.MaxValue, size);
             }
             set
             {
