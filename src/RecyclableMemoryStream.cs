@@ -1,5 +1,5 @@
 ﻿// ---------------------------------------------------------------------
-// Copyright (c) 2015 Microsoft
+// Copyright (c) 2015-2016 Microsoft
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -122,13 +122,13 @@ namespace Microsoft.IO
         /// Callstack of the constructor. It is only set if MemoryManager.GenerateCallStacks is true,
         /// which should only be in debugging situations.
         /// </summary>
-        internal string AllocationStack { get { return this.allocationStack; } }
+        internal string AllocationStack => this.allocationStack;
 
         /// <summary>
         /// Callstack of the Dispose call. It is only set if MemoryManager.GenerateCallStacks is true,
         /// which should only be in debugging situations.
         /// </summary>
-        internal string DisposeStack { get { return this.disposeStack; } }
+        internal string DisposeStack => this.disposeStack;
 
         /// <summary>
         /// This buffer exists so that WriteByte can forward all of its calls to Write
@@ -318,11 +318,8 @@ namespace Microsoft.IO
                     return this.largeBuffer.Length;
                 }
 
-                if (this.blocks.Count > 0)
-                {
-                    return this.blocks.Count * this.memoryManager.BlockSize;
-                }
-                return 0;
+                long size = this.blocks.Count * this.memoryManager.BlockSize;
+                return (int)Math.Min(int.MaxValue, size);
             }
             set
             {
@@ -379,34 +376,22 @@ namespace Microsoft.IO
         /// <summary>
         /// Whether the stream can currently read
         /// </summary>
-        public override bool CanRead
-        {
-            get { return !this.disposed; }
-        }
+        public override bool CanRead => !this.disposed;
 
         /// <summary>
         /// Whether the stream can currently seek
         /// </summary>
-        public override bool CanSeek
-        {
-            get { return !this.disposed; }
-        }
+        public override bool CanSeek => !this.disposed;
 
         /// <summary>
         /// Always false
         /// </summary>
-        public override bool CanTimeout
-        {
-            get { return false; }
-        }
+        public override bool CanTimeout => false;
 
         /// <summary>
         /// Whether the stream can currently write
         /// </summary>
-        public override bool CanWrite
-        {
-            get { return !this.disposed; }
-        }
+        public override bool CanWrite => !this.disposed;
 
         /// <summary>
         /// Returns a single buffer containing the contents of the stream.
@@ -503,17 +488,17 @@ namespace Microsoft.IO
             this.CheckDisposed();
             if (buffer == null)
             {
-                throw new ArgumentNullException("buffer");
+                throw new ArgumentNullException(nameof(buffer));
             }
 
             if (offset < 0)
             {
-                throw new ArgumentOutOfRangeException("offset", "offset cannot be negative");
+                throw new ArgumentOutOfRangeException(nameof(offset), "offset cannot be negative");
             }
 
             if (count < 0)
             {
-                throw new ArgumentOutOfRangeException("count", "count cannot be negative");
+                throw new ArgumentOutOfRangeException(nameof(count), "count cannot be negative");
             }
 
             if (offset + count > buffer.Length)
@@ -541,17 +526,17 @@ namespace Microsoft.IO
             this.CheckDisposed();
             if (buffer == null)
             {
-                throw new ArgumentNullException("buffer");
+                throw new ArgumentNullException(nameof(buffer));
             }
             
             if (offset < 0)
             {
-                throw  new ArgumentOutOfRangeException("offset", offset, "Offset must be in the range of 0 - buffer.Length-1");
+                throw  new ArgumentOutOfRangeException(nameof(offset), offset, "Offset must be in the range of 0 - buffer.Length-1");
             }
 
             if (count < 0)
             {
-                throw new ArgumentOutOfRangeException("count", count, "count must be non-negative");
+                throw new ArgumentOutOfRangeException(nameof(count), count, "count must be non-negative");
             }
 
             if (count + offset > buffer.Length)
@@ -610,7 +595,7 @@ namespace Microsoft.IO
         /// </summary>
         public override string ToString()
         {
-            return string.Format("Id = {0}, Tag = {1}, Length = {2:N0} bytes", this.Id, this.Tag, this.Length);
+            return $"Id = {this.Id}, Tag = {this.Tag}, Length = {this.Length:N0} bytes";
         }
 
         /// <summary>
@@ -648,7 +633,7 @@ namespace Microsoft.IO
             {
                 return -1;
             }
-            byte value = 0;
+            byte value;
             if (this.largeBuffer == null)
             {
                 var blockAndOffset = this.GetBlockAndRelativeOffset(streamPosition);
@@ -672,7 +657,7 @@ namespace Microsoft.IO
             this.CheckDisposed();
             if (value < 0 || value > MaxStreamLength)
             {
-                throw new ArgumentOutOfRangeException("value", "value must be non-negative and at most " + MaxStreamLength);
+                throw new ArgumentOutOfRangeException(nameof(value), "value must be non-negative and at most " + MaxStreamLength);
             }
             
             this.EnsureCapacity((int)value);
@@ -699,7 +684,7 @@ namespace Microsoft.IO
             this.CheckDisposed();
             if (offset > MaxStreamLength)
             {
-                throw new ArgumentOutOfRangeException("offset", "offset cannot be larger than " + MaxStreamLength);
+                throw new ArgumentOutOfRangeException(nameof(offset), "offset cannot be larger than " + MaxStreamLength);
             }
 
             int newPosition;
@@ -715,7 +700,7 @@ namespace Microsoft.IO
                     newPosition = (int) offset + this.length;
                 break;
                 default:
-                    throw new ArgumentException("Invalid seek origin", "loc");
+                    throw new ArgumentException("Invalid seek origin", nameof(loc));
             }
             if (newPosition < 0)
             {
@@ -735,7 +720,7 @@ namespace Microsoft.IO
             this.CheckDisposed();
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
             
             if (this.largeBuffer == null)
@@ -765,7 +750,7 @@ namespace Microsoft.IO
         {
             if (this.disposed)
             {
-                throw new ObjectDisposedException(string.Format("The stream with Id {0} and Tag {1} is disposed.", this.id, this.tag));
+                throw new ObjectDisposedException($"The stream with Id {this.id} and Tag {this.tag} is disposed.");
             }
         }
 

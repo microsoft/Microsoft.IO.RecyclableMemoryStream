@@ -427,6 +427,19 @@ namespace Microsoft.IO.UnitTests
             Assert.That(buffer[stream.MemoryManager.BlockSize + 1], Is.EqualTo(14));
             Assert.That(stream.Position, Is.EqualTo(stream.MemoryManager.BlockSize + 2));
         }
+
+        [Test]
+        public void GiantAllocationSucceeds()
+        {
+            var mgr = new RecyclableMemoryStreamManager();
+
+            for (var i = -1; i < 2; ++i)
+            {
+                int requestedSize = int.MaxValue - (mgr.BlockSize + i);
+                var stream = mgr.GetStream(null, requestedSize);
+                Assert.IsTrue(stream.Capacity >= requestedSize);
+            }
+        }
         #endregion
 
         #region Constructor tests
