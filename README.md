@@ -2,7 +2,7 @@
 
 A library to provide pooling for .NET MemoryStream objects to improve application performance. 
 
-### Get Started
+## Get Started
 
 Install the latest version from NuGet (for .NET 4.5 and up)
 
@@ -10,7 +10,7 @@ Install the latest version from NuGet (for .NET 4.5 and up)
 Install-Package Microsoft.IO.RecyclableMemoryStream
 ```
 
-### Features
+## Features
 
 - The semantics are close to the original System.IO.MemoryStream implementation, and is intended to be a drop-in replacement.
 - Rather than pooling the streams themselves, the underlying buffers are pooled. This allows you to use the simple Dispose pattern to release the buffers back to the pool, as well as detect invalid usage patterns (such as reusing a stream after it’s been disposed).
