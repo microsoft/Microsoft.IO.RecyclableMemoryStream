@@ -273,7 +273,6 @@ namespace Microsoft.IO
             if (this.largeBuffer != null)
             {
                 this.memoryManager.ReturnLargeBuffer(this.largeBuffer, this.tag);
-                this.largeBuffer = null;
             }
 
             if (this.dirtyBuffers != null)
@@ -282,7 +281,6 @@ namespace Microsoft.IO
                 {
                     this.memoryManager.ReturnLargeBuffer(buffer, this.tag);
                 }
-                this.dirtyBuffers = null;
             }
 
             this.memoryManager.ReturnBlocks(this.blocks, this.tag);
