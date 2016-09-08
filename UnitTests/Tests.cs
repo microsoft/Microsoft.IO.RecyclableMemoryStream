@@ -22,20 +22,20 @@
 
 namespace Microsoft.IO.UnitTests
 {
-	using System;
-	using System.Collections.Generic;
-	using System.IO;
-	using System.Threading;
-	using System.Threading.Tasks;
-
-	using NUnit.Framework;
-	using Rhino.Mocks;
-
-	/// <summary>
-	/// Full test suite. It is abstract to allow parameters of the memory manager to be modified and tested in different
-	/// combinations.
-	/// </summary>
-	public abstract class BaseRecyclableMemoryStreamTests
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Threading;
+    using System.Threading.Tasks;
+    
+    using NUnit.Framework;
+    using Rhino.Mocks;
+    
+    /// <summary>
+    /// Full test suite. It is abstract to allow parameters of the memory manager to be modified and tested in different
+    /// combinations.
+    /// </summary>
+    public abstract class BaseRecyclableMemoryStreamTests
     {
         private const int DefaultBlockSize = 16384;
         private const int DefaultLargeBufferMultiple = 1 << 20;
@@ -1614,54 +1614,53 @@ namespace Microsoft.IO.UnitTests
             stream.Dispose();
         }
 
-		[Test]
-		public async Task ConcurrentDoubleDisposeSucceeds()
-		{
-			int blockSize = 10;
-			var manager = new RecyclableMemoryStreamManager(blockSize: blockSize, largeBufferMultiple: 20, maximumBufferSize: 100);
-			RecyclableMemoryStream recyclableMemoryStream = new RecyclableMemoryStream(manager, TestContext.CurrentContext.Test.Name);
+        [Test]
+        public async Task ConcurrentDoubleDisposeSucceeds()
+        {
+            int blockSize = 10;
+            var manager = new RecyclableMemoryStreamManager(blockSize: blockSize, largeBufferMultiple: 20, maximumBufferSize: 100);
+            RecyclableMemoryStream recyclableMemoryStream = new RecyclableMemoryStream(manager, TestContext.CurrentContext.Test.Name);
 
-			Assert.AreEqual(0, manager.SmallBlocksFree, "Verify manager starts with no blocks free");
-			Assert.AreEqual(0, manager.SmallPoolFreeSize, "Verify manager reports no size for free blocks");
-			Assert.AreEqual(blockSize, manager.SmallPoolInUseSize, "Verify manager gave RMS one block");
+            Assert.AreEqual(0, manager.SmallBlocksFree, "Verify manager starts with no blocks free");
+            Assert.AreEqual(0, manager.SmallPoolFreeSize, "Verify manager reports no size for free blocks");
+            Assert.AreEqual(blockSize, manager.SmallPoolInUseSize, "Verify manager gave RMS one block");
 
-			byte[] data = this.GetRandomBuffer(length: 100);
-			recyclableMemoryStream.Write(data, 0, data.Length);
+            byte[] data = this.GetRandomBuffer(length: 100);
+            recyclableMemoryStream.Write(data, 0, data.Length);
 
-			Assert.AreEqual(0, manager.SmallBlocksFree, "Verify manager has no blocks free after stream was written to");
-			Assert.AreEqual(0, manager.SmallPoolFreeSize, "Verify manager reports no size for free blocks after stream was written to");
-			Assert.AreEqual(data.Length, manager.SmallPoolInUseSize, "Verify manager gave the stream the correct amount of blocks based on the write");
+            Assert.AreEqual(0, manager.SmallBlocksFree, "Verify manager has no blocks free after stream was written to");
+            Assert.AreEqual(0, manager.SmallPoolFreeSize, "Verify manager reports no size for free blocks after stream was written to");
+            Assert.AreEqual(data.Length, manager.SmallPoolInUseSize, "Verify manager gave the stream the correct amount of blocks based on the write");
 
-			bool doubleDisposeCalled = false;
-			var listener = MockRepository.GeneratePartialMock<RecyclableMemoryStreamEventListener>();
-			listener.Stub(l => l.EventWritten(MemoryStreamDoubleDispose, TestContext.CurrentContext.Test.Name))
-				.WhenCalled(call =>
-				{
-					Assert.IsFalse(doubleDisposeCalled);
-					doubleDisposeCalled = true;
-				});
-			listener.Stub(l => l.EventWritten(MemoryStreamDisposed, TestContext.CurrentContext.Test.Name))
-				.WhenCalled(call =>
-				{
-					Thread.Sleep(10); // Force a sleep to make the first task stuck in dispose while the next enters
-				});
+            bool doubleDisposeCalled = false;
+            var listener = MockRepository.GeneratePartialMock<RecyclableMemoryStreamEventListener>();
+            listener.Stub(l => l.EventWritten(MemoryStreamDoubleDispose, TestContext.CurrentContext.Test.Name))
+                .WhenCalled(call =>
+                {
+                    Assert.IsFalse(doubleDisposeCalled);
+                    doubleDisposeCalled = true;
+                });
+            listener.Stub(l => l.EventWritten(MemoryStreamDisposed, TestContext.CurrentContext.Test.Name))
+                .WhenCalled(call =>
+                {
+                    Thread.Sleep(10); // Force a sleep to make the first task stuck in dispose while the next enters
+                });
 
-			using (listener)
-			{
-				Task dispose1 = Task.Run(() => recyclableMemoryStream.Dispose());
-				Task dispose2 = Task.Run(() => recyclableMemoryStream.Dispose());
-				await Task.WhenAll(dispose1, dispose2);
+            using (listener)
+            {
+                Task dispose1 = Task.Run(() => recyclableMemoryStream.Dispose());
+                Task dispose2 = Task.Run(() => recyclableMemoryStream.Dispose());
+                await Task.WhenAll(dispose1, dispose2);
+                
+                Assert.AreEqual(data.Length / blockSize, manager.SmallBlocksFree, "Verify manager has correct free blocks after double dispose");
+                Assert.AreEqual(data.Length, manager.SmallPoolFreeSize, "Verify manager reports correct free pool size after double dispose");
+                Assert.AreEqual(0, manager.SmallPoolInUseSize, "Verify manager reports the correct pool usage size after double dispose");
+            }
 
-				Assert.AreEqual(data.Length / blockSize, manager.SmallBlocksFree, "Verify manager has correct free blocks after double dispose");
-				Assert.AreEqual(data.Length, manager.SmallPoolFreeSize, "Verify manager reports correct free pool size after double dispose");
-				Assert.AreEqual(0, manager.SmallPoolInUseSize, "Verify manager reports the correct pool usage size after double dispose");
-			}
+            Assert.IsTrue(doubleDisposeCalled);
+        }
 
-			Assert.IsTrue(doubleDisposeCalled);
-		}
-
-
-		/*
+        /*
          * TODO: clocke to release logging libraries to enable some tests.
         [Test]
         public void DisposeTwiceRecordsCallstackInLog()
