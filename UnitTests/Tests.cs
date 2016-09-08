@@ -1694,7 +1694,7 @@ namespace Microsoft.IO.UnitTests
         }
         */
 
-		[Test]
+        [Test]
         public void DisposeReturningATooLargeBufferGetsDropped()
         {
             var stream = this.GetDefaultStream();
