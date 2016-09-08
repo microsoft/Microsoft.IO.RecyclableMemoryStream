@@ -114,7 +114,7 @@ namespace Microsoft.IO
             }
         }
 
-        private int disposableState = 0;
+        private int disposedState = 0;
 
         private readonly string allocationStack;
         private string disposeStack;
@@ -220,7 +220,7 @@ namespace Microsoft.IO
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1816:CallGCSuppressFinalizeCorrectly", Justification = "We have different disposal semantics, so SuppressFinalize is in a different spot.")]
         protected override void Dispose(bool disposing)
         {
-            if (Interlocked.CompareExchange(ref this.disposableState, 1 /*value*/, 0 /*comparand*/) != 0)
+            if (Interlocked.CompareExchange(ref this.disposedState, 1, 0) != 0)
             {
                 string doubleDisposeStack = null;
                 if (this.memoryManager.GenerateCallStacks)
@@ -744,7 +744,7 @@ namespace Microsoft.IO
         #region Helper Methods
         private bool Disposed
         {
-            get { return Thread.VolatileRead(ref this.disposableState) != 0; }
+            get { return Thread.VolatileRead(ref this.disposedState) != 0; }
         }
 
         private void CheckDisposed()
