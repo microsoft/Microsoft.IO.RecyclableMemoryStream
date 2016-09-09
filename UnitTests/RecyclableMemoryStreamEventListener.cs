@@ -1,9 +1,15 @@
 ﻿using System.Diagnostics.Tracing;
+using System.Threading;
 
 namespace Microsoft.IO.UnitTests
 {
     public class RecyclableMemoryStreamEventListener : EventListener
     {
+        private const int MemoryStreamDisposed = 2;
+        private const int MemoryStreamDoubleDispose = 3;
+
+        public bool MemoryStreamDoubleDisposeCalled { get; private set; }
+
         public RecyclableMemoryStreamEventListener()
         {
             this.EnableEvents(RecyclableMemoryStreamManager.Events.Write, EventLevel.Verbose);
@@ -17,7 +23,19 @@ namespace Microsoft.IO.UnitTests
 
         public virtual void EventWritten(int eventId, string tag)
         {
-    
+            switch (eventId)
+            {
+                case MemoryStreamDisposed:
+                    {
+                        Thread.Sleep(10);
+                        break;
+                    }
+                case MemoryStreamDoubleDispose:
+                    {
+                        MemoryStreamDoubleDisposeCalled = true;
+                        break;
+                    }
+            }
         }
     }
 }
