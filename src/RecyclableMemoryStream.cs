@@ -25,6 +25,7 @@ namespace Microsoft.IO
     using System;
     using System.IO;
     using System.Collections.Generic;
+    using System.Threading;
 
     using Events = RecyclableMemoryStreamManager.Events;
 
@@ -113,7 +114,7 @@ namespace Microsoft.IO
             }
         }
 
-        private bool disposed;
+        private int disposedState = 0;
 
         private readonly string allocationStack;
         private string disposeStack;
@@ -196,8 +197,6 @@ namespace Microsoft.IO
                 this.largeBuffer = initialLargeBuffer;
             }
 
-            this.disposed = false;
-
             if (this.memoryManager.GenerateCallStacks)
             {
                 this.allocationStack = Environment.StackTrace;
@@ -218,11 +217,10 @@ namespace Microsoft.IO
         /// Returns the memory used by this stream back to the pool.
         /// </summary>
         /// <param name="disposing">Whether we're disposing (true), or being called by the finalizer (false)</param>
-        /// <remarks>This method is not thread safe and it may not be called more than once.</remarks>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1816:CallGCSuppressFinalizeCorrectly", Justification = "We have different disposal semantics, so SuppressFinalize is in a different spot.")]
         protected override void Dispose(bool disposing)
         {
-            if (this.disposed)
+            if (Interlocked.CompareExchange(ref this.disposedState, 1, 0) != 0)
             {
                 string doubleDisposeStack = null;
                 if (this.memoryManager.GenerateCallStacks)
@@ -243,9 +241,6 @@ namespace Microsoft.IO
 
             if (disposing)
             {
-                // Once this flag is set, we can't access any properties -- use fields directly
-                this.disposed = true;
-
                 this.memoryManager.ReportStreamDisposed();
                                 
                 GC.SuppressFinalize(this);
@@ -284,7 +279,8 @@ namespace Microsoft.IO
             }
 
             this.memoryManager.ReturnBlocks(this.blocks, this.tag);
-            
+            this.blocks.Clear();
+
             base.Dispose(disposing);
         }
 
@@ -376,12 +372,12 @@ namespace Microsoft.IO
         /// <summary>
         /// Whether the stream can currently read
         /// </summary>
-        public override bool CanRead => !this.disposed;
+        public override bool CanRead => !this.Disposed;
 
         /// <summary>
         /// Whether the stream can currently seek
         /// </summary>
-        public override bool CanSeek => !this.disposed;
+        public override bool CanSeek => !this.Disposed;
 
         /// <summary>
         /// Always false
@@ -391,7 +387,7 @@ namespace Microsoft.IO
         /// <summary>
         /// Whether the stream can currently write
         /// </summary>
-        public override bool CanWrite => !this.disposed;
+        public override bool CanWrite => !this.Disposed;
 
         /// <summary>
         /// Returns a single buffer containing the contents of the stream.
@@ -746,9 +742,14 @@ namespace Microsoft.IO
         #endregion
         
         #region Helper Methods
+        private bool Disposed
+        {
+            get { return Thread.VolatileRead(ref this.disposedState) != 0; }
+        }
+
         private void CheckDisposed()
         {
-            if (this.disposed)
+            if (this.Disposed)
             {
                 throw new ObjectDisposedException($"The stream with Id {this.id} and Tag {this.tag} is disposed.");
             }
