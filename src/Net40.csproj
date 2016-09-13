@@ -2,6 +2,7 @@
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <ReleaseFramework>net40</ReleaseFramework>
     <DefineConstants>FAKEEVENTSOURCE</DefineConstants>
     <ProjectGuid>{DA3E3F77-42CB-4613-B5E6-81CE4D7E1FC7}</ProjectGuid>
   </PropertyGroup>

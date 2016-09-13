@@ -2,6 +2,7 @@
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <ReleaseFramework>net45</ReleaseFramework>
     <ProjectGuid>{1776AB8C-C4A5-40A4-8D63-36DECB03E207}</ProjectGuid>
   </PropertyGroup>
   <Import Project="Microsoft.IO.RecyclableMemoryStream.csproj" />

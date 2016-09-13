@@ -4,6 +4,7 @@
        ConcurrentStacks, at least. -->
   <PropertyGroup>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <ReleaseFramework>net35</ReleaseFramework>
     <DefineConstants>FAKEEVENTSOURCE</DefineConstants>
     <ProjectGuid>{8DB2F561-F269-493B-B84C-DA41D0DB2B61}</ProjectGuid>
   </PropertyGroup>
