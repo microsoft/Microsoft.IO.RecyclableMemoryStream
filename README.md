@@ -22,3 +22,11 @@ Install-Package Microsoft.IO.RecyclableMemoryStream
 - Metrics tracking and events so that you can see the impact on the system.
 
 For more details, refer to the [announcement blog post](http://www.philosophicalgeek.com/2015/02/06/announcing-microsoft-io-recycablememorystream/)
+
+## Build Targets
+
+The code ships with both a 'default' (.NET 4.5) build target and a collection of targets for different framework versions.
+These are reflected in the src/Net*.csproj files which declare the desired framework version and are used for release builds
+for NuGet packages. Note that the .NET 3.5 project is ***not*** in the solution file as it currently does not work.
+
+The release target assemblies have no friend assemblies (for the UnitTests) so the UTs cannot currently be run against them.
