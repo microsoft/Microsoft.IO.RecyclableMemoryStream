@@ -17,6 +17,9 @@
     <DefineConstants>$(DefineConstants);NOFRIENDASSEMBLY</DefineConstants>
     <BaseIntermediateOutputPath>obj\rel\$(TargetFrameworkVersion)</BaseIntermediateOutputPath>
     <OutputPath>rel\$(Configuration)\$(ReleaseFramework)</OutputPath>
+    <!-- only delay sign release builds (due to the use of friend assemblies) -->
+    <DelaySign Condition=" '$(DelaySignKeyFile)' != '' ">true</DelaySign>
+    <AssemblyOriginatorKeyFile Condition=" '$(DelaySignKeyFile)' != '' ">$(DelaySignKeyFile)</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFrameworkVersion)' == '' ">
     <OutputPath>bin\$(Configuration)</OutputPath>
@@ -51,9 +54,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecyclableMemoryStream.cs" />
     <Compile Include="RecyclableMemoryStreamManager.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Microsoft.IO.RecyclableMemoryStream.nuspec" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

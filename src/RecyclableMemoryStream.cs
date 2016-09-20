@@ -437,6 +437,7 @@ namespace Microsoft.IO
         /// for the sake of completeness.
         /// </summary>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+#pragma warning disable CS0809
         [Obsolete("This method has degraded performance vs. GetBuffer and should be avoided.")]
         public override byte[] ToArray()
         {
@@ -450,6 +451,7 @@ namespace Microsoft.IO
 
             return newBuffer;
         }
+#pragma warning restore CS0809
 
         /// <summary>
         /// Reads from the current position into the provided buffer
