@@ -1,5 +1,4 @@
-# Version 2.0.0
-- Strong name key changed in public NuGet package (this is the reason for the major version change).
+# Version 1.2.0
 - Bugs fixed when allocating very large streams.
 - Concurrent methods for reading from a single stream added.
 - Support for .NET 4.0 (without ETW instrumentation).
