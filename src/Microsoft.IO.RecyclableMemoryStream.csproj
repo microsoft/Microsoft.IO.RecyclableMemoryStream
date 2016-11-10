@@ -18,8 +18,9 @@
     <BaseIntermediateOutputPath>obj\rel\$(TargetFrameworkVersion)</BaseIntermediateOutputPath>
     <OutputPath>rel\$(Configuration)\$(ReleaseFramework)</OutputPath>
     <!-- only delay sign release builds (due to the use of friend assemblies) -->
-    <DelaySign Condition=" '$(DelaySignKeyFile)' != '' ">true</DelaySign>
     <AssemblyOriginatorKeyFile Condition=" '$(DelaySignKeyFile)' != '' ">$(DelaySignKeyFile)</AssemblyOriginatorKeyFile>
+    <DelaySign Condition=" '$(DelaySignKeyFile)' != '' ">true</DelaySign>
+    <SignAssembly Condition=" '$(DelaySignKeyFile)' != '' ">true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFrameworkVersion)' == '' ">
     <OutputPath>bin\$(Configuration)</OutputPath>
