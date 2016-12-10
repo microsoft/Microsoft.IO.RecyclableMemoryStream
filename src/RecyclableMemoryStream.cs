@@ -314,7 +314,7 @@ namespace Microsoft.IO
                     return this.largeBuffer.Length;
                 }
 
-                long size = this.blocks.Count * this.memoryManager.BlockSize;
+                long size = (long)this.blocks.Count * this.memoryManager.BlockSize;
                 return (int)Math.Min(int.MaxValue, size);
             }
             set
