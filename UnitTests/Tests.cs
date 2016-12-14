@@ -444,6 +444,9 @@ namespace Microsoft.IO.UnitTests
                 var stream = mgr.GetStream(null, requestedSize);
                 Assert.IsTrue(stream.Capacity >= requestedSize);
             }
+
+            var maxStream = mgr.GetStream(null, int.MaxValue);
+            Assert.IsTrue(maxStream.Capacity == int.MaxValue);
         }
         #endregion
 
