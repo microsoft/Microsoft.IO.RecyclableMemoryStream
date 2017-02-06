@@ -20,8 +20,7 @@ using (var stream = manager.GetStream())
 }
 ```
 
-Note that `RecyclableMemoryStreamManager` should be declared once and it will live for the entire process–this is the pool. It is perfectly fine to use multiple pools if you desire.
-
+Note that `RecyclableMemoryStreamManager` should typically be declared once and it will live for the entire process – this is the pool. It is perfectly fine to use multiple pools if you desire.
 
 To facilitate easier debugging, you can optionally provide a string tag, which serves as a human-readable identifier for the stream. In practice, I’ve usually used something like `"ClassName.MethodName"` for this, but it can be whatever you want. Each stream also has a GUID to provide absolute identity if needed, but the tag is usually sufficient.
 
