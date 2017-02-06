@@ -1,5 +1,5 @@
 ﻿// ---------------------------------------------------------------------
-// Copyright (c) 2015 Microsoft
+// Copyright (c) 2015-2016 Microsoft
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -111,18 +111,18 @@ namespace Microsoft.IO
         {
             if (blockSize <= 0)
             {
-                throw new ArgumentOutOfRangeException("blockSize", blockSize, "blockSize must be a positive number");
+                throw new ArgumentOutOfRangeException(nameof(blockSize), blockSize, "blockSize must be a positive number");
             }
 
             if (largeBufferMultiple <= 0)
             {
-                throw new ArgumentOutOfRangeException("largeBufferMultiple",
+                throw new ArgumentOutOfRangeException(nameof(largeBufferMultiple),
                                                       "largeBufferMultiple must be a positive number");
             }
 
             if (maximumBufferSize < blockSize)
             {
-                throw new ArgumentOutOfRangeException("maximumBufferSize",
+                throw new ArgumentOutOfRangeException(nameof(maximumBufferSize),
                                                       "maximumBufferSize must be at least blockSize");
             }
 
@@ -133,7 +133,7 @@ namespace Microsoft.IO
             if (!this.IsLargeBufferMultiple(maximumBufferSize))
             {
                 throw new ArgumentException("maximumBufferSize is not a multiple of largeBufferMultiple",
-                                            "maximumBufferSize");
+                                            nameof(maximumBufferSize));
             }
 
             this.smallPool = new ConcurrentStack<byte[]>();
@@ -156,68 +156,44 @@ namespace Microsoft.IO
         /// <summary>
         /// The size of each block. It must be set at creation and cannot be changed.
         /// </summary>
-        public int BlockSize
-        {
-            get { return this.blockSize; }
-        }
+        public int BlockSize => this.blockSize;
 
         /// <summary>
         /// All buffers are multiples of this number. It must be set at creation and cannot be changed.
         /// </summary>
-        public int LargeBufferMultiple
-        {
-            get { return this.largeBufferMultiple; }
-        }
+        public int LargeBufferMultiple => this.largeBufferMultiple;
 
         /// <summary>
         /// Gets or sets the maximum buffer size.
         /// </summary>
         /// <remarks>Any buffer that is returned to the pool that is larger than this will be
         /// discarded and garbage collected.</remarks>
-        public int MaximumBufferSize
-        {
-            get { return this.maximumBufferSize; }
-        }
+        public int MaximumBufferSize => this.maximumBufferSize;
 
         /// <summary>
         /// Number of bytes in small pool not currently in use
         /// </summary>
-        public long SmallPoolFreeSize
-        {
-            get { return this.smallPoolFreeSize; }
-        }
+        public long SmallPoolFreeSize => this.smallPoolFreeSize;
 
         /// <summary>
         /// Number of bytes currently in use by stream from the small pool
         /// </summary>
-        public long SmallPoolInUseSize
-        {
-            get { return this.smallPoolInUseSize; }
-        }
+        public long SmallPoolInUseSize => this.smallPoolInUseSize;
 
         /// <summary>
         /// Number of bytes in large pool not currently in use
         /// </summary>
-        public long LargePoolFreeSize
-        {
-            get { return this.largeBufferFreeSize.Sum(); }
-        }
+        public long LargePoolFreeSize => this.largeBufferFreeSize.Sum();
 
         /// <summary>
         /// Number of bytes currently in use by streams from the large pool
         /// </summary>
-        public long LargePoolInUseSize
-        {
-            get { return this.largeBufferInUseSize.Sum(); }
-        }
+        public long LargePoolInUseSize => this.largeBufferInUseSize.Sum();
 
         /// <summary>
         /// How many blocks are in the small pool
         /// </summary>
-        public long SmallBlocksFree
-        {
-            get { return this.smallPool.Count; }
-        }
+        public long SmallBlocksFree => this.smallPool.Count;
 
         /// <summary>
         /// How many buffers are in the large pool
@@ -283,11 +259,7 @@ namespace Microsoft.IO
                 // (unless our free pool is too large)
                 block = new byte[this.BlockSize];
                 Events.Write.MemoryStreamNewBlockCreated(this.smallPoolInUseSize);
-
-                if (this.BlockCreated != null)
-                {
-                    this.BlockCreated();
-                }
+                ReportBlockCreated();
             }
             else
             {
@@ -319,10 +291,7 @@ namespace Microsoft.IO
                     buffer = new byte[requiredSize];
 
                     Events.Write.MemoryStreamNewLargeBufferCreated(requiredSize, this.LargePoolInUseSize);
-                    if (this.LargeBufferCreated != null)
-                    {
-                        this.LargeBufferCreated();
-                    }
+                    ReportLargeBufferCreated();
                 }
                 else
                 {
@@ -346,11 +315,7 @@ namespace Microsoft.IO
                     callStack = Environment.StackTrace;
                 }
                 Events.Write.MemoryStreamNonPooledLargeBufferCreated(requiredSize, tag, callStack);
-
-                if (this.LargeBufferCreated != null)
-                {
-                    this.LargeBufferCreated();
-                }
+                ReportLargeBufferCreated();
             }
 
             Interlocked.Add(ref this.largeBufferInUseSize[poolIndex], buffer.Length);
@@ -379,7 +344,7 @@ namespace Microsoft.IO
         {
             if (buffer == null)
             {
-                throw new ArgumentNullException("buffer");
+                throw new ArgumentNullException(nameof(buffer));
             }
 
             if (!this.IsLargeBufferMultiple(buffer.Length))
@@ -403,11 +368,7 @@ namespace Microsoft.IO
                 {
                     Events.Write.MemoryStreamDiscardBuffer(Events.MemoryStreamBufferType.Large, tag,
                                                            Events.MemoryStreamDiscardReason.EnoughFree);
-
-                    if (this.LargeBufferDiscarded != null)
-                    {
-                        this.LargeBufferDiscarded(Events.MemoryStreamDiscardReason.EnoughFree);
-                    }
+                    ReportLargeBufferDiscarded(Events.MemoryStreamDiscardReason.EnoughFree);
                 }
             }
             else
@@ -418,19 +379,13 @@ namespace Microsoft.IO
 
                 Events.Write.MemoryStreamDiscardBuffer(Events.MemoryStreamBufferType.Large, tag,
                                                        Events.MemoryStreamDiscardReason.TooLarge);
-                if (this.LargeBufferDiscarded != null)
-                {
-                    this.LargeBufferDiscarded(Events.MemoryStreamDiscardReason.TooLarge);
-                }
+                ReportLargeBufferDiscarded(Events.MemoryStreamDiscardReason.TooLarge);
             }
 
             Interlocked.Add(ref this.largeBufferInUseSize[poolIndex], -buffer.Length);
 
-            if (this.UsageReport != null)
-            {
-                this.UsageReport(this.smallPoolInUseSize, this.smallPoolFreeSize, this.LargePoolInUseSize,
-                                 this.LargePoolFreeSize);
-            }
+            ReportUsageReport(this.smallPoolInUseSize, this.smallPoolFreeSize, this.LargePoolInUseSize,
+                              this.LargePoolFreeSize);
         }
 
         /// <summary>
@@ -444,7 +399,7 @@ namespace Microsoft.IO
         {
             if (blocks == null)
             {
-                throw new ArgumentNullException("blocks");
+                throw new ArgumentNullException(nameof(blocks));
             }
 
             var bytesToReturn = blocks.Count * this.BlockSize;
@@ -469,59 +424,64 @@ namespace Microsoft.IO
                 {
                     Events.Write.MemoryStreamDiscardBuffer(Events.MemoryStreamBufferType.Small, tag,
                                                            Events.MemoryStreamDiscardReason.EnoughFree);
-                    if (this.BlockDiscarded != null)
-                    {
-                        this.BlockDiscarded();
-                    }
+                    ReportBlockDiscarded();
                     break;
                 }
             }
 
-            if (this.UsageReport != null)
-            {
-                this.UsageReport(this.smallPoolInUseSize, this.smallPoolFreeSize, this.LargePoolInUseSize,
-                                 this.LargePoolFreeSize);
-            }
+            ReportUsageReport(this.smallPoolInUseSize, this.smallPoolFreeSize, this.LargePoolInUseSize,
+                              this.LargePoolFreeSize);
+        }
+
+        internal void ReportBlockCreated()
+        {
+            this.BlockCreated?.Invoke();
+        }
+
+        internal void ReportBlockDiscarded()
+        {
+            this.BlockDiscarded?.Invoke();
+        }
+
+        internal void ReportLargeBufferCreated()
+        {
+            this.LargeBufferCreated?.Invoke();
+        }
+
+        internal void ReportLargeBufferDiscarded(Events.MemoryStreamDiscardReason reason)
+        {
+            this.LargeBufferDiscarded?.Invoke(reason);
         }
 
         internal void ReportStreamCreated()
         {
-            if (this.StreamCreated != null)
-            {
-                this.StreamCreated();
-            }
+            this.StreamCreated?.Invoke();
         }
 
         internal void ReportStreamDisposed()
         {
-            if (this.StreamDisposed != null)
-            {
-                this.StreamDisposed();
-            }
+            this.StreamDisposed?.Invoke();
         }
 
         internal void ReportStreamFinalized()
         {
-            if (this.StreamFinalized != null)
-            {
-                this.StreamFinalized();
-            }
+            this.StreamFinalized?.Invoke();
         }
 
         internal void ReportStreamLength(long bytes)
         {
-            if (this.StreamLength != null)
-            {
-                this.StreamLength(bytes);
-            }
+            this.StreamLength?.Invoke(bytes);
         }
 
         internal void ReportStreamToArray()
         {
-            if (this.StreamConvertedToArray != null)
-            {
-                this.StreamConvertedToArray();
-            }
+            this.StreamConvertedToArray?.Invoke();
+        }
+
+        internal void ReportUsageReport(
+            long smallPoolInUseBytes, long smallPoolFreeBytes, long largePoolInUseBytes, long largePoolFreeBytes)
+        {
+            this.UsageReport?.Invoke(smallPoolInUseBytes, smallPoolFreeBytes, largePoolInUseBytes, largePoolFreeBytes);
         }
 
         /// <summary>

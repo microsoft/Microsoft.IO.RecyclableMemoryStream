@@ -1,5 +1,5 @@
 ﻿// ---------------------------------------------------------------------
-// Copyright (c) 2015 Microsoft
+// Copyright (c) 2015-2016 Microsoft
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@ namespace Microsoft.IO
     using System;
     using System.IO;
     using System.Collections.Generic;
+    using System.Threading;
 
     using Events = RecyclableMemoryStreamManager.Events;
 
@@ -60,6 +61,8 @@ namespace Microsoft.IO
     public sealed class RecyclableMemoryStream : MemoryStream
     {
         private const long MaxStreamLength = Int32.MaxValue;
+        
+        private static readonly byte[] emptyArray = new byte[0];
 
         /// <summary>
         /// All of these blocks must be the same size
@@ -111,7 +114,7 @@ namespace Microsoft.IO
             }
         }
 
-        private bool disposed;
+        private int disposedState = 0;
 
         private readonly string allocationStack;
         private string disposeStack;
@@ -120,13 +123,13 @@ namespace Microsoft.IO
         /// Callstack of the constructor. It is only set if MemoryManager.GenerateCallStacks is true,
         /// which should only be in debugging situations.
         /// </summary>
-        internal string AllocationStack { get { return this.allocationStack; } }
+        internal string AllocationStack => this.allocationStack;
 
         /// <summary>
         /// Callstack of the Dispose call. It is only set if MemoryManager.GenerateCallStacks is true,
         /// which should only be in debugging situations.
         /// </summary>
-        internal string DisposeStack { get { return this.disposeStack; } }
+        internal string DisposeStack => this.disposeStack;
 
         /// <summary>
         /// This buffer exists so that WriteByte can forward all of its calls to Write
@@ -174,6 +177,7 @@ namespace Microsoft.IO
         /// <param name="initialLargeBuffer">An initial buffer to use. This buffer will be owned by the stream and returned to the memory manager upon Dispose.</param>
         internal RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string tag, int requestedSize,
                                       byte[] initialLargeBuffer)
+            : base(emptyArray)
         {
             this.memoryManager = memoryManager;
             this.id = Guid.NewGuid();
@@ -192,8 +196,6 @@ namespace Microsoft.IO
             {
                 this.largeBuffer = initialLargeBuffer;
             }
-
-            this.disposed = false;
 
             if (this.memoryManager.GenerateCallStacks)
             {
@@ -215,11 +217,10 @@ namespace Microsoft.IO
         /// Returns the memory used by this stream back to the pool.
         /// </summary>
         /// <param name="disposing">Whether we're disposing (true), or being called by the finalizer (false)</param>
-        /// <remarks>This method is not thread safe and it may not be called more than once.</remarks>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1816:CallGCSuppressFinalizeCorrectly", Justification = "We have different disposal semantics, so SuppressFinalize is in a different spot.")]
         protected override void Dispose(bool disposing)
         {
-            if (this.disposed)
+            if (Interlocked.CompareExchange(ref this.disposedState, 1, 0) != 0)
             {
                 string doubleDisposeStack = null;
                 if (this.memoryManager.GenerateCallStacks)
@@ -240,9 +241,6 @@ namespace Microsoft.IO
 
             if (disposing)
             {
-                // Once this flag is set, we can't access any properties -- use fields directly
-                this.disposed = true;
-
                 this.memoryManager.ReportStreamDisposed();
                                 
                 GC.SuppressFinalize(this);
@@ -281,7 +279,8 @@ namespace Microsoft.IO
             }
 
             this.memoryManager.ReturnBlocks(this.blocks, this.tag);
-            
+            this.blocks.Clear();
+
             base.Dispose(disposing);
         }
 
@@ -315,11 +314,8 @@ namespace Microsoft.IO
                     return this.largeBuffer.Length;
                 }
 
-                if (this.blocks.Count > 0)
-                {
-                    return this.blocks.Count * this.memoryManager.BlockSize;
-                }
-                return 0;
+                long size = (long)this.blocks.Count * this.memoryManager.BlockSize;
+                return (int)Math.Min(int.MaxValue, size);
             }
             set
             {
@@ -376,34 +372,22 @@ namespace Microsoft.IO
         /// <summary>
         /// Whether the stream can currently read
         /// </summary>
-        public override bool CanRead
-        {
-            get { return !this.disposed; }
-        }
+        public override bool CanRead => !this.Disposed;
 
         /// <summary>
         /// Whether the stream can currently seek
         /// </summary>
-        public override bool CanSeek
-        {
-            get { return !this.disposed; }
-        }
+        public override bool CanSeek => !this.Disposed;
 
         /// <summary>
         /// Always false
         /// </summary>
-        public override bool CanTimeout
-        {
-            get { return false; }
-        }
+        public override bool CanTimeout => false;
 
         /// <summary>
         /// Whether the stream can currently write
         /// </summary>
-        public override bool CanWrite
-        {
-            get { return !this.disposed; }
-        }
+        public override bool CanWrite => !this.Disposed;
 
         /// <summary>
         /// Returns a single buffer containing the contents of the stream.
@@ -453,6 +437,7 @@ namespace Microsoft.IO
         /// for the sake of completeness.
         /// </summary>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+#pragma warning disable CS0809
         [Obsolete("This method has degraded performance vs. GetBuffer and should be avoided.")]
         public override byte[] ToArray()
         {
@@ -466,6 +451,7 @@ namespace Microsoft.IO
 
             return newBuffer;
         }
+#pragma warning restore CS0809
 
         /// <summary>
         /// Reads from the current position into the provided buffer
@@ -480,20 +466,37 @@ namespace Microsoft.IO
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public override int Read(byte[] buffer, int offset, int count)
         {
+            return this.SafeRead(buffer, offset, count, ref this.position);
+        }
+
+        /// <summary>
+        /// Reads from the specified position into the provided buffer
+        /// </summary>
+        /// <param name="buffer">Destination buffer</param>
+        /// <param name="offset">Offset into buffer at which to start placing the read bytes.</param>
+        /// <param name="count">Number of bytes to read.</param>
+        /// <param name="streamPosition">Position in the stream to start reading from</param>
+        /// <returns>The number of bytes read</returns>
+        /// <exception cref="ArgumentNullException">buffer is null</exception>
+        /// <exception cref="ArgumentOutOfRangeException">offset or count is less than 0</exception>
+        /// <exception cref="ArgumentException">offset subtracted from the buffer length is less than count</exception>
+        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+        public int SafeRead(byte[] buffer, int offset, int count, ref int streamPosition)
+        {
             this.CheckDisposed();
             if (buffer == null)
             {
-                throw new ArgumentNullException("buffer");
+                throw new ArgumentNullException(nameof(buffer));
             }
 
             if (offset < 0)
             {
-                throw new ArgumentOutOfRangeException("offset", "offset cannot be negative");
+                throw new ArgumentOutOfRangeException(nameof(offset), "offset cannot be negative");
             }
 
             if (count < 0)
             {
-                throw new ArgumentOutOfRangeException("count", "count cannot be negative");
+                throw new ArgumentOutOfRangeException(nameof(count), "count cannot be negative");
             }
 
             if (offset + count > buffer.Length)
@@ -501,8 +504,8 @@ namespace Microsoft.IO
                 throw new ArgumentException("buffer length must be at least offset + count");
             }
 
-            int amountRead = this.InternalRead(buffer, offset, count, this.position);
-            this.position += amountRead;
+            int amountRead = this.InternalRead(buffer, offset, count, streamPosition);
+            streamPosition += amountRead;
             return amountRead;
         }
 
@@ -521,17 +524,17 @@ namespace Microsoft.IO
             this.CheckDisposed();
             if (buffer == null)
             {
-                throw new ArgumentNullException("buffer");
+                throw new ArgumentNullException(nameof(buffer));
             }
             
             if (offset < 0)
             {
-                throw  new ArgumentOutOfRangeException("offset", offset, "Offset must be in the range of 0 - buffer.Length-1");
+                throw  new ArgumentOutOfRangeException(nameof(offset), offset, "Offset must be in the range of 0 - buffer.Length-1");
             }
 
             if (count < 0)
             {
-                throw new ArgumentOutOfRangeException("count", count, "count must be non-negative");
+                throw new ArgumentOutOfRangeException(nameof(count), count, "count must be non-negative");
             }
 
             if (count + offset > buffer.Length)
@@ -590,7 +593,7 @@ namespace Microsoft.IO
         /// </summary>
         public override string ToString()
         {
-            return string.Format("Id = {0}, Tag = {1}, Length = {2:N0} bytes", this.Id, this.Tag, this.Length);
+            return $"Id = {this.Id}, Tag = {this.Tag}, Length = {this.Length:N0} bytes";
         }
 
         /// <summary>
@@ -612,22 +615,33 @@ namespace Microsoft.IO
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public override int ReadByte()
         {
+            return this.SafeReadByte(ref this.position);
+        }
+
+        /// <summary>
+        /// Reads a single byte from the specified position in the stream.
+        /// </summary>
+        /// <param name="streamPosition">The position in the stream to read from</param>
+        /// <returns>The byte at the current position, or -1 if the position is at the end of the stream.</returns>
+        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+        public int SafeReadByte(ref int streamPosition)
+        {
             this.CheckDisposed();
-            if (this.position == this.length)
+            if (streamPosition == this.length)
             {
                 return -1;
             }
-            byte value = 0;
+            byte value;
             if (this.largeBuffer == null)
             {
-                var blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
+                var blockAndOffset = this.GetBlockAndRelativeOffset(streamPosition);
                 value = this.blocks[blockAndOffset.Block][blockAndOffset.Offset];
             }
             else
             {
-                value = this.largeBuffer[position];
+                value = this.largeBuffer[streamPosition];
             }
-            this.position++;
+            streamPosition++;
             return value;
         }
 
@@ -641,7 +655,7 @@ namespace Microsoft.IO
             this.CheckDisposed();
             if (value < 0 || value > MaxStreamLength)
             {
-                throw new ArgumentOutOfRangeException("value", "value must be non-negative and at most " + MaxStreamLength);
+                throw new ArgumentOutOfRangeException(nameof(value), "value must be non-negative and at most " + MaxStreamLength);
             }
             
             this.EnsureCapacity((int)value);
@@ -668,7 +682,7 @@ namespace Microsoft.IO
             this.CheckDisposed();
             if (offset > MaxStreamLength)
             {
-                throw new ArgumentOutOfRangeException("offset", "offset cannot be larger than " + MaxStreamLength);
+                throw new ArgumentOutOfRangeException(nameof(offset), "offset cannot be larger than " + MaxStreamLength);
             }
 
             int newPosition;
@@ -684,7 +698,7 @@ namespace Microsoft.IO
                     newPosition = (int) offset + this.length;
                 break;
                 default:
-                    throw new ArgumentException("Invalid seek origin", "loc");
+                    throw new ArgumentException("Invalid seek origin", nameof(loc));
             }
             if (newPosition < 0)
             {
@@ -704,7 +718,7 @@ namespace Microsoft.IO
             this.CheckDisposed();
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
             
             if (this.largeBuffer == null)
@@ -730,11 +744,16 @@ namespace Microsoft.IO
         #endregion
         
         #region Helper Methods
+        private bool Disposed
+        {
+            get { return Thread.VolatileRead(ref this.disposedState) != 0; }
+        }
+
         private void CheckDisposed()
         {
-            if (this.disposed)
+            if (this.Disposed)
             {
-                throw new ObjectDisposedException(string.Format("The stream with Id {0} and Tag {1} is disposed.", this.id, this.tag));
+                throw new ObjectDisposedException($"The stream with Id {this.id} and Tag {this.tag} is disposed.");
             }
         }
 
