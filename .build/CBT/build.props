@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project InitialTargets="RestoreCBTModules" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <!-- Ensures that if this file changes, projects will be rebuilt -->
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+
+    <EnlistmentRoot Condition=" '$(EnlistmentRoot)' != '' ">$(EnlistmentRoot.TrimEnd('\\'))</EnlistmentRoot>
+
+    <!-- Default CBT global to this directory if not specified -->
+    <CBTGlobalPath Condition=" '$(CBTGlobalPath)' == '' ">$(MSBuildThisFileDirectory)</CBTGlobalPath>
+    <CBTGlobalPath>$(CBTGlobalPath.TrimEnd('\\'))</CBTGlobalPath>
+
+    <!-- Default CBT local to ..\Local if not specified -->
+    <CBTLocalPath Condition=" '$(CBTLocalPath)' == '' And Exists('$([System.IO.Path]::GetDirectoryName($(CBTGlobalPath)))\Local') ">$([System.IO.Path]::GetDirectoryName($(CBTGlobalPath)))\Local</CBTLocalPath>
+    <CBTLocalPath>$(CBTLocalPath.TrimEnd('\\'))</CBTLocalPath>
+
+    <CBTLocalBuildExtensionsPath Condition=" '$(CBTLocalBuildExtensionsPath)' == '' And '$(CBTLocalPath)' != '' And Exists('$(CBTLocalPath)\Extensions') ">$(CBTLocalPath)\Extensions</CBTLocalBuildExtensionsPath>
+
+    <Configuration Condition=" '$(Configuration)' == '' And '$(DefaultProjectConfiguration)' != '' ">$(DefaultProjectConfiguration)</Configuration>
+    <Platform Condition=" '$(Platform)' == '' And '$(DefaultProjectPlatform)' != '' ">$(DefaultProjectPlatform)</Platform>
+  </PropertyGroup>
+
+  <Import Project="$(CBTLocalBuildExtensionsPath)\Before.$(MSBuildThisFile)" Condition=" '$(CBTLocalBuildExtensionsPath)' != '' And Exists('$(CBTLocalBuildExtensionsPath)\Before.$(MSBuildThisFile)') " />
+
+  <PropertyGroup>
+    <CBTModulePackageConfigPath Condition=" '$(CBTModulePackageConfigPath)' == '' And '$(CBTLocalPath)' != '' And Exists('$(CBTLocalPath)\CBTModules\project.json') ">$([System.IO.Path]::Combine($(CBTLocalPath), 'CBTModules', 'project.json'))</CBTModulePackageConfigPath>
+    <CBTModulePackageConfigPath Condition=" '$(CBTModulePackageConfigPath)' == '' And '$(CBTLocalPath)' != '' And Exists('$(CBTLocalPath)\project.json') ">$([System.IO.Path]::Combine($(CBTLocalPath), 'project.json'))</CBTModulePackageConfigPath>
+    <CBTModulePackageConfigPath Condition=" '$(CBTModulePackageConfigPath)' == '' And '$(CBTLocalPath)' != '' And Exists('$(CBTLocalPath)\CBTModules\packages.config') ">$([System.IO.Path]::Combine($(CBTLocalPath), 'CBTModules', 'packages.config'))</CBTModulePackageConfigPath>
+    <CBTModulePackageConfigPath Condition=" '$(CBTModulePackageConfigPath)' == '' And '$(CBTLocalPath)' != '' And Exists('$(CBTLocalPath)\packages.config') ">$([System.IO.Path]::Combine($(CBTLocalPath), 'packages.config'))</CBTModulePackageConfigPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(CBTModulePackageConfigPath)' != '' And '$([System.IO.Path]::GetFileName($(CBTModulePackageConfigPath)))' == 'packages.config' ">
+    <!--
+      For NuGet v2 / packages.config the package path is determined in the following order:
+      - User specified path at the command-line
+      - In a NuGet.config via the repositoryPath setting
+      - $(SolutionDir)\packages if restoring a solution or a solution directory is specified at the command-line
+      - $(MSBuildProjectDirectory)\..\packages if restoring a project only
+      
+      The path is created here as a fall back so that the $(SolutionDir) and $(MSBuildProjectDirectory) don't have to be pass during module restoration.
+      If the user specifies a value for $(NuGetPackagesPath), then it will be used, then the NuGet setting, and then finally this fall back value
+    -->
+    <CBTPackagesFallbackPath Condition=" '$(CBTPackagesFallbackPath)' == '' And '$(SolutionDir)' != '' And '$(SolutionDir)' != '*Undefined*' And Exists('$(SolutionDir)')">$([System.IO.Path]::Combine($(SolutionDir), 'packages'))</CBTPackagesFallbackPath>
+    <CBTPackagesFallbackPath Condition=" '$(CBTPackagesFallbackPath)' == '' ">$([System.IO.Path]::Combine($([System.IO.Path]::GetDirectoryName($(MSBuildProjectDirectory))), 'packages'))</CBTPackagesFallbackPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(CBTModulePackageConfigPath)' != '' And '$([System.IO.Path]::GetFileName($(CBTModulePackageConfigPath)))' == 'project.json' ">
+    <!--
+      For NuGet v3 / project.json the package path is determined in the following order:
+      - User specified at the command line
+      - The value of the %NUGET_PACKAGES% environment variable
+      - In a NuGet.config via the globalPackagesFolder
+    -->
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CBTCoreAssemblyPath Condition=" '$(CBTCoreAssemblyPath)' == '' ">$(MSBuildThisFileDirectory)CBT.Core.dll</CBTCoreAssemblyPath>
+    <CBTModuleRestoreInputs Condition=" '$(CBTModuleRestoreInputs)' == '' ">$(MSBuildThisFileFullPath);$(CBTCoreAssemblyPath);$(CBTModulePackageConfigPath)</CBTModuleRestoreInputs>
+  </PropertyGroup>
+
+  <!-- Load modules -->
+
+  <PropertyGroup Condition=" '$(EnlistmentRoot)' != '' And '$(CBTModulePackageConfigPath)' != '' ">
+    <CBTIntermediateOutputPath Condition=" '$(CBTIntermediateOutputPath)' == '' ">$([System.IO.Path]::GetTempPath())\CBT\$(EnlistmentRoot.ToLower().GetHashcode().ToString('X'))</CBTIntermediateOutputPath>
+    
+    <CBTModulePath Condition=" '$(CBTModulePath)' == '' ">$(CBTIntermediateOutputPath)\Modules</CBTModulePath>
+    <CBTModulePropertiesFile Condition=" '$(CBTModulePropertiesFile)' == '' ">$(CBTModulePath)\$(MSBuildThisFile)</CBTModulePropertiesFile>
+    <CBTModuleExtensionsPath Condition=" '$(CBTModuleExtensionsPath)' == '' ">$(CBTModulePath)\Extensions</CBTModuleExtensionsPath>
+    <CBTModuleImportsBefore Condition=" '$(CBTModuleImportsBefore)' == '' ">%24(CBTLocalBuildExtensionsPath)\%24(MSBuildThisFile)</CBTModuleImportsBefore>
+    <CBTModuleImportsAfter Condition=" '$(CBTModuleImportsAfter)' == '' "></CBTModuleImportsAfter>
+
+    <CBTNuGetBinDir Condition=" '$(CBTNuGetBinDir)' == '' ">$(CBTIntermediateOutputPath)\NuGet</CBTNuGetBinDir>
+    <CBTNuGetDownloaderAssemblyPath Condition=" '$(CBTNuGetDownloaderAssemblyPath)' == '' ">$(CBTCoreAssemblyPath)</CBTNuGetDownloaderAssemblyPath>
+    <CBTNuGetDownloaderClassName Condition=" '$(CBTNuGetDownloaderClassName)' == '' ">CBT.Core.Internal.DefaultNuGetDownloader</CBTNuGetDownloaderClassName>
+    <CBTModuleRestoreTaskName Condition=" '$(CBTModuleRestoreTaskName)' == '' ">CBT.Core.Tasks.RestoreModules</CBTModuleRestoreTaskName>
+    <CBTModuleRestoreCommand Condition=" '$(CBTModuleRestoreCommand)' == '' ">$(CBTNuGetBinDir)\NuGet.exe</CBTModuleRestoreCommand>
+    <CBTModuleRestoreCommandArguments Condition=" '$(CBTModuleRestoreCommandArguments)' == '' ">restore &quot;$(CBTModulePackageConfigPath)&quot; -NonInteractive</CBTModuleRestoreCommandArguments>
+
+    <CBTModulesRestored Condition=" '$(BuildingInsideVisualStudio)' != 'true' And '$(CBTModulesRestored)' != 'true' And Exists('$(CBTCoreAssemblyPath)') ">$(CBTCoreAssemblyPath.GetType().Assembly.GetType('System.AppDomain').GetProperty('CurrentDomain').GetValue(null, null).CreateInstanceFromAndUnwrap($(CBTCoreAssemblyPath), $(CBTModuleRestoreTaskName)).Execute($(CBTModuleImportsAfter.Split(';')), $(CBTModuleImportsBefore.Split(';')), $(CBTModuleExtensionsPath), $(CBTModulePropertiesFile), $(CBTNuGetDownloaderAssemblyPath), $(CBTNuGetDownloaderClassName), '$(CBTNuGetDownloaderArguments)', $(CBTModuleRestoreInputs.Split(';')), $(CBTModulePackageConfigPath), $(NuGetPackagesPath), $(CBTPackagesFallbackPath), $(CBTModuleRestoreCommand), $(CBTModuleRestoreCommandArguments), $(MSBuildProjectFullPath)))</CBTModulesRestored>
+
+  </PropertyGroup>
+
+  <Import Project="$(CBTModulePropertiesFile)" Condition=" ('$(CBTModulesRestored)' == 'true' Or '$(BuildingInsideVisualStudio)' == 'true') And Exists('$(CBTModulePropertiesFile)') "/>
+
+  <UsingTask TaskName="RestoreModules" AssemblyFile="$(CBTCoreAssemblyPath)" />
+
+  <Target Name="RestoreCBTModules"
+      Condition=" '$(CBTModulesRestored)' != 'true' "
+      Inputs="$(CBTModuleRestoreInputs)"
+      Outputs="$([MSBuild]::ValueOrDefault($(CBTModulePropertiesFile), 'null')">
+
+    <Error Condition=" '$(EnlistmentRoot)' == '' " Text="The 'EnlistmentRoot' property must be set.  Please ensure it is declared in a properties file before CBT Core is imported." Code="CBT1000" />
+    
+    <Error Condition=" '$(CBTModulePackageConfigPath)' == '' " Text="The 'CBTModulePackageConfigPath' is not set or no package configuration file was found in the expected location.  You must have a packages.config or project.json file that specifies what modules to use." Code="CBT1002" />
+
+    <Error Condition=" '$(CBTModulesRestored)' == 'false' " Text="Modules were not restored and the build cannot continue.  Refer to other errors for more information." Code="CBT1001" />
+
+    <RestoreModules
+      AfterImports="$(CBTModuleImportsAfter.Split(';'))"
+      BeforeImports="$(CBTModuleImportsBefore.Split(';'))"
+      ExtensionsPath="$(CBTModuleExtensionsPath)"
+      ImportsFile="$(CBTModulePropertiesFile)"
+      NuGetDownloaderAssemblyPath="$(CBTNuGetDownloaderAssemblyPath)"
+      NuGetDownloaderClassName="$(CBTNuGetDownloaderClassName)"
+      NuGetDownloaderArguments="$(CBTNuGetDownloaderArguments)"
+      PackageConfig="$(CBTModulePackageConfigPath)"
+      PackagesFallbackPath="$(CBTPackagesFallbackPath)"
+      PackagesPath="$(NuGetPackagesPath)"
+      ProjectFullPath="$(MSBuildProjectFullPath)"
+      RestoreCommand="$(CBTModuleRestoreCommand)"
+      RestoreCommandArguments="$(CBTModuleRestoreCommandArguments)" />
+
+    <PropertyGroup>
+      <CBTModulesRestored Condition=" '$(CBTModulesRestored)' != 'true' ">true</CBTModulesRestored>
+    </PropertyGroup>
+
+  </Target>
+
+  <Import Project="$(CBTLocalBuildExtensionsPath)\After.$(MSBuildThisFile)" Condition=" '$(CBTLocalBuildExtensionsPath)' != '' And Exists('$(CBTLocalBuildExtensionsPath)\After.$(MSBuildThisFile)') " />
+
+</Project>
