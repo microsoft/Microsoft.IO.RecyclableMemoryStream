@@ -27,6 +27,7 @@ namespace Microsoft.IO.UnitTests
     using System.IO;
     using System.Threading.Tasks;
     
+    using Microsoft.IO;
     using NUnit.Framework;
     
     /// <summary>
@@ -121,7 +122,7 @@ namespace Microsoft.IO.UnitTests
         public void GetVeryLargeBufferRecordsCallStack()
         {
             var logger = LogManager.CreateMemoryLogger();
-            logger.SubscribeToEvents(Events.Write, EventLevel.Verbose);
+            logger.SubscribeToEvents(Events.Writer, EventLevel.Verbose);
 
             var memMgr = GetMemoryManager();
             memMgr.GenerateCallStacks = true;
@@ -488,7 +489,7 @@ namespace Microsoft.IO.UnitTests
 
             var stream = new RecyclableMemoryStream(memMgr);
 
-            Assert.That(stream.AllocationStack, Is.StringContaining("RecyclableMemoryStream..ctor"));
+            Assert.That(stream.AllocationStack, Does.Contain("RecyclableMemoryStream..ctor"));
             stream.Dispose();
 
             memMgr.GenerateCallStacks = false;
@@ -1675,7 +1676,7 @@ namespace Microsoft.IO.UnitTests
         public void DisposeTwiceRecordsCallstackInLog()
         {
             var logger = LogManager.CreateMemoryLogger();
-            logger.SubscribeToEvents(Events.Write, EventLevel.Verbose);
+            logger.SubscribeToEvents(Events.Writer, EventLevel.Verbose);
 
             try
             {

@@ -30,7 +30,7 @@ namespace Microsoft.IO
         [EventSource(Name = "Microsoft-IO-RecyclableMemoryStream", Guid = "{B80CD4E4-890E-468D-9CBA-90EB7C82DFC7}")]
         public sealed class Events : EventSource
         {
-            public static Events Write = new Events();
+            public static Events Writer = new Events();
 
             public enum MemoryStreamBufferType
             {
@@ -151,7 +151,7 @@ namespace Microsoft.IO
 }
 
 // This is here for .NET frameworks which don't support EventSource. We basically shim bare functionality used above to  
-#if FAKEEVENTSOURCE
+#if NET40
 namespace System.Diagnostics.Tracing
 {
     public enum EventLevel

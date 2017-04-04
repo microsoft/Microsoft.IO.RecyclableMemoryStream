@@ -13,10 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net40", "src\Net40.csproj", "{DA3E3F77-42CB-4613-B5E6-81CE4D7E1FC7}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net45", "src\Net45.csproj", "{1776AB8C-C4A5-40A4-8D63-36DECB03E207}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,14 +27,6 @@ Global
 		{419C9F3D-71CC-4F95-8324-E15CD0D1E754}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{419C9F3D-71CC-4F95-8324-E15CD0D1E754}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{419C9F3D-71CC-4F95-8324-E15CD0D1E754}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DA3E3F77-42CB-4613-B5E6-81CE4D7E1FC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DA3E3F77-42CB-4613-B5E6-81CE4D7E1FC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DA3E3F77-42CB-4613-B5E6-81CE4D7E1FC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DA3E3F77-42CB-4613-B5E6-81CE4D7E1FC7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1776AB8C-C4A5-40A4-8D63-36DECB03E207}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1776AB8C-C4A5-40A4-8D63-36DECB03E207}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1776AB8C-C4A5-40A4-8D63-36DECB03E207}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1776AB8C-C4A5-40A4-8D63-36DECB03E207}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

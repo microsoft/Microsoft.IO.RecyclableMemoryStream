@@ -7,7 +7,7 @@
     <!--
       By default, build every project in the tree
     -->
-    <ProjectFile Include="src\**\*.*proj" />
+    <ProjectFile Include="**\*.*proj" />
   </ItemGroup>
 
   <Import Project="$(TraversalTargets)" Condition=" '$(CBTModulesRestored)' == 'true' " />
