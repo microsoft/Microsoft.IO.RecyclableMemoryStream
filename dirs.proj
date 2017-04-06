@@ -4,10 +4,8 @@
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), Directory.Build.props))\Directory.Build.props" />
   
   <ItemGroup>
-    <!--
-      By default, build every project in the tree
-    -->
-    <ProjectFile Include="**\*.*proj" />
+    <ProjectFile Include="src\*.*proj" />
+    <ProjectFile Include="UnitTests\*.*proj" />
   </ItemGroup>
 
   <Import Project="$(TraversalTargets)" Condition=" '$(CBTModulesRestored)' == 'true' " />
