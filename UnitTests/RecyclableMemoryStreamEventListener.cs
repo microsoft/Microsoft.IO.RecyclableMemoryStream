@@ -32,7 +32,7 @@ namespace Microsoft.IO.UnitTests
 
         public RecyclableMemoryStreamEventListener()
         {
-            this.EnableEvents(RecyclableMemoryStreamManager.Events.Write, EventLevel.Verbose);
+            this.EnableEvents(RecyclableMemoryStreamManager.Events.Writer, EventLevel.Verbose);
         }
 
         public bool MemoryStreamDoubleDisposeCalled { get; private set; }

@@ -150,7 +150,7 @@ namespace Microsoft.IO
                 this.largePools[i] = new ConcurrentStack<byte[]>();
             }
 
-            Events.Write.MemoryStreamManagerInitialized(blockSize, largeBufferMultiple, maximumBufferSize);
+            Events.Writer.MemoryStreamManagerInitialized(blockSize, largeBufferMultiple, maximumBufferSize);
         }
 
         /// <summary>
@@ -258,7 +258,7 @@ namespace Microsoft.IO
                 // We'll add this back to the pool when the stream is disposed
                 // (unless our free pool is too large)
                 block = new byte[this.BlockSize];
-                Events.Write.MemoryStreamNewBlockCreated(this.smallPoolInUseSize);
+                Events.Writer.MemoryStreamNewBlockCreated(this.smallPoolInUseSize);
                 ReportBlockCreated();
             }
             else
@@ -290,7 +290,7 @@ namespace Microsoft.IO
                 {
                     buffer = new byte[requiredSize];
 
-                    Events.Write.MemoryStreamNewLargeBufferCreated(requiredSize, this.LargePoolInUseSize);
+                    Events.Writer.MemoryStreamNewLargeBufferCreated(requiredSize, this.LargePoolInUseSize);
                     ReportLargeBufferCreated();
                 }
                 else
@@ -314,7 +314,7 @@ namespace Microsoft.IO
                     // Grab the stack -- we want to know who requires such large buffers
                     callStack = Environment.StackTrace;
                 }
-                Events.Write.MemoryStreamNonPooledLargeBufferCreated(requiredSize, tag, callStack);
+                Events.Writer.MemoryStreamNonPooledLargeBufferCreated(requiredSize, tag, callStack);
                 ReportLargeBufferCreated();
             }
 
@@ -366,7 +366,7 @@ namespace Microsoft.IO
                 }
                 else
                 {
-                    Events.Write.MemoryStreamDiscardBuffer(Events.MemoryStreamBufferType.Large, tag,
+                    Events.Writer.MemoryStreamDiscardBuffer(Events.MemoryStreamBufferType.Large, tag,
                                                            Events.MemoryStreamDiscardReason.EnoughFree);
                     ReportLargeBufferDiscarded(Events.MemoryStreamDiscardReason.EnoughFree);
                 }
@@ -377,7 +377,7 @@ namespace Microsoft.IO
                 // analysis. We have space in the inuse array for this.
                 poolIndex = this.largeBufferInUseSize.Length - 1;
 
-                Events.Write.MemoryStreamDiscardBuffer(Events.MemoryStreamBufferType.Large, tag,
+                Events.Writer.MemoryStreamDiscardBuffer(Events.MemoryStreamBufferType.Large, tag,
                                                        Events.MemoryStreamDiscardReason.TooLarge);
                 ReportLargeBufferDiscarded(Events.MemoryStreamDiscardReason.TooLarge);
             }
@@ -422,7 +422,7 @@ namespace Microsoft.IO
                 }
                 else
                 {
-                    Events.Write.MemoryStreamDiscardBuffer(Events.MemoryStreamBufferType.Small, tag,
+                    Events.Writer.MemoryStreamDiscardBuffer(Events.MemoryStreamBufferType.Small, tag,
                                                            Events.MemoryStreamDiscardReason.EnoughFree);
                     ReportBlockDiscarded();
                     break;

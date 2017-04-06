@@ -25,12 +25,8 @@ For more details, refer to the [announcement blog post](http://www.philosophical
 
 ## Build Targets
 
-The code ships with both a 'default' (.NET 4.5) build target and a collection of targets for different framework versions.
-These are reflected in the src/Net*.csproj files which declare the desired framework version and are used for release builds
-for NuGet packages. Note that the .NET 3.5 project is ***not*** in the solution file as it currently does not work.
+The code ships utilizing CommonBuildToolset. This provides some build extensions over top of MSBuild to automatically pull
+NuGet packages from command line build, etc.
 
-The release target assemblies have no friend assemblies (for the unit tests) so the tests cannot currently be run against them.
-
-The assemblies may be delay-signed with the environment variable $DelaySignKeyFile pointing to the Strong Name Key file of your
-choice.
-
+MSBuild 15 is required to build the code. You get this with Visual Studio 2017. Cross-platform builds will be documented
+in a future release.

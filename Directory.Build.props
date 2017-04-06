@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  This root MSBuild file should be imported by all projects in the tree and serves as the central entry point for CBT.
+  You can have a  hierarchy of imports but make sure that this file is still imported.
+-->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Global locations">
+    <!--
+      $(MSBuildAllProjects) is a list of files that determine if a project is up-to-date or not.  By including this
+      file in the list, it ensures that all projects will be rebuilt if it changes.
+    -->
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+
+    <!--
+      Enlistment root is based off of wherever this file is.  Be sure not to set this property anywhere else.
+    -->
+    <EnlistmentRoot>$(MSBuildThisFileDirectory.TrimEnd('\\'))</EnlistmentRoot>
+
+    <!--
+      CBTIntermediateOutputPath determines where the generated files from CBT will go.  The default location is under
+      %TEMP%\CBT but we recommend that the files exist under the enlistment instead for easy clean up.  By placing them
+      under .build\obj they will be ignored because that folder is listed in the .gitignore file.
+    -->
+
+    <CBTIntermediateOutputPath Condition=" '$(CBTIntermediateOutputPath)' == '' ">$(EnlistmentRoot)\.build\obj</CBTIntermediateOutputPath>
+  </PropertyGroup>
+
+  <!--
+    Importing the "global" CBT build.props is what activates CBT.Core to restore modules.  You will want to set
+    properties before or after it depending on what you're injecting.  The "global" build.props will also import
+    files located in the $(CBTLocalPath) folder at certain points.
+  -->
+  
+  <Import Project="$(EnlistmentRoot)\.build\CBT\build.props" />
+</Project>
