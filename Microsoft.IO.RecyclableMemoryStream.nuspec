@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Microsoft.IO.RecyclableMemoryStream</id>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
     <title>Microsoft.IO.RecyclableMemoryStream</title>
     <authors>Ben Watson; Chip Locke</authors>
     <licenseUrl>https://github.com/Microsoft/Microsoft.IO.RecyclableMemoryStream/blob/master/LICENSE</licenseUrl>
