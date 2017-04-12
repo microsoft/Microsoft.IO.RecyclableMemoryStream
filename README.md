@@ -30,3 +30,9 @@ NuGet packages from command line build, etc.
 
 MSBuild 15 is required to build the code. You get this with Visual Studio 2017. Cross-platform builds will be documented
 in a future release.
+
+## Testing
+
+We're using Visual Studio 2017 for interactive test work. Requirements:
+- NUnit test adaptor (VS Extension)
+- Be sure to set the default processor architecture for tests to x64 (or giant allocation test will fail)
