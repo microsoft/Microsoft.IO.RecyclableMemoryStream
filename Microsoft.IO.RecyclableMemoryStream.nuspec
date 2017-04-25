@@ -10,10 +10,10 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Pooled memory allocator.</description>
     <releaseNotes>Multiple framework targets, new signing key, bug fixes.</releaseNotes>
-    <copyright>Copyright 2015-2016 Microsoft</copyright>
+    <copyright>Copyright 2015-2017 Microsoft</copyright>
     <tags>MemoryStream Memory</tags>
   </metadata>
   <files>
-    <file src="src\rel\Release\**\*" target="lib" />
+    <file src="src\Bin\Release\**\*" target="lib" />
   </files>
 </package>
