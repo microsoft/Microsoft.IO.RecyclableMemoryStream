@@ -386,6 +386,7 @@ namespace Microsoft.IO
             this.InternalWrite(value, index, count);
         }
 
+#if !NET40
         /// <summary>
         /// Writes a subtring to the stream asynchronously.
         /// </summary>
@@ -400,12 +401,9 @@ namespace Microsoft.IO
         public virtual Task WriteSubstringAsync(string value, int index, int count)
         {
             var tuple = new Tuple<RecyclableMemoryStreamWriter, string, int, int>(this, value, index, count);
-#if NET40
-            return Task.Factory.StartNew(writeSubstringDelegate, tuple, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default);
-#else
             return Task.Factory.StartNew(writeSubstringDelegate, tuple, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
-#endif
         }
+#endif
         #endregion
 
         #region Helper methods
@@ -524,6 +522,7 @@ namespace Microsoft.IO
 
             // Figure out whether we have enough free space left in the current block to encode the entire buffer.
             int maxBytesToWrite = this.encoding.GetMaxByteCount(this.charPos);
+            Debug.Assert(maxBytesToWrite >= 0);
 
             // blockBuffer can be null after this call, if the stream is currently full.
             int blockBufferOffset;
@@ -531,8 +530,10 @@ namespace Microsoft.IO
 
             int freeBytesInBlock = blockBuffer != null ? (blockBuffer.Length - blockBufferOffset) : 0;
 
-            if (freeBytesInBlock >= maxBytesToWrite)
+            if (freeBytesInBlock > 0 && freeBytesInBlock >= maxBytesToWrite)
             {
+                Debug.Assert(blockBuffer != null, "freeBytesInBlock depends on the blockBuffer not to be null");
+
                 // There is enough space in the current block, use it directly.
                 int bytesWritten = this.encoder.GetBytes(this.charBuffer, 0, this.charPos, blockBuffer, blockBufferOffset, flush: flushEncoder);
 
