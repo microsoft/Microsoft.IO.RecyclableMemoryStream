@@ -1,17 +1,17 @@
 ﻿// The MIT License (MIT)
-// 
+//
 // Copyright (c) 2015-2016 Microsoft
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -42,20 +42,19 @@ namespace Microsoft.IO
     /// This implementation only copies the bytes when GetBuffer is called.
     /// 4. Memory fragmentation - By using homogeneous buffer sizes, it ensures that blocks of memory
     /// can be easily reused.
-    /// 
+    ///
     /// The stream is implemented on top of a series of uniformly-sized blocks. As the stream's length grows,
     /// additional blocks are retrieved from the memory manager. It is these blocks that are pooled, not the stream
     /// object itself.
-    /// 
-    /// The biggest wrinkle in this implementation is when GetBuffer() is called. This requires a single 
-    /// contiguous buffer. If only a single block is in use, then that block is returned. If multiple blocks 
-    /// are in use, we retrieve a larger buffer from the memory manager. These large buffers are also pooled, 
+    ///
+    /// The biggest wrinkle in this implementation is when GetBuffer() is called. This requires a single
+    /// contiguous buffer. If only a single block is in use, then that block is returned. If multiple blocks
+    /// are in use, we retrieve a larger buffer from the memory manager. These large buffers are also pooled,
     /// split by size--they are multiples of a chunk size (1 MB by default).
-    /// 
-    /// Once a large buffer is assigned to the stream the blocks are NEVER again used for this stream. All operations take place on the 
-    /// large buffer. The large buffer can be replaced by a larger buffer from the pool as needed. All blocks and large buffers 
+    ///
+    /// Once a large buffer is assigned to the stream the blocks are NEVER again used for this stream. All operations take place on the
+    /// large buffer. The large buffer can be replaced by a larger buffer from the pool as needed. All blocks and large buffers
     /// are maintained in the stream until the stream is disposed (unless AggressiveBufferReturn is enabled in the stream manager).
-    /// 
     /// </remarks>
     public sealed class RecyclableMemoryStream : MemoryStream
     {
@@ -315,9 +314,9 @@ namespace Microsoft.IO
         /// Gets or sets the capacity
         /// </summary>
         /// <remarks>Capacity is always in multiples of the memory manager's block size, unless
-        /// the large buffer is in use.  Capacity never decreases during a stream's lifetime. 
-        /// Explicitly setting the capacity to a lower value than the current value will have no effect. 
-        /// This is because the buffers are all pooled by chunks and there's little reason to 
+        /// the large buffer is in use.  Capacity never decreases during a stream's lifetime.
+        /// Explicitly setting the capacity to a lower value than the current value will have no effect.
+        /// This is because the buffers are all pooled by chunks and there's little reason to
         /// allow stream truncation.
         /// </remarks>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
@@ -453,7 +452,7 @@ namespace Microsoft.IO
         }
 
         /// <summary>
-        /// Returns a new array with a copy of the buffer's contents. You should almost certainly be using GetBuffer combined with the Length to 
+        /// Returns a new array with a copy of the buffer's contents. You should almost certainly be using GetBuffer combined with the Length to
         /// access the bytes in this stream. Calling ToArray will destroy the benefits of pooled buffers, but it is included
         /// for the sake of completeness.
         /// </summary>
@@ -831,6 +830,46 @@ namespace Microsoft.IO
             return new BlockAndOffset(offset / blockSize, offset % blockSize);
         }
 
+        /// <summary>
+        /// Returns the buffer at the current stream position.
+        /// </summary>
+        /// <param name="blockOffset">
+        /// Gets assigned to the free space offset within the returned block.<br/>
+        /// It's set to <c>-1</c>, if there is no buffer to be returned.
+        /// </param>
+        /// <returns>
+        /// Buffer at the current position, or <c>null</c>, if the stream is full.
+        /// </returns>
+        internal byte[] GetCurrentBlockAndRelativeOffset(out int blockOffset)
+        {
+            this.CheckDisposed();
+
+            byte[] currentBlock;
+
+            if (this.largeBuffer != null)
+            {
+                blockOffset = this.position;
+                currentBlock = this.largeBuffer;
+            }
+            else
+            {
+                var blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
+
+                if (blockAndOffset.Block < this.blocks.Count)
+                {
+                    blockOffset = blockAndOffset.Offset;
+                    currentBlock = this.blocks[blockAndOffset.Block];
+                }
+                else
+                {
+                    blockOffset = -1;
+                    currentBlock = null;
+                }
+            }
+
+            return currentBlock;
+        }
+
         private void EnsureCapacity(int newCapacity)
         {
             if (newCapacity > this.memoryManager.MaximumStreamCapacity && this.memoryManager.MaximumStreamCapacity > 0)
@@ -855,9 +894,16 @@ namespace Microsoft.IO
             }
             else
             {
-                while (this.Capacity < newCapacity)
+                int capacityToAdd = newCapacity - this.Capacity;
+
+                if (capacityToAdd > 0)
                 {
-                    blocks.Add((this.memoryManager.GetBlock()));
+                    int blocksToAdd = (capacityToAdd / this.memoryManager.BlockSize) + ((capacityToAdd % this.memoryManager.BlockSize) > 0 ? 1 : 0);
+
+                    for (int i = 0; i < blocksToAdd; i++)
+                    {
+                        blocks.Add((this.memoryManager.GetBlock()));
+                    }
                 }
             }
         }
