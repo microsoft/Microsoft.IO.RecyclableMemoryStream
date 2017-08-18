@@ -1883,7 +1883,7 @@ namespace Microsoft.IO.UnitTests
         }
         #endregion
 
-        #region TryGetCurrentBlockAndRelativeOffset
+        #region TryGetCurrentBlock
 
         [Test]
         public void TryGetCurrentBlock_ChunkedStream()
