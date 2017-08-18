@@ -1883,417 +1883,125 @@ namespace Microsoft.IO.UnitTests
         }
         #endregion
 
-        #region RecyclableMemoryStreamWriter Tests
-        [Test]
-        public void RecyclableMemoryStreamWriter_Constructor()
-        {
-            var stream = this.GetDefaultStream();
-
-            Assert.Throws<ArgumentNullException>(() => new RecyclableMemoryStreamWriter(stream: null));
-
-            Assert.Throws<ArgumentNullException>(() => new RecyclableMemoryStreamWriter(stream: null, encoding: Encoding.UTF8));
-            Assert.Throws<ArgumentNullException>(() => new RecyclableMemoryStreamWriter(stream: stream, encoding: null));
-
-            Assert.Throws<ArgumentNullException>(() => new RecyclableMemoryStreamWriter(stream: null, encoding: Encoding.UTF8, bufferSize: 1024));
-            Assert.Throws<ArgumentNullException>(() => new RecyclableMemoryStreamWriter(stream: stream, encoding: null, bufferSize: 1024));
-            Assert.Throws<ArgumentOutOfRangeException>(() => new RecyclableMemoryStreamWriter(stream: stream, encoding: Encoding.UTF8, bufferSize: 0));
-            Assert.Throws<ArgumentOutOfRangeException>(() => new RecyclableMemoryStreamWriter(stream: stream, encoding: Encoding.UTF8, bufferSize: -1));
-
-            var writer = new RecyclableMemoryStreamWriter(stream, Encoding.UTF7);
-            Assert.That(writer.BaseStream, Is.EqualTo(stream));
-            Assert.That(writer.AutoFlush, Is.False);
-            Assert.That(writer.Encoding, Is.EqualTo(Encoding.UTF7));
-            Assert.That(writer.FormatProvider, Is.Not.Null);
-        }
+        #region TryGetCurrentBlockAndRelativeOffset
 
         [Test]
-        public void RecyclableMemoryStreamWriter_Dispose()
+        public void TryGetCurrentBlock_ChunkedStream()
         {
+            ArraySegment<byte> block;
             var stream = this.GetDefaultStream();
 
-            var writer = new RecyclableMemoryStreamWriter(stream, Encoding.UTF8, 1024, true);
-            writer.Dispose();
+            // Empty stream.
+            Assert.That(stream.TryGetCurrentBlock(out block), Is.True);
+            Assert.That(block.Array, Is.Not.Null);
+            Assert.That(block.Offset, Is.EqualTo(0));
+            Assert.That(block.Count, Is.EqualTo(0));
+            Assert.That(block.Array.Length, Is.EqualTo(stream.Capacity));
 
-            Assert.Throws<ObjectDisposedException>(() => { var encoding = writer.Encoding; });
-            Assert.Throws<ObjectDisposedException>(() => { var baseStream = writer.BaseStream; });
-            Assert.Throws<ObjectDisposedException>(() => { var autoFlush = writer.AutoFlush; });
+            byte[] firstBlock = block.Array;
 
-            Assert.Throws<ObjectDisposedException>(() => writer.Flush());
-            Assert.ThrowsAsync<ObjectDisposedException>(() => writer.FlushAsync());
+            // Data = DefaultBlockSize - 1
+            stream.Seek(DefaultBlockSize - 1, SeekOrigin.Begin);
+            Assert.That(stream.TryGetCurrentBlock(out block), Is.True);
+            Assert.That(block.Array == firstBlock);
+            Assert.That(block.Offset, Is.EqualTo(0));
+            Assert.That(block.Count, Is.EqualTo(DefaultBlockSize - 1));
 
-            Assert.Throws<ObjectDisposedException>(() => writer.Write('c'));
-            Assert.Throws<ObjectDisposedException>(() => writer.WriteLine('c'));
-            Assert.ThrowsAsync<ObjectDisposedException>(() => writer.WriteAsync('c'));
-            Assert.ThrowsAsync<ObjectDisposedException>(() => writer.WriteLineAsync('c'));
+            // Data = DefaultBlockSize, stream is full.
+            stream.WriteByte(0);
+            Assert.That(stream.TryGetCurrentBlock(out block), Is.True);
+            Assert.That(block.Array == firstBlock);
+            Assert.That(block.Offset, Is.EqualTo(0));
+            Assert.That(block.Count, Is.EqualTo(stream.Length));
 
-            Assert.Throws<ObjectDisposedException>(() => writer.Write(new[] { 'c' }));
-            Assert.Throws<ObjectDisposedException>(() => writer.WriteLine(new[] { 'c' }));
-            Assert.ThrowsAsync<ObjectDisposedException>(() => writer.WriteAsync(new[] { 'c' }));
-            Assert.ThrowsAsync<ObjectDisposedException>(() => writer.WriteLineAsync(new[] { 'c' }));
+            // Data = DefaultBlockSize, but capacity is increased.
+            stream.Capacity++;
+            Assert.That(stream.TryGetCurrentBlock(out block), Is.True);
+            Assert.That(block.Array, Is.Not.Null);
+            Assert.That(block.Array != firstBlock);
+            Assert.That(block.Offset, Is.EqualTo(0));
+            Assert.That(block.Count, Is.EqualTo(0));
 
-            Assert.Throws<ObjectDisposedException>(() => writer.Write(new[] { 'c' }, 0, 1));
-            Assert.Throws<ObjectDisposedException>(() => writer.WriteLine(new[] { 'c' }, 0, 1));
-            Assert.ThrowsAsync<ObjectDisposedException>(() => writer.WriteAsync(new[] { 'c' }, 0, 1));
-            Assert.ThrowsAsync<ObjectDisposedException>(() => writer.WriteLineAsync(new[] { 'c' }, 0, 1));
+            byte[] secondBlock = block.Array;
 
-            Assert.Throws<ObjectDisposedException>(() => writer.Write("test"));
-            Assert.Throws<ObjectDisposedException>(() => writer.WriteLine("test"));
-            Assert.ThrowsAsync<ObjectDisposedException>(() => writer.WriteAsync("test"));
-            Assert.ThrowsAsync<ObjectDisposedException>(() => writer.WriteLineAsync("test"));
+            // Data = DefaultBlockSize + 1
+            stream.WriteByte(0);
+            Assert.That(stream.TryGetCurrentBlock(out block), Is.True);
+            Assert.That(block.Array, Is.Not.Null);
+            Assert.That(block.Array == secondBlock);
+            Assert.That(block.Offset, Is.EqualTo(0));
+            Assert.That(block.Count, Is.EqualTo(1));
 
-            Assert.Throws<ObjectDisposedException>(() => writer.Write("test {0}", "test2"));
-            Assert.Throws<ObjectDisposedException>(() => writer.WriteLine("test {0}", "test2"));
+            // Seek back to the first chunk.
+            stream.Seek(10, SeekOrigin.Begin);
+            Assert.That(stream.TryGetCurrentBlock(out block), Is.True);
+            Assert.That(block.Array == firstBlock);
+            Assert.That(block.Offset, Is.EqualTo(0));
+            Assert.That(block.Count, Is.EqualTo(10));
 
-            Assert.Throws<ObjectDisposedException>(() => writer.Write(true));
-            Assert.Throws<ObjectDisposedException>(() => writer.WriteLine(true));
-            Assert.Throws<ObjectDisposedException>(() => writer.Write((int)1));
-            Assert.Throws<ObjectDisposedException>(() => writer.WriteLine((int)1));
-            Assert.Throws<ObjectDisposedException>(() => writer.Write((uint)1));
-            Assert.Throws<ObjectDisposedException>(() => writer.WriteLine((uint)1));
-            Assert.Throws<ObjectDisposedException>(() => writer.Write((long)1));
-            Assert.Throws<ObjectDisposedException>(() => writer.WriteLine((long)1));
-            Assert.Throws<ObjectDisposedException>(() => writer.Write((ulong)1));
-            Assert.Throws<ObjectDisposedException>(() => writer.WriteLine((ulong)1));
-            Assert.Throws<ObjectDisposedException>(() => writer.Write((float)1.0));
-            Assert.Throws<ObjectDisposedException>(() => writer.WriteLine((float)1.0));
-            Assert.Throws<ObjectDisposedException>(() => writer.Write((double)1.0));
-            Assert.Throws<ObjectDisposedException>(() => writer.WriteLine((double)1.0));
-            Assert.Throws<ObjectDisposedException>(() => writer.Write(Decimal.One));
-            Assert.Throws<ObjectDisposedException>(() => writer.WriteLine(Decimal.One));
-            Assert.Throws<ObjectDisposedException>(() => writer.Write(new object()));
-            Assert.Throws<ObjectDisposedException>(() => writer.WriteLine(new object()));
-
-            Assert.Throws<ObjectDisposedException>(() => writer.WriteSubstring("test", 1, 1));
-            Assert.ThrowsAsync<ObjectDisposedException>(() => writer.WriteSubstringAsync("test", 1, 1));
-
-            // Close method also disposes the stream.
-            writer = new RecyclableMemoryStreamWriter(stream, Encoding.UTF8, 1024, true);
-            writer.Close();
-            Assert.Throws<ObjectDisposedException>(() => writer.Write("test"));
-
-            // Dispose can be called multiple times.
-            writer = new RecyclableMemoryStreamWriter(stream, Encoding.UTF8, 1024, true);
-            Assert.DoesNotThrow(() => writer.Dispose());
-            Assert.DoesNotThrow(() => writer.Close());
-            Assert.DoesNotThrow(() => writer.Dispose());
-            Assert.DoesNotThrow(() => writer.Close());
-
-            // Writer cannot be used after the stream is disposed.
+            // Even if the stream is disposed, 'Try' method should not throw.
             stream.Dispose();
-            Assert.Throws<ObjectDisposedException>(() => (new RecyclableMemoryStreamWriter(stream, Encoding.UTF8, 1024, true)).Write("test"));
+            Assert.That(stream.TryGetCurrentBlock(out block), Is.False);
         }
 
         [Test]
-        public void RecyclableMemoryStreamWriter_LeaveOpen()
+        public void TryGetCurrentBlock_LargeBuffer()
         {
+            ArraySegment<byte> block;
             var stream = this.GetDefaultStream();
-
-            // If 'leaveOpen' is set to 'true', writer disposes stream on close.
-            var writer = new RecyclableMemoryStreamWriter(stream, Encoding.UTF8, 1024, leaveOpen: false);
-            Assert.DoesNotThrow(() => stream.WriteByte(1));
-            writer.Close();
-            Assert.Throws<ObjectDisposedException>(() => stream.WriteByte(1));
-
-            // If 'leaveOpen' is set to 'true', writer does not dispose stream on close.
-            stream = this.GetDefaultStream();
-            writer = new RecyclableMemoryStreamWriter(stream, Encoding.UTF8, 1024, leaveOpen: true);
-            Assert.DoesNotThrow(() => stream.WriteByte(1));
-            writer.Close();
-            Assert.DoesNotThrow(() => stream.WriteByte(1));
-            stream.Close();
-            Assert.Throws<ObjectDisposedException>(() => stream.WriteByte(1));
-        }
-
-        [Test]
-        public void RecyclableMemoryStreamWriter_Flush()
-        {
-            string message = "test";
-            Encoding encoding = new UTF8Encoding(false, true);
-
-            var stream = this.GetDefaultStream();
-
-            var writer = new RecyclableMemoryStreamWriter(stream, encoding);
-            writer.AutoFlush = false;
-
-            // Flush empty writer.
-            writer.Flush();
-            Assert.That(stream.Position, Is.EqualTo(0));
-
-            writer.Write(message);
-            Assert.That(stream.Position, Is.EqualTo(0));
-            writer.Flush();
-            Assert.That(stream.Position, Is.EqualTo(encoding.GetByteCount(message)));
-            Assert.That(this.ReadStreamContent(stream, encoding), Is.EqualTo(message));
-
-            // It's possible to flush multiple times.
-            writer.Flush();
-            Assert.That(stream.Position, Is.EqualTo(encoding.GetByteCount(message)));
-            Assert.That(this.ReadStreamContent(stream, encoding), Is.EqualTo(message));
-
-            // Dispose/Close also flushes the stream.
-            stream = this.GetDefaultStream();
-            writer = new RecyclableMemoryStreamWriter(stream, encoding, 1024, leaveOpen: true);
-            writer.Write(message);
-            Assert.That(stream.Position, Is.EqualTo(0));
-            writer.Close();
-            Assert.That(stream.Position, Is.EqualTo(encoding.GetByteCount(message)));
-            Assert.That(this.ReadStreamContent(stream, encoding), Is.EqualTo(message));
-        }
-
-        [Test]
-        public void RecyclableMemoryStreamWriter_AutoFlush()
-        {
-            string message = "test";
-            Encoding encoding = new UTF8Encoding(false, true);
-
-            var stream = this.GetDefaultStream();
-            var writer = new RecyclableMemoryStreamWriter(stream, encoding);
-            writer.AutoFlush = true;
-
-            writer.Write(message);
-            Assert.That(stream.Position, Is.EqualTo(encoding.GetByteCount(message)));
-            Assert.That(this.ReadStreamContent(stream, encoding), Is.EqualTo(message));
-
-            writer.Flush();
-            Assert.That(stream.Position, Is.EqualTo(encoding.GetByteCount(message)));
-            Assert.That(this.ReadStreamContent(stream, encoding), Is.EqualTo(message));
-
-            // Write(char) has a custom handler for autoFlush.
-            string newMessage = message + "c";
-            writer.Write('c');
-
-            Assert.That(stream.Position, Is.EqualTo(encoding.GetByteCount(newMessage)));
-            Assert.That(this.ReadStreamContent(stream, encoding), Is.EqualTo(newMessage));
-        }
-
-        [Test]
-        public void RecyclableMemoryStreamWriter_Preamble()
-        {
-            string message = "test";
-            var encodingWithPreamble = Encoding.UTF8;
-            var encodingWithoutPreamble = Encoding.ASCII;
-
-            // Flush on empty stream should add preamble.
-            var stream = this.GetDefaultStream();
-            var writer = new RecyclableMemoryStreamWriter(stream, encodingWithPreamble);
-            Assert.That(stream.Position, Is.EqualTo(0));
-            writer.Flush();
-            Assert.That(stream.Position, Is.EqualTo(encodingWithPreamble.GetPreamble().Length));
-            Assert.That(this.ReadStreamContent(stream, encodingWithPreamble), Is.Empty);
-
-            // Flush on stream with data should also add preamble.
-            stream = this.GetDefaultStream();
-            writer = new RecyclableMemoryStreamWriter(stream, encodingWithPreamble);
-            Assert.That(stream.Position, Is.EqualTo(0));
-            writer.Write(message);
-            Assert.That(stream.Position, Is.EqualTo(0));
-            writer.Flush();
-            Assert.That(stream.Position, Is.EqualTo(encodingWithPreamble.GetPreamble().Length + encodingWithPreamble.GetByteCount(message)));
-            Assert.That(this.ReadStreamContent(stream, encodingWithPreamble), Is.EqualTo(message));
-
-            // Preamble is not written, if stream already has some data.
-            stream = this.GetDefaultStream();
-            stream.WriteByte(1);
-            writer = new RecyclableMemoryStreamWriter(stream, encodingWithPreamble);
-            Assert.That(stream.Position, Is.EqualTo(1));
-            writer.Flush();
-            Assert.That(stream.Position, Is.EqualTo(1));
-
-            // Preamble is written only once.
-            stream = this.GetDefaultStream();
-            writer = new RecyclableMemoryStreamWriter(stream, encodingWithPreamble);
-            Assert.That(stream.Position, Is.EqualTo(0));
-            writer.Flush();
-            writer.Flush();
-            Assert.That(stream.Position, Is.EqualTo(encodingWithPreamble.GetPreamble().Length));
-
-            // If encoding doesn't contain preamble, nothing is written.
-            stream = this.GetDefaultStream();
-            writer = new RecyclableMemoryStreamWriter(stream, encodingWithoutPreamble);
-            Assert.That(stream.Position, Is.EqualTo(0));
-            writer.Flush();
-            Assert.That(stream.Position, Is.EqualTo(0));
-            writer.Write(message);
-            writer.Flush();
-            Assert.That(stream.Position, Is.EqualTo(encodingWithoutPreamble.GetByteCount(message)));
-            Assert.That(this.ReadStreamContent(stream, encodingWithoutPreamble), Is.EqualTo(message));
-        }
-
-        [Test]
-        public void RecyclableMemoryStreamWriter_WriteNullOrEmpty()
-        {
-            var stream = this.GetDefaultStream();
-            var writer = new RecyclableMemoryStreamWriter(stream, Encoding.ASCII, 1024, true);
-
-            // Write(char[])
-            Assert.DoesNotThrow(() => writer.Write((char[])null));
-            writer.Flush();
-            Assert.That(stream.Position, Is.EqualTo(0));
-
-            // Write(char[], int, int)
-            Assert.Throws<ArgumentNullException>(() => writer.Write((char[])null, 0, 0));
-            Assert.Throws<ArgumentOutOfRangeException>(() => writer.Write(new char[0], -1, 1));
-            Assert.Throws<ArgumentException>(() => writer.Write(new char[0], 0, 1));
-            Assert.Throws<ArgumentException>(() => writer.Write(new char[1], 0, 2));
-
-            Assert.DoesNotThrow(() => writer.Write(new char[0], 0, 0));
-            writer.Flush();
-            Assert.That(stream.Position, Is.EqualTo(0));
-
-            Assert.DoesNotThrow(() => writer.Write(new[] { 't' , 'e', 's', 't' }, 1, 0));
-            writer.Flush();
-            Assert.That(stream.Position, Is.EqualTo(0));
-
-            // Write(string)
-            Assert.DoesNotThrow(() => writer.Write((string)null));
-            writer.Flush();
-            Assert.That(stream.Position, Is.EqualTo(0));
-
-            Assert.DoesNotThrow(() => writer.Write(string.Empty));
-            writer.Flush();
-            Assert.That(stream.Position, Is.EqualTo(0));
-
-            // WriteSubstring(string, int, int)
-            Assert.Throws<ArgumentNullException>(() => writer.WriteSubstring(null, 0, 0));
-            Assert.Throws<ArgumentOutOfRangeException>(() => writer.WriteSubstring(string.Empty, -1, 1));
-            Assert.Throws<ArgumentException>(() => writer.WriteSubstring(string.Empty, 0, 1));
-            Assert.Throws<ArgumentException>(() => writer.WriteSubstring("a", 0, 2));
-
-            Assert.DoesNotThrow(() => writer.WriteSubstring(string.Empty, 0, 0));
-            writer.Flush();
-            Assert.That(stream.Position, Is.EqualTo(0));
-
-            Assert.DoesNotThrow(() => writer.WriteSubstring("test", 1, 0));
-            writer.Flush();
-            Assert.That(stream.Position, Is.EqualTo(0));
-
-            Assert.DoesNotThrowAsync(() => writer.WriteSubstringAsync("test", 1, 0));
-            writer.Flush();
-            Assert.That(stream.Position, Is.EqualTo(0));
-        }
-
-        [Test]
-        public void RecyclableMemoryStreamWriter_Write()
-        {
-            var encoding = Encoding.ASCII;
-            var stream = this.GetDefaultStream();
-            var writer = new RecyclableMemoryStreamWriter(stream, encoding, 1024, true);
-            writer.AutoFlush = true;
-
-            // Write(char)
-            writer.Write('t');
-            this.CheckStreamContent(stream, encoding, "t");
-            stream.SetLength(0);
-
-            // Write(char[])
-            writer.Write(new[] { 't', 'e', 's', 't' });
-            this.CheckStreamContent(stream, encoding, "test");
-            stream.SetLength(0);
-
-            // Write(char[], int, int)
-            writer.Write(new[] { 't', 'e', 's', 't' }, 1, 2);
-            this.CheckStreamContent(stream, encoding, "es");
-            stream.SetLength(0);
-
-            // Write(string)
-            writer.Write("test");
-            this.CheckStreamContent(stream, encoding, "test");
-            stream.SetLength(0);
-
-            // WriteSubstring(string, int, int)
-            writer.WriteSubstring("test", 1, 2);
-            this.CheckStreamContent(stream, encoding, "es");
-            stream.SetLength(0);
-
-            // WriteSubstringAsync(string, int, int)
-            Assert.DoesNotThrowAsync(() => writer.WriteSubstringAsync("test", 1, 2));
-            this.CheckStreamContent(stream, encoding, "es");
-            stream.SetLength(0);
-
-            // String, larger than a char buffer size.
-            string largeString = new string('-', 4096);
-            writer.Write(largeString);
-            this.CheckStreamContent(stream, encoding, largeString);
-            stream.SetLength(0);
-
-            // Write larger block than the stream can currently have.
-            string veryLargeString = new string('-', stream.Capacity + 1);
-            writer.Write(veryLargeString);
-            this.CheckStreamContent(stream, encoding, veryLargeString);
-            stream.SetLength(0);
-        }
-
-        [Test]
-        public void RecyclableMemoryStreamWriter_Write_BlockBoundary()
-        {
-            var stream = this.GetDefaultStream();
-            var memMgr = stream.MemoryManager;
-
-            var encoding = Encoding.ASCII;
-            var writer = new RecyclableMemoryStreamWriter(stream, encoding, 1024, true);
-            writer.AutoFlush = true;
-
-            string str = new string('-', encoding.GetMaxCharCount(memMgr.BlockSize) - 1);
-            writer.Write(str);
-            Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(0));
-            Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(memMgr.BlockSize));
-
-            str = new string('-', encoding.GetMaxCharCount(memMgr.BlockSize));
-            writer.Write(str);
-            Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(0));
-            Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(memMgr.BlockSize * 2));
-        }
-
-        [Test]
-        public void RecyclableMemoryStreamWriter_Write_LargeBuffer()
-        {
-            var encoding = Encoding.ASCII;
-            var stream = this.GetDefaultStream();
-            var writer = new RecyclableMemoryStreamWriter(stream, Encoding.ASCII, 1024, true);
-            writer.AutoFlush = true;
-
-            // Convert to a large buffer.
+            stream.Capacity++;
             stream.GetBuffer();
 
-            // Write(char)
-            writer.Write('t');
-            this.CheckStreamContent(stream, encoding, "t");
-            stream.SetLength(0);
+            // Empty stream.
+            Assert.That(stream.TryGetCurrentBlock(out block), Is.True);
+            Assert.That(block.Array, Is.Not.Null);
+            Assert.That(block.Offset, Is.EqualTo(0));
+            Assert.That(block.Count, Is.EqualTo(0));
+            Assert.That(block.Array.Length, Is.EqualTo(stream.Capacity));
 
-            // Write(char[], int, int)
-            writer.Write(new[] { 't', 'e', 's', 't' }, 1, 2);
-            this.CheckStreamContent(stream, encoding, "es");
-            stream.SetLength(0);
+            byte[] largeBuffer = block.Array;
 
-            // WriteSubstring(string, int, int)
-            writer.WriteSubstring("test", 1, 2);
-            this.CheckStreamContent(stream, encoding, "es");
-            stream.SetLength(0);
+            // Data = Capacity - 1
+            int originalCapacity = stream.Capacity;
+            int bytesToWrite = originalCapacity - 1;
 
-            // Write larger block than the stream can currently have.
-            string veryLargeString = new string('-', stream.Capacity + 1);
-            writer.Write(veryLargeString);
-            this.CheckStreamContent(stream, encoding, veryLargeString);
-            stream.SetLength(0);
+            stream.Seek(bytesToWrite, SeekOrigin.Begin);
+            Assert.That(stream.TryGetCurrentBlock(out block), Is.True);
+            Assert.That(block.Array, Is.Not.Null);
+            Assert.That(block.Array == largeBuffer);
+            Assert.That(block.Offset, Is.EqualTo(0));
+            Assert.That(block.Count, Is.EqualTo(bytesToWrite));
+
+            // Data = Capacity, stream is full.
+            stream.WriteByte(0);
+            Assert.That(stream.TryGetCurrentBlock(out block), Is.True);
+            Assert.That(block.Array, Is.Not.Null);
+            Assert.That(block.Offset, Is.EqualTo(0));
+            Assert.That(block.Count, Is.EqualTo(stream.Length));
+
+            // Data = Capacity + 1
+            stream.WriteByte(0);
+            Assert.That(stream.TryGetCurrentBlock(out block), Is.True);
+            Assert.That(block.Array, Is.Not.Null);
+            Assert.That(block.Array != largeBuffer);
+            Assert.That(block.Offset, Is.EqualTo(0));
+            Assert.That(block.Count, Is.EqualTo(originalCapacity + 1));
+
+            // A new buffer is allocated.
+            largeBuffer = block.Array;
+
+            // Seek back.
+            stream.Seek(10, SeekOrigin.Begin);
+            Assert.That(stream.TryGetCurrentBlock(out block), Is.True);
+            Assert.That(block.Array == largeBuffer);
+            Assert.That(block.Offset, Is.EqualTo(0));
+            Assert.That(block.Count, Is.EqualTo(10));
+
+            // Even if the stream is disposed, 'Try' method should not throw.
+            stream.Dispose();
+            Assert.That(stream.TryGetCurrentBlock(out block), Is.False);
         }
 
-        [Test]
-        public void RecyclableMemoryStreamWriter_WriteChar_OnFullBuffer()
-        {
-            string str = new string('-', 1024);
-
-            var stream = this.GetDefaultStream();
-            var writer = new RecyclableMemoryStreamWriter(stream, Encoding.ASCII, 1024, true);
-
-            // Write(char) should flush, if writer's internal buffer is full.
-            writer.Write(str);
-            Assert.That(stream.Position, Is.EqualTo(0));
-            writer.Write('c');
-            Assert.That(stream.Position, Is.EqualTo(1024));
-            Assert.That(this.ReadStreamContent(stream, Encoding.ASCII), Is.EqualTo(str));
-            writer.Flush();
-            Assert.That(stream.Position, Is.EqualTo(1025));
-        }
         #endregion
 
         #region Test Helpers
@@ -2328,31 +2036,6 @@ namespace Microsoft.IO.UnitTests
             stream.Write(buffer, 0, buffer.Length);
             stream.Position = 0;
             return stream;
-        }
-
-        private string ReadStreamContent(RecyclableMemoryStream stream, Encoding encoding)
-        {
-            long prevPosition = stream.Position;
-            stream.Position = 0;
-
-            try
-            {
-                using (var reader = new StreamReader(stream, encoding, true, 1024, true))
-                {
-                    return reader.ReadToEnd();
-                }
-            }
-            finally
-            {
-                stream.Position = prevPosition;
-            }
-        }
-
-        private void CheckStreamContent(RecyclableMemoryStream stream, Encoding encoding, string expected)
-        {
-            string actual = this.ReadStreamContent(stream, encoding);
-            Assert.That(stream.Position, Is.EqualTo(encoding.GetByteCount(expected)));
-            Assert.That(this.ReadStreamContent(stream, encoding), Is.EqualTo(expected));
         }
         #endregion
 

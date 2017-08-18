@@ -474,6 +474,48 @@ namespace Microsoft.IO
 #pragma warning restore CS0809
 
         /// <summary>
+        /// Returns information about the currently used <c>byte[]</c> block and the amount of data written to it.
+        /// </summary>
+        /// <param name="block">
+        /// Assigned to the <see cref="ArraySegment{byte}"/> that holds a reference to the current <c>byte[]</c>
+        /// block and data length in it (<see cref="ArraySegment{byte}.Count"/>).
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the block at the current position exists and was retrieved;
+        /// <c>false</c> if the current instance is disposed.
+        /// </returns>
+        public bool TryGetCurrentBlock(out ArraySegment<byte> block)
+        {
+            if (this.Disposed)
+            {
+                block = default(ArraySegment<byte>);
+                return false;
+            }
+
+            if (this.largeBuffer != null)
+            {
+                block = new ArraySegment<byte>(this.largeBuffer, 0, this.position);
+            }
+            else
+            {
+                var blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
+
+                if (blockAndOffset.Block < this.blocks.Count)
+                {
+                    byte[] currentBlock = this.blocks[blockAndOffset.Block];
+                    block = new ArraySegment<byte>(currentBlock, 0, blockAndOffset.Offset);
+                }
+                else
+                {
+                    byte[] currentBlock = this.blocks[blockAndOffset.Block - 1];
+                    block = new ArraySegment<byte>(currentBlock, 0, currentBlock.Length);
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Reads from the current position into the provided buffer
         /// </summary>
         /// <param name="buffer">Destination buffer</param>
@@ -830,46 +872,6 @@ namespace Microsoft.IO
             return new BlockAndOffset(offset / blockSize, offset % blockSize);
         }
 
-        /// <summary>
-        /// Returns the buffer at the current stream position.
-        /// </summary>
-        /// <param name="blockOffset">
-        /// Gets assigned to the free space offset within the returned block.<br/>
-        /// It's set to <c>-1</c>, if there is no buffer to be returned.
-        /// </param>
-        /// <returns>
-        /// Buffer at the current position, or <c>null</c>, if the stream is full.
-        /// </returns>
-        internal byte[] GetCurrentBlockAndRelativeOffset(out int blockOffset)
-        {
-            this.CheckDisposed();
-
-            byte[] currentBlock;
-
-            if (this.largeBuffer != null)
-            {
-                blockOffset = this.position;
-                currentBlock = this.largeBuffer;
-            }
-            else
-            {
-                var blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
-
-                if (blockAndOffset.Block < this.blocks.Count)
-                {
-                    blockOffset = blockAndOffset.Offset;
-                    currentBlock = this.blocks[blockAndOffset.Block];
-                }
-                else
-                {
-                    blockOffset = -1;
-                    currentBlock = null;
-                }
-            }
-
-            return currentBlock;
-        }
-
         private void EnsureCapacity(int newCapacity)
         {
             if (newCapacity > this.memoryManager.MaximumStreamCapacity && this.memoryManager.MaximumStreamCapacity > 0)
@@ -894,16 +896,9 @@ namespace Microsoft.IO
             }
             else
             {
-                int capacityToAdd = newCapacity - this.Capacity;
-
-                if (capacityToAdd > 0)
+                while (this.Capacity < newCapacity)
                 {
-                    int blocksToAdd = (capacityToAdd / this.memoryManager.BlockSize) + ((capacityToAdd % this.memoryManager.BlockSize) > 0 ? 1 : 0);
-
-                    for (int i = 0; i < blocksToAdd; i++)
-                    {
-                        blocks.Add((this.memoryManager.GetBlock()));
-                    }
+                    blocks.Add((this.memoryManager.GetBlock()));
                 }
             }
         }
