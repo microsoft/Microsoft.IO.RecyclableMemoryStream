@@ -13,4 +13,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard1.4|AnyCPU'">
     <DocumentationFile>bin\Release\netstandard1.4\Microsoft.IO.RecyclableMemoryStream.xml</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net40|AnyCPU'">
+    <DocumentationFile>bin\Release\net40\Microsoft.IO.RecyclableMemoryStream.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net45|AnyCPU'">
+    <DocumentationFile>bin\Release\net45\Microsoft.IO.RecyclableMemoryStream.xml</DocumentationFile>
+  </PropertyGroup>
 </Project>
