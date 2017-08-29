@@ -10,4 +10,7 @@
     <DelaySign>true</DelaySign>
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard1.4|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard1.4\Microsoft.IO.RecyclableMemoryStream.xml</DocumentationFile>
+  </PropertyGroup>
 </Project>
