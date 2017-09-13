@@ -1883,6 +1883,34 @@ namespace Microsoft.IO.UnitTests
         }
         #endregion
 
+        #region TryGetBuffer
+
+        [Test]
+        public void TryGetBuffer()
+        {
+            ArraySegment<byte> buffer;
+            var stream = this.GetDefaultStream();
+
+            // Empty stream.
+            Assert.That(stream.TryGetBuffer(out buffer), Is.True);
+            Assert.That(buffer.Array == stream.GetBuffer());
+            Assert.That(buffer.Offset, Is.EqualTo(0));
+            Assert.That(buffer.Count, Is.EqualTo(stream.Length));
+
+            // Data = 1
+            stream.WriteByte(1);
+            Assert.That(stream.TryGetBuffer(out buffer), Is.True);
+            Assert.That(buffer.Array == stream.GetBuffer());
+            Assert.That(buffer.Offset, Is.EqualTo(1));
+            Assert.That(buffer.Count, Is.EqualTo(stream.Length));
+
+            // Disposed stream.
+            stream.Close();
+            Assert.That(stream.TryGetBuffer(out buffer), Is.False);
+        }
+
+        #endregion
+
         #region TryGetCurrentBlock
 
         [Test]

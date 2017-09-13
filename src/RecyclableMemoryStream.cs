@@ -452,29 +452,36 @@ namespace Microsoft.IO
         }
 
         /// <summary>
-        /// Returns a new array with a copy of the buffer's contents. You should almost certainly be using GetBuffer combined with the Length to
-        /// access the bytes in this stream. Calling ToArray will destroy the benefits of pooled buffers, but it is included
-        /// for the sake of completeness.
+        /// Returns a single buffer containing the contents of the stream.
+        /// The buffer may be longer than the stream length.
         /// </summary>
-        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
-#pragma warning disable CS0809
-        [Obsolete("This method has degraded performance vs. GetBuffer and should be avoided.")]
-        public override byte[] ToArray()
+        /// <param name="buffer">The byte array segment from which this stream was created.</param>
+        /// <returns>
+        /// <c>true</c> if the conversion was successful; otherwise, <c>false</c>.
+        /// </returns>
+        /// <remarks>
+        /// IMPORTANT: Doing a Write() after calling TryGetBuffer() invalidates the buffer. The old buffer is held onto
+        /// until Dispose is called, but the next time TryGetBuffer() is called, a new buffer from the pool will be required.
+        /// </remarks>
+#if NETSTANDARD1_4
+        public override bool TryGetBuffer(out ArraySegment<byte> buffer)
+#else
+        public bool TryGetBuffer(out ArraySegment<byte> buffer)
+#endif
         {
-            this.CheckDisposed();
-            var newBuffer = new byte[this.Length];
+            if (this.Disposed)
+            {
+                buffer = default(ArraySegment<byte>);
+                return false;
+            }
 
-            this.InternalRead(newBuffer, 0, this.length, 0);
-            string stack = this.memoryManager.GenerateCallStacks ? Environment.StackTrace : null;
-            RecyclableMemoryStreamManager.Events.Writer.MemoryStreamToArray(this.id, this.tag, stack, 0);
-            this.memoryManager.ReportStreamToArray();
-
-            return newBuffer;
+            byte[] byteBuffer = this.GetBuffer();
+            buffer = new ArraySegment<byte>(byteBuffer, 0, this.length);
+            return true;
         }
-#pragma warning restore CS0809
 
         /// <summary>
-        /// Returns information about the currently used <c>byte[]</c> block and the amount of data written to it.
+        /// Returns the currently used <c>byte[]</c> block and the amount of data written to it.
         /// </summary>
         /// <param name="block">
         /// Assigned to the <see cref="ArraySegment{byte}"/> that holds a reference to the current <c>byte[]</c>
@@ -484,6 +491,10 @@ namespace Microsoft.IO
         /// <c>true</c> if the block at the current position exists and was retrieved;
         /// <c>false</c> if the current instance is disposed.
         /// </returns>
+        /// <remarks>
+        /// If block buffers are used by the stream, the block at the current position is returned.
+        /// If the stream is full (its <see cref="Position"/> is equal to its <see cref="Length"/>), the last allocated (full) block is returned.
+        /// </remarks>
         public bool TryGetCurrentBlock(out ArraySegment<byte> block)
         {
             if (this.Disposed)
@@ -507,6 +518,7 @@ namespace Microsoft.IO
                 }
                 else
                 {
+                    // If the stream is full, return the last block.
                     byte[] currentBlock = this.blocks[blockAndOffset.Block - 1];
                     block = new ArraySegment<byte>(currentBlock, 0, currentBlock.Length);
                 }
@@ -514,6 +526,28 @@ namespace Microsoft.IO
 
             return true;
         }
+
+        /// <summary>
+        /// Returns a new array with a copy of the buffer's contents. You should almost certainly be using GetBuffer combined with the Length to
+        /// access the bytes in this stream. Calling ToArray will destroy the benefits of pooled buffers, but it is included
+        /// for the sake of completeness.
+        /// </summary>
+        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+#pragma warning disable CS0809
+        [Obsolete("This method has degraded performance vs. GetBuffer and should be avoided.")]
+        public override byte[] ToArray()
+        {
+            this.CheckDisposed();
+            var newBuffer = new byte[this.Length];
+
+            this.InternalRead(newBuffer, 0, this.length, 0);
+            string stack = this.memoryManager.GenerateCallStacks ? Environment.StackTrace : null;
+            RecyclableMemoryStreamManager.Events.Writer.MemoryStreamToArray(this.id, this.tag, stack, 0);
+            this.memoryManager.ReportStreamToArray();
+
+            return newBuffer;
+        }
+#pragma warning restore CS0809
 
         /// <summary>
         /// Reads from the current position into the provided buffer
