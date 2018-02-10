@@ -621,7 +621,6 @@ namespace Microsoft.IO
         public override void WriteByte(byte value)
         {
             this.CheckDisposed();
-            int blockSize = this.memoryManager.BlockSize;
             int end = this.position + 1;
             // Check for overflow
             if (end > MaxStreamLength)
@@ -633,7 +632,9 @@ namespace Microsoft.IO
 
             if (this.largeBuffer is null)
             {
-                int block = this.position / blockSize, offset = this.position % blockSize;
+                int blockSize = this.memoryManager.BlockSize;
+                int block = this.position / blockSize;
+                int offset = this.position - block * blockSize;
 
                 byte[] currentBlock = this.blocks[block];
 
