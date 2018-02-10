@@ -620,33 +620,33 @@ namespace Microsoft.IO
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public override void WriteByte(byte value)
         {
-			this.CheckDisposed();
-			int blockSize = this.memoryManager.BlockSize;
-			int end = this.position + 1;
-			// Check for overflow
-			if (end > MaxStreamLength)
-			{
-				throw new IOException("Maximum capacity exceeded");
-			}
+            this.CheckDisposed();
+            int blockSize = this.memoryManager.BlockSize;
+            int end = this.position + 1;
+            // Check for overflow
+            if (end > MaxStreamLength)
+            {
+                throw new IOException("Maximum capacity exceeded");
+            }
 
-			this.EnsureCapacity(end);
+            this.EnsureCapacity(end);
 
-			if (this.largeBuffer is null)
-			{
-				int block = this.position / blockSize, offset = this.position % blockSize;
+            if (this.largeBuffer is null)
+            {
+                int block = this.position / blockSize, offset = this.position % blockSize;
 
-				byte[] currentBlock = this.blocks[block];
+                byte[] currentBlock = this.blocks[block];
 
-				currentBlock[offset] = value;
-			}
-			else
-			{
-				this.largeBuffer[this.position] = value;
-			}
+                currentBlock[offset] = value;
+            }
+            else
+            {
+                this.largeBuffer[this.position] = value;
+            }
 
-			this.position = end;
-			this.length = Math.Max(this.position, this.length);
-		}
+            this.position = end;
+            this.length = Math.Max(this.position, this.length);
+        }
 
         /// <summary>
         /// Reads a single byte from the current position in the stream.
