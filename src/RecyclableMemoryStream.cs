@@ -187,8 +187,12 @@ namespace Microsoft.IO
             : base(emptyArray)
         {
             this.memoryManager = memoryManager;
-            this.id = Guid.NewGuid();
             this.tag = tag;
+
+            if (RecyclableMemoryStreamManager.Events.Writer.IsEnabled())
+            {
+                this.id = Guid.NewGuid();
+            }
 
             if (requestedSize < memoryManager.BlockSize)
             {
