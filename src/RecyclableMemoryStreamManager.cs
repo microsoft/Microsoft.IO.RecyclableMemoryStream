@@ -70,10 +70,12 @@ namespace Microsoft.IO
         public delegate void UsageReportEventHandler(
             long smallPoolInUseBytes, long smallPoolFreeBytes, long largePoolInUseBytes, long largePoolFreeBytes);
 
+        public const int DefaultTinyBlockSize = 8 * 1024;
         public const int DefaultBlockSize = 128 * 1024;
         public const int DefaultLargeBufferMultiple = 1024 * 1024;
         public const int DefaultMaximumBufferSize = 128 * 1024 * 1024;
 
+        private readonly int tinyBlockSize;
         private readonly int blockSize;
         private readonly long[] largeBufferFreeSize;
         private readonly long[] largeBufferInUseSize;
@@ -88,8 +90,11 @@ namespace Microsoft.IO
         private readonly ConcurrentStack<byte[]>[] largePools;
 
         private readonly int maximumBufferSize;
+        private readonly ConcurrentStack<byte[]> tinyPool;
         private readonly ConcurrentStack<byte[]> smallPool;
 
+        private long tinyPoolFreeSize;
+        private long tinyPoolInUseSize;
         private long smallPoolFreeSize;
         private long smallPoolInUseSize;
 
@@ -97,7 +102,10 @@ namespace Microsoft.IO
         /// Initializes the memory manager with the default block/buffer specifications.
         /// </summary>
         public RecyclableMemoryStreamManager()
-            : this(DefaultBlockSize, DefaultLargeBufferMultiple, DefaultMaximumBufferSize) { }
+            : this(DefaultBlockSize, DefaultLargeBufferMultiple, DefaultMaximumBufferSize, 0) { }
+
+        public RecyclableMemoryStreamManager(int blockSize, int largeBufferMultiple, int maximumBufferSize)
+            : this(blockSize, largeBufferMultiple, maximumBufferSize, 0) { }
 
         /// <summary>
         /// Initializes the memory manager with the given block requiredSize.
@@ -105,9 +113,10 @@ namespace Microsoft.IO
         /// <param name="blockSize">Size of each block that is pooled. Must be > 0.</param>
         /// <param name="largeBufferMultiple">Each large buffer will be a multiple of this value.</param>
         /// <param name="maximumBufferSize">Buffers larger than this are not pooled</param>
-        /// <exception cref="ArgumentOutOfRangeException">blockSize is not a positive number, or largeBufferMultiple is not a positive number, or maximumBufferSize is less than blockSize.</exception>
+        /// <param name="tinyBlockSize">Size of each tinyBlock that is pooled. Must be > 0.</param>
+        /// <exception cref="ArgumentOutOfRangeException">blockSize is not a positive number, or largeBufferMultiple is not a positive number, or maximumBufferSize is less than blockSize, or tinyBlockSize is a negative number.</exception>
         /// <exception cref="ArgumentException">maximumBufferSize is not a multiple of largeBufferMultiple</exception>
-        public RecyclableMemoryStreamManager(int blockSize, int largeBufferMultiple, int maximumBufferSize)
+        public RecyclableMemoryStreamManager(int blockSize, int largeBufferMultiple, int maximumBufferSize, int tinyBlockSize)
         {
             if (blockSize <= 0)
             {
@@ -126,9 +135,15 @@ namespace Microsoft.IO
                                                       "maximumBufferSize must be at least blockSize");
             }
 
+            if (tinyBlockSize < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(tinyBlockSize), tinyBlockSize, "tinyBlockSize must be a non-negative number");
+            }
+
             this.blockSize = blockSize;
             this.largeBufferMultiple = largeBufferMultiple;
             this.maximumBufferSize = maximumBufferSize;
+            this.tinyBlockSize = tinyBlockSize;
 
             if (!this.IsLargeBufferMultiple(maximumBufferSize))
             {
@@ -136,6 +151,7 @@ namespace Microsoft.IO
                                             nameof(maximumBufferSize));
             }
 
+            this.tinyPool = new ConcurrentStack<byte[]>();
             this.smallPool = new ConcurrentStack<byte[]>();
             var numLargePools = maximumBufferSize / largeBufferMultiple;
 
@@ -150,8 +166,10 @@ namespace Microsoft.IO
                 this.largePools[i] = new ConcurrentStack<byte[]>();
             }
 
-            Events.Writer.MemoryStreamManagerInitialized(blockSize, largeBufferMultiple, maximumBufferSize);
+            Events.Writer.MemoryStreamManagerInitialized(blockSize, largeBufferMultiple, maximumBufferSize, tinyBlockSize);
         }
+
+        public int TinyBlockSize => this.tinyBlockSize;
 
         /// <summary>
         /// The size of each block. It must be set at creation and cannot be changed.
@@ -169,6 +187,10 @@ namespace Microsoft.IO
         /// <remarks>Any buffer that is returned to the pool that is larger than this will be
         /// discarded and garbage collected.</remarks>
         public int MaximumBufferSize => this.maximumBufferSize;
+
+        public long TinyPoolFreeSize => this.tinyPoolFreeSize;
+
+        public long TinyPoolInUseSize => this.tinyPoolInUseSize;
 
         /// <summary>
         /// Number of bytes in small pool not currently in use
@@ -190,6 +212,8 @@ namespace Microsoft.IO
         /// </summary>
         public long LargePoolInUseSize => this.largeBufferInUseSize.Sum();
 
+        public long TinyBlocksFree => this.tinyPool.Count;
+
         /// <summary>
         /// How many blocks are in the small pool
         /// </summary>
@@ -210,6 +234,8 @@ namespace Microsoft.IO
                 return free;
             }
         }
+
+        public long MaximumFreeTinyPoolBytes { get; set; }
 
         /// <summary>
         /// How many bytes of small free blocks to allow before we start dropping
@@ -246,6 +272,26 @@ namespace Microsoft.IO
         /// </summary>
         public bool AggressiveBufferReturn { get; set; }
 
+        internal byte[] GetTinyBlock()
+        {
+            byte[] block;
+            if (!this.tinyPool.TryPop(out block))
+            {
+                // We'll add this back to the pool when the stream is disposed
+                // (unless our free pool is too large)
+                block = new byte[this.TinyBlockSize];
+                Events.Writer.MemoryStreamNewBlockCreated(this.tinyPoolInUseSize + this.smallPoolInUseSize);
+                ReportBlockCreated();
+            }
+            else
+            {
+                Interlocked.Add(ref this.tinyPoolFreeSize, -this.TinyBlockSize);
+            }
+
+            Interlocked.Add(ref this.tinyPoolInUseSize, this.TinyBlockSize);
+            return block;
+        }
+
         /// <summary>
         /// Removes and returns a single block from the pool.
         /// </summary>
@@ -258,7 +304,7 @@ namespace Microsoft.IO
                 // We'll add this back to the pool when the stream is disposed
                 // (unless our free pool is too large)
                 block = new byte[this.BlockSize];
-                Events.Writer.MemoryStreamNewBlockCreated(this.smallPoolInUseSize);
+                Events.Writer.MemoryStreamNewBlockCreated(this.tinyPoolInUseSize + this.smallPoolInUseSize);
                 ReportBlockCreated();
             }
             else
@@ -384,8 +430,38 @@ namespace Microsoft.IO
 
             Interlocked.Add(ref this.largeBufferInUseSize[poolIndex], -buffer.Length);
 
-            ReportUsageReport(this.smallPoolInUseSize, this.smallPoolFreeSize, this.LargePoolInUseSize,
-                              this.LargePoolFreeSize);
+            ReportUsageReport(this.tinyPoolInUseSize + this.smallPoolInUseSize, this.tinyPoolFreeSize + this.smallPoolFreeSize,
+                              this.LargePoolInUseSize, this.LargePoolFreeSize);
+        }
+
+        internal void ReturnTinyBlock(byte[] block, string tag)
+        {
+            if (block == null)
+            {
+                throw new ArgumentNullException(nameof(block));
+            }
+
+            Interlocked.Add(ref this.tinyPoolInUseSize, -this.TinyBlockSize);
+
+            if (block == null || block.Length != this.TinyBlockSize)
+            {
+                throw new ArgumentException("blocks contains buffers that are not BlockSize in length");
+            }
+
+            if (this.MaximumFreeTinyPoolBytes == 0 || this.TinyPoolFreeSize < this.MaximumFreeTinyPoolBytes)
+            {
+                Interlocked.Add(ref this.tinyPoolFreeSize, this.TinyBlockSize);
+                this.tinyPool.Push(block);
+            }
+            else
+            {
+                Events.Writer.MemoryStreamDiscardBuffer(Events.MemoryStreamBufferType.Tiny, tag,
+                                                        Events.MemoryStreamDiscardReason.EnoughFree);
+                ReportBlockDiscarded();
+            }
+
+            ReportUsageReport(this.tinyPoolInUseSize + this.smallPoolInUseSize, this.tinyPoolFreeSize + this.smallPoolFreeSize,
+                              this.LargePoolInUseSize, this.LargePoolFreeSize);
         }
 
         /// <summary>
@@ -429,8 +505,8 @@ namespace Microsoft.IO
                 }
             }
 
-            ReportUsageReport(this.smallPoolInUseSize, this.smallPoolFreeSize, this.LargePoolInUseSize,
-                              this.LargePoolFreeSize);
+            ReportUsageReport(this.tinyPoolInUseSize + this.smallPoolInUseSize, this.tinyPoolFreeSize + this.smallPoolFreeSize,
+                              this.LargePoolInUseSize, this.LargePoolFreeSize);
         }
 
         internal void ReportBlockCreated()
@@ -550,6 +626,40 @@ namespace Microsoft.IO
         public MemoryStream GetStream(string tag, byte[] buffer, int offset, int count)
         {
             var stream = new RecyclableMemoryStream(this, tag, count);
+            stream.Write(buffer, offset, count);
+            stream.Position = 0;
+            return stream;
+        }
+
+        public MemoryStream GetTwoStageStream()
+        {
+            return new TwoStageRecyclableMemoryStream(this);
+        }
+
+        public MemoryStream GetTwoStageStream(string tag)
+        {
+            return new TwoStageRecyclableMemoryStream(this, tag);
+        }
+
+        public MemoryStream GetTwoStageStream(string tag, int requiredSize)
+        {
+            return new TwoStageRecyclableMemoryStream(this, tag, requiredSize);
+        }
+
+        public MemoryStream GetTwoStageStream(string tag, int requiredSize, bool asContiguousBuffer)
+        {
+            if (!asContiguousBuffer || requiredSize <= this.BlockSize)
+            {
+                return this.GetTwoStageStream(tag, requiredSize);
+            }
+
+            return new TwoStageRecyclableMemoryStream(this, tag, requiredSize, this.GetLargeBuffer(requiredSize, tag));
+        }
+
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope")]
+        public MemoryStream GetTwoStageStream(string tag, byte[] buffer, int offset, int count)
+        {
+            var stream = new TwoStageRecyclableMemoryStream(this, tag, count);
             stream.Write(buffer, offset, count);
             stream.Position = 0;
             return stream;
