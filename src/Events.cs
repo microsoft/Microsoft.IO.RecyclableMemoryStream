@@ -34,6 +34,7 @@ namespace Microsoft.IO
 
             public enum MemoryStreamBufferType
             {
+                Tiny,
                 Small,
                 Large
             }
@@ -92,11 +93,11 @@ namespace Microsoft.IO
             }
 
             [Event(6, Level = EventLevel.Informational)]
-            public void MemoryStreamManagerInitialized(int blockSize, int largeBufferMultiple, int maximumBufferSize)
+            public void MemoryStreamManagerInitialized(int blockSize, int largeBufferMultiple, int maximumBufferSize, int tinyBlockSize)
             {
                 if (this.IsEnabled())
                 {
-                    WriteEvent(6, blockSize, largeBufferMultiple, maximumBufferSize);
+                    WriteEvent(6, blockSize, largeBufferMultiple, maximumBufferSize, tinyBlockSize);
                 }
             }
 
