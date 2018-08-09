@@ -33,7 +33,7 @@ namespace Microsoft.IO
     /// buffers.
     /// </summary>
     /// <remarks>
-    /// This class works in tandem with the RecylableMemoryStreamManager to supply MemoryStream
+    /// This class works in tandem with the RecyclableMemoryStreamManager to supply MemoryStream
     /// objects to callers, while avoiding these specific problems:
     /// 1. LOH allocations - since all large buffers are pooled, they will never incur a Gen2 GC
     /// 2. Memory waste - A standard memory stream doubles its size when it runs out of room. This
@@ -50,7 +50,7 @@ namespace Microsoft.IO
     /// The biggest wrinkle in this implementation is when GetBuffer() is called. This requires a single 
     /// contiguous buffer. If only a single block is in use, then that block is returned. If multiple blocks 
     /// are in use, we retrieve a larger buffer from the memory manager. These large buffers are also pooled, 
-    /// split by size--they are multiples of a chunk size (1 MB by default).
+    /// split by size--they are multiples/exponentials of a chunk size (1 MB by default).
     /// 
     /// Once a large buffer is assigned to the stream the blocks are NEVER again used for this stream. All operations take place on the 
     /// large buffer. The large buffer can be replaced by a larger buffer from the pool as needed. All blocks and large buffers 

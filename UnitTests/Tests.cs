@@ -36,10 +36,10 @@ namespace Microsoft.IO.UnitTests
     /// </summary>
     public abstract class BaseRecyclableMemoryStreamTests
     {
-        private const int DefaultBlockSize = 16384;
-        private const int DefaultLargeBufferMultiple = 1 << 20;
-        private const int DefaultMaximumBufferSize = 8 * (1 << 20);
-        private const string DefaultTag = "NUnit";
+        protected const int DefaultBlockSize = 16384;
+        protected const int DefaultLargeBufferMultiple = 1 << 20;
+        protected const int DefaultMaximumBufferSize = 8 * (1 << 20);
+        protected const string DefaultTag = "NUnit";
         private const int MemoryStreamDisposed = 2;
         private const int MemoryStreamDoubleDispose = 3;
 
@@ -47,38 +47,46 @@ namespace Microsoft.IO.UnitTests
 
         #region RecyclableMemoryManager Tests
         [Test]
+        public virtual void RecyclableMemoryManagerUsingMultipleOrExponentialLargeBuffer()
+        {
+            var memMgr = this.GetMemoryManager();
+            Assert.That(memMgr.UseMultipleLargeBuffer, Is.True);
+            Assert.That(memMgr.UseExponentialLargeBuffer, Is.False);
+        }
+
+        [Test]
         public void RecyclableMemoryManagerThrowsExceptionOnZeroBlockSize()
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() => new RecyclableMemoryStreamManager(0, 100, 200));
-            Assert.Throws<ArgumentOutOfRangeException>(() => new RecyclableMemoryStreamManager(-1, 100, 200));
-            Assert.DoesNotThrow(() => new RecyclableMemoryStreamManager(1, 100, 200));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new RecyclableMemoryStreamManager(0, 100, 200, this.useExponentialLargeBuffer));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new RecyclableMemoryStreamManager(-1, 100, 200, this.useExponentialLargeBuffer));
+            Assert.DoesNotThrow(() => new RecyclableMemoryStreamManager(1, 100, 200, this.useExponentialLargeBuffer));
         }
 
         [Test]
         public void RecyclableMemoryManagerThrowsExceptionOnZeroLargeBufferMultipleSize()
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() => new RecyclableMemoryStreamManager(100, 0, 200));
-            Assert.Throws<ArgumentOutOfRangeException>(() => new RecyclableMemoryStreamManager(100, -1, 200));
-            Assert.DoesNotThrow(() => new RecyclableMemoryStreamManager(100, 100, 200));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new RecyclableMemoryStreamManager(100, 0, 200, this.useExponentialLargeBuffer));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new RecyclableMemoryStreamManager(100, -1, 200, this.useExponentialLargeBuffer));
+            Assert.DoesNotThrow(() => new RecyclableMemoryStreamManager(100, 100, 200, this.useExponentialLargeBuffer));
         }
 
         [Test]
         public void RecyclableMemoryManagerThrowsExceptionOnMaximumBufferSizeLessThanBlockSize()
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() => new RecyclableMemoryStreamManager(100, 100, 99));
-            Assert.DoesNotThrow(() => new RecyclableMemoryStreamManager(100, 100, 100));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new RecyclableMemoryStreamManager(100, 100, 99, this.useExponentialLargeBuffer));
+            Assert.DoesNotThrow(() => new RecyclableMemoryStreamManager(100, 100, 100, this.useExponentialLargeBuffer));
         }
 
         [Test]
-        public void RecyclableMemoryManagerThrowsExceptionOnMaximumBufferNotMultipleOfLargeBufferMultiple()
+        public virtual void RecyclableMemoryManagerThrowsExceptionOnMaximumBufferNotMultipleOrExponentialOfLargeBufferMultiple()
         {
-            Assert.Throws<ArgumentException>(() => new RecyclableMemoryStreamManager(100, 1024, 2025));
-            Assert.Throws<ArgumentException>(() => new RecyclableMemoryStreamManager(100, 1024, 2023));
-            Assert.DoesNotThrow(() => new RecyclableMemoryStreamManager(100, 1024, 2048));
+            Assert.Throws<ArgumentException>(() => new RecyclableMemoryStreamManager(100, 1024, 2025, this.useExponentialLargeBuffer));
+            Assert.Throws<ArgumentException>(() => new RecyclableMemoryStreamManager(100, 1024, 2023, this.useExponentialLargeBuffer));
+            Assert.DoesNotThrow(() => new RecyclableMemoryStreamManager(100, 1024, 2048, this.useExponentialLargeBuffer));
         }
 
         [Test]
-        public void GetLargeBufferAlwaysAMultipleOfMegabyteAndAtLeastAsMuchAsRequestedForLargeBuffer()
+        public virtual void GetLargeBufferAlwaysAMultipleOrExponentialOfMegabyteAndAtLeastAsMuchAsRequestedForLargeBuffer()
         {
             const int step = 200000;
             const int start = 1;
@@ -95,7 +103,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
-        public void AllMultiplesUpToMaxCanBePooled()
+        public virtual void AllMultiplesOrExponentialUpToMaxCanBePooled()
         {
             const int BlockSize = 100;
             const int LargeBufferMultiple = 1000;
@@ -103,7 +111,7 @@ namespace Microsoft.IO.UnitTests
 
             for (var size = LargeBufferMultiple; size <= MaxBufferSize; size += LargeBufferMultiple)
             {
-                var memMgr = new RecyclableMemoryStreamManager(BlockSize, LargeBufferMultiple, MaxBufferSize)
+                var memMgr = new RecyclableMemoryStreamManager(BlockSize, LargeBufferMultiple, MaxBufferSize, this.useExponentialLargeBuffer)
                              {AggressiveBufferReturn = this.AggressiveBufferRelease};
                 var buffer = memMgr.GetLargeBuffer(size, DefaultTag);
                 Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(0));
@@ -173,7 +181,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
-        public void RequestTooLargeBufferAdjustsInUseCounter()
+        public virtual void RequestTooLargeBufferAdjustsInUseCounter()
         {
             var memMgr = this.GetMemoryManager();
             var buffer = memMgr.GetLargeBuffer(memMgr.MaximumBufferSize + 1, DefaultTag);
@@ -258,7 +266,7 @@ namespace Microsoft.IO.UnitTests
             this.TestDroppingLargeBuffer(0);
         }
 
-        private void TestDroppingLargeBuffer(long maxFreeLargeBufferSize)
+        protected virtual void TestDroppingLargeBuffer(long maxFreeLargeBufferSize)
         {
             const int BlockSize = 100;
             const int LargeBufferMultiple = 1000;
@@ -266,7 +274,7 @@ namespace Microsoft.IO.UnitTests
 
             for (var size = LargeBufferMultiple; size <= MaxBufferSize; size += LargeBufferMultiple)
             {
-                var memMgr = new RecyclableMemoryStreamManager(BlockSize, LargeBufferMultiple, MaxBufferSize)
+                var memMgr = new RecyclableMemoryStreamManager(BlockSize, LargeBufferMultiple, MaxBufferSize, this.useExponentialLargeBuffer)
                              {
                                  AggressiveBufferReturn = this.AggressiveBufferRelease,
                                  MaximumFreeLargePoolBytes = maxFreeLargeBufferSize
@@ -1639,7 +1647,7 @@ namespace Microsoft.IO.UnitTests
         public async Task ConcurrentDoubleDisposeSucceeds()
         {
             int blockSize = 10;
-            var manager = new RecyclableMemoryStreamManager(blockSize: blockSize, largeBufferMultiple: 20, maximumBufferSize: 100);
+            var manager = new RecyclableMemoryStreamManager(blockSize: blockSize, largeBufferMultiple: 20, maximumBufferSize: 160, useExponentialLargeBuffer: this.useExponentialLargeBuffer);
             RecyclableMemoryStream recyclableMemoryStream = new RecyclableMemoryStream(manager, TestContext.CurrentContext.Test.Name);
 
             Assert.AreEqual(0, manager.SmallBlocksFree, "Verify manager starts with no blocks free");
@@ -1898,10 +1906,10 @@ namespace Microsoft.IO.UnitTests
             return buffer;
         }
 
-        protected RecyclableMemoryStreamManager GetMemoryManager()
+        protected virtual RecyclableMemoryStreamManager GetMemoryManager()
         {
             return new RecyclableMemoryStreamManager(DefaultBlockSize, DefaultLargeBufferMultiple,
-                                                     DefaultMaximumBufferSize)
+                                                     DefaultMaximumBufferSize, this.useExponentialLargeBuffer)
                    {
                        AggressiveBufferReturn = this.AggressiveBufferRelease,
                    };
@@ -1918,6 +1926,11 @@ namespace Microsoft.IO.UnitTests
         #endregion
 
         protected abstract bool AggressiveBufferRelease { get; }
+
+        protected virtual bool useExponentialLargeBuffer
+        {
+            get { return false; }
+        }
 
         /*
          * TODO: clocke to release logging libraries to enable some tests.
@@ -2028,6 +2041,174 @@ namespace Microsoft.IO.UnitTests
 
     [TestFixture]
     public sealed class RecyclableMemoryStreamTestsWithAggressiveBufferRelease : BaseRecyclableMemoryStreamTests
+    {
+        protected override bool AggressiveBufferRelease
+        {
+            get { return true; }
+        }
+    }
+
+    public abstract class BaseRecyclableMemoryStreamTestsUsingExponentialLargeBuffer : BaseRecyclableMemoryStreamTests
+    {
+        protected override bool useExponentialLargeBuffer
+        {
+            get { return true; }
+        }
+
+        [Test]
+        public override void RecyclableMemoryManagerUsingMultipleOrExponentialLargeBuffer()
+        {
+            var memMgr = this.GetMemoryManager();
+            Assert.That(memMgr.UseMultipleLargeBuffer, Is.False);
+            Assert.That(memMgr.UseExponentialLargeBuffer, Is.True);
+        }
+
+        [Test]
+        public override void RecyclableMemoryManagerThrowsExceptionOnMaximumBufferNotMultipleOrExponentialOfLargeBufferMultiple()
+        {
+            Assert.Throws<ArgumentException>(() => new RecyclableMemoryStreamManager(100, 1024, 2025, this.useExponentialLargeBuffer));
+            Assert.Throws<ArgumentException>(() => new RecyclableMemoryStreamManager(100, 1024, 2023, this.useExponentialLargeBuffer));
+            Assert.Throws<ArgumentException>(() => new RecyclableMemoryStreamManager(100, 1024, 3072, this.useExponentialLargeBuffer));
+            Assert.DoesNotThrow(() => new RecyclableMemoryStreamManager(100, 1024, 2048, this.useExponentialLargeBuffer));
+            Assert.DoesNotThrow(() => new RecyclableMemoryStreamManager(100, 1024, 4096, this.useExponentialLargeBuffer));
+        }
+
+        [Test]
+        public override void GetLargeBufferAlwaysAMultipleOrExponentialOfMegabyteAndAtLeastAsMuchAsRequestedForLargeBuffer()
+        {
+            const int step = 200000;
+            const int start = 1;
+            const int end = 16000000;
+            var memMgr = this.GetMemoryManager();
+
+            for (var i = start; i <= end; i += step)
+            {
+                var buffer = memMgr.GetLargeBuffer(i, DefaultTag);
+                Assert.That(buffer.Length >= i, Is.True);
+                Assert.That(memMgr.LargeBufferMultiple * (int)Math.Pow(2, Math.Floor(Math.Log(buffer.Length / memMgr.LargeBufferMultiple, 2))) == buffer.Length, Is.True,
+                            "buffer length of {0} is not a exponential of {1}", buffer.Length, memMgr.LargeBufferMultiple);
+            }
+        }
+
+        [Test]
+        public override void AllMultiplesOrExponentialUpToMaxCanBePooled()
+        {
+            const int BlockSize = 100;
+            const int LargeBufferMultiple = 1000;
+            const int MaxBufferSize = 8000;
+
+            for (var size = LargeBufferMultiple; size <= MaxBufferSize; size *= 2)
+            {
+                var memMgr = new RecyclableMemoryStreamManager(BlockSize, LargeBufferMultiple, MaxBufferSize, this.useExponentialLargeBuffer)
+                             { AggressiveBufferReturn = this.AggressiveBufferRelease };
+                var buffer = memMgr.GetLargeBuffer(size, DefaultTag);
+                Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(0));
+                Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(size));
+
+                memMgr.ReturnLargeBuffer(buffer, DefaultTag);
+
+                Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(size));
+                Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(0));
+            }
+        }
+
+        [Test]
+        public override void RequestTooLargeBufferAdjustsInUseCounter()
+        {
+            var memMgr = this.GetMemoryManager();
+            var buffer = memMgr.GetLargeBuffer(memMgr.MaximumBufferSize + 1, DefaultTag);
+            Assert.That(buffer.Length, Is.EqualTo(memMgr.MaximumBufferSize * 2));
+            Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(buffer.Length));
+        }
+
+        protected override void TestDroppingLargeBuffer(long maxFreeLargeBufferSize)
+        {
+            const int BlockSize = 100;
+            const int LargeBufferMultiple = 1000;
+            const int MaxBufferSize = 8000;
+
+            for (var size = LargeBufferMultiple; size <= MaxBufferSize; size *= 2)
+            {
+                var memMgr = new RecyclableMemoryStreamManager(BlockSize, LargeBufferMultiple, MaxBufferSize, this.useExponentialLargeBuffer)
+                             {
+                                 AggressiveBufferReturn = this.AggressiveBufferRelease,
+                                 MaximumFreeLargePoolBytes = maxFreeLargeBufferSize
+                             };
+
+                var buffers = new List<byte[]>();
+
+                //Get one extra buffer
+                var buffersToRetrieve = (maxFreeLargeBufferSize > 0) ? (maxFreeLargeBufferSize / size + 1) : 10;
+                for (var i = 0; i < buffersToRetrieve; i++)
+                {
+                    buffers.Add(memMgr.GetLargeBuffer(size, DefaultTag));
+                }
+                Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(size * buffersToRetrieve));
+                Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(0));
+                foreach (var buffer in buffers)
+                {
+                    memMgr.ReturnLargeBuffer(buffer, DefaultTag);
+                }
+                Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(0));
+                if (maxFreeLargeBufferSize > 0)
+                {
+                    Assert.That(memMgr.LargePoolFreeSize, Is.LessThanOrEqualTo(maxFreeLargeBufferSize));
+                }
+                else
+                {
+                    Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(buffersToRetrieve * size));
+                }
+            }
+        }
+    }
+
+    [TestFixture]
+    public sealed class RecyclableMemoryStreamTestsWithPassiveBufferReleaseUsingExponentialLargeBuffer : BaseRecyclableMemoryStreamTestsUsingExponentialLargeBuffer
+    {
+        protected override bool AggressiveBufferRelease
+        {
+            get { return false; }
+        }
+
+        [Test]
+        public void OldBuffersAreKeptInStreamUntilDispose()
+        {
+            var stream = this.GetDefaultStream();
+            var memMgr = stream.MemoryManager;
+            var buffer = this.GetRandomBuffer(stream.MemoryManager.LargeBufferMultiple);
+            stream.Write(buffer, 0, buffer.Length);
+            stream.GetBuffer();
+
+            Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(memMgr.LargeBufferMultiple * (1)));
+            Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(0));
+            Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(0));
+            Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(memMgr.LargeBufferMultiple));
+
+            stream.Write(buffer, 0, buffer.Length);
+
+            Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(0));
+            Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(memMgr.LargeBufferMultiple * (1 + 2)));
+            Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(0));
+            Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(memMgr.LargeBufferMultiple));
+
+            stream.Write(buffer, 0, buffer.Length);
+
+            Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(0));
+            Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(memMgr.LargeBufferMultiple * (1 + 2 + 4)));
+            Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(0));
+            Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(memMgr.LargeBufferMultiple));
+
+            stream.Dispose();
+
+            Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(memMgr.LargeBufferMultiple * (1 + 2 + 4)));
+            Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(0));
+            Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(memMgr.LargeBufferMultiple));
+            Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(0));
+        }
+    }
+
+    [TestFixture]
+    public sealed class RecyclableMemoryStreamTestsWithAggressiveBufferReleaseUsingExponentialLargeBuffer : BaseRecyclableMemoryStreamTestsUsingExponentialLargeBuffer
     {
         protected override bool AggressiveBufferRelease
         {
