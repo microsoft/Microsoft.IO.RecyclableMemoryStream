@@ -359,7 +359,7 @@ namespace Microsoft.IO
                 int pow = 1;
                 while (this.largeBufferMultiple * pow < requiredSize)
                 {
-                    pow *= 2;
+                    pow <<= 1;
                 }
                 return this.largeBufferMultiple * pow;
             }
@@ -380,10 +380,9 @@ namespace Microsoft.IO
         {
             if (this.useExponentialLargeBuffer)
             {
-                int pow = 1, index = 0;
-                while (this.largeBufferMultiple * pow < length)
+                int index = 0;
+                while ((this.largeBufferMultiple << index) < length)
                 {
-                    pow *= 2;
                     ++index;
                 }
                 return index;
