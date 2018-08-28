@@ -38,7 +38,7 @@ namespace Microsoft.IO
     /// as they write more data.
     /// 
     /// For scenarios that need to call GetBuffer(), the large pool contains buffers of various sizes, all
-    /// multiples of LargeBufferMultiple (1 MB by default). They are split by size to avoid overly-wasteful buffer
+    /// multiples/exponentials of LargeBufferMultiple (1 MB by default). They are split by size to avoid overly-wasteful buffer
     /// usage. There should be far fewer 8 MB buffers than 1 MB buffers, for example.
     /// </remarks>
     public partial class RecyclableMemoryStreamManager
@@ -83,11 +83,14 @@ namespace Microsoft.IO
         /// <summary>
         /// pools[0] = 1x largeBufferMultiple buffers
         /// pools[1] = 2x largeBufferMultiple buffers
+        /// pools[2] = 3x(multiple)/4x(exponential) largeBufferMultiple buffers
         /// etc., up to maximumBufferSize
         /// </summary>
         private readonly ConcurrentStack<byte[]>[] largePools;
 
         private readonly int maximumBufferSize;
+        private readonly bool useExponentialLargeBuffer;
+
         private readonly ConcurrentStack<byte[]> smallPool;
 
         private long smallPoolFreeSize;
@@ -97,7 +100,7 @@ namespace Microsoft.IO
         /// Initializes the memory manager with the default block/buffer specifications.
         /// </summary>
         public RecyclableMemoryStreamManager()
-            : this(DefaultBlockSize, DefaultLargeBufferMultiple, DefaultMaximumBufferSize) { }
+            : this(DefaultBlockSize, DefaultLargeBufferMultiple, DefaultMaximumBufferSize, false) { }
 
         /// <summary>
         /// Initializes the memory manager with the given block requiredSize.
@@ -108,6 +111,18 @@ namespace Microsoft.IO
         /// <exception cref="ArgumentOutOfRangeException">blockSize is not a positive number, or largeBufferMultiple is not a positive number, or maximumBufferSize is less than blockSize.</exception>
         /// <exception cref="ArgumentException">maximumBufferSize is not a multiple of largeBufferMultiple</exception>
         public RecyclableMemoryStreamManager(int blockSize, int largeBufferMultiple, int maximumBufferSize)
+            : this(blockSize, largeBufferMultiple, maximumBufferSize, false) { }
+
+        /// <summary>
+        /// Initializes the memory manager with the given block requiredSize.
+        /// </summary>
+        /// <param name="blockSize">Size of each block that is pooled. Must be > 0.</param>
+        /// <param name="largeBufferMultiple">Each large buffer will be a multiple/exponential of this value.</param>
+        /// <param name="maximumBufferSize">Buffers larger than this are not pooled</param>
+        /// <param name="useExponentialLargeBuffer">Switch to exponential large buffer allocation strategy</param>
+        /// <exception cref="ArgumentOutOfRangeException">blockSize is not a positive number, or largeBufferMultiple is not a positive number, or maximumBufferSize is less than blockSize.</exception>
+        /// <exception cref="ArgumentException">maximumBufferSize is not a multiple/exponential of largeBufferMultiple</exception>
+        public RecyclableMemoryStreamManager(int blockSize, int largeBufferMultiple, int maximumBufferSize, bool useExponentialLargeBuffer)
         {
             if (blockSize <= 0)
             {
@@ -129,15 +144,19 @@ namespace Microsoft.IO
             this.blockSize = blockSize;
             this.largeBufferMultiple = largeBufferMultiple;
             this.maximumBufferSize = maximumBufferSize;
+            this.useExponentialLargeBuffer = useExponentialLargeBuffer;
 
-            if (!this.IsLargeBufferMultiple(maximumBufferSize))
+            if (!this.IsLargeBufferSize(maximumBufferSize))
             {
-                throw new ArgumentException("maximumBufferSize is not a multiple of largeBufferMultiple",
+                throw new ArgumentException(String.Format("maximumBufferSize is not {0} of largeBufferMultiple", 
+                                                          this.useExponentialLargeBuffer ? "an exponential" : "a multiple"),
                                             nameof(maximumBufferSize));
             }
 
             this.smallPool = new ConcurrentStack<byte[]>();
-            var numLargePools = maximumBufferSize / largeBufferMultiple;
+            var numLargePools = useExponentialLargeBuffer
+                                    ? ((int)Math.Log(maximumBufferSize / largeBufferMultiple, 2) + 1)
+                                    : (maximumBufferSize / largeBufferMultiple);
 
             // +1 to store size of bytes in use that are too large to be pooled
             this.largeBufferInUseSize = new long[numLargePools + 1];
@@ -159,9 +178,19 @@ namespace Microsoft.IO
         public int BlockSize => this.blockSize;
 
         /// <summary>
-        /// All buffers are multiples of this number. It must be set at creation and cannot be changed.
+        /// All buffers are multiples/exponentials of this number. It must be set at creation and cannot be changed.
         /// </summary>
         public int LargeBufferMultiple => this.largeBufferMultiple;
+
+        /// <summary>
+        /// Use multiple large buffer allocation strategy. It must be set at creation and cannot be changed.
+        /// </summary>
+        public bool UseMultipleLargeBuffer => !this.useExponentialLargeBuffer;
+
+        /// <summary>
+        /// Use exponential large buffer allocation strategy. It must be set at creation and cannot be changed.
+        /// </summary>
+        public bool UseExponentialLargeBuffer => this.useExponentialLargeBuffer;
 
         /// <summary>
         /// Gets or sets the maximum buffer size.
@@ -272,16 +301,16 @@ namespace Microsoft.IO
 
         /// <summary>
         /// Returns a buffer of arbitrary size from the large buffer pool. This buffer
-        /// will be at least the requiredSize and always be a multiple of largeBufferMultiple.
+        /// will be at least the requiredSize and always be a multiple/exponential of largeBufferMultiple.
         /// </summary>
         /// <param name="requiredSize">The minimum length of the buffer</param>
         /// <param name="tag">The tag of the stream returning this buffer, for logging if necessary.</param>
         /// <returns>A buffer of at least the required size.</returns>
         internal byte[] GetLargeBuffer(int requiredSize, string tag)
         {
-            requiredSize = this.RoundToLargeBufferMultiple(requiredSize);
+            requiredSize = this.RoundToLargeBufferSize(requiredSize);
 
-            var poolIndex = requiredSize / this.largeBufferMultiple - 1;
+            var poolIndex = this.GetPoolIndex(requiredSize);
 
             byte[] buffer;
             if (poolIndex < this.largePools.Length)
@@ -323,14 +352,45 @@ namespace Microsoft.IO
             return buffer;
         }
 
-        private int RoundToLargeBufferMultiple(int requiredSize)
+        private int RoundToLargeBufferSize(int requiredSize)
         {
-            return ((requiredSize + this.LargeBufferMultiple - 1) / this.LargeBufferMultiple) * this.LargeBufferMultiple;
+            if (this.useExponentialLargeBuffer)
+            {
+                int pow = 1;
+                while (this.largeBufferMultiple * pow < requiredSize)
+                {
+                    pow <<= 1;
+                }
+                return this.largeBufferMultiple * pow;
+            }
+            else
+            {
+                return ((requiredSize + this.LargeBufferMultiple - 1) / this.LargeBufferMultiple) * this.LargeBufferMultiple;
+            }
         }
 
-        private bool IsLargeBufferMultiple(int value)
+        private bool IsLargeBufferSize(int value)
         {
-            return (value != 0) && (value % this.LargeBufferMultiple) == 0;
+            return (value != 0) && (this.useExponentialLargeBuffer
+                                        ? (value == RoundToLargeBufferSize(value))
+                                        : (value % this.LargeBufferMultiple) == 0);
+        }
+
+        private int GetPoolIndex(int length)
+        {
+            if (this.useExponentialLargeBuffer)
+            {
+                int index = 0;
+                while ((this.largeBufferMultiple << index) < length)
+                {
+                    ++index;
+                }
+                return index;
+            }
+            else
+            {
+                return length / this.largeBufferMultiple - 1;
+            }
         }
 
         /// <summary>
@@ -339,7 +399,7 @@ namespace Microsoft.IO
         /// <param name="buffer">The buffer to return.</param>
         /// <param name="tag">The tag of the stream returning this buffer, for logging if necessary.</param>
         /// <exception cref="ArgumentNullException">buffer is null</exception>
-        /// <exception cref="ArgumentException">buffer.Length is not a multiple of LargeBufferMultiple (it did not originate from this pool)</exception>
+        /// <exception cref="ArgumentException">buffer.Length is not a multiple/exponential of LargeBufferMultiple (it did not originate from this pool)</exception>
         internal void ReturnLargeBuffer(byte[] buffer, string tag)
         {
             if (buffer == null)
@@ -347,14 +407,15 @@ namespace Microsoft.IO
                 throw new ArgumentNullException(nameof(buffer));
             }
 
-            if (!this.IsLargeBufferMultiple(buffer.Length))
+            if (!this.IsLargeBufferSize(buffer.Length))
             {
                 throw new ArgumentException(
-                    "buffer did not originate from this memory manager. The size is not a multiple of " +
-                    this.LargeBufferMultiple);
+                    String.Format("buffer did not originate from this memory manager. The size is not {0} of ",
+                                  this.useExponentialLargeBuffer ? "an exponential" : "a multiple") + 
+                    this.largeBufferMultiple);
             }
 
-            var poolIndex = buffer.Length / this.largeBufferMultiple - 1;
+            var poolIndex = this.GetPoolIndex(buffer.Length);
 
             if (poolIndex < this.largePools.Length)
             {
@@ -546,13 +607,21 @@ namespace Microsoft.IO
         /// <param name="offset">The offset from the start of the buffer to copy from.</param>
         /// <param name="count">The number of bytes to copy from the buffer.</param>
         /// <returns>A MemoryStream.</returns>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope")]
         public MemoryStream GetStream(string tag, byte[] buffer, int offset, int count)
         {
-            var stream = new RecyclableMemoryStream(this, tag, count);
-            stream.Write(buffer, offset, count);
-            stream.Position = 0;
-            return stream;
+            RecyclableMemoryStream stream = null;
+            try
+            {
+                stream = new RecyclableMemoryStream(this, tag, count);
+                stream.Write(buffer, offset, count);
+                stream.Position = 0;
+                return stream;
+            }
+            catch
+            {
+                stream?.Dispose();
+                throw;
+            }
         }
 
         /// <summary>
