@@ -530,6 +530,35 @@ namespace Microsoft.IO
             return amountRead;
         }
 
+#if NETCOREAPP2_1
+        /// <summary>
+        /// Reads from the current position into the provided buffer
+        /// </summary>
+        /// <param name="buffer">Destination buffer</param>
+        /// <returns>The number of bytes read</returns>
+        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+        public override int Read(Span<byte> buffer)
+        {
+            return this.SafeRead(buffer, ref this.position);
+        }
+
+        /// <summary>
+        /// Reads from the specified position into the provided buffer
+        /// </summary>
+        /// <param name="buffer">Destination buffer</param>
+        /// <param name="streamPosition">Position in the stream to start reading from</param>
+        /// <returns>The number of bytes read</returns>
+        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+        public int SafeRead(Span<byte> buffer, ref int streamPosition)
+        {
+            this.CheckDisposed();
+
+            int amountRead = this.InternalRead(buffer, streamPosition);
+            streamPosition += amountRead;
+            return amountRead;
+        }
+#endif
+
         /// <summary>
         /// Writes the buffer to the stream
         /// </summary>
@@ -610,6 +639,62 @@ namespace Microsoft.IO
             this.position = (int)end;
             this.length = Math.Max(this.position, this.length);
         }
+
+#if NETCOREAPP2_1
+        /// <summary>
+        /// Writes the buffer to the stream
+        /// </summary>
+        /// <param name="source">Source buffer</param>
+        /// <exception cref="ArgumentNullException">buffer is null</exception>
+        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+        public override void Write(ReadOnlySpan<byte> source)
+        {
+            this.CheckDisposed();
+
+            int blockSize = this.memoryManager.BlockSize;
+            long end = (long)this.position + source.Length;
+            // Check for overflow
+            if (end > MaxStreamLength)
+            {
+                throw new IOException("Maximum capacity exceeded");
+            }
+
+            long requiredBuffers = (end + blockSize - 1) / blockSize;
+
+            if (requiredBuffers * blockSize > MaxStreamLength)
+            {
+                throw new IOException("Maximum capacity exceeded");
+            }
+
+            this.EnsureCapacity((int)end);
+
+            if (this.largeBuffer == null)
+            {
+                var blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
+
+                while (source.Length > 0)
+                {
+                    byte[] currentBlock = this.blocks[blockAndOffset.Block];
+                    int remainingInBlock = blockSize - blockAndOffset.Offset;
+                    int amountToWriteInBlock = Math.Min(remainingInBlock, source.Length);
+
+                    source.Slice(0, amountToWriteInBlock)
+                        .CopyTo(currentBlock.AsSpan(blockAndOffset.Offset));
+
+                    source = source.Slice(amountToWriteInBlock);
+
+                    ++blockAndOffset.Block;
+                    blockAndOffset.Offset = 0;
+                }
+            }
+            else
+            {
+                source.CopyTo(this.largeBuffer.AsSpan(this.position));
+            }
+            this.position = (int)end;
+            this.length = Math.Max(this.position, this.length);
+        }
+#endif
 
         /// <summary>
         /// Returns a useful string for debugging. This should not normally be called in actual production code.
@@ -812,6 +897,43 @@ namespace Microsoft.IO
             Buffer.BlockCopy(this.largeBuffer, fromPosition, buffer, offset, amountToCopy);
             return amountToCopy;
         }
+
+#if NETCOREAPP2_1
+        private int InternalRead(Span<byte> buffer, int fromPosition)
+        {
+            if (this.length - fromPosition <= 0)
+            {
+                return 0;
+            }
+
+            int amountToCopy;
+
+            if (this.largeBuffer == null)
+            {
+                var blockAndOffset = this.GetBlockAndRelativeOffset(fromPosition);
+                int bytesWritten = 0;
+                int bytesRemaining = Math.Min(buffer.Length, this.length - fromPosition);
+
+                while (bytesRemaining > 0)
+                {
+                    amountToCopy = Math.Min(this.blocks[blockAndOffset.Block].Length - blockAndOffset.Offset,
+                                            bytesRemaining);
+                    this.blocks[blockAndOffset.Block].AsSpan(blockAndOffset.Offset, amountToCopy)
+                        .CopyTo(buffer.Slice(bytesWritten));
+
+                    bytesWritten += amountToCopy;
+                    bytesRemaining -= amountToCopy;
+
+                    ++blockAndOffset.Block;
+                    blockAndOffset.Offset = 0;
+                }
+                return bytesWritten;
+            }
+            amountToCopy = Math.Min(buffer.Length, this.length - fromPosition);
+            this.largeBuffer.AsSpan(fromPosition, amountToCopy).CopyTo(buffer);
+            return amountToCopy;
+        }
+#endif
 
         private struct BlockAndOffset
         {
