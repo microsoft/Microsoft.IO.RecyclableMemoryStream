@@ -530,7 +530,7 @@ namespace Microsoft.IO
             return amountRead;
         }
 
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1 || NETSTANDARD2_1
         /// <summary>
         /// Reads from the current position into the provided buffer
         /// </summary>
@@ -640,7 +640,7 @@ namespace Microsoft.IO
             this.length = Math.Max(this.position, this.length);
         }
 
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1 || NETSTANDARD2_1
         /// <summary>
         /// Writes the buffer to the stream
         /// </summary>
@@ -898,7 +898,7 @@ namespace Microsoft.IO
             return amountToCopy;
         }
 
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1 || NETSTANDARD2_1
         private int InternalRead(Span<byte> buffer, int fromPosition)
         {
             if (this.length - fromPosition <= 0)
