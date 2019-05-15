@@ -212,12 +212,36 @@ namespace Microsoft.IO
         /// <summary>
         /// Number of bytes in large pool not currently in use
         /// </summary>
-        public long LargePoolFreeSize => this.largeBufferFreeSize.Sum();
+        public long LargePoolFreeSize
+        {
+            get
+            {
+                long sum = 0;
+                foreach (long freeSize in this.largeBufferFreeSize)
+                {
+                    sum += freeSize;
+                }
+
+                return sum;
+            }
+        }
 
         /// <summary>
         /// Number of bytes currently in use by streams from the large pool
         /// </summary>
-        public long LargePoolInUseSize => this.largeBufferInUseSize.Sum();
+        public long LargePoolInUseSize
+        {
+            get
+            {
+                long sum = 0;
+                foreach (long inUseSize in this.largeBufferInUseSize)
+                {
+                    sum += inUseSize;
+                }
+
+                return sum;
+            }
+        }
 
         /// <summary>
         /// How many blocks are in the small pool
