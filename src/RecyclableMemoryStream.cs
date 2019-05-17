@@ -453,6 +453,25 @@ namespace Microsoft.IO
         }
 
         /// <summary>
+        /// Returns an ArraySegment that wraps a single buffer containing the contents of the stream.
+        /// </summary>
+        /// <param name="buffer">An ArraySegment containing a reference to the underlying bytes.</param>
+        /// <returns>Always returns true.</returns>
+        /// <remarks>GetBuffer has no failure modes (it always returns something, even if it's an empty buffer), therefore this method
+        /// always returns a valid ArraySegment to the same buffer returned by GetBuffer.</remarks>
+#if NET40 || NET45
+        public bool TryGetBuffer(out ArraySegment<byte> buffer)  
+#else
+        public override bool TryGetBuffer(out ArraySegment<byte> buffer)
+#endif
+        {
+            this.CheckDisposed();
+            buffer = new ArraySegment<byte>(this.GetBuffer(), 0, (int)this.Length);
+            // GetBuffer has no failure modes, so this should always succeed
+            return true;
+        }
+
+        /// <summary>
         /// Returns a new array with a copy of the buffer's contents. You should almost certainly be using GetBuffer combined with the Length to 
         /// access the bytes in this stream. Calling ToArray will destroy the benefits of pooled buffers, but it is included
         /// for the sake of completeness.
@@ -601,13 +620,6 @@ namespace Microsoft.IO
                 throw new IOException("Maximum capacity exceeded");
             }
 
-            long requiredBuffers = (end + blockSize - 1) / blockSize;
-
-            if (requiredBuffers * blockSize > MaxStreamLength)
-            {
-                throw new IOException("Maximum capacity exceeded");
-            }
-
             this.EnsureCapacity((int)end);
 
             if (this.largeBuffer == null)
@@ -655,13 +667,6 @@ namespace Microsoft.IO
             long end = (long)this.position + source.Length;
             // Check for overflow
             if (end > MaxStreamLength)
-            {
-                throw new IOException("Maximum capacity exceeded");
-            }
-
-            long requiredBuffers = (end + blockSize - 1) / blockSize;
-
-            if (requiredBuffers * blockSize > MaxStreamLength)
             {
                 throw new IOException("Maximum capacity exceeded");
             }
@@ -850,9 +855,9 @@ namespace Microsoft.IO
                 stream.Write(this.largeBuffer, 0, this.length);
             }
         }
-        #endregion
+#endregion
 
-        #region Helper Methods
+#region Helper Methods
         private bool Disposed => Interlocked.Read(ref this.disposedState) != 0;
 
         private void CheckDisposed()
@@ -1005,6 +1010,6 @@ namespace Microsoft.IO
 
             this.largeBuffer = null;
         }
-        #endregion
+#endregion
     }
 }

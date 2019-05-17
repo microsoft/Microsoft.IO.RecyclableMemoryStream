@@ -337,7 +337,7 @@ namespace Microsoft.IO.UnitTests
         }
         #endregion
 
-        #region GetBuffer Tests
+        #region GetBuffer/TryGetBuffer Tests
         [Test]
         public void GetBufferReturnsSingleBlockForBlockSize()
         {
@@ -347,6 +347,7 @@ namespace Microsoft.IO.UnitTests
             stream.Write(buffer, 0, buffer.Length);
             var returnedBuffer = stream.GetBuffer();
             Assert.That(returnedBuffer.Length, Is.EqualTo(stream.MemoryManager.BlockSize));
+            RMSAssert.TryGetBufferEqualToGetBuffer(stream);
         }
 
         [Test]
@@ -358,6 +359,7 @@ namespace Microsoft.IO.UnitTests
             stream.Write(buffer, 0, buffer.Length);
             var returnedBuffer = stream.GetBuffer();
             Assert.That(returnedBuffer.Length, Is.EqualTo(stream.MemoryManager.BlockSize));
+            RMSAssert.TryGetBufferEqualToGetBuffer(stream);
         }
 
         [Test]
@@ -369,6 +371,7 @@ namespace Microsoft.IO.UnitTests
             stream.Write(buffer, 0, buffer.Length);
             var returnedBuffer = stream.GetBuffer();
             Assert.That(returnedBuffer.Length, Is.EqualTo(stream.MemoryManager.LargeBufferMultiple));
+            RMSAssert.TryGetBufferEqualToGetBuffer(stream);
         }
 
         [Test]
@@ -380,6 +383,7 @@ namespace Microsoft.IO.UnitTests
             var returnedBuffer = stream.GetBuffer();
             var returnedBuffer2 = stream.GetBuffer();
             Assert.That(returnedBuffer, Is.SameAs(returnedBuffer2));
+            RMSAssert.TryGetBufferEqualToGetBuffer(stream);
         }
 
         [Test]
@@ -392,6 +396,7 @@ namespace Microsoft.IO.UnitTests
             stream.Write(buffer, 0, buffer.Length);
 
             var newBuffer = stream.GetBuffer();
+            RMSAssert.TryGetBufferEqualToGetBuffer(stream);
 
             stream.Dispose();
 
@@ -403,6 +408,7 @@ namespace Microsoft.IO.UnitTests
             var newBuffer2 = newStream.GetBuffer();
             Assert.That(newBuffer2.Length, Is.EqualTo(newBuffer.Length));
             Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(0));
+            RMSAssert.TryGetBufferEqualToGetBuffer(newStream);
         }
 
         [Test]
@@ -422,6 +428,7 @@ namespace Microsoft.IO.UnitTests
             Assert.That(buffer[stream.MemoryManager.BlockSize], Is.EqualTo(13));
             RMSAssert.BuffersAreEqual(buffer, stream.MemoryManager.BlockSize + 1, bytesToWrite, 0, bytesToWrite.Length);
             Assert.That(stream.Position, Is.EqualTo(stream.MemoryManager.BlockSize + 1 + bytesToWrite.Length));
+            RMSAssert.TryGetBufferEqualToGetBuffer(stream);
         }
 
         [Test]
@@ -440,6 +447,7 @@ namespace Microsoft.IO.UnitTests
             Assert.That(buffer[stream.MemoryManager.BlockSize], Is.EqualTo(13));
             Assert.That(buffer[stream.MemoryManager.BlockSize + 1], Is.EqualTo(14));
             Assert.That(stream.Position, Is.EqualTo(stream.MemoryManager.BlockSize + 2));
+            RMSAssert.TryGetBufferEqualToGetBuffer(stream);
         }
 
         [Test]
@@ -2312,15 +2320,6 @@ namespace Microsoft.IO.UnitTests
             get { return false; }
         }
 
-        /*
-         * TODO: clocke to release logging libraries to enable some tests.
-        [TestFixtureSetUp]
-        public void Setup()
-        {
-            LogManager.Start();
-        }
-        */
-
         protected static class RMSAssert
         {
             /// <summary>
@@ -2370,6 +2369,16 @@ namespace Microsoft.IO.UnitTests
                 var rate = (double)errors / count;
                 Assert.That(rate, Is.AtMost(tolerance), "Too many errors. Buffers can differ to a tolerance of {0:F4}",
                             tolerance);
+            }
+
+            internal static void TryGetBufferEqualToGetBuffer(RecyclableMemoryStream stream)
+            {
+                var buffer = stream.GetBuffer();
+                ArraySegment<byte> segment;
+                Assert.That(stream.TryGetBuffer(out segment), Is.True);
+                Assert.That(segment.Offset, Is.Zero);
+                Assert.That(segment.Count, Is.EqualTo(stream.Length));
+                Assert.That(segment.Array, Is.SameAs(buffer));
             }
         }
     }
