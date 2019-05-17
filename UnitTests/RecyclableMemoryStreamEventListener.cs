@@ -43,7 +43,7 @@ namespace Microsoft.IO.UnitTests
             this.EventWritten(eventData.EventId, (string)eventData.Payload[TagIndex]);
         }
 
-        public virtual void EventWritten(int eventId, string tag)
+        public new virtual void EventWritten(int eventId, string tag)
         {
             switch (eventId)
             {

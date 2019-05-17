@@ -689,6 +689,134 @@ namespace Microsoft.IO.UnitTests
         }
         #endregion
 
+        #region Write Span Tests
+        [Test]
+        public void WriteSpanUpdatesLengthAndPosition()
+        {
+            const int expectedLength = 100;
+            var memoryManager = this.GetMemoryManager();
+            var stream = new RecyclableMemoryStream(memoryManager, string.Empty, expectedLength);
+            var buffer = this.GetRandomBuffer(expectedLength);
+            stream.Write(buffer.AsSpan());
+            Assert.That(stream.Length, Is.EqualTo(expectedLength));
+            Assert.That(stream.Position, Is.EqualTo(expectedLength));
+        }
+
+        [Test]
+        public void WriteSpanInMiddleOfBufferDoesNotChangeLength()
+        {
+            var stream = this.GetDefaultStream();
+            const int expectedLength = 100;
+            var buffer = this.GetRandomBuffer(expectedLength);
+            stream.Write(buffer.AsSpan());
+            Assert.That(stream.Length, Is.EqualTo(expectedLength));
+            var smallBufferLength = 25;
+            var smallBuffer = this.GetRandomBuffer(smallBufferLength);
+            stream.Position = 0;
+            stream.Write(smallBuffer.AsSpan());
+            Assert.That(stream.Length, Is.EqualTo(expectedLength));
+        }
+
+        [Test]
+        public void WriteSpanSmallBufferStoresDataCorrectly()
+        {
+            var stream = this.GetDefaultStream();
+            var buffer = this.GetRandomBuffer(100);
+            stream.Write(buffer.AsSpan());
+            RMSAssert.BuffersAreEqual(buffer, stream.GetBuffer(), buffer.Length);
+        }
+
+        [Test]
+        public void WriteSpanLargeBufferStoresDataCorrectly()
+        {
+            var stream = this.GetDefaultStream();
+            var buffer = this.GetRandomBuffer(stream.MemoryManager.BlockSize + 1);
+            stream.Write(buffer.AsSpan());
+            RMSAssert.BuffersAreEqual(buffer, stream.GetBuffer(), buffer.Length);
+        }
+
+        [Test]
+        public void WriteSpanPastEndIncreasesCapacity()
+        {
+            var stream = this.GetDefaultStream();
+            var buffer = this.GetRandomBuffer(DefaultBlockSize);
+            stream.Write(buffer.AsSpan());
+            Assert.That(stream.Capacity, Is.EqualTo(DefaultBlockSize));
+            Assert.That(stream.MemoryManager.SmallPoolInUseSize, Is.EqualTo(DefaultBlockSize));
+            stream.Write(new byte[] {0}.AsSpan());
+            Assert.That(stream.Capacity, Is.EqualTo(2 * DefaultBlockSize));
+            Assert.That(stream.MemoryManager.SmallPoolInUseSize, Is.EqualTo(2 * DefaultBlockSize));
+        }
+
+        [Test]
+        public void WriteSpanPastEndOfLargeBufferIncreasesCapacityAndCopiesBuffer()
+        {
+            var stream = this.GetDefaultStream();
+            var buffer = this.GetRandomBuffer(stream.MemoryManager.LargeBufferMultiple);
+            stream.Write(buffer.AsSpan());
+            var get1 = stream.GetBuffer();
+            Assert.That(get1.Length, Is.EqualTo(stream.MemoryManager.LargeBufferMultiple));
+            stream.Write(buffer.AsSpan(0, 1));
+            var get2 = stream.GetBuffer();
+            Assert.That(stream.Length, Is.EqualTo(stream.MemoryManager.LargeBufferMultiple + 1));
+            Assert.That(get2.Length, Is.EqualTo(stream.MemoryManager.LargeBufferMultiple * 2));
+            RMSAssert.BuffersAreEqual(get1, get2, (int)stream.Length - 1);
+            Assert.That(get2[stream.MemoryManager.LargeBufferMultiple], Is.EqualTo(buffer[0]));
+        }
+
+        [Test]
+        public void WriteSpanAfterLargeBufferDoesNotAllocateMoreBlocks()
+        {
+            var stream = this.GetDefaultStream();
+            var buffer = this.GetRandomBuffer(stream.MemoryManager.BlockSize + 1);
+            stream.Write(buffer.AsSpan());
+            var inUseBlockBytes = stream.MemoryManager.SmallPoolInUseSize;
+            stream.GetBuffer();
+            Assert.That(stream.MemoryManager.SmallPoolInUseSize, Is.LessThanOrEqualTo(inUseBlockBytes));
+            stream.Write(buffer.AsSpan());
+            Assert.That(stream.MemoryManager.SmallPoolInUseSize, Is.LessThanOrEqualTo(inUseBlockBytes));
+            var memMgr = stream.MemoryManager;
+            stream.Dispose();
+            Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void WriteSpanUpdatesPosition()
+        {
+            var stream = this.GetDefaultStream();
+            var bufferLength = stream.MemoryManager.BlockSize / 2 + 1;
+            var buffer = this.GetRandomBuffer(bufferLength);
+
+            for (var i = 0; i < 10; ++i)
+            {
+                stream.Write(buffer.AsSpan());
+                Assert.That(stream.Position, Is.EqualTo((i + 1) * bufferLength));
+            }
+        }
+
+        [Test]
+        public void WriteSpanAfterEndIncreasesLength()
+        {
+            var stream = this.GetDefaultStream();
+            const int initialPosition = 13;
+            stream.Position = initialPosition;
+
+            var buffer = this.GetRandomBuffer(10);
+            stream.Write(buffer.AsSpan());
+            Assert.That(stream.Length, Is.EqualTo(stream.Position));
+            Assert.That(stream.Length, Is.EqualTo(initialPosition + buffer.Length));
+        }
+
+        [Test]
+        public void WriteSpanPastMaxStreamLengthThrowsException()
+        {
+            var stream = this.GetDefaultStream();
+            stream.Seek(Int32.MaxValue, SeekOrigin.Begin);
+            var buffer = this.GetRandomBuffer(100);
+            Assert.Throws<IOException>(() => stream.Write(buffer.AsSpan()));
+        }
+        #endregion
+
         #region WriteByte tests
         [Test]
         public void WriteByteInMiddleSetsCorrectValue()
@@ -1022,6 +1150,113 @@ namespace Microsoft.IO.UnitTests
         }
         #endregion
 
+        #region SafeRead Span Tests
+        [Test]
+        public void SafeReadSpanDoesNotUpdateStreamPosition()
+        {
+            var stream = this.GetRandomStream();
+
+            var step = stream.MemoryManager.BlockSize / 2;
+            var destBuffer = new byte[step];
+            var bytesRead = 0;
+            var position = 0;
+
+            while (position < stream.Length)
+            {
+                bytesRead += stream.SafeRead(destBuffer.AsSpan(0, Math.Min(step, (int)stream.Length - bytesRead)), ref position);
+                Assert.That(position, Is.EqualTo(bytesRead));
+                Assert.That(stream.Position, Is.EqualTo(0));
+            }
+        }
+
+        [Test]
+        public void SafeReadSpanDoesNotDependOnStreamPosition()
+        {
+            var stream = this.GetDefaultStream();
+            var bufferLength = 1000000;
+            var buffer = this.GetRandomBuffer(bufferLength);
+            stream.Write(buffer, 0, bufferLength);
+
+            var step = stream.MemoryManager.BlockSize / 2;
+            var destBuffer = new byte[step];
+            var expected = new byte[step];
+            var bytesRead = 0;
+            var position = 0;
+
+            while (position < stream.Length)
+            {
+                stream.Position = this.random.Next(0, bufferLength);
+                var lastPosition = position;
+                var lastRead = stream.SafeRead(destBuffer.AsSpan(0, Math.Min(step, (int)stream.Length - bytesRead)), ref position);
+                bytesRead += lastRead;
+
+                Array.Copy(buffer, lastPosition, expected, 0, lastRead);
+
+                Assert.That(position, Is.EqualTo(bytesRead));
+                RMSAssert.BuffersAreEqual(destBuffer, expected, lastRead);
+            }
+        }
+
+        [Test]
+        public void SafeReadSpanCallsDontAffectOtherSafeReadCalls()
+        {
+            var stream = this.GetDefaultStream();
+            var bufferLength = 1000000;
+            var buffer = this.GetRandomBuffer(bufferLength);
+            stream.Write(buffer, 0, bufferLength);
+
+            var stepSlow = stream.MemoryManager.BlockSize / 4;
+            var stepFast = stream.MemoryManager.BlockSize / 2;
+            var readBuffer = new byte[stepFast];
+            var readSlow = new MemoryStream();
+            var readFast = new MemoryStream();
+
+            var positionSlow = 0;
+            var positionFast = 0;
+
+            while (positionFast < stream.Length)
+            {
+                var read = stream.SafeRead(readBuffer.AsSpan(0, stepFast), ref positionFast);
+                readFast.Write(readBuffer, 0, read);
+                read = stream.SafeRead(readBuffer.AsSpan(0, stepSlow), ref positionSlow);
+                readSlow.Write(readBuffer, 0, read);
+            }
+            while (positionSlow < stream.Length)
+            {
+                var read = stream.SafeRead(readBuffer.AsSpan(0, stepSlow), ref positionSlow);
+                readSlow.Write(readBuffer, 0, read);
+            }
+
+            CollectionAssert.AreEqual(readSlow.ToArray(), buffer);
+            CollectionAssert.AreEqual(readFast.ToArray(), buffer);
+        }
+
+        [Test]
+        public void SafeReadSpanCanBeUsedInParallel()
+        {
+            var stream = this.GetDefaultStream();
+            var bufferLength = 1000000;
+            var buffer = this.GetRandomBuffer(bufferLength);
+            stream.Write(buffer, 0, bufferLength);
+
+            Action read = () =>
+            {
+                for (var i = 0; i < 5; i++)
+                {
+                    var position = this.random.Next(0, bufferLength);
+                    var startPosition = position;
+                    var length = this.random.Next(0, bufferLength - position);
+                    var readBuffer = new byte[length];
+                    var bytesRead = stream.SafeRead(readBuffer.AsSpan(0, length), ref position);
+
+                    RMSAssert.BuffersAreEqual(readBuffer, 0, buffer, startPosition, bytesRead);
+                }
+            };
+
+            Parallel.For(0, 5, i => read());
+        }
+        #endregion
+
         #region Read tests
         [Test]
         public void ReadNullBufferThrowsException()
@@ -1212,6 +1447,151 @@ namespace Microsoft.IO.UnitTests
             stream.Write(buffer, 0, bufferLength);
             stream.Position = bufferLength;
             var amountRead = stream.Read(buffer, 0, bufferLength);
+            Assert.That(amountRead, Is.EqualTo(0));
+        }
+        #endregion
+
+        #region Read tests
+        [Test]
+        public void ReadSpanSingleBlockReturnsCorrectBytesReadAndContentsAreCorrect()
+        {
+            this.WriteAndReadSpanBytes(DefaultBlockSize);
+        }
+
+        [Test]
+        public void ReadSpanMultipleBlocksReturnsCorrectBytesReadAndContentsAreCorrect()
+        {
+            this.WriteAndReadSpanBytes(DefaultBlockSize * 2);
+        }
+
+        protected void WriteAndReadSpanBytes(int length)
+        {
+            var stream = this.GetDefaultStream();
+            var buffer = this.GetRandomBuffer(length);
+            stream.Write(buffer.AsSpan());
+
+            stream.Position = 0;
+
+            var newBuffer = new byte[buffer.Length];
+            var amountRead = stream.Read(newBuffer.AsSpan(0, (int)stream.Length));
+            Assert.That(amountRead, Is.EqualTo(stream.Length));
+            Assert.That(amountRead, Is.EqualTo(buffer.Length));
+
+            RMSAssert.BuffersAreEqual(buffer, newBuffer, buffer.Length);
+        }
+
+        [Test]
+        public void ReadSpanFromOffsetHasCorrectLengthAndContents()
+        {
+            var stream = this.GetDefaultStream();
+            var buffer = this.GetRandomBuffer(100);
+            stream.Write(buffer.AsSpan());
+
+            stream.Position = buffer.Length / 2;
+            var amountToRead = buffer.Length / 4;
+
+            var newBuffer = new byte[amountToRead];
+            var amountRead = stream.Read(newBuffer.AsSpan());
+            Assert.That(amountRead, Is.EqualTo(amountToRead));
+            RMSAssert.BuffersAreEqual(buffer, buffer.Length / 2, newBuffer, 0, amountRead);
+        }
+
+        [Test]
+        public void ReadSpanToOffsetHasCorrectLengthAndContents()
+        {
+            var stream = this.GetDefaultStream();
+            var buffer = this.GetRandomBuffer(100);
+            stream.Write(buffer.AsSpan());
+
+            stream.Position = 0;
+            var newBufferSize = buffer.Length / 2;
+            var amountToRead = buffer.Length / 4;
+            var offset = newBufferSize - amountToRead;
+
+            var newBuffer = new byte[newBufferSize];
+            var amountRead = stream.Read(newBuffer.AsSpan(offset, amountToRead));
+            Assert.That(amountRead, Is.EqualTo(amountToRead));
+            RMSAssert.BuffersAreEqual(buffer, 0, newBuffer, offset, amountRead);
+        }
+
+        [Test]
+        public void ReadSpanFromAndToOffsetHasCorrectLengthAndContents()
+        {
+            var stream = this.GetDefaultStream();
+            var buffer = this.GetRandomBuffer(100);
+            stream.Write(buffer.AsSpan());
+
+            stream.Position = buffer.Length / 2;
+            var newBufferSize = buffer.Length / 2;
+            var amountToRead = buffer.Length / 4;
+            var offset = newBufferSize - amountToRead;
+
+            var newBuffer = new byte[newBufferSize];
+            var amountRead = stream.Read(newBuffer.AsSpan(offset, amountToRead));
+            Assert.That(amountRead, Is.EqualTo(amountToRead));
+            RMSAssert.BuffersAreEqual(buffer, buffer.Length / 2, newBuffer, offset, amountRead);
+        }
+
+        [Test]
+        public void ReadSpanUpdatesPosition()
+        {
+            var stream = this.GetDefaultStream();
+            var bufferLength = 1000000;
+            var buffer = this.GetRandomBuffer(bufferLength);
+            stream.Write(buffer.AsSpan());
+
+            stream.Position = 0;
+
+            var step = stream.MemoryManager.BlockSize / 2;
+            var destBuffer = new byte[step];
+            var bytesRead = 0;
+            while (stream.Position < stream.Length)
+            {
+                bytesRead += stream.Read(destBuffer.AsSpan(0, Math.Min(step, (int)stream.Length - bytesRead)));
+                Assert.That(stream.Position, Is.EqualTo(bytesRead));
+            }
+        }
+
+        [Test]
+        public void ReadSpanReturnsEarlyIfLackOfData()
+        {
+            var stream = this.GetDefaultStream();
+            var bufferLength = 100;
+            var buffer = this.GetRandomBuffer(bufferLength);
+            stream.Write(buffer.AsSpan());
+
+            stream.Position = bufferLength / 2;
+            var newBuffer = new byte[bufferLength];
+            var amountRead = stream.Read(newBuffer.AsSpan());
+            Assert.That(amountRead, Is.EqualTo(bufferLength / 2));
+        }
+
+        [Test]
+        public void ReadSpanPastEndOfLargeBufferIsOk()
+        {
+            var stream = this.GetDefaultStream();
+            var bufferLength = stream.MemoryManager.LargeBufferMultiple;
+            var buffer = this.GetRandomBuffer(bufferLength);
+            stream.Write(buffer.AsSpan());
+
+            // Force switch to large buffer
+            stream.GetBuffer();
+
+            stream.Position = stream.Length / 2;
+            var destBuffer = new byte[bufferLength];
+            var amountRead = stream.Read(destBuffer.AsSpan());
+            Assert.That(amountRead, Is.EqualTo(stream.Length / 2));
+        }
+
+        [Test]
+        public void ReadSpanFromPastEndReturnsZero()
+        {
+            var stream = this.GetDefaultStream();
+            const int bufferLength = 100;
+            var buffer = this.GetRandomBuffer(bufferLength);
+            stream.Write(buffer.AsSpan());
+            stream.Position = bufferLength;
+            var amountRead = stream.Read(buffer.AsSpan());
             Assert.That(amountRead, Is.EqualTo(0));
         }
         #endregion

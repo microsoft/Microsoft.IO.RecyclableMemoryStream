@@ -31,8 +31,10 @@ NuGet packages from command line build, etc.
 MSBuild 15 is required to build the code. You get this with Visual Studio 2017. Cross-platform builds will be documented
 in a future release.
 
+Build targets are: net40, net45, netstandard1.4, netstandard2.1, and netcoreapp2.1.
+
 ## Testing
 
-We're using Visual Studio 2017 for interactive test work. Requirements:
+Visual Studio 2019 is required for executing the unit tests. Requirements:
 - NUnit test adaptor (VS Extension)
 - Be sure to set the default processor architecture for tests to x64 (or giant allocation test will fail)
