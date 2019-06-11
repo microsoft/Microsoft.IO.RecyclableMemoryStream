@@ -579,6 +579,16 @@ namespace Microsoft.IO
         }
 
         /// <summary>
+        /// Retrieve a new MemoryStream object with no tag and a default initial capacity.
+        /// </summary>
+        /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
+        /// <returns>A MemoryStream.</returns>
+        public MemoryStream GetStream(Guid id)
+        {
+            return new RecyclableMemoryStream(this, id);
+        }
+
+        /// <summary>
         /// Retrieve a new MemoryStream object with the given tag and a default initial capacity.
         /// </summary>
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
@@ -589,14 +599,61 @@ namespace Microsoft.IO
         }
 
         /// <summary>
+        /// Retrieve a new MemoryStream object with the given tag and a default initial capacity.
+        /// </summary>
+        /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
+        /// <param name="tag">A tag which can be used to track the source of the stream.</param>
+        /// <returns>A MemoryStream.</returns>
+        public MemoryStream GetStream(Guid id, string tag)
+        {
+            return new RecyclableMemoryStream(this, id, tag);
+        }
+
+        /// <summary>
         /// Retrieve a new MemoryStream object with the given tag and at least the given capacity.
         /// </summary>
+        /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
         /// <param name="requiredSize">The minimum desired capacity for the stream.</param>
         /// <returns>A MemoryStream.</returns>
         public MemoryStream GetStream(string tag, int requiredSize)
         {
             return new RecyclableMemoryStream(this, tag, requiredSize);
+        }
+
+        /// <summary>
+        /// Retrieve a new MemoryStream object with the given tag and at least the given capacity.
+        /// </summary>
+        /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
+        /// <param name="tag">A tag which can be used to track the source of the stream.</param>
+        /// <param name="requiredSize">The minimum desired capacity for the stream.</param>
+        /// <returns>A MemoryStream.</returns>
+        public MemoryStream GetStream(Guid id, string tag, int requiredSize)
+        {
+            return new RecyclableMemoryStream(this, id, tag, requiredSize);
+        }
+
+        /// <summary>
+        /// Retrieve a new MemoryStream object with the given tag and at least the given capacity, possibly using
+        /// a single continugous underlying buffer.
+        /// </summary>
+        /// <remarks>Retrieving a MemoryStream which provides a single contiguous buffer can be useful in situations
+        /// where the initial size is known and it is desirable to avoid copying data between the smaller underlying
+        /// buffers to a single large one. This is most helpful when you know that you will always call GetBuffer
+        /// on the underlying stream.</remarks>
+        /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
+        /// <param name="tag">A tag which can be used to track the source of the stream.</param>
+        /// <param name="requiredSize">The minimum desired capacity for the stream.</param>
+        /// <param name="asContiguousBuffer">Whether to attempt to use a single contiguous buffer.</param>
+        /// <returns>A MemoryStream.</returns>
+        public MemoryStream GetStream(Guid id, string tag, int requiredSize, bool asContiguousBuffer)
+        {
+            if (!asContiguousBuffer || requiredSize <= this.BlockSize)
+            {
+                return this.GetStream(id, tag, requiredSize);
+            }
+
+            return new RecyclableMemoryStream(this, id, tag, requiredSize, this.GetLargeBuffer(requiredSize, tag));
         }
 
         /// <summary>
@@ -613,12 +670,35 @@ namespace Microsoft.IO
         /// <returns>A MemoryStream.</returns>
         public MemoryStream GetStream(string tag, int requiredSize, bool asContiguousBuffer)
         {
-            if (!asContiguousBuffer || requiredSize <= this.BlockSize)
-            {
-                return this.GetStream(tag, requiredSize);
-            }
+            return GetStream(Guid.NewGuid(), tag, requiredSize, asContiguousBuffer);
+        }
 
-            return new RecyclableMemoryStream(this, tag, requiredSize, this.GetLargeBuffer(requiredSize, tag));
+        /// <summary>
+        /// Retrieve a new MemoryStream object with the given tag and with contents copied from the provided
+        /// buffer. The provided buffer is not wrapped or used after construction.
+        /// </summary>
+        /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
+        /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
+        /// <param name="tag">A tag which can be used to track the source of the stream.</param>
+        /// <param name="buffer">The byte buffer to copy data from.</param>
+        /// <param name="offset">The offset from the start of the buffer to copy from.</param>
+        /// <param name="count">The number of bytes to copy from the buffer.</param>
+        /// <returns>A MemoryStream.</returns>
+        public MemoryStream GetStream(Guid id, string tag, byte[] buffer, int offset, int count)
+        {
+            RecyclableMemoryStream stream = null;
+            try
+            {
+                stream = new RecyclableMemoryStream(this, id, tag, count);
+                stream.Write(buffer, offset, count);
+                stream.Position = 0;
+                return stream;
+            }
+            catch
+            {
+                stream?.Dispose();
+                throw;
+            }
         }
 
         /// <summary>
@@ -633,19 +713,7 @@ namespace Microsoft.IO
         /// <returns>A MemoryStream.</returns>
         public MemoryStream GetStream(string tag, byte[] buffer, int offset, int count)
         {
-            RecyclableMemoryStream stream = null;
-            try
-            {
-                stream = new RecyclableMemoryStream(this, tag, count);
-                stream.Write(buffer, offset, count);
-                stream.Position = 0;
-                return stream;
-            }
-            catch
-            {
-                stream?.Dispose();
-                throw;
-            }
+            return GetStream(Guid.NewGuid(), tag, buffer, offset, count);
         }
 
         /// <summary>

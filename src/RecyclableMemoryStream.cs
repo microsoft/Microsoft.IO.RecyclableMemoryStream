@@ -156,7 +156,15 @@ namespace Microsoft.IO
         /// </summary>
         /// <param name="memoryManager">The memory manager</param>
         public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager)
-            : this(memoryManager, null, 0, null) { }
+            : this(memoryManager, Guid.NewGuid(), null, 0, null) { }
+
+        /// <summary>
+        /// Allocate a new RecyclableMemoryStream object.
+        /// </summary>
+        /// <param name="memoryManager">The memory manager</param>
+        /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
+        public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id)
+            : this(memoryManager, id, null, 0, null) { }
 
         /// <summary>
         /// Allocate a new RecyclableMemoryStream object
@@ -164,7 +172,16 @@ namespace Microsoft.IO
         /// <param name="memoryManager">The memory manager</param>
         /// <param name="tag">A string identifying this stream for logging and debugging purposes</param>
         public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string tag)
-            : this(memoryManager, tag, 0, null) { }
+            : this(memoryManager, Guid.NewGuid(), tag, 0, null) { }
+
+        /// <summary>
+        /// Allocate a new RecyclableMemoryStream object
+        /// </summary>
+        /// <param name="memoryManager">The memory manager</param>
+        /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
+        /// <param name="tag">A string identifying this stream for logging and debugging purposes</param>
+        public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string tag)
+            : this(memoryManager, id, tag, 0, null) { }
 
         /// <summary>
         /// Allocate a new RecyclableMemoryStream object
@@ -173,21 +190,31 @@ namespace Microsoft.IO
         /// <param name="tag">A string identifying this stream for logging and debugging purposes</param>
         /// <param name="requestedSize">The initial requested size to prevent future allocations</param>
         public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string tag, int requestedSize)
-            : this(memoryManager, tag, requestedSize, null) { }
+            : this(memoryManager, Guid.NewGuid(), tag, requestedSize, null) { }
 
         /// <summary>
         /// Allocate a new RecyclableMemoryStream object
         /// </summary>
         /// <param name="memoryManager">The memory manager</param>
+        /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
+        /// <param name="tag">A string identifying this stream for logging and debugging purposes</param>
+        /// <param name="requestedSize">The initial requested size to prevent future allocations</param>
+        public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string tag, int requestedSize)
+            : this(memoryManager, id, tag, requestedSize, null) { }
+
+        /// <summary>
+        /// Allocate a new RecyclableMemoryStream object
+        /// </summary>
+        /// <param name="memoryManager">The memory manager</param>
+        /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
         /// <param name="tag">A string identifying this stream for logging and debugging purposes</param>
         /// <param name="requestedSize">The initial requested size to prevent future allocations</param>
         /// <param name="initialLargeBuffer">An initial buffer to use. This buffer will be owned by the stream and returned to the memory manager upon Dispose.</param>
-        internal RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string tag, int requestedSize,
-                                        byte[] initialLargeBuffer)
+        internal RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string tag, int requestedSize, byte[] initialLargeBuffer)
             : base(emptyArray)
         {
             this.memoryManager = memoryManager;
-            this.id = Guid.NewGuid();
+            this.id = id;
             this.tag = tag;
 
             if (requestedSize < memoryManager.BlockSize)
