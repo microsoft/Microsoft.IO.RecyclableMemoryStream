@@ -13,4 +13,7 @@
     <copyright>Copyright 2015-2017 Microsoft</copyright>
     <tags>MemoryStream Memory</tags>
   </metadata>
+  <files>
+    <file src="src\Bin\Release\**\*" target="lib" />
+  </files>
 </package>
