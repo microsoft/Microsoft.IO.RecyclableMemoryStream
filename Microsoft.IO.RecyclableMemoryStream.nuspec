@@ -5,7 +5,7 @@
     <version>1.2.2</version>
     <title>Microsoft.IO.RecyclableMemoryStream</title>
     <authors>Ben Watson; Chip Locke</authors>
-    <licenseUrl>https://github.com/Microsoft/Microsoft.IO.RecyclableMemoryStream/blob/master/LICENSE</licenseUrl>
+    <license type="expression">MIT</license>
     <projectUrl>https://github.com/Microsoft/Microsoft.IO.RecyclableMemoryStream</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Pooled memory allocator.</description>
