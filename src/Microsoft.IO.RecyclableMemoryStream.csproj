@@ -2,6 +2,8 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard1.4;netstandard2.1;net40;net45;net46;netcoreapp2.1</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <!-- for assembly signing we use a magic variable coupled with a special build definition which skips UTs -->
   <PropertyGroup Condition="'$(DelaySignKeyFile)' != ''">
