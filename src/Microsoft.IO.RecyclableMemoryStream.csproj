@@ -21,7 +21,7 @@
   <!-- for assembly signing we use a magic variable coupled with a special build definition which skips UTs -->
   <PropertyGroup Condition="'$(SignedBuild)' != ''">
     <DefineConstants>$(DefineConstants);NOFRIENDASSEMBLY</DefineConstants>
-    <AssemblyOriginatorKeyFile>MSFT.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\MSFT.snk</AssemblyOriginatorKeyFile>
     <DelaySign>true</DelaySign>
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
