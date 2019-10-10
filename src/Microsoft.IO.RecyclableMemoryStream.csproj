@@ -2,11 +2,26 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard1.4;netstandard2.1;net40;net45;net46;netcoreapp2.1</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <!-- NuGet properties -->
+    <PackageId>Microsoft.IO.RecyclableMemoryStream</PackageId>
+    <PackageVersion>1.3.0</PackageVersion>
+    <Title>Microsoft.IO.RecyclableMemoryStream</Title>
+    <Authors>Ben Watson; Chip Locke</Authors>
+    <Description>Pooled memory allocator.</Description>
+    <Copyright>Copyright 2015-2019 Microsoft</Copyright>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReleaseNotes>Additional framework targets, better .Net Core support, simplified build.</PackageReleaseNotes>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageTags>MemoryStream;Memory;performance;GC</PackageTags>
+    <RepositoryUrl>https://github.com/Microsoft/Microsoft.IO.RecyclableMemoryStream</RepositoryUrl>
+    <IncludeBuildOutput>true</IncludeBuildOutput>
   </PropertyGroup>
   <!-- for assembly signing we use a magic variable coupled with a special build definition which skips UTs -->
-  <PropertyGroup Condition="'$(DelaySignKeyFile)' != ''">
+  <PropertyGroup Condition="'$(SignedBuild)' == 'true'">
     <DefineConstants>$(DefineConstants);NOFRIENDASSEMBLY</DefineConstants>
-    <AssemblyOriginatorKeyFile>$(DelaySignKeyFile)</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\MSFT.snk</AssemblyOriginatorKeyFile>
     <DelaySign>true</DelaySign>
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
