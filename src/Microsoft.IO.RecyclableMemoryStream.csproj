@@ -19,7 +19,7 @@
     <IncludeBuildOutput>true</IncludeBuildOutput>
   </PropertyGroup>
   <!-- for assembly signing we use a magic variable coupled with a special build definition which skips UTs -->
-  <PropertyGroup Condition="'$(SignedBuild)' != ''">
+  <PropertyGroup Condition="'$(SignedBuild)' == 'true'">
     <DefineConstants>$(DefineConstants);NOFRIENDASSEMBLY</DefineConstants>
     <AssemblyOriginatorKeyFile>..\MSFT.snk</AssemblyOriginatorKeyFile>
     <DelaySign>true</DelaySign>
