@@ -14,8 +14,10 @@
     <PackageReleaseNotes>Additional framework targets, better .Net Core support, simplified build.</PackageReleaseNotes>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <PackageTags>MemoryStream;Memory;performance;GC</PackageTags>
+    <PackageTags>MemoryStream;Memory;performance;GC;garbage collection;stream;scalable;buffer</PackageTags>
     <RepositoryUrl>https://github.com/Microsoft/Microsoft.IO.RecyclableMemoryStream</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/Microsoft/Microsoft.IO.RecyclableMemoryStream</PackageProjectUrl>
     <IncludeBuildOutput>true</IncludeBuildOutput>
   </PropertyGroup>
   <!-- for assembly signing we use a magic variable coupled with a special build definition which skips UTs -->
