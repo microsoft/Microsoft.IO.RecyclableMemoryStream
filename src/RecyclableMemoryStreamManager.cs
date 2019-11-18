@@ -696,30 +696,30 @@ namespace Microsoft.IO
             }
         }
 				
-				/// <summary>
-				/// Retrieve a new MemoryStream object with the contents copied from the provided
-				/// buffer. The provided buffer is not wrapped or used after construction.
-				/// </summary>
-				/// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
-				/// <param name="buffer">The byte buffer to copy data from.</param>
-				/// <returns>A MemoryStream.</returns>
-				public MemoryStream GetStream(byte[] buffer)
-				{
-					return GetStream(null, buffer, 0, buffer.Length);
-				}
+        /// <summary>
+        /// Retrieve a new MemoryStream object with the contents copied from the provided
+        /// buffer. The provided buffer is not wrapped or used after construction.
+        /// </summary>
+        /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
+        /// <param name="buffer">The byte buffer to copy data from.</param>
+        /// <returns>A MemoryStream.</returns>
+        public MemoryStream GetStream(byte[] buffer)
+        {
+            return GetStream(null, buffer, 0, buffer.Length);
+        }
 
 
-				/// <summary>
-				/// Retrieve a new MemoryStream object with the given tag and with contents copied from the provided
-				/// buffer. The provided buffer is not wrapped or used after construction.
-				/// </summary>
-				/// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
-				/// <param name="tag">A tag which can be used to track the source of the stream.</param>
-				/// <param name="buffer">The byte buffer to copy data from.</param>
-				/// <param name="offset">The offset from the start of the buffer to copy from.</param>
-				/// <param name="count">The number of bytes to copy from the buffer.</param>
-				/// <returns>A MemoryStream.</returns>
-				public MemoryStream GetStream(string tag, byte[] buffer, int offset, int count)
+        /// <summary>
+        /// Retrieve a new MemoryStream object with the given tag and with contents copied from the provided
+        /// buffer. The provided buffer is not wrapped or used after construction.
+        /// </summary>
+        /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
+        /// <param name="tag">A tag which can be used to track the source of the stream.</param>
+        /// <param name="buffer">The byte buffer to copy data from.</param>
+        /// <param name="offset">The offset from the start of the buffer to copy from.</param>
+        /// <param name="count">The number of bytes to copy from the buffer.</param>
+        /// <returns>A MemoryStream.</returns>
+        public MemoryStream GetStream(string tag, byte[] buffer, int offset, int count)
         {
             return GetStream(Guid.NewGuid(), tag, buffer, offset, count);
         }
