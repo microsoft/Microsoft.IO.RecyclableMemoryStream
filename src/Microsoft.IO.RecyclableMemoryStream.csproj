@@ -4,7 +4,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <!-- NuGet properties -->
     <PackageId>Microsoft.IO.RecyclableMemoryStream</PackageId>
-    <PackageVersion>1.3.0</PackageVersion>
+    <PackageVersion>1.3.2</PackageVersion>
     <Title>Microsoft.IO.RecyclableMemoryStream</Title>
     <Authors>Microsoft</Authors>
     <Description>A pooled MemoryStream allocator to decrease GC load and improve performance on highly scalable systems.</Description>
