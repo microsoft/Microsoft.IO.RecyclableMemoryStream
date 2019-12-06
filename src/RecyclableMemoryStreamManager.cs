@@ -695,6 +695,19 @@ namespace Microsoft.IO
                 throw;
             }
         }
+				
+        /// <summary>
+        /// Retrieve a new MemoryStream object with the contents copied from the provided
+        /// buffer. The provided buffer is not wrapped or used after construction.
+        /// </summary>
+        /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
+        /// <param name="buffer">The byte buffer to copy data from.</param>
+        /// <returns>A MemoryStream.</returns>
+        public MemoryStream GetStream(byte[] buffer)
+        {
+            return GetStream(null, buffer, 0, buffer.Length);
+        }
+
 
         /// <summary>
         /// Retrieve a new MemoryStream object with the given tag and with contents copied from the provided

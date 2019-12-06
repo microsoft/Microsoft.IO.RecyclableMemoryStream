@@ -2202,6 +2202,17 @@ namespace Microsoft.IO.UnitTests
             Assert.That(buffer, Is.Not.SameAs(stream.GetBuffer()));
             Assert.That(stream.Tag, Is.EqualTo(tag));
         }
+
+        [Test]
+        public void GetStreamWithOnlyBuffer()
+        {
+            var memMgr = this.GetMemoryManager();
+            var buffer = this.GetRandomBuffer(1000);
+
+            var stream = memMgr.GetStream(buffer) as RecyclableMemoryStream;
+            RMSAssert.BuffersAreEqual(buffer, 0, stream.GetBuffer(), 0, buffer.Length);
+            Assert.That(buffer, Is.Not.SameAs(stream.GetBuffer()));
+        }
         #endregion
 
         #region WriteTo tests
