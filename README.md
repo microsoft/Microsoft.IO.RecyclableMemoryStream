@@ -61,9 +61,9 @@ There are two versions of the large pool: Linear or Exponential.
 Linear is the default. You specify a multiple and a maximum size, and an array of buffers, from size (1 * multiple), (2 * multiple), (3 * multiple), ... maximum is created. For example, if you specify a multiple of 1 MB and maximum size of 8 MB,
 then you will have an array of length 8. The first slot will contain 1 MB buffers, the second slot 2 MB buffers, and so on.
 
-Exponential buffers tweaks this slightly. Instead of linearly growing, the buffers double in size for each slot. For example, if you specify a multiple of 128KB, and a maximum size of 8 MB, you will have an array of length 7, the slots containing buffers of size 128KB, 256KB, 512KB, 1MB, 2MB, 4MB, and 8MB.
+Exponential buffers tweaks this slightly. Instead of linearly growing, the buffers double in size for each slot. For example, if you specify a multiple of 256KB, and a maximum size of 8 MB, you will have an array of length 6, the slots containing buffers of size 256KB, 512KB, 1MB, 2MB, 4MB, and 8MB.
 
-TODO: image showing difference
+![Pool Image Comparison](poolcomparison.png)
 
 Which one should you use? That depends on your usage pattern. If you have an unpredictable large buffer size, perhaps the linear one will be more suitable. If you know that a longer stream length is unlikely, but you may have a lot of streams in the smaller size, picking the Exponential could lead to less overall memory usage (which was the reason this form was added).
 
