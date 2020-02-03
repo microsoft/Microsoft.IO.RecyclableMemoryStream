@@ -52,13 +52,13 @@ RecyclableMemoryStream improves GC performance by ensuring that the larger buffe
 The MemoryStreamManager class maintains two separate pools of objects:
 
 1. **Small Pool** - Holds small buffers (of configurable size). Used by default for all normal read/write operations. Multiple small buffers are chained together in the RecyclableMemoryStream class and abstracted into a single stream.
-2. ** Large Pool** - Holds large buffers, which are only used when you must have a single, contiguous buffer, such as a call to GetBuffer(). 
+2. **Large Pool** - Holds large buffers, which are only used when you must have a single, contiguous buffer, such as a call to GetBuffer(). 
 
 A RecyclableMemoryStream starts out by using a small buffer, chaining additional ones as the stream capacity grows. Should you ever call `GetBuffer()` and the length is greater than single small buffer's capacity, then the small buffers are converted to a single large buffer.
 
 There are two versions of the large pool: Linear or Exponential.
 
-Linear is the default. You specify a multiple and a maximum size, and an array of buffers, from size (1 * multiple), (2 * multiple) ... maximum is created. For example, if you specify a multiple of 1 MB and maximum size of 8 MB,
+Linear is the default. You specify a multiple and a maximum size, and an array of buffers, from size (1 * multiple), (2 * multiple), (3 * multiple), ... maximum is created. For example, if you specify a multiple of 1 MB and maximum size of 8 MB,
 then you will have an array of length 8. The first slot will contain 1 MB buffers, the second slot 2 MB buffers, and so on.
 
 Exponential buffers tweaks this slightly. Instead of linearly growing, the buffers double in size for each slot. For example, if you specify a multiple of 128KB, and a maximum size of 8 MB, you will have an array of length 7, the slots containing buffers of size 128KB, 256KB, 512KB, 1MB, 2MB, 4MB, and 8MB.
@@ -66,6 +66,10 @@ Exponential buffers tweaks this slightly. Instead of linearly growing, the buffe
 TODO: image showing difference
 
 Which one should you use? That depends on your usage pattern. If you have an unpredictable large buffer size, perhaps the linear one will be more suitable. If you know that a longer stream length is unlikely, but you may have a lot of streams in the smaller size, picking the Exponential could lead to less overall memory usage (which was the reason this form was added).
+
+Buffers are created, on demand, the first time they are requested and nothing suitable already exists in the pool. After use, these buffers will be returned to the pool through the `RecyclableMemoryStream`'s `Dispose` method. When that return happens, the `RecyclableMemoryStreamManager` will use the properties `MaximumFreeSmallPoolBytes` and `MaximumFreeLargePoolBytes` to determine whether to put those buffers back in the pool, or let them go (and thus be garbage collected). It is through these properties that you determine how large your pool can grow. If you set these to 0, you can have essentially unbounded pool growth, which is essentially indistinguishable from a memory leak. For every application, you must determine through analysis and experimentation the appropriate balance between pool size and garbage collection.
+
+If you forget to call a stream's `Dispose` method, this could cause a memory leak. To help you prevent this, each stream has a finalizer that will be called by the CLR once there are no more references to the stream. This finalizer will raise an event or log a message about the leaked stream.
 
 ## Usage
 
@@ -80,7 +84,7 @@ using (var stream = manager.GetStream())
 }
 ```
 
-Note that RecyclableMemoryStreamManager should be declared once and it will live for the entire process–this is the pool. It is perfectly fine to use multiple pools if you desire.
+Note that `RecyclableMemoryStreamManager` should be declared once and it will live for the entire process–this is the pool. It is perfectly fine to use multiple pools if you desire.
 
 To facilitate easier debugging, you can optionally provide a string tag, which serves as a human-readable identifier for the stream. In practice, I’ve usually used something like “ClassName.MethodName” for this, but it can be whatever you want. Each stream also has a GUID to provide absolute identity if needed, but the tag is usually sufficient.
 
@@ -115,15 +119,102 @@ manager.MaximumFreeLargePoolBytes = maxBufferSize * 4;
 manager.MaximumFreeSmallPoolBytes = 100 * blockSize;
 ```
 
+While this library strives to be very generic and not impose too many restraints on how you use it, its purpose is to reduce the cost of garbage collections incurred by frequent large allocations. Thus, there are some general guidelines for usage that may be useful to you:
+
+1. Set the `blockSize`, `largeBufferMultiple`, `maxBufferSize`, `MaximumFreeLargePoolBytes` and `MaximumFreeSmallPoolBytes` properties to reasonable values for your application and resource requirements.
+2. Always dispose of each stream exactly once.
+3. Never call `ToArray` and avoid calling `GetBuffer` if possible.
+4. Experiment to find the appropriate settings for your scenario.
+
+A working knowledge of the garbage collector is a very good idea before you try to optimize your scenario with this library. An article such as [Garbage Collection](https://docs.microsoft.com/dotnet/standard/garbage-collection/), or a book like *Writing High-Performance .NET Code* will help you understand the design principles of this library.
+
+When configuring the options, consider questions such as these:
+
+* What is the distribution of stream lengths that I expect?
+* How many streams will be in use at one time?
+* Is `GetBuffer` called a lot? How much use of large pool buffers will I need?
+* How resilient to spikes in activity do I need to be? i.e., How many free bytes should I keep around in case?
+* What are my physical memory limitations on the machines where this will be used?
+
+### GetBuffer and ToArray ###
+
+`RecyclableMemoryStream` is designed to operate primarily on chained small pool blocks. However, realistically, many people will still need to get a single, contiguous buffer for the whole stream, especially to interoperate with certain I/O APIs. For this purpose, there are two APIs which `RecyclableMemoryStream` overrides from its parent `MemoryStream` class:
+
+* `GetBuffer` - If possible, a reference to the single block will be returned to the caller. If multiple blocks are in use, they will be converted into a single large pool buffer and the data copied into it. In all cases, the caller must use the `Length` property to determine who much usable data is actually in the returned buffer. If the stream length is longer than the maximum allowable stream size, a single buffer will still be returned, but it will not be pooled.
+* `ToArray` - It looks similar to `GetBuffer` on the surface, but is actually significantly different. In `ToArray` the data is *always* copied into a new array that is exactly the right length for the full contents of the stream. This new buffer is never pooled. Users of this library should consider any call to `ToArray` to be a bug, as it wipes out many of the benefits of `RecyclableMemoryStream` completely. We may even add a feature
+
+
 ## Metrics and Hooks
 
-TODO: ETW Events
-TODO: event hooks
+### ETW Events ###
 
-## Debugging Leaks
+RecyclableMemoryStream has an `EventSource` provider that produces a number of events for tracking behavior and performance. You can use events to debug leaks or subtle problems with pooled stream usage.
 
-TODO
+| Name | Level | Description |
+| -----|-------|-------------|
+| MemoryStreamCreated | Verbose | Logged every time a stream object is allocated. Fields: `guid`, `tag`, `requestedSize`. |
+| MemoryStreamDisposed | Verbose | Logged every time a stream object is disposed. Fields: `guid`, `tag`. |
+| MemoryStreamDoubleDisposed | Critical | Logged if a stream is disposed more than once. This indicates a logic error by the user of the stream. Dispose should happen exactly once per stream to avoid resource usage bugs. Fields: `guid`, `tag`, `allocationStack`, `disposeStack1`, `disposeStack2`. |
+| MemoryStreamFinalized | Error | Logged if a stream has gone out of scope without being disposed. This indicates a resource leak. Fields: `guid`, `tag`, `allocationStack`.|
+| MemoryStreamToArray | Verbose | Logged whenever `ToArray` is called. This indicates a potential problem, as calling `ToArray` goes against the concepts of good memory practice which `RecyclableMemoryStream` is trying to solve. Fields: `guid`, `tag`, `stack`, `size`.|
+| MemoryStreamManagerInitialized| Informational | Logged when the `RecyclableMemoryStreamManager` is initialized. Fields: `blockSize`, `largeBufferMultiple`, `maximumBufferSize`.|
+| MemoryStreamNewBlockCreated | Verbose | Logged whenever a block for the small pool is created. Fields: `smallPoolInUseBytes`.|
+| MemoryStreamNewLargeBufferCreated | Verbose | Logged whenever a large buffer is allocated. Fields: `requiredSize`, `largePoolInUseBytes`.|
+| MemoryStreamNonPooledLargeBufferCreated | Verbose | Logged whenever a buffer is requested that is larger than the maximum pooled size. The buffer is still created and returned to the user, but it can not be re-pooled. Fields: `requiredSize`, `tag`, `allocationStack`. |
+| MemoryStreamDiscardBuffer | Warning | Logged whenever a buffer is discarded rather than put back in the pool. Fields: `bufferType` (`Small`, `Large`), `tag`, `reason` (`TooLarge`, `EnoughFree`). |
+| MemoryStreamOverCapacity | Error | Logged whenever an attempt is made to set the capacity of the stream beyond the limits of `RecyclableMemoryStreamManager.MaximumStreamCapacity`, if such a limit is set. Fields: `requestedCapacity`, `maxCapacity`, `tag`, `allocationStack`.|
+
+### Event Hooks ###
+
+In addition to the logged ETW events, there are a number of .NET event hooks on `RecyclableMemoryStreamManager` that you can use as triggers for your own custom actions:
+
+| Name | Description |
+|---------|------------|
+| `BlockCreated` | A new small pool block has been allocated. |
+| `BlockDiscarded` | A small pool block has been refused re-entry to the pool and given over to the garbage collector. |
+| `LargeBufferCreatd` | A large buffer has been allocated. |
+| `LargeBufferDiscarded` | A large buffer has been refused re-entry to the pool and given over to the garbage collector. |
+| `StreamCreated` | A new stream has been created. |
+| `StreamDisposed` | A stream has been disposed. |
+| `StreamFinalized` | A stream has been finalized, which means it was never disposed before it went ouf of scope. |
+| `StreamLength` | Reports the stream's length upon disposal. Can allow you to track stream metrics. |
+| `StreamConvertedToArray` | Someone called `ToArray` on a stream. |
+| `UsageReport` | Provides stats on pool usage for metrics tracking. |
+
+## Debugging Problems
+
+Once you start introducing re-usable resources like the pooled buffers in RecyclableMemoryStream, you are taking some of the duties of the CLR away from it and reserving them for yourself. This can be error-prone. See the Usage section above for some guidelines on making your usage of this library successful.
+
+There are a number of features that will help you debug usage of these streams.
+
+### Stream Identification ###
+
+Each stream is assigned a unique GUID and, optionally, a tag.
+
+The GUID is unique for each stream object and serves to identity that stream throughout its lifetime.
+
+A tag is an optional, arbitrary string assigned by the caller when a stream is requested. This can be a class name, function name, or some other meaningful string that can help you identify the source of the stream's usage. Note that multiple streams will contain the same tag. They identify where in your code the stream originated; they are not unique stream identifiers.
+
+### Callstack Recording ###
+
+If you set the `GenerateCallStacks` property on `RecyclableMemoryStreamManager` to true, then major operations on the stream, such as allocation and disposal, will record the call stack of those method calls. These will be reported in ETW events in the event of detected programming errors such as double-dispose or finalization. 
+
+Turning this feature on causes a very significant negative performance impact, so should only be done when actively investigating a problem.
+
+### Double-Dispose Protection ###
+
+If `Dispose` is called twice on the same stream, an event is logged with the relevant stream's information. If `GenerateCallStacks` is turned on, this will include the call stacks for allocation and both disposals.
+
+### Non-Dispose Detection ###
+
+If `Dispose` is never called for a stream, the finalize will eventually be called by the CLR, and an event will be logged with relevant stream information, including the allocation stack, if enabled. Buffers for finalized streams are lost to the pool, and this should be considered a bug. 
+
+### ETW Events ###
+
+Use an ETW event monitor such as [PerfView](https://www.microsoft.com/download/details.aspx?id=28567) to collect and analyze ETW events.
+
+Many of these events contain helpful clues about the stream in question, including its tag, guid, and stacks (if enabled).
 
 ## Reference
 
-TODO:
+Read the API documentation [here](API.md).
