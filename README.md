@@ -74,6 +74,8 @@ Buffers are created, on demand, the first time they are requested and nothing su
 
 If you forget to call a stream's `Dispose` method, this could cause a memory leak. To help you prevent this, each stream has a finalizer that will be called by the CLR once there are no more references to the stream. This finalizer will raise an event or log a message about the leaked stream.
 
+Note that for performance reasons, the buffers are not ever pre-initialized or zeroed-out. It is your responsibility to ensure their contents are valid and safe to use buffer recycling.
+
 ## Usage
 
 You can jump right in with no fuss by just doing a simple replacement of `MemoryStream` with something like this:
