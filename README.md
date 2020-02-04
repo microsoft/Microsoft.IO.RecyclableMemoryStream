@@ -98,7 +98,7 @@ using (var stream = manager.GetStream("Program.Main"))
 }
 ```
 
-You can also provide an existing buffer. It’s important to note that this buffer will be copied into the pooled buffer:
+You can also provide an existing buffer. It’s important to note that this buffer will be copied into the pooled buffers owned by RecyclableMemoryStream:
 
 ```
 var stream = manager.GetStream("Program.Main", sourceBuffer, 
