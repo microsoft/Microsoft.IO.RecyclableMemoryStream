@@ -76,18 +76,26 @@ If you forget to call a stream's `Dispose` method, this could cause a memory lea
 
 ## Usage
 
-You can jump right in with no fuss by just doing a simple replacement of MemoryStream with something like this:
+You can jump right in with no fuss by just doing a simple replacement of `MemoryStream` with something like this:
 
 ```
-var sourceBuffer = new byte[]{0,1,2,3,4,5,6,7}; 
-var manager = new RecyclableMemoryStreamManager(); 
-using (var stream = manager.GetStream()) 
-{ 
-    stream.Write(sourceBuffer, 0, sourceBuffer.Length); 
+class Program
+{
+    private static readonly RecyclableMemoryStreamManager manager = new RecyclableMemoryStreamManager();
+
+    static void Main(string[] args)
+    {
+        var sourceBuffer = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7 };
+        
+        using (var stream = manager.GetStream())
+        {
+            stream.Write(sourceBuffer, 0, sourceBuffer.Length);
+        }
+    }
 }
 ```
 
-Note that `RecyclableMemoryStreamManager` should be declared once and it will live for the entire process–this is the pool. It is perfectly fine to use multiple pools if you desire.
+Note that `RecyclableMemoryStreamManager` should be declared once and it will live for the entire process lifetime. It is perfectly fine to use multiple pools if you desire, especially if you want to configure them differently.
 
 To facilitate easier debugging, you can optionally provide a string tag, which serves as a human-readable identifier for the stream. In practice, I’ve usually used something like “ClassName.MethodName” for this, but it can be whatever you want. Each stream also has a GUID to provide absolute identity if needed, but the tag is usually sufficient.
 
