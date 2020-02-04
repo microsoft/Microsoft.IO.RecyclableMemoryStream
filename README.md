@@ -50,7 +50,7 @@ Read the change log [here](CHANGES.md).
 
 ## How It Works
 
-RecyclableMemoryStream improves GC performance by ensuring that the larger buffers used for the streams are put into the gen 2 heap and stay there forever. This should cause full collections to happen less frequently. If you pick buffer sizes above 85K then you will ensure these are placed on the large object heap, which is touched even less frequently by the garbage collector.
+RecyclableMemoryStream improves GC performance by ensuring that the larger buffers used for the streams are put into the gen 2 heap and stay there forever. This should cause full collections to happen less frequently. If you pick buffer sizes above 85,000 bytes, then you will ensure these are placed on the large object heap, which is touched even less frequently by the garbage collector.
 
 The MemoryStreamManager class maintains two separate pools of objects:
 
