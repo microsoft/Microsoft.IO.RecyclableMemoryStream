@@ -55,7 +55,7 @@ RecyclableMemoryStream improves GC performance by ensuring that the larger buffe
 The MemoryStreamManager class maintains two separate pools of objects:
 
 1. **Small Pool** - Holds small buffers (of configurable size). Used by default for all normal read/write operations. Multiple small buffers are chained together in the RecyclableMemoryStream class and abstracted into a single stream.
-2. **Large Pool** - Holds large buffers, which are only used when you must have a single, contiguous buffer, such as a call to GetBuffer(). 
+2. **Large Pool** - Holds large buffers, which are only used when you must have a single, contiguous buffer, such as when you plan to call GetBuffer(). 
 
 A RecyclableMemoryStream starts out by using a small buffer, chaining additional ones as the stream capacity grows. Should you ever call `GetBuffer()` and the length is greater than a single small buffer's capacity, then the small buffers are converted to a single large buffer. You can also request a stream with an initial capacity; if that capacity is larger than the small pool block size, a single large buffer will be assigned from the start. If you requeset a capacity larger than the maximum poolable size, you will still get a stream back, but the buffers will not be pooled.
 
