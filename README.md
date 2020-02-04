@@ -220,7 +220,7 @@ Many of these events contain helpful clues about the stream in question, includi
 
 ## Reference
 
-Read the API documentation [here](API.md).
+Read the API documentation [here](docs/API.md).
 
 ## License
 
