@@ -78,12 +78,6 @@ namespace Microsoft.IO
         private readonly long[] largeBufferInUseSize;
 
 
-        /// <summary>
-        /// pools[0] = 1x largeBufferMultiple buffers
-        /// pools[1] = 2x largeBufferMultiple buffers
-        /// pools[2] = 3x(multiple)/4x(exponential) largeBufferMultiple buffers
-        /// etc., up to maximumBufferSize
-        /// </summary>
         private readonly ConcurrentStack<byte[]>[] largePools;
 
         private readonly ConcurrentStack<byte[]> smallPool;

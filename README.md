@@ -35,7 +35,6 @@ Microsoft.IO.RecyclableMemoryStream is a MemoryStream replacement that offers su
 ## Build Targets
 
 At least MSBuild 15 is required to build the code. You get this with Visual Studio 2017.
-in a future release.
 
 Build targets are: net40, net45, netstandard1.4, netstandard2.1, and netcoreapp2.1.
 
@@ -58,7 +57,7 @@ The MemoryStreamManager class maintains two separate pools of objects:
 1. **Small Pool** - Holds small buffers (of configurable size). Used by default for all normal read/write operations. Multiple small buffers are chained together in the RecyclableMemoryStream class and abstracted into a single stream.
 2. **Large Pool** - Holds large buffers, which are only used when you must have a single, contiguous buffer, such as a call to GetBuffer(). 
 
-A RecyclableMemoryStream starts out by using a small buffer, chaining additional ones as the stream capacity grows. Should you ever call `GetBuffer()` and the length is greater than single small buffer's capacity, then the small buffers are converted to a single large buffer.
+A RecyclableMemoryStream starts out by using a small buffer, chaining additional ones as the stream capacity grows. Should you ever call `GetBuffer()` and the length is greater than a single small buffer's capacity, then the small buffers are converted to a single large buffer. You can also request a stream with an initial capacity; if that capacity is larger than the small pool block size, a single large buffer will be assigned from the start. If you requeset a capacity larger than the maximum poolable size, you will still get a stream back, but the buffers will not be pooled.
 
 There are two versions of the large pool: Linear or Exponential.
 
@@ -145,7 +144,7 @@ When configuring the options, consider questions such as these:
 `RecyclableMemoryStream` is designed to operate primarily on chained small pool blocks. However, realistically, many people will still need to get a single, contiguous buffer for the whole stream, especially to interoperate with certain I/O APIs. For this purpose, there are two APIs which `RecyclableMemoryStream` overrides from its parent `MemoryStream` class:
 
 * `GetBuffer` - If possible, a reference to the single block will be returned to the caller. If multiple blocks are in use, they will be converted into a single large pool buffer and the data copied into it. In all cases, the caller must use the `Length` property to determine who much usable data is actually in the returned buffer. If the stream length is longer than the maximum allowable stream size, a single buffer will still be returned, but it will not be pooled.
-* `ToArray` - It looks similar to `GetBuffer` on the surface, but is actually significantly different. In `ToArray` the data is *always* copied into a new array that is exactly the right length for the full contents of the stream. This new buffer is never pooled. Users of this library should consider any call to `ToArray` to be a bug, as it wipes out many of the benefits of `RecyclableMemoryStream` completely. We may even add a feature
+* `ToArray` - It looks similar to `GetBuffer` on the surface, but is actually significantly different. In `ToArray` the data is *always* copied into a new array that is exactly the right length for the full contents of the stream. This new buffer is never pooled. Users of this library should consider any call to `ToArray` to be a bug, as it wipes out many of the benefits of `RecyclableMemoryStream` completely. However, the method is included for completeness, especially if you are calling other APIs that only take a `byte` array with no length parameter.
 
 
 ## Metrics and Hooks
