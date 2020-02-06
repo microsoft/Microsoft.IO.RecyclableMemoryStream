@@ -52,7 +52,7 @@ namespace Microsoft.IO
     /// are in use, we retrieve a larger buffer from the memory manager. These large buffers are also pooled, 
     /// split by size--they are multiples/exponentials of a chunk size (1 MB by default).
     /// 
-    /// Once a large buffer is assigned to the stream the blocks are NEVER again used for this stream. All operations take place on the 
+    /// Once a large buffer is assigned to the stream the small blocks are NEVER again used for this stream. All operations take place on the 
     /// large buffer. The large buffer can be replaced by a larger buffer from the pool as needed. All blocks and large buffers 
     /// are maintained in the stream until the stream is disposed (unless AggressiveBufferReturn is enabled in the stream manager).
     /// 
@@ -100,7 +100,7 @@ namespace Microsoft.IO
         private byte[] largeBuffer;
 
         /// <summary>
-        /// Unique identifier for this stream across it's entire lifetime
+        /// Unique identifier for this stream across its entire lifetime
         /// </summary>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         internal Guid Id
@@ -346,6 +346,8 @@ namespace Microsoft.IO
         /// Explicitly setting the capacity to a lower value than the current value will have no effect. 
         /// This is because the buffers are all pooled by chunks and there's little reason to 
         /// allow stream truncation.
+        /// 
+        /// Writing past the current capacity will cause Capacity to automatically increase, until MaximumStreamCapacity is reached.
         /// </remarks>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public override int Capacity
