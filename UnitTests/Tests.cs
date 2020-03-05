@@ -2235,7 +2235,7 @@ namespace Microsoft.IO.UnitTests
             var buffer = this.GetRandomBuffer(1000).AsMemory();
 
             var stream = memMgr.GetStream(buffer) as RecyclableMemoryStream;
-            RMSAssert.BuffersAreEqual(buffer.Span, 0, stream.GetBuffer(), 0, buffer.Length);
+            RMSAssert.BuffersAreEqual(buffer.Span, stream.GetBuffer(), buffer.Length);
             Assert.That(buffer, Is.Not.SameAs(stream.GetBuffer()));
         }
         #endregion
