@@ -2219,11 +2219,12 @@ namespace Microsoft.IO.UnitTests
         {
             var memMgr = this.GetMemoryManager();
             var buffer = this.GetRandomBuffer(1000).AsMemory();
+            var bufferSlice = buffer.Slice(1);
             var tag = "MyTag";
 
-            var stream = memMgr.GetStream(tag, buffer.Slice(1, buffer.Length - 1)) as RecyclableMemoryStream;
-            RMSAssert.BuffersAreEqual(buffer.Span, 1, stream.GetBuffer(), 0, buffer.Length - 1);
-            Assert.That(buffer, Is.Not.SameAs(stream.GetBuffer()));
+            var stream = memMgr.GetStream(tag, bufferSlice) as RecyclableMemoryStream;
+            RMSAssert.BuffersAreEqual(bufferSlice.Span, stream.GetBuffer(), bufferSlice.Length);
+            Assert.That(bufferSlice, Is.Not.SameAs(stream.GetBuffer()));
             Assert.That(stream.Tag, Is.EqualTo(tag));
         }
 
@@ -2360,7 +2361,7 @@ namespace Microsoft.IO.UnitTests
             /// <summary>
             /// Asserts that two buffers are euqual, up to the given count
             /// </summary>
-            internal static void BuffersAreEqual(byte[] buffer1, byte[] buffer2, int count)
+            internal static void BuffersAreEqual(ReadOnlySpan<byte> buffer1, ReadOnlySpan<byte> buffer2, int count)
             {
                 BuffersAreEqual(buffer1, 0, buffer2, 0, count);
             }
