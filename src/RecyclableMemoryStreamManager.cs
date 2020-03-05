@@ -718,6 +718,58 @@ namespace Microsoft.IO
             return GetStream(Guid.NewGuid(), tag, buffer, offset, count);
         }
 
+#if NETCOREAPP2_1 || NETSTANDARD2_1
+        /// <summary>
+        /// Retrieve a new MemoryStream object with the given tag and with contents copied from the provided
+        /// buffer. The provided buffer is not wrapped or used after construction.
+        /// </summary>
+        /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
+        /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
+        /// <param name="tag">A tag which can be used to track the source of the stream.</param>
+        /// <param name="buffer">The byte buffer to copy data from.</param>
+        /// <returns>A MemoryStream.</returns>
+        public MemoryStream GetStream(Guid id, string tag, Memory<byte> buffer)
+        {
+            RecyclableMemoryStream stream = null;
+            try
+            {
+                stream = new RecyclableMemoryStream(this, id, tag, buffer.Length);
+                stream.Write(buffer.Span);
+                stream.Position = 0;
+                return stream;
+            }
+            catch
+            {
+                stream?.Dispose();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Retrieve a new MemoryStream object with the contents copied from the provided
+        /// buffer. The provided buffer is not wrapped or used after construction.
+        /// </summary>
+        /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
+        /// <param name="buffer">The byte buffer to copy data from.</param>
+        /// <returns>A MemoryStream.</returns>
+        public MemoryStream GetStream(Memory<byte> buffer)
+        {
+            return GetStream(null, buffer);
+        }
+
+        /// <summary>
+        /// Retrieve a new MemoryStream object with the given tag and with contents copied from the provided
+        /// buffer. The provided buffer is not wrapped or used after construction.
+        /// </summary>
+        /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
+        /// <param name="tag">A tag which can be used to track the source of the stream.</param>
+        /// <param name="buffer">The byte buffer to copy data from.</param>
+        /// <returns>A MemoryStream.</returns>
+        public MemoryStream GetStream(string tag, Memory<byte> buffer)
+        {
+            return GetStream(Guid.NewGuid(), tag, buffer);
+        }
+#endif
         /// <summary>
         /// Triggered when a new block is created.
         /// </summary>
