@@ -242,6 +242,9 @@ namespace Microsoft.IO
         #endregion
 
         #region Dispose and Finalize
+        /// <summary>
+        /// Finalizes the <see cref="RecyclableMemoryStream"/> class, required by the dispose pattern.
+        /// </summary>
         ~RecyclableMemoryStream()
         {
             this.Dispose(false);

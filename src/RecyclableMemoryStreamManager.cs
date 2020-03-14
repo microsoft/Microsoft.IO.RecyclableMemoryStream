@@ -70,8 +70,22 @@ namespace Microsoft.IO
         public delegate void UsageReportEventHandler(
             long smallPoolInUseBytes, long smallPoolFreeBytes, long largePoolInUseBytes, long largePoolFreeBytes);
 
+        /// <summary>
+        /// The size of each block is 128k by default 
+        /// </summary>
         public const int DefaultBlockSize = 128 * 1024;
+
+        /// <summary>
+        /// The large buffer multiple is 1M by default. 
+        /// <para>
+        /// The first slot will contain 1 MB buffers, the second slot 2 MB buffers, etc.
+        /// </para>
+        /// </summary>
         public const int DefaultLargeBufferMultiple = 1024 * 1024;
+
+        /// <summary>
+        /// The maximum buffer size is 128M  by default. 
+        /// </summary>
         public const int DefaultMaximumBufferSize = 128 * 1024 * 1024;
 
         private readonly long[] largeBufferFreeSize;
@@ -601,7 +615,6 @@ namespace Microsoft.IO
         /// <summary>
         /// Retrieve a new MemoryStream object with the given tag and at least the given capacity.
         /// </summary>
-        /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
         /// <param name="requiredSize">The minimum desired capacity for the stream.</param>
         /// <returns>A MemoryStream.</returns>
