@@ -292,6 +292,17 @@ namespace Microsoft.IO
         /// </summary>
         public bool GenerateCallStacks { get; set; }
 
+
+        /// <summary>
+        /// This causes all calls to RecyclableMemoryStream.ToArray() to throw
+        /// an exception. 
+        /// <para>
+        /// Calling ToArray() defeats the point of pooled buffers,
+        /// and is an anti-pattern to be avoided. 
+        /// </para>
+        /// </summary>
+        public bool ThrowOnCallToArray { get; set; }
+
         /// <summary>
         /// Whether dirty buffers can be immediately returned to the buffer pool. E.g. when GetBuffer() is called on
         /// a stream and creates a single large buffer, if this setting is enabled, the other blocks will be returned

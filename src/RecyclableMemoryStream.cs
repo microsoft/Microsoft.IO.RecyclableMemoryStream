@@ -509,10 +509,14 @@ namespace Microsoft.IO
         /// for the sake of completeness.
         /// </summary>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+        /// <exception cref="NotSupportedException">Calling ToArray() is not allowed by manager policy</exception>
 #pragma warning disable CS0809
         [Obsolete("This method has degraded performance vs. GetBuffer and should be avoided.")]
         public override byte[] ToArray()
         {
+            if (this.memoryManager.ThrowOnCallToArray)
+                throw new NotSupportedException("Calling ToArray() is not allowed by the RMS Manager. See RecyclableMemoryStreamManager.ThrowOnCallToArray for more details.");
+
             this.CheckDisposed();
             var newBuffer = new byte[this.Length];
 
