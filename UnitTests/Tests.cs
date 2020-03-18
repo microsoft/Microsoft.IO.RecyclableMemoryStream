@@ -1787,6 +1787,25 @@ namespace Microsoft.IO.UnitTests
             Assert.That(toArrayBuffer, Is.Not.SameAs(getBuffer));
             RMSAssert.BuffersAreEqual(toArrayBuffer, getBuffer, bufferLength);
         }
+
+        [Test]
+        public void ToArrayThrowsExceptionWhenConfigured()
+        {
+            var stream = this.GetDefaultStream();
+            var bufferLength = stream.MemoryManager.BlockSize * 2;
+            var buffer = this.GetRandomBuffer(bufferLength);
+
+            stream.Write(buffer, 0, bufferLength);
+            
+            // Ensure default is false
+            Assert.DoesNotThrow(() => stream.ToArray());
+
+            stream.MemoryManager.ThrowExceptionOnToArray = true;
+            Assert.Throws<NotSupportedException>(() => stream.ToArray());
+
+            stream.MemoryManager.ThrowExceptionOnToArray = false;
+            Assert.DoesNotThrow(() => stream.ToArray());
+        }
         #endregion
 
         #region CanRead, CanSeek, etc. Tests

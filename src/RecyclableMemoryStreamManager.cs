@@ -289,6 +289,13 @@ namespace Microsoft.IO
         public bool AggressiveBufferReturn { get; set; }
 
         /// <summary>
+        /// Causes an exception to be thrown if ToArray is ever called.
+        /// </summary>
+        /// <remarks>Calling ToArray defeats the purpose of a pooled buffer. Use this property to discover code that is calling ToArray. If this is 
+        /// set and stream.ToArray() is called, a NotSupportedException will be thrown.</remarks>
+        public bool ThrowExceptionOnToArray { get; set; }
+
+        /// <summary>
         /// Removes and returns a single block from the pool.
         /// </summary>
         /// <returns>A byte[] array</returns>
