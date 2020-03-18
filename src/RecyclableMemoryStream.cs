@@ -506,16 +506,24 @@ namespace Microsoft.IO
         /// for the sake of completeness.
         /// </summary>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+        /// <exception cref="NotSupportedException">The current RecyclableStreamManager object disallows ToArray calls.</exception>
 #pragma warning disable CS0809
         [Obsolete("This method has degraded performance vs. GetBuffer and should be avoided.")]
         public override byte[] ToArray()
         {
             this.CheckDisposed();
+            
+            string stack = this.memoryManager.GenerateCallStacks ? Environment.StackTrace : null;
+            RecyclableMemoryStreamManager.Events.Writer.MemoryStreamToArray(this.id, this.tag, stack, this.length);
+
+            if (this.memoryManager.ThrowExceptionOnToArray)
+            {
+                throw new NotSupportedException("The underlying RecyclableMemoryStreamManager is configured to not allow calls to ToArray.");
+            }
+
             var newBuffer = new byte[this.Length];
 
             this.InternalRead(newBuffer, 0, this.length, 0);
-            string stack = this.memoryManager.GenerateCallStacks ? Environment.StackTrace : null;
-            RecyclableMemoryStreamManager.Events.Writer.MemoryStreamToArray(this.id, this.tag, stack, 0);
             this.memoryManager.ReportStreamToArray();
 
             return newBuffer;
