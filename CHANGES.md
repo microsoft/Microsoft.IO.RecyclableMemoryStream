@@ -3,10 +3,12 @@
 **Functionality**
 
 - Added `RecyclableMemoryStreamManager.ThrowExceptionOnToArray`. Causes a `NotSupportedException` to be thrown if `RecyclableMemoryStream.ToArray` is called. Default is `false`.
+- Added overloads of `RecyclableMemoryStreamManager.GetStream` that accept `Memory<byte>` arguments.
 
 **Meta**
 
 - Added changes.md to solution
+- Regenerated API documentation for new XML comments and new APIs.
 
 # Version 1.3.2
 **Bug Fixes**
