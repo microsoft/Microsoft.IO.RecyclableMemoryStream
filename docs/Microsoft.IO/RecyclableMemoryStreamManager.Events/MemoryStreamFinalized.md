@@ -1,8 +1,20 @@
 # RecyclableMemoryStreamManager.Events.MemoryStreamFinalized method
 
+Logged when a stream is finalized.
+
 ```csharp
 public void MemoryStreamFinalized(Guid guid, string tag, string allocationStack)
 ```
+
+| parameter | description |
+| --- | --- |
+| guid | A unique ID for this stream. |
+| tag | A temporary ID for this stream, usually indicates current usage. |
+| allocationStack | Call stack of initial allocation. |
+
+## Remarks
+
+Note: Stacks will only be populated if RecyclableMemoryStreamManager.GenerateCallStacks is true.
 
 ## See Also
 

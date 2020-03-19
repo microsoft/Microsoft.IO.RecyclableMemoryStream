@@ -1,8 +1,15 @@
 # RecyclableMemoryStreamManager.Events.MemoryStreamNewLargeBufferCreated method
 
+Logged when a new large buffer is created.
+
 ```csharp
 public void MemoryStreamNewLargeBufferCreated(int requiredSize, long largePoolInUseBytes)
 ```
+
+| parameter | description |
+| --- | --- |
+| requiredSize | Requested size |
+| largePoolInUseBytes | Number of bytes in the large pool in use. |
 
 ## See Also
 

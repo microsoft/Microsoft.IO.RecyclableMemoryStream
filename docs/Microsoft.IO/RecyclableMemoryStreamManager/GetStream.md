@@ -1,4 +1,4 @@
-# RecyclableMemoryStreamManager.GetStream method (1 of 11)
+# RecyclableMemoryStreamManager.GetStream method (1 of 14)
 
 Retrieve a new MemoryStream object with no tag and a default initial capacity.
 
@@ -17,7 +17,7 @@ A MemoryStream.
 
 ---
 
-# RecyclableMemoryStreamManager.GetStream method (2 of 11)
+# RecyclableMemoryStreamManager.GetStream method (2 of 14)
 
 Retrieve a new MemoryStream object with the contents copied from the provided buffer. The provided buffer is not wrapped or used after construction.
 
@@ -44,7 +44,7 @@ The new stream's position is set to the beginning of the stream when returned.
 
 ---
 
-# RecyclableMemoryStreamManager.GetStream method (3 of 11)
+# RecyclableMemoryStreamManager.GetStream method (3 of 14)
 
 Retrieve a new MemoryStream object with no tag and a default initial capacity.
 
@@ -67,7 +67,34 @@ A MemoryStream.
 
 ---
 
-# RecyclableMemoryStreamManager.GetStream method (4 of 11)
+# RecyclableMemoryStreamManager.GetStream method (4 of 14)
+
+Retrieve a new MemoryStream object with the contents copied from the provided buffer. The provided buffer is not wrapped or used after construction.
+
+```csharp
+public MemoryStream GetStream(Memory<byte> buffer)
+```
+
+| parameter | description |
+| --- | --- |
+| buffer | The byte buffer to copy data from. |
+
+## Return Value
+
+A MemoryStream.
+
+## Remarks
+
+The new stream's position is set to the beginning of the stream when returned.
+
+## See Also
+
+* class [RecyclableMemoryStreamManager](../RecyclableMemoryStreamManager.md)
+* namespace [Microsoft.IO](../../Microsoft.IO.RecyclableMemoryStream.md)
+
+---
+
+# RecyclableMemoryStreamManager.GetStream method (5 of 14)
 
 Retrieve a new MemoryStream object with the given tag and a default initial capacity.
 
@@ -90,7 +117,7 @@ A MemoryStream.
 
 ---
 
-# RecyclableMemoryStreamManager.GetStream method (5 of 11)
+# RecyclableMemoryStreamManager.GetStream method (6 of 14)
 
 Retrieve a new MemoryStream object with the given tag and a default initial capacity.
 
@@ -114,7 +141,7 @@ A MemoryStream.
 
 ---
 
-# RecyclableMemoryStreamManager.GetStream method (6 of 11)
+# RecyclableMemoryStreamManager.GetStream method (7 of 14)
 
 Retrieve a new MemoryStream object with the given tag and at least the given capacity.
 
@@ -124,7 +151,6 @@ public MemoryStream GetStream(string tag, int requiredSize)
 
 | parameter | description |
 | --- | --- |
-| id | A unique identifier which can be used to trace usages of the stream. |
 | tag | A tag which can be used to track the source of the stream. |
 | requiredSize | The minimum desired capacity for the stream. |
 
@@ -139,7 +165,35 @@ A MemoryStream.
 
 ---
 
-# RecyclableMemoryStreamManager.GetStream method (7 of 11)
+# RecyclableMemoryStreamManager.GetStream method (8 of 14)
+
+Retrieve a new MemoryStream object with the given tag and with contents copied from the provided buffer. The provided buffer is not wrapped or used after construction.
+
+```csharp
+public MemoryStream GetStream(string tag, Memory<byte> buffer)
+```
+
+| parameter | description |
+| --- | --- |
+| tag | A tag which can be used to track the source of the stream. |
+| buffer | The byte buffer to copy data from. |
+
+## Return Value
+
+A MemoryStream.
+
+## Remarks
+
+The new stream's position is set to the beginning of the stream when returned.
+
+## See Also
+
+* class [RecyclableMemoryStreamManager](../RecyclableMemoryStreamManager.md)
+* namespace [Microsoft.IO](../../Microsoft.IO.RecyclableMemoryStream.md)
+
+---
+
+# RecyclableMemoryStreamManager.GetStream method (9 of 14)
 
 Retrieve a new MemoryStream object with the given tag and at least the given capacity.
 
@@ -164,7 +218,36 @@ A MemoryStream.
 
 ---
 
-# RecyclableMemoryStreamManager.GetStream method (8 of 11)
+# RecyclableMemoryStreamManager.GetStream method (10 of 14)
+
+Retrieve a new MemoryStream object with the given tag and with contents copied from the provided buffer. The provided buffer is not wrapped or used after construction.
+
+```csharp
+public MemoryStream GetStream(Guid id, string tag, Memory<byte> buffer)
+```
+
+| parameter | description |
+| --- | --- |
+| id | A unique identifier which can be used to trace usages of the stream. |
+| tag | A tag which can be used to track the source of the stream. |
+| buffer | The byte buffer to copy data from. |
+
+## Return Value
+
+A MemoryStream.
+
+## Remarks
+
+The new stream's position is set to the beginning of the stream when returned.
+
+## See Also
+
+* class [RecyclableMemoryStreamManager](../RecyclableMemoryStreamManager.md)
+* namespace [Microsoft.IO](../../Microsoft.IO.RecyclableMemoryStream.md)
+
+---
+
+# RecyclableMemoryStreamManager.GetStream method (11 of 14)
 
 Retrieve a new MemoryStream object with the given tag and at least the given capacity, possibly using a single contiguous underlying buffer.
 
@@ -193,7 +276,7 @@ Retrieving a MemoryStream which provides a single contiguous buffer can be usefu
 
 ---
 
-# RecyclableMemoryStreamManager.GetStream method (9 of 11)
+# RecyclableMemoryStreamManager.GetStream method (12 of 14)
 
 Retrieve a new MemoryStream object with the given tag and at least the given capacity, possibly using a single contiguous underlying buffer.
 
@@ -223,7 +306,7 @@ Retrieving a MemoryStream which provides a single contiguous buffer can be usefu
 
 ---
 
-# RecyclableMemoryStreamManager.GetStream method (10 of 11)
+# RecyclableMemoryStreamManager.GetStream method (13 of 14)
 
 Retrieve a new MemoryStream object with the given tag and with contents copied from the provided buffer. The provided buffer is not wrapped or used after construction.
 
@@ -253,7 +336,7 @@ The new stream's position is set to the beginning of the stream when returned.
 
 ---
 
-# RecyclableMemoryStreamManager.GetStream method (11 of 11)
+# RecyclableMemoryStreamManager.GetStream method (14 of 14)
 
 Retrieve a new MemoryStream object with the given tag and with contents copied from the provided buffer. The provided buffer is not wrapped or used after construction.
 

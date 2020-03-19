@@ -1,9 +1,21 @@
 # RecyclableMemoryStreamManager.Events.MemoryStreamNonPooledLargeBufferCreated method
 
+Logged when a buffer is created that is too large to pool.
+
 ```csharp
 public void MemoryStreamNonPooledLargeBufferCreated(int requiredSize, string tag, 
     string allocationStack)
 ```
+
+| parameter | description |
+| --- | --- |
+| requiredSize | Size requested by the caller |
+| tag | A temporary ID for this stream, usually indicates current usage. |
+| allocationStack | Call stack of the requested stream. |
+
+## Remarks
+
+Note: Stacks will only be populated if RecyclableMemoryStreamManager.GenerateCallStacks is true.
 
 ## See Also
 

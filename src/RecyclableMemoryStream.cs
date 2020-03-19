@@ -242,6 +242,10 @@ namespace Microsoft.IO
         #endregion
 
         #region Dispose and Finalize
+        /// <summary>
+        /// The finalizer will be called when a stream is not disposed properly. 
+        /// </summary>
+        /// <remarks>Failing to dispose indicates a bug in the code using streams. Care should be taken to properly account for stream lifetime.</remarks>
         ~RecyclableMemoryStream()
         {
             this.Dispose(false);

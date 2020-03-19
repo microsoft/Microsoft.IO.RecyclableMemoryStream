@@ -1,9 +1,17 @@
 # RecyclableMemoryStreamManager.Events.MemoryStreamDiscardBuffer method
 
+Logged when a buffer is discarded (not put back in the pool, but given to GC to clean up).
+
 ```csharp
 public void MemoryStreamDiscardBuffer(MemoryStreamBufferType bufferType, string tag, 
     MemoryStreamDiscardReason reason)
 ```
+
+| parameter | description |
+| --- | --- |
+| bufferType | Type of the buffer being discarded. |
+| tag | A temporary ID for this stream, usually indicates current usage. |
+| reason | Reason for the discard. |
 
 ## See Also
 

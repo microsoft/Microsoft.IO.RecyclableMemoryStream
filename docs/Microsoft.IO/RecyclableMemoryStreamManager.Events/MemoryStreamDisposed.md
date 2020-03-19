@@ -1,8 +1,15 @@
 # RecyclableMemoryStreamManager.Events.MemoryStreamDisposed method
 
+Logged when the stream is disposed
+
 ```csharp
 public void MemoryStreamDisposed(Guid guid, string tag)
 ```
+
+| parameter | description |
+| --- | --- |
+| guid | A unique ID for this stream. |
+| tag | A temporary ID for this stream, usually indicates current usage. |
 
 ## See Also
 
