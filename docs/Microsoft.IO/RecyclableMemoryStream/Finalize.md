@@ -1,8 +1,14 @@
 # RecyclableMemoryStream.Finalize method
 
+The finalizer will be called when a stream is not disposed properly.
+
 ```csharp
 protected override void Finalize()
 ```
+
+## Remarks
+
+Failing to dispose indicates a bug in the code using streams. Care should be taken to properly account for stream lifetime.
 
 ## See Also
 

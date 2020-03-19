@@ -26,6 +26,7 @@ public sealed class RecyclableMemoryStreamManager
 | [SmallBlocksFree](RecyclableMemoryStreamManager/SmallBlocksFree.md) { get; } | How many blocks are in the small pool |
 | [SmallPoolFreeSize](RecyclableMemoryStreamManager/SmallPoolFreeSize.md) { get; } | Number of bytes in small pool not currently in use |
 | [SmallPoolInUseSize](RecyclableMemoryStreamManager/SmallPoolInUseSize.md) { get; } | Number of bytes currently in use by stream from the small pool |
+| [ThrowExceptionOnToArray](RecyclableMemoryStreamManager/ThrowExceptionOnToArray.md) { get; set; } | Causes an exception to be thrown if ToArray is ever called. |
 | [UseExponentialLargeBuffer](RecyclableMemoryStreamManager/UseExponentialLargeBuffer.md) { get; } | Use exponential large buffer allocation strategy. It must be set at creation and cannot be changed. |
 | [UseMultipleLargeBuffer](RecyclableMemoryStreamManager/UseMultipleLargeBuffer.md) { get; } | Use multiple large buffer allocation strategy. It must be set at creation and cannot be changed. |
 | event [BlockCreated](RecyclableMemoryStreamManager/BlockCreated.md) | Triggered when a new block is created. |
@@ -39,12 +40,12 @@ public sealed class RecyclableMemoryStreamManager
 | event [StreamLength](RecyclableMemoryStreamManager/StreamLength.md) | Triggered when a stream is finalized. |
 | event [UsageReport](RecyclableMemoryStreamManager/UsageReport.md) | Periodically triggered to report usage statistics. |
 | [GetStream](RecyclableMemoryStreamManager/GetStream.md)() | Retrieve a new MemoryStream object with no tag and a default initial capacity. |
-| [GetStream](RecyclableMemoryStreamManager/GetStream.md)(…) | Retrieve a new MemoryStream object with no tag and a default initial capacity. (10 methods) |
-| const [DefaultBlockSize](RecyclableMemoryStreamManager/DefaultBlockSize.md) |  |
-| const [DefaultLargeBufferMultiple](RecyclableMemoryStreamManager/DefaultLargeBufferMultiple.md) |  |
-| const [DefaultMaximumBufferSize](RecyclableMemoryStreamManager/DefaultMaximumBufferSize.md) |  |
+| [GetStream](RecyclableMemoryStreamManager/GetStream.md)(…) | Retrieve a new MemoryStream object with no tag and a default initial capacity. (13 methods) |
+| const [DefaultBlockSize](RecyclableMemoryStreamManager/DefaultBlockSize.md) | Default block size, in bytes |
+| const [DefaultLargeBufferMultiple](RecyclableMemoryStreamManager/DefaultLargeBufferMultiple.md) | Default large buffer multiple, in bytes |
+| const [DefaultMaximumBufferSize](RecyclableMemoryStreamManager/DefaultMaximumBufferSize.md) | Default maximum buffer size, in bytes |
 | delegate [EventHandler](RecyclableMemoryStreamManager.EventHandler.md) | Generic delegate for handling events without any arguments. |
-| class [Events](RecyclableMemoryStreamManager.Events.md) |  |
+| class [Events](RecyclableMemoryStreamManager.Events.md) | ETW events for RecyclableMemoryStream |
 | delegate [LargeBufferDiscardedEventHandler](RecyclableMemoryStreamManager.LargeBufferDiscardedEventHandler.md) | Delegate for handling large buffer discard reports. |
 | delegate [StreamLengthReportHandler](RecyclableMemoryStreamManager.StreamLengthReportHandler.md) | Delegate for handling reports of stream size when streams are allocated |
 | delegate [UsageReportEventHandler](RecyclableMemoryStreamManager.UsageReportEventHandler.md) | Delegate for handling periodic reporting of memory use statistics. |

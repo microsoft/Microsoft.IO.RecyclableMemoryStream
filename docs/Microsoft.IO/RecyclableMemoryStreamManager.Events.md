@@ -1,5 +1,7 @@
 # RecyclableMemoryStreamManager.Events class
 
+ETW events for RecyclableMemoryStream
+
 ```csharp
 public sealed class Events : EventSource
 ```
@@ -9,20 +11,20 @@ public sealed class Events : EventSource
 | name | description |
 | --- | --- |
 | [Events](RecyclableMemoryStreamManager.Events/Events.md)() | The default constructor. |
-| static [Writer](RecyclableMemoryStreamManager.Events/Writer.md) |  |
-| [MemoryStreamCreated](RecyclableMemoryStreamManager.Events/MemoryStreamCreated.md)(…) |  |
-| [MemoryStreamDiscardBuffer](RecyclableMemoryStreamManager.Events/MemoryStreamDiscardBuffer.md)(…) |  |
-| [MemoryStreamDisposed](RecyclableMemoryStreamManager.Events/MemoryStreamDisposed.md)(…) |  |
-| [MemoryStreamDoubleDispose](RecyclableMemoryStreamManager.Events/MemoryStreamDoubleDispose.md)(…) |  |
-| [MemoryStreamFinalized](RecyclableMemoryStreamManager.Events/MemoryStreamFinalized.md)(…) |  |
-| [MemoryStreamManagerInitialized](RecyclableMemoryStreamManager.Events/MemoryStreamManagerInitialized.md)(…) |  |
-| [MemoryStreamNewBlockCreated](RecyclableMemoryStreamManager.Events/MemoryStreamNewBlockCreated.md)(…) |  |
-| [MemoryStreamNewLargeBufferCreated](RecyclableMemoryStreamManager.Events/MemoryStreamNewLargeBufferCreated.md)(…) |  |
-| [MemoryStreamNonPooledLargeBufferCreated](RecyclableMemoryStreamManager.Events/MemoryStreamNonPooledLargeBufferCreated.md)(…) |  |
-| [MemoryStreamOverCapacity](RecyclableMemoryStreamManager.Events/MemoryStreamOverCapacity.md)(…) |  |
-| [MemoryStreamToArray](RecyclableMemoryStreamManager.Events/MemoryStreamToArray.md)(…) |  |
-| enum [MemoryStreamBufferType](RecyclableMemoryStreamManager.Events.MemoryStreamBufferType.md) |  |
-| enum [MemoryStreamDiscardReason](RecyclableMemoryStreamManager.Events.MemoryStreamDiscardReason.md) |  |
+| static [Writer](RecyclableMemoryStreamManager.Events/Writer.md) | Static log object, through which all events are written. |
+| [MemoryStreamCreated](RecyclableMemoryStreamManager.Events/MemoryStreamCreated.md)(…) | Logged when a stream object is created. |
+| [MemoryStreamDiscardBuffer](RecyclableMemoryStreamManager.Events/MemoryStreamDiscardBuffer.md)(…) | Logged when a buffer is discarded (not put back in the pool, but given to GC to clean up). |
+| [MemoryStreamDisposed](RecyclableMemoryStreamManager.Events/MemoryStreamDisposed.md)(…) | Logged when the stream is disposed |
+| [MemoryStreamDoubleDispose](RecyclableMemoryStreamManager.Events/MemoryStreamDoubleDispose.md)(…) | Logged when the stream is disposed for the second time. |
+| [MemoryStreamFinalized](RecyclableMemoryStreamManager.Events/MemoryStreamFinalized.md)(…) | Logged when a stream is finalized. |
+| [MemoryStreamManagerInitialized](RecyclableMemoryStreamManager.Events/MemoryStreamManagerInitialized.md)(…) | Logged when the RecyclableMemoryStreamManager is initialized. |
+| [MemoryStreamNewBlockCreated](RecyclableMemoryStreamManager.Events/MemoryStreamNewBlockCreated.md)(…) | Logged when a new block is created. |
+| [MemoryStreamNewLargeBufferCreated](RecyclableMemoryStreamManager.Events/MemoryStreamNewLargeBufferCreated.md)(…) | Logged when a new large buffer is created. |
+| [MemoryStreamNonPooledLargeBufferCreated](RecyclableMemoryStreamManager.Events/MemoryStreamNonPooledLargeBufferCreated.md)(…) | Logged when a buffer is created that is too large to pool. |
+| [MemoryStreamOverCapacity](RecyclableMemoryStreamManager.Events/MemoryStreamOverCapacity.md)(…) | Logged when a stream grows beyond the maximum capacity. |
+| [MemoryStreamToArray](RecyclableMemoryStreamManager.Events/MemoryStreamToArray.md)(…) | Logged when ToArray is called on a stream. |
+| enum [MemoryStreamBufferType](RecyclableMemoryStreamManager.Events.MemoryStreamBufferType.md) | Type of buffer |
+| enum [MemoryStreamDiscardReason](RecyclableMemoryStreamManager.Events.MemoryStreamDiscardReason.md) | The possible reasons for discarding a buffer |
 
 ## See Also
 

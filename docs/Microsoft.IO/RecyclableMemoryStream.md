@@ -26,6 +26,7 @@ public sealed class RecyclableMemoryStream : MemoryStream
 | [SafeReadByte](RecyclableMemoryStream/SafeReadByte.md)(…) | Reads a single byte from the specified position in the stream. |
 | override [Seek](RecyclableMemoryStream/Seek.md)(…) | Sets the position to the offset from the seek location |
 | override [SetLength](RecyclableMemoryStream/SetLength.md)(…) | Sets the length of the stream |
+| override [ToArray](RecyclableMemoryStream/ToArray.md)() | Returns a new array with a copy of the buffer's contents. You should almost certainly be using GetBuffer combined with the Length to access the bytes in this stream. Calling ToArray will destroy the benefits of pooled buffers, but it is included for the sake of completeness. |
 | override [ToString](RecyclableMemoryStream/ToString.md)() | Returns a useful string for debugging. This should not normally be called in actual production code. |
 | override [TryGetBuffer](RecyclableMemoryStream/TryGetBuffer.md)(…) | Returns an ArraySegment that wraps a single buffer containing the contents of the stream. |
 | override [Write](RecyclableMemoryStream/Write.md)(…) | Writes the buffer to the stream (2 methods) |
@@ -37,7 +38,7 @@ public sealed class RecyclableMemoryStream : MemoryStream
 | name | description |
 | --- | --- |
 | override [Dispose](RecyclableMemoryStream/Dispose.md)(…) | Returns the memory used by this stream back to the pool. |
-| override [Finalize](RecyclableMemoryStream/Finalize.md)() |  |
+| override [Finalize](RecyclableMemoryStream/Finalize.md)() | The finalizer will be called when a stream is not disposed properly. |
 
 ## Remarks
 

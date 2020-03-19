@@ -1,9 +1,23 @@
 # RecyclableMemoryStreamManager.Events.MemoryStreamDoubleDispose method
 
+Logged when the stream is disposed for the second time.
+
 ```csharp
 public void MemoryStreamDoubleDispose(Guid guid, string tag, string allocationStack, 
     string disposeStack1, string disposeStack2)
 ```
+
+| parameter | description |
+| --- | --- |
+| guid | A unique ID for this stream. |
+| tag | A temporary ID for this stream, usually indicates current usage. |
+| allocationStack | Call stack of initial allocation. |
+| disposeStack1 | Call stack of the first dispose. |
+| disposeStack2 | Call stack of the second dispose. |
+
+## Remarks
+
+Note: Stacks will only be populated if RecyclableMemoryStreamManager.GenerateCallStacks is true.
 
 ## See Also
 

@@ -1,5 +1,7 @@
 # RecyclableMemoryStreamManager.DefaultBlockSize field
 
+Default block size, in bytes
+
 ```csharp
 public const int DefaultBlockSize;
 ```

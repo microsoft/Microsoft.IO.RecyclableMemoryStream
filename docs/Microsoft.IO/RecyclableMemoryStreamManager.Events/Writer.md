@@ -1,5 +1,7 @@
 # RecyclableMemoryStreamManager.Events.Writer field
 
+Static log object, through which all events are written.
+
 ```csharp
 public static Events Writer;
 ```

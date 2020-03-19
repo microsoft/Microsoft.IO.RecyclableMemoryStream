@@ -1,9 +1,22 @@
 # RecyclableMemoryStreamManager.Events.MemoryStreamOverCapacity method
 
+Logged when a stream grows beyond the maximum capacity.
+
 ```csharp
 public void MemoryStreamOverCapacity(int requestedCapacity, long maxCapacity, string tag, 
     string allocationStack)
 ```
+
+| parameter | description |
+| --- | --- |
+| requestedCapacity | The requested capacity. |
+| maxCapacity | Maximum capacity, as configured by RecyclableMemoryStreamManager. |
+| tag | A temporary ID for this stream, usually indicates current usage. |
+| allocationStack | Call stack for the capacity request. |
+
+## Remarks
+
+Note: Stacks will only be populated if RecyclableMemoryStreamManager.GenerateCallStacks is true.
 
 ## See Also
 

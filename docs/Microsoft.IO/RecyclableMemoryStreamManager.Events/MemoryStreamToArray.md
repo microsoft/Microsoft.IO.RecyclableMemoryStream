@@ -1,8 +1,21 @@
 # RecyclableMemoryStreamManager.Events.MemoryStreamToArray method
 
+Logged when ToArray is called on a stream.
+
 ```csharp
 public void MemoryStreamToArray(Guid guid, string tag, string stack, int size)
 ```
+
+| parameter | description |
+| --- | --- |
+| guid | A unique ID for this stream. |
+| tag | A temporary ID for this stream, usually indicates current usage. |
+| stack | Call stack of the ToArray call. |
+| size | Length of stream |
+
+## Remarks
+
+Note: Stacks will only be populated if RecyclableMemoryStreamManager.GenerateCallStacks is true.
 
 ## See Also
 

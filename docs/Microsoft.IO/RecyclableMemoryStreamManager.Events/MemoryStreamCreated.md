@@ -1,8 +1,16 @@
 # RecyclableMemoryStreamManager.Events.MemoryStreamCreated method
 
+Logged when a stream object is created.
+
 ```csharp
 public void MemoryStreamCreated(Guid guid, string tag, int requestedSize)
 ```
+
+| parameter | description |
+| --- | --- |
+| guid | A unique ID for this stream. |
+| tag | A temporary ID for this stream, usually indicates current usage. |
+| requestedSize | Requested size of the stream |
 
 ## See Also
 

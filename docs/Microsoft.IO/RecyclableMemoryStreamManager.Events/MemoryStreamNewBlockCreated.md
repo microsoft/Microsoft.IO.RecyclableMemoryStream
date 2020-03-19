@@ -1,8 +1,14 @@
 # RecyclableMemoryStreamManager.Events.MemoryStreamNewBlockCreated method
 
+Logged when a new block is created.
+
 ```csharp
 public void MemoryStreamNewBlockCreated(long smallPoolInUseBytes)
 ```
+
+| parameter | description |
+| --- | --- |
+| smallPoolInUseBytes | Number of bytes in the small pool currently in use. |
 
 ## See Also
 
