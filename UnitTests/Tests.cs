@@ -2268,7 +2268,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
-        public void WriteToOtherStreamHasEqualsContents()
+        public void WriteToOtherStreamHasEqualContents()
         {
             var stream = this.GetDefaultStream();
             var buffer = this.GetRandomBuffer(100);
@@ -2280,6 +2280,60 @@ namespace Microsoft.IO.UnitTests
             Assert.That(stream2.Length, Is.EqualTo(stream.Length));
             RMSAssert.BuffersAreEqual(buffer, stream2.GetBuffer(), buffer.Length);
         }
+
+        [TestCase(DefaultBlockSize / 2)]
+        [TestCase(DefaultBlockSize * 2)]
+        public void WriteToOtherStreamOffsetCountHasEqualContentsSubStream(int bufferSize)
+        {
+            var stream = this.GetDefaultStream();
+            var buffer = this.GetRandomBuffer(bufferSize);
+            stream.Write(buffer, 0, buffer.Length);
+
+            // force to large buffers if applicable
+            stream.GetBuffer();
+
+            var stream2 = this.GetDefaultStream();
+            int offset = (int)(bufferSize / 2);
+            int length = (int)(bufferSize / 4);
+
+            stream.WriteTo(stream2, offset, length);
+
+            Assert.That(stream2.Length, Is.EqualTo(length));
+            RMSAssert.BuffersAreEqual(buffer, offset, stream2.GetBuffer(), 0, length);
+        }
+
+        [TestCase(DefaultBlockSize / 2)]
+        [TestCase(DefaultBlockSize * 2)]
+        public void WriteToOtherStreamOffsetCountHasEqualContentsFullStream(int bufferSize)
+        {
+            var stream = this.GetDefaultStream();
+            var buffer = this.GetRandomBuffer(bufferSize);
+            stream.Write(buffer, 0, buffer.Length);
+
+            // force to large buffers if applicable
+            stream.GetBuffer();
+
+            var stream2 = this.GetDefaultStream();
+            int offset = 0;
+            int length = buffer.Length;
+
+            stream.WriteTo(stream2, offset, length);
+
+            Assert.That(stream2.Length, Is.EqualTo(length));
+            RMSAssert.BuffersAreEqual(buffer, offset, stream2.GetBuffer(), 0, length);
+        }
+
+        [Test]
+        public void WriteToOtherStreamOffsetCountThrowException()
+        {
+            var stream = this.GetDefaultStream();
+            Assert.Throws<ArgumentNullException>(() => stream.WriteTo(null, 0, (int)stream.Length));
+            Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(stream, -1, (int)stream.Length));
+            Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(stream, 1, (int)stream.Length));
+            Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(stream, 0, (int)stream.Length + 1));
+        }
+
+
         #endregion
 
         #region MaximumStreamCapacityBytes Tests

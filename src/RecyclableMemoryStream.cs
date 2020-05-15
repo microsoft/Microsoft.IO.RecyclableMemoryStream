@@ -864,11 +864,25 @@ namespace Microsoft.IO
         }
 
         /// <summary>
-        /// Synchronously writes this stream's bytes to the parameter stream.
+        /// Synchronously writes this stream's bytes to the argument stream.
         /// </summary>
         /// <param name="stream">Destination stream</param>
         /// <remarks>Important: This does a synchronous write, which may not be desired in some situations</remarks>
+        /// <exception cref="ArgumentNullException">stream is null</exception>
         public override void WriteTo(Stream stream)
+        {
+            this.WriteTo(stream, 0, this.length);
+        }
+
+        /// <summary>
+        /// Synchronously writes this stream's bytes, starting at offset, for count bytes, to the argument stream.
+        /// </summary>
+        /// <param name="stream">Destination stream</param>
+        /// <param name="offset">Offset in source</param>
+        /// <param name="count">Number of bytes to write</param>
+        /// <exception cref="ArgumentNullException">stream is null</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Offset is less than 0, or offset + count is beyond  this stream's length.</exception>
+        public void WriteTo(Stream stream, int offset, int count)
         {
             this.CheckDisposed();
             if (stream == null)
@@ -876,25 +890,34 @@ namespace Microsoft.IO
                 throw new ArgumentNullException(nameof(stream));
             }
 
+            if (offset < 0 || offset + count > this.length)
+            {
+                throw new ArgumentOutOfRangeException(message: "offset must not be negative and offset + count must not exceed the length of the stream", innerException: null);
+            }
+
             if (this.largeBuffer == null)
             {
-                int currentBlock = 0;
-                int bytesRemaining = this.length;
+                var blockAndOffset = GetBlockAndRelativeOffset(offset);
+                int bytesRemaining = count;
+                int currentBlock = blockAndOffset.Block;
+                int currentOffset = blockAndOffset.Offset;
 
                 while (bytesRemaining > 0)
                 {
-                    int amountToCopy = Math.Min(this.blocks[currentBlock].Length, bytesRemaining);
-                    stream.Write(this.blocks[currentBlock], 0, amountToCopy);
+                    int amountToCopy = Math.Min(this.blocks[currentBlock].Length - currentOffset, bytesRemaining);
+                    stream.Write(this.blocks[currentBlock], currentOffset, amountToCopy);
 
                     bytesRemaining -= amountToCopy;
 
                     ++currentBlock;
+                    currentOffset = 0;
                 }
             }
             else
             {
-                stream.Write(this.largeBuffer, 0, this.length);
+                stream.Write(this.largeBuffer, offset, count);
             }
+
         }
 #endregion
 
