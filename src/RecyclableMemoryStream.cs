@@ -69,12 +69,6 @@ namespace Microsoft.IO
         /// </summary>
         private readonly List<byte[]> blocks = new List<byte[]>(1);
 
-        /// <summary>
-        /// This buffer exists so that WriteByte can forward all of its calls to Write
-        /// without creating a new byte[] buffer on every call.
-        /// </summary>
-        private readonly byte[] byteBuffer = new byte[1];
-
         private readonly Guid id;
 
         private readonly RecyclableMemoryStreamManager memoryManager;
@@ -961,7 +955,7 @@ namespace Microsoft.IO
 #region Helper Methods
         private bool Disposed => Interlocked.Read(ref this.disposedState) != 0;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl((MethodImplOptions)256)]
         private void CheckDisposed()
         {
             if (this.Disposed)
@@ -1060,6 +1054,7 @@ namespace Microsoft.IO
             }
         }
 
+        [MethodImpl((MethodImplOptions)256)]
         private BlockAndOffset GetBlockAndRelativeOffset(int offset)
         {
             var blockSize = this.memoryManager.BlockSize;
