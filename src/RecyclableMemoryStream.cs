@@ -26,6 +26,7 @@ namespace Microsoft.IO
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
+    using System.Runtime.CompilerServices;
     using System.Threading;
 
     /// <summary>
@@ -67,12 +68,6 @@ namespace Microsoft.IO
         /// All of these blocks must be the same size
         /// </summary>
         private readonly List<byte[]> blocks = new List<byte[]>(1);
-
-        /// <summary>
-        /// This buffer exists so that WriteByte can forward all of its calls to Write
-        /// without creating a new byte[] buffer on every call.
-        /// </summary>
-        private readonly byte[] byteBuffer = new byte[1];
 
         private readonly Guid id;
 
@@ -758,8 +753,44 @@ namespace Microsoft.IO
         public override void WriteByte(byte value)
         {
             this.CheckDisposed();
-            this.byteBuffer[0] = value;
-            this.Write(this.byteBuffer, 0, 1);
+
+            long end = (long)this.position + 1;
+
+            // Check for overflow
+            if (end > MaxStreamLength)
+            {
+                throw new IOException("Maximum capacity exceeded");
+            }
+
+            if (this.largeBuffer == null)
+            {
+                var blockSize = this.memoryManager.BlockSize;
+
+                var block = this.position / blockSize;
+
+                if (block >= this.blocks.Count)
+                {
+                    this.EnsureCapacity((int)end);
+                }
+
+                this.blocks[block][this.position % blockSize] = value;
+            }
+            else
+            {
+                if (this.position >= this.largeBuffer.Length)
+                {
+                    this.EnsureCapacity((int)end);
+                }
+
+                this.largeBuffer[this.position] = value;
+            }
+
+            this.position = (int)end;
+
+            if (this.position > this.length)
+            {
+                this.length = this.position;
+            }
         }
 
         /// <summary>
@@ -924,12 +955,19 @@ namespace Microsoft.IO
 #region Helper Methods
         private bool Disposed => Interlocked.Read(ref this.disposedState) != 0;
 
+        [MethodImpl((MethodImplOptions)256)]
         private void CheckDisposed()
         {
             if (this.Disposed)
             {
-                throw new ObjectDisposedException($"The stream with Id {this.id} and Tag {this.tag} is disposed.");
+                this.ThrowDisposedException();
             }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void ThrowDisposedException()
+        {
+            throw new ObjectDisposedException($"The stream with Id {this.id} and Tag {this.tag} is disposed.");
         }
 
         private int InternalRead(byte[] buffer, int offset, int count, int fromPosition)
@@ -1016,6 +1054,7 @@ namespace Microsoft.IO
             }
         }
 
+        [MethodImpl((MethodImplOptions)256)]
         private BlockAndOffset GetBlockAndRelativeOffset(int offset)
         {
             var blockSize = this.memoryManager.BlockSize;
