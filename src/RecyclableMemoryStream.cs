@@ -23,6 +23,9 @@
 namespace Microsoft.IO
 {
     using System;
+#if NETCOREAPP2_1 || NETSTANDARD2_1
+    using System.Buffers;
+#endif
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
@@ -479,6 +482,52 @@ namespace Microsoft.IO
 
             return this.largeBuffer;
         }
+
+#if NETCOREAPP2_1 || NETSTANDARD2_1
+        /// <summary>
+        /// Returns a sequence containing the contents the stream.
+        /// </summary>
+        /// <returns>A ReadOnlySequence of bytes.</returns>
+        /// <remarks>IMPORTANT: Doing a Write(), Dispose(), or Close() after calling GetReadOnlySequence() invalidates the sequence.</remarks>
+        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+        public ReadOnlySequence<byte> GetReadOnlySequence()
+        {
+            this.CheckDisposed();
+
+            if (this.largeBuffer != null)
+            {
+                return new ReadOnlySequence<byte>(this.largeBuffer, 0, length);
+            }
+
+            if (this.blocks.Count == 1)
+            {
+                return new ReadOnlySequence<byte>(this.blocks[0], 0, length);
+            }
+
+            BlockSegment first = new BlockSegment(this.blocks[0]);
+            BlockSegment last = first;
+
+            
+            for (int blockIdx = 1; blockIdx < blocks.Count; blockIdx++)
+            {
+                last = last.Append(this.blocks[blockIdx]);
+            }
+
+            return new ReadOnlySequence<byte>(first, 0, last, this.length - (int)last.RunningIndex);
+        }
+
+        private sealed class BlockSegment : ReadOnlySequenceSegment<byte>
+        {
+            public BlockSegment(Memory<byte> memory) => Memory = memory;
+
+            public BlockSegment Append(Memory<byte> memory)
+            {
+                var nextSegment = new BlockSegment(memory) { RunningIndex = RunningIndex + Memory.Length };
+                Next = nextSegment;
+                return nextSegment;
+            }
+        }
+#endif
 
         /// <summary>
         /// Returns an ArraySegment that wraps a single buffer containing the contents of the stream.
