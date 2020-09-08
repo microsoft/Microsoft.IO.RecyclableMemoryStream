@@ -485,9 +485,9 @@ namespace Microsoft.IO
 
 #if NETCOREAPP2_1 || NETSTANDARD2_1
         /// <summary>
-        /// Returns a sequence containing the contents the stream.
+        /// Returns a sequence containing the contents of the stream.
         /// </summary>
-        /// <returns>A ReadOnlySequence of bytes.</returns>
+        /// <returns>A ReadOnlySequence of bytes</returns>
         /// <remarks>IMPORTANT: Doing a Write(), Dispose(), or Close() after calling GetReadOnlySequence() invalidates the sequence.</remarks>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public ReadOnlySequence<byte> GetReadOnlySequence()
