@@ -23,8 +23,10 @@
 namespace Microsoft.IO.UnitTests
 {
     using System;
+    using System.Buffers;
     using System.Collections.Generic;
     using System.IO;
+    using System.Runtime.InteropServices;
     using System.Threading.Tasks;
     
     using Microsoft.IO;
@@ -464,6 +466,85 @@ namespace Microsoft.IO.UnitTests
 
             var maxStream = mgr.GetStream(null, int.MaxValue);
             Assert.IsTrue(maxStream.Capacity == int.MaxValue);
+        }
+        #endregion
+
+        #region GetReadOnlySequence Tests
+        [Test]
+        public void GetReadOnlySequenceReturnsSingleBlockForBlockSize()
+        {
+            var stream = this.GetDefaultStream();
+            var size = stream.MemoryManager.BlockSize;
+            var buffer = this.GetRandomBuffer(size);
+            stream.Write(buffer, 0, buffer.Length);
+            var returnedSequence = stream.GetReadOnlySequence();
+            Assert.That(returnedSequence.IsSingleSegment);
+            Assert.That(returnedSequence.Length, Is.EqualTo(stream.MemoryManager.BlockSize));
+            Assert.That(returnedSequence.First.Length, Is.EqualTo(stream.MemoryManager.BlockSize));
+            Assert.That(MemoryMarshal.TryGetArray(returnedSequence.First, out ArraySegment<byte> arraySegment));
+            Assert.That(arraySegment.Array, Is.SameAs(stream.GetBuffer()));
+        }
+
+        [Test]
+        public void GetReadOnlySequenceReturnsSingleBlockForLessThanBlockSize()
+        {
+            var stream = this.GetDefaultStream();
+            var size = stream.MemoryManager.BlockSize - 1;
+            var buffer = this.GetRandomBuffer(size);
+            stream.Write(buffer, 0, buffer.Length);
+            var returnedSequence = stream.GetReadOnlySequence();
+            Assert.That(returnedSequence.IsSingleSegment);
+            Assert.That(returnedSequence.Length, Is.EqualTo(size));
+            Assert.That(returnedSequence.First.Length, Is.EqualTo(size));
+            Assert.That(MemoryMarshal.TryGetArray(returnedSequence.First, out ArraySegment<byte> arraySegment));
+            Assert.That(arraySegment.Array, Is.SameAs(stream.GetBuffer()));
+        }
+
+        [Test]
+        public void GetReadOnlySequenceReturnsMultipleBuffersForMoreThanBlockSize()
+        {
+            var stream = this.GetDefaultStream();
+            var size = stream.MemoryManager.BlockSize + 1;
+            var buffer = this.GetRandomBuffer(size);
+            stream.Write(buffer, 0, buffer.Length);
+            var returnedSequence = stream.GetReadOnlySequence();
+            stream.TryGetBuffer(out ArraySegment<byte> getBufferArraySegment);
+            Assert.That(returnedSequence.IsSingleSegment, Is.False);
+            Assert.That(returnedSequence.Length, Is.EqualTo(size));
+            Assert.That(returnedSequence.First.Length, Is.EqualTo(stream.MemoryManager.BlockSize));
+            Assert.That(returnedSequence.Slice(stream.MemoryManager.BlockSize).IsSingleSegment);
+            Assert.That(returnedSequence.Slice(stream.MemoryManager.BlockSize).Length, Is.EqualTo(1));
+            Assert.That(returnedSequence.ToArray(), Is.EquivalentTo(getBufferArraySegment));
+        }
+
+        [Test]
+        public void GetReadOnlySequenceReturnsLargeAfterGetBuffer()
+        {
+            var stream = this.GetDefaultStream();
+            var buffer = this.GetRandomBuffer(stream.MemoryManager.LargeBufferMultiple);
+            stream.Write(buffer, 0, buffer.Length);
+            stream.TryGetBuffer(out ArraySegment<byte> getBufferArraySegment);
+            var returnedSequence = stream.GetReadOnlySequence();
+            Assert.That(returnedSequence.IsSingleSegment);
+            Assert.That(returnedSequence.Length, Is.EqualTo(stream.MemoryManager.LargeBufferMultiple));
+            Assert.That(returnedSequence.First.Length, Is.EqualTo(stream.MemoryManager.LargeBufferMultiple));
+            Assert.That(MemoryMarshal.TryGetArray(returnedSequence.First, out ArraySegment<byte> sequenceArraySegment));
+            Assert.That(sequenceArraySegment, Is.EqualTo(getBufferArraySegment));
+        }
+
+        [Test]
+        public void GetReadOnlySequenceReturnsSameLarge()
+        {
+            var stream = this.GetDefaultStream();
+            var buffer = this.GetRandomBuffer(stream.MemoryManager.LargeBufferMultiple);
+            stream.Write(buffer, 0, buffer.Length);
+            stream.TryGetBuffer(out ArraySegment<byte> arraySegment0);
+            var returnedSequence1 = stream.GetReadOnlySequence();
+            var returnedSequence2 = stream.GetReadOnlySequence();
+            Assert.That(MemoryMarshal.TryGetArray(returnedSequence1.First, out ArraySegment<byte> arraySegment1));
+            Assert.That(MemoryMarshal.TryGetArray(returnedSequence2.First, out ArraySegment<byte> arraySegment2));
+            Assert.That(arraySegment0, Is.EqualTo(arraySegment2));
+            Assert.That(arraySegment1, Is.EqualTo(arraySegment2));
         }
         #endregion
 
