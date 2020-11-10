@@ -61,7 +61,11 @@ namespace Microsoft.IO
     /// are maintained in the stream until the stream is disposed (unless AggressiveBufferReturn is enabled in the stream manager).
     /// 
     /// </remarks>
+#if NETCOREAPP2_1 || NETSTANDARD2_1
+    public sealed class RecyclableMemoryStream : MemoryStream, IBufferWriter<byte>
+#else
     public sealed class RecyclableMemoryStream : MemoryStream
+#endif
     {
         private const long MaxStreamLength = Int32.MaxValue;
 
@@ -442,7 +446,7 @@ namespace Microsoft.IO
         /// The buffer may be longer than the stream length.
         /// </summary>
         /// <returns>A byte[] buffer</returns>
-        /// <remarks>IMPORTANT: Doing a Write() after calling GetBuffer() invalidates the buffer. The old buffer is held onto
+        /// <remarks>IMPORTANT: Calling Write(), GetMemory(), or GetSpan() after calling GetBuffer() invalidates the buffer. The old buffer is held onto
         /// until Dispose is called, but the next time GetBuffer() is called, a new buffer from the pool will be required.</remarks>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
 #if NETSTANDARD1_4
@@ -484,11 +488,83 @@ namespace Microsoft.IO
         }
 
 #if NETCOREAPP2_1 || NETSTANDARD2_1
+        /// <inheritdoc/>
+        public void Advance(int count)
+        {
+            this.CheckDisposed();
+            if (count < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(count), $"{nameof(count)} must be non-negative.");
+            }
+
+            long newPosition = this.position + count;
+            
+            if (newPosition > MaxStreamLength)
+            {
+                throw new InvalidOperationException($"Cannot advance stream position past {MaxStreamLength}.");
+            }
+
+            this.position = (int)newPosition;
+            this.length = Math.Max(this.position, this.length);
+        }
+
+        /// <inheritdoc/>
+        /// <remarks>
+        /// IMPORTANT: Calling Write(), GetBuffer(), TryGetBuffer(), Seek(), GetLength(), Advance(),
+        /// or setting Position after calling GetMemory() invalidates the memory.
+        /// </remarks>
+        public Memory<byte> GetMemory(int sizeHint = 0)
+        {
+            var (buffer, start, count) = this.GetArrayAndRange(sizeHint);
+            return buffer.AsMemory(start, count);
+        }
+
+        /// <inheritdoc/>
+        /// <remarks>
+        /// IMPORTANT: Calling Write(), GetBuffer(), TryGetBuffer(), Seek(), GetLength(), Advance(),
+        /// or setting Position after calling GetMemory() invalidates the memory.
+        /// </remarks>
+        public Span<byte> GetSpan(int sizeHint = 0)
+        {
+            var (buffer, start, count) = this.GetArrayAndRange(sizeHint);
+            return buffer.AsSpan(start, count);
+        }
+
+        private (byte[] buffer, int start, int count) GetArrayAndRange(int sizeHint)
+        {
+            this.CheckDisposed();
+            if (sizeHint < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(sizeHint), $"{nameof(sizeHint)} must be non-negative");
+            }
+
+            sizeHint = Math.Max(sizeHint, 1);
+
+            // The IBufferWriter<T> contract requires that we throw an OutOfMemoryException.
+            this.EnsureCapacity(this.position + sizeHint, throwOomExceptionOnOverCapacity: true);
+
+            if (this.largeBuffer == null)
+            {
+                BlockAndOffset blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
+                int blockRemaining = this.MemoryManager.BlockSize - blockAndOffset.Offset;
+                if (blockRemaining >= sizeHint)
+                {
+                    return (this.blocks[blockAndOffset.Block], blockAndOffset.Offset, blockRemaining);
+                }
+
+                // We must return a buffer of at least sizeHint bytes, so if the current block doesn't 
+                // have enough space we must switch to a large buffer.
+                this.GetBuffer();
+            }
+
+            return (this.largeBuffer, this.position, this.largeBuffer.Length - this.position);
+        }
+
         /// <summary>
         /// Returns a sequence containing the contents of the stream.
         /// </summary>
         /// <returns>A ReadOnlySequence of bytes</returns>
-        /// <remarks>IMPORTANT: Doing a Write(), Dispose(), or Close() after calling GetReadOnlySequence() invalidates the sequence.</remarks>
+        /// <remarks>IMPORTANT: Calling Write(), GetMemory(), GetSpan(), Dispose(), or Close() after calling GetReadOnlySequence() invalidates the sequence.</remarks>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public ReadOnlySequence<byte> GetReadOnlySequence()
         {
@@ -1110,7 +1186,7 @@ namespace Microsoft.IO
             return new BlockAndOffset(offset / blockSize, offset % blockSize);
         }
 
-        private void EnsureCapacity(int newCapacity)
+        private void EnsureCapacity(int newCapacity, bool throwOomExceptionOnOverCapacity = false)
         {
             if (newCapacity > this.memoryManager.MaximumStreamCapacity && this.memoryManager.MaximumStreamCapacity > 0)
             {
@@ -1118,8 +1194,17 @@ namespace Microsoft.IO
                                                                                     this.memoryManager
                                                                                         .MaximumStreamCapacity, this.tag,
                                                                                     this.AllocationStack);
-                throw new InvalidOperationException("Requested capacity is too large: " + newCapacity + ". Limit is " +
-                                                    this.memoryManager.MaximumStreamCapacity);
+
+                string message = $"Requested capacity is too large: {newCapacity}. Limit is {this.memoryManager.MaximumStreamCapacity}";
+
+                if (throwOomExceptionOnOverCapacity)
+                {
+                    throw new OutOfMemoryException(message);
+                }
+                else 
+                {
+                    throw new InvalidOperationException(message);
+                }
             }
 
             if (this.largeBuffer != null)
@@ -1162,6 +1247,6 @@ namespace Microsoft.IO
 
             this.largeBuffer = null;
         }
-#endregion
+        #endregion
     }
 }
