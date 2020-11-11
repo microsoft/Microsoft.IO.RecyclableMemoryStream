@@ -2036,6 +2036,38 @@ namespace Microsoft.IO.UnitTests
         }
         #endregion
 
+        #region Advance Tests
+        [Test]
+        public void AdvanceByNegativeThrowsException()
+        {
+            var stream = this.GetDefaultStream();
+            stream.Position = 10;
+            Assert.Throws<ArgumentOutOfRangeException>(() => stream.Advance(-1));
+        }
+
+        [Test]
+        public void AdvancePastLargerThanMaxStreamLengthThrowsException()
+        {
+            var stream = this.GetDefaultStream();
+            stream.Advance(1);
+            Assert.Throws<InvalidOperationException>(() => stream.Advance(Int32.MaxValue));
+        }
+
+        [Test]
+        public void AdvanceToAnyValue()
+        {
+            var stream = this.GetDefaultStream();
+            var maxValue = Int32.MaxValue;
+            var step = maxValue / 32;
+            for (int i = 1; i <= 32; i++)
+            {
+                stream.Advance(step);
+                Assert.That(stream.Position, Is.EqualTo(i * step));
+                Assert.That(stream.Length, Is.EqualTo(i * step));
+            }
+        }
+        #endregion
+
         #region Dispose and Pooling Tests
         [Test]
         public void Pooling_NewMemoryManagerHasZeroFreeAndInUseBytes()
