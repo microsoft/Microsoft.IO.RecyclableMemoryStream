@@ -497,7 +497,7 @@ namespace Microsoft.IO
                 throw new ArgumentOutOfRangeException(nameof(count), $"{nameof(count)} must be non-negative.");
             }
 
-            long newPosition = this.position + count;
+            long newPosition = (long)this.position + count;
             
             if (newPosition > MaxStreamLength)
             {
@@ -539,9 +539,14 @@ namespace Microsoft.IO
             }
 
             sizeHint = Math.Max(sizeHint, 1);
+            long newCapacity = ((long)this.position) + sizeHint;
+            if (newCapacity > MaxStreamLength)
+            {
+                throw new OutOfMemoryException("Maximum capacity exceeded");
+            }
 
             // The IBufferWriter<T> contract requires that we throw an OutOfMemoryException.
-            this.EnsureCapacity(this.position + sizeHint, throwOomExceptionOnOverCapacity: true);
+            this.EnsureCapacity((int)newCapacity, throwOomExceptionOnOverCapacity: true);
 
             if (this.largeBuffer == null)
             {
