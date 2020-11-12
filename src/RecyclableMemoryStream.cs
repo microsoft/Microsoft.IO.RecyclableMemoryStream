@@ -542,10 +542,10 @@ namespace Microsoft.IO
             long newCapacity = ((long)this.position) + sizeHint;
             if (newCapacity > MaxStreamLength)
             {
+                // The IBufferWriter<T> contract requires that we throw an OutOfMemoryException.
                 throw new OutOfMemoryException("Maximum capacity exceeded");
             }
 
-            // The IBufferWriter<T> contract requires that we throw an OutOfMemoryException.
             this.EnsureCapacity((int)newCapacity, throwOomExceptionOnOverCapacity: true);
 
             if (this.largeBuffer == null)

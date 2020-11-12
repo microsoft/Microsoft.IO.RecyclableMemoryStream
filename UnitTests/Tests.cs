@@ -489,7 +489,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
-        public void GetSpanMemoryWithHintLargerThanMaximumStreamCapacity()
+        public void GetSpanMemoryWithHintLargerThanMaximumStreamCapacityFails()
         {
             var memoryManager = this.GetMemoryManager();
             memoryManager.MaximumStreamCapacity = short.MaxValue;
