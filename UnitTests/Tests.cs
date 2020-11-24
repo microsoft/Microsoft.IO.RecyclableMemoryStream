@@ -30,6 +30,7 @@ namespace Microsoft.IO.UnitTests
     using System.Threading.Tasks;
     
     using Microsoft.IO;
+    using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel;
     using NUnit.Framework;
     
     /// <summary>
@@ -41,6 +42,8 @@ namespace Microsoft.IO.UnitTests
         protected const int DefaultBlockSize = 16384;
         protected const int DefaultLargeBufferMultiple = 1 << 20;
         protected const int DefaultMaximumBufferSize = 8 * (1 << 20);
+        protected const long DefaultVeryLargeStreamSize = 3L * (1L << 30);
+        protected const long VeryLargeMaximumSize = 4L * (1L << 30);
         protected const string DefaultTag = "NUnit";
         private const int MemoryStreamDisposed = 2;
         private const int MemoryStreamDoubleDispose = 3;
@@ -1026,7 +1029,7 @@ namespace Microsoft.IO.UnitTests
         public void SafeReadByteDoesNotUpdateStreamPosition()
         {
             var stream = this.GetRandomStream();
-            for (var i = 0; i < stream.Length; i++)
+            for (long i = 0; i < stream.Length; i++)
             {
                 var position = i;
                 stream.SafeReadByte(ref position);
@@ -1042,7 +1045,7 @@ namespace Microsoft.IO.UnitTests
             var buffer = this.GetRandomBuffer(stream.Capacity * 2);
             stream.Write(buffer, 0, buffer.Length);
 
-            for (var i = 0; i < stream.Length; i++)
+            for (long i = 0; i < stream.Length; i++)
             {
                 stream.Position = this.random.Next(0, buffer.Length - 1);
                 var position = i;
@@ -1064,7 +1067,7 @@ namespace Microsoft.IO.UnitTests
             {
                 for (var i = 0; i < 1000; i++)
                 {
-                    var position = this.random.Next(0, bufferLength);
+                    long position = this.random.Next(0, bufferLength);
                     var byteRead = stream.SafeReadByte(ref position);
 
                     Assert.That(byteRead, Is.EqualTo(buffer[position - 1]));
@@ -1141,7 +1144,7 @@ namespace Microsoft.IO.UnitTests
             var step = stream.MemoryManager.BlockSize / 2;
             var destBuffer = new byte[step];
             var bytesRead = 0;
-            var position = 0;
+            var position = 0L;
 
             while (position < stream.Length)
             {
@@ -1163,7 +1166,7 @@ namespace Microsoft.IO.UnitTests
             var destBuffer = new byte[step];
             var expected = new byte[step];
             var bytesRead = 0;
-            var position = 0;
+            var position = 0L;
 
             while (position < stream.Length)
             {
@@ -1193,8 +1196,8 @@ namespace Microsoft.IO.UnitTests
             var readSlow = new MemoryStream();
             var readFast = new MemoryStream();
 
-            var positionSlow = 0;
-            var positionFast = 0;
+            var positionSlow = 0L;
+            var positionFast = 0L;
 
             while (positionFast < stream.Length)
             {
@@ -1225,13 +1228,13 @@ namespace Microsoft.IO.UnitTests
             {
                 for (var i = 0; i < 5; i++)
                 {
-                    var position = this.random.Next(0, bufferLength);
-                    var startPosition = position;
-                    var length = this.random.Next(0, bufferLength - position);
+                    long position = this.random.Next(0, bufferLength);
+                    long startPosition = position;
+                    var length = this.random.Next(0, (int)(bufferLength - position));
                     var readBuffer = new byte[length];
                     var bytesRead = stream.SafeRead(readBuffer, 0, length, ref position);
 
-                    RMSAssert.BuffersAreEqual(readBuffer, 0, buffer, startPosition, bytesRead);
+                    RMSAssert.BuffersAreEqual(readBuffer, 0, buffer, (int)startPosition, bytesRead);
                 }
             };
 
@@ -1248,7 +1251,7 @@ namespace Microsoft.IO.UnitTests
             var step = stream.MemoryManager.BlockSize / 2;
             var destBuffer = new byte[step];
             var bytesRead = 0;
-            var position = 0;
+            var position = 0L;
 
             while (position < stream.Length)
             {
@@ -1270,7 +1273,7 @@ namespace Microsoft.IO.UnitTests
             var destBuffer = new byte[step];
             var expected = new byte[step];
             var bytesRead = 0;
-            var position = 0;
+            var position = 0L;
 
             while (position < stream.Length)
             {
@@ -1300,8 +1303,8 @@ namespace Microsoft.IO.UnitTests
             var readSlow = new MemoryStream();
             var readFast = new MemoryStream();
 
-            var positionSlow = 0;
-            var positionFast = 0;
+            var positionSlow = 0L;
+            var positionFast = 0L;
 
             while (positionFast < stream.Length)
             {
@@ -1332,13 +1335,13 @@ namespace Microsoft.IO.UnitTests
             {
                 for (var i = 0; i < 5; i++)
                 {
-                    var position = this.random.Next(0, bufferLength);
+                    long position = this.random.Next(0, bufferLength);
                     var startPosition = position;
-                    var length = this.random.Next(0, bufferLength - position);
+                    var length = this.random.Next(0, (int)(bufferLength - position));
                     var readBuffer = new byte[length];
                     var bytesRead = stream.SafeRead(readBuffer.AsSpan(0, length), ref position);
 
-                    RMSAssert.BuffersAreEqual(readBuffer, 0, buffer, startPosition, bytesRead);
+                    RMSAssert.BuffersAreEqual(readBuffer, 0, buffer, (int)startPosition, bytesRead);
                 }
             };
 
@@ -1917,13 +1920,6 @@ namespace Microsoft.IO.UnitTests
 
         #region Seek Tests
         [Test]
-        public void SeekPastMaximumLengthThrowsException()
-        {
-            var stream = this.GetDefaultStream();
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.Seek((long)Int32.MaxValue + 1, SeekOrigin.Begin));
-        }
-
-        [Test]
         public void SeekFromBeginToBeforeBeginThrowsException()
         {
             var stream = this.GetDefaultStream();
@@ -2013,13 +2009,6 @@ namespace Microsoft.IO.UnitTests
         {
             var stream = this.GetDefaultStream();
             Assert.Throws<ArgumentOutOfRangeException>(() => stream.Position = -1);
-        }
-
-        [Test]
-        public void PositionSetToLargerThanMaxStreamLengthThrowsException()
-        {
-            var stream = this.GetDefaultStream();
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.Position = (long)Int32.MaxValue + 1);
         }
 
         [Test]
@@ -2468,6 +2457,52 @@ namespace Microsoft.IO.UnitTests
         }
         #endregion
 
+        #region Very Large Buffer Tests (> 2 GB)
+        [Test]
+        public void VeryLargeStream_WriteMultiGBStream()
+        {
+            var stream = GetMultiGBStream();
+            Assert.That(stream.Capacity64, Is.GreaterThanOrEqualTo(DefaultVeryLargeStreamSize));
+            var buffer = GetRandomBuffer(1 << 20);
+            while (stream.Length < DefaultVeryLargeStreamSize)
+            {
+                stream.Write(buffer);
+            }
+
+            // check bytes
+            RMSAssert.StreamContainsExactCopies(stream, buffer);
+            Assert.That(stream.Length, Is.EqualTo(DefaultVeryLargeStreamSize));
+        }
+
+        [Test]
+        public void VeryLargeStream_SetLength()
+        {
+            var stream = GetMultiGBStream();
+            stream.SetLength(DefaultVeryLargeStreamSize);
+            Assert.That(stream.Length, Is.EqualTo(DefaultVeryLargeStreamSize));
+            Assert.That(stream.Capacity, Is.AtLeast(DefaultVeryLargeStreamSize));
+            stream.SetLength(DefaultVeryLargeStreamSize * 2);
+            Assert.That(stream.Length, Is.EqualTo(2 * DefaultVeryLargeStreamSize));
+            Assert.That(stream.Capacity, Is.AtLeast(2 * DefaultVeryLargeStreamSize));
+        }
+
+        [Test]
+        public void VeryLargeStream_CannotConvertLargeBufferToMultiGBStream()
+        {
+            var stream = GetDefaultStream();
+            var data = GetRandomBuffer(1 << 20);
+            stream.Write(data);
+            var buffer = stream.GetBuffer();
+            Assert.Throws<OutOfMemoryException>(() => stream.SetLength(DefaultVeryLargeStreamSize));
+        }
+
+        private RecyclableMemoryStream GetMultiGBStream()
+        {
+            return new RecyclableMemoryStream(this.GetMemoryManager(), "GetMultiGBStream", DefaultVeryLargeStreamSize);
+        }
+                
+        #endregion
+
         #region Test Helpers
         protected RecyclableMemoryStream GetDefaultStream()
         {
@@ -2569,6 +2604,19 @@ namespace Microsoft.IO.UnitTests
                 Assert.That(segment.Offset, Is.Zero);
                 Assert.That(segment.Count, Is.EqualTo(stream.Length));
                 Assert.That(segment.Array, Is.SameAs(buffer));
+            }
+
+            /// <summary>
+            /// Ensures that stream contains multiple exact copies of the passed buffer
+            /// </summary>
+            internal static void StreamContainsExactCopies(RecyclableMemoryStream stream, ReadOnlySpan<byte> buffer)
+            {
+                byte[] temp = new byte[buffer.Length];
+                stream.Position = 0;
+                while (stream.Read(temp) > 0)
+                {
+                    BuffersAreEqual(buffer, temp, temp.Length);
+                }
             }
         }
     }
