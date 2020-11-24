@@ -27,6 +27,7 @@ namespace Microsoft.IO.UnitTests
     using System.Collections.Generic;
     using System.IO;
     using System.Runtime.InteropServices;
+    using System.Threading;
     using System.Threading.Tasks;
     
     using Microsoft.IO;
@@ -2467,6 +2468,123 @@ namespace Microsoft.IO.UnitTests
             Assert.That(stream.Position, Is.EqualTo(oldPosition));
         }
         #endregion
+
+        #region CopyToAsync Tests
+        [Test]
+        public void CopyToAsyncThrowsOnNullDestination()
+        {
+            using (var stream = GetDefaultStream())
+            {
+                Assert.Throws<ArgumentNullException>(()=>stream.CopyToAsync(null, DefaultBlockSize, CancellationToken.None));
+            }
+        }
+
+        [Test]
+        public void CopyToAsyncThrowsIfDisposed()
+        {
+            var stream = GetDefaultStream();
+            using (var otherStream = GetDefaultStream())
+            {
+                stream.Dispose();
+                Assert.Throws<ObjectDisposedException>(() => stream.CopyToAsync(otherStream, DefaultBlockSize, CancellationToken.None));
+            }            
+        }
+
+        [Test]
+        public void CopyToAsyncSmallerThanBlock()
+        {
+            using (var stream = GetDefaultStream())
+            {
+                var buffer = GetRandomBuffer(DefaultBlockSize / 2);
+                stream.Write(buffer, 0, buffer.Length);
+                var otherStream = GetDefaultStream();
+                stream.CopyToAsync(otherStream);
+                Assert.That(stream.Length, Is.EqualTo(otherStream.Length));
+                RMSAssert.BuffersAreEqual(stream.GetBuffer(), otherStream.GetBuffer(), buffer.Length);
+            }
+        }
+
+        [Test]
+        public void CopyToAsyncOneBlock()
+        {
+            using (var stream = GetDefaultStream())
+            {
+                var buffer = GetRandomBuffer(DefaultBlockSize);
+                stream.Write(buffer, 0, buffer.Length);
+                var otherStream = GetDefaultStream();
+                stream.CopyToAsync(otherStream);
+                Assert.That(otherStream.Length, Is.EqualTo(stream.Length));
+                RMSAssert.BuffersAreEqual(stream.GetBuffer(), otherStream.GetBuffer(), buffer.Length);
+            }
+        }
+
+        [Test]
+        public void CopyToAsyncMultipleBlocks()
+        {
+            using (var stream = GetDefaultStream())
+            {
+                var buffer = GetRandomBuffer(DefaultBlockSize * 25);
+                stream.Write(buffer, 0, buffer.Length);
+                var otherStream = GetDefaultStream();
+                stream.CopyToAsync(otherStream);
+                Assert.That(otherStream.Length, Is.EqualTo(stream.Length));
+                RMSAssert.BuffersAreEqual(stream.GetBuffer(), otherStream.GetBuffer(), buffer.Length);
+            }
+        }
+
+        [Test]
+        public void CopyToAsyncMultipleBlocksNonMemoryStream()
+        {
+            using (var stream = GetDefaultStream())
+            {
+                var buffer = GetRandomBuffer(DefaultBlockSize * 25);
+                stream.Write(buffer, 0, buffer.Length);
+                var filename = Path.GetRandomFileName();
+                using (var fileStream = new FileStream(filename, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, DefaultBlockSize, FileOptions.Asynchronous))
+                {
+                    stream.CopyToAsync(fileStream).Wait();
+                }
+                var otherBuffer = File.ReadAllBytes(filename);
+                Assert.That(otherBuffer.Length, Is.EqualTo(stream.Length));
+                RMSAssert.BuffersAreEqual(stream.GetBuffer(), otherBuffer, buffer.Length);
+            }
+        }
+
+        [Test]
+        public void CopyToAsyncLargeBuffer()
+        {
+            using (var stream = GetDefaultStream())
+            {
+                var buffer = GetRandomBuffer(DefaultBlockSize * 25);
+                stream.Write(buffer, 0, buffer.Length);
+                var otherStream = GetDefaultStream();
+                stream.GetBuffer();
+                stream.CopyToAsync(otherStream);
+                Assert.That(otherStream.Length, Is.EqualTo(stream.Length));
+                RMSAssert.BuffersAreEqual(stream.GetBuffer(), otherStream.GetBuffer(), buffer.Length);
+            }
+        }
+
+        [Test]
+        public void CopyToAsyncLargeBufferNonMemoryStream()
+        {
+            using (var stream = GetDefaultStream())
+            {
+                var buffer = GetRandomBuffer(DefaultBlockSize * 25);
+                stream.Write(buffer, 0, buffer.Length);
+                stream.GetBuffer();
+                var filename = Path.GetRandomFileName();
+                using (var fileStream = new FileStream(filename, FileMode.Create, FileAccess.Write))
+                {
+                    stream.CopyToAsync(fileStream).Wait();
+                }
+                var otherBuffer = File.ReadAllBytes(filename);
+                Assert.That(otherBuffer.Length, Is.EqualTo(stream.Length));
+                RMSAssert.BuffersAreEqual(stream.GetBuffer(), otherBuffer, buffer.Length);
+            }
+        }
+        #endregion
+
 
         #region Test Helpers
         protected RecyclableMemoryStream GetDefaultStream()
