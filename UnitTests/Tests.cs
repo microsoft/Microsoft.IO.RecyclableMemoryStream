@@ -456,19 +456,19 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
-        public void GiantAllocationSucceeds()
+        public void MaxIntAllocationSucceeds()
         {
             var mgr = new RecyclableMemoryStreamManager();
 
             for (var i = -1; i < 2; ++i)
             {
                 int requestedSize = int.MaxValue - (mgr.BlockSize + i);
-                var stream = mgr.GetStream(null, requestedSize);
-                Assert.IsTrue(stream.Capacity >= requestedSize);
+                var stream = mgr.GetStream(null, requestedSize) as RecyclableMemoryStream;
+                Assert.That(stream.Capacity64, Is.GreaterThanOrEqualTo(requestedSize));
             }
 
-            var maxStream = mgr.GetStream(null, int.MaxValue);
-            Assert.IsTrue(maxStream.Capacity == int.MaxValue);
+            var maxStream = mgr.GetStream(null, int.MaxValue) as RecyclableMemoryStream;
+            Assert.That(maxStream.Capacity64, Is.GreaterThanOrEqualTo(int.MaxValue));
         }
         #endregion
 
@@ -771,14 +771,6 @@ namespace Microsoft.IO.UnitTests
             Assert.That(stream.Length, Is.EqualTo(initialPosition + buffer.Length));
         }
 
-        [Test]
-        public void WritePastMaxStreamLengthThrowsException()
-        {
-            var stream = this.GetDefaultStream();
-            stream.Seek(Int32.MaxValue, SeekOrigin.Begin);
-            var buffer = this.GetRandomBuffer(100);
-            Assert.Throws<IOException>(() => stream.Write(buffer, 0, buffer.Length));
-        }
         #endregion
 
         #region Write Span Tests
@@ -899,14 +891,6 @@ namespace Microsoft.IO.UnitTests
             Assert.That(stream.Length, Is.EqualTo(initialPosition + buffer.Length));
         }
 
-        [Test]
-        public void WriteSpanPastMaxStreamLengthThrowsException()
-        {
-            var stream = this.GetDefaultStream();
-            stream.Seek(Int32.MaxValue, SeekOrigin.Begin);
-            var buffer = this.GetRandomBuffer(100);
-            Assert.Throws<IOException>(() => stream.Write(buffer.AsSpan()));
-        }
         #endregion
 
         #region WriteByte tests
@@ -1804,13 +1788,6 @@ namespace Microsoft.IO.UnitTests
             Assert.That(stream.Length, Is.EqualTo(bufferLength / 2));
             Assert.That(stream.Position, Is.EqualTo(stream.Length));
         }
-
-        [Test]
-        public void SetLengthOnTooLargeThrowsException()
-        {
-            var stream = this.GetDefaultStream();
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.SetLength((long)Int32.MaxValue + 1));
-        }
         #endregion
 
         #region ToString Tests
@@ -2459,7 +2436,7 @@ namespace Microsoft.IO.UnitTests
 
         #region Very Large Buffer Tests (> 2 GB)
         [Test]
-        public void VeryLargeStream_WriteMultiGBStream()
+        public void VeryLargeStream_Write()
         {
             var stream = GetMultiGBStream();
             Assert.That(stream.Capacity64, Is.GreaterThanOrEqualTo(DefaultVeryLargeStreamSize));
@@ -2469,9 +2446,37 @@ namespace Microsoft.IO.UnitTests
                 stream.Write(buffer);
             }
 
-            // check bytes
-            RMSAssert.StreamContainsExactCopies(stream, buffer);
             Assert.That(stream.Length, Is.EqualTo(DefaultVeryLargeStreamSize));
+
+            // It takes a VERY long time to check 3 GB byte-by-byte, so
+            // just check final 100 MB
+            byte[] checkBuffer = new byte[buffer.Length];
+            stream.Seek(-checkBuffer.Length, SeekOrigin.End);
+            stream.Read(checkBuffer, 0, checkBuffer.Length);
+
+            RMSAssert.BuffersAreEqual(buffer, checkBuffer, buffer.Length);            
+        }
+
+        [Test]
+        public void VeryLargeStream_WriteOffsetCount()
+        {
+            var stream = GetMultiGBStream();
+            Assert.That(stream.Capacity64, Is.GreaterThanOrEqualTo(DefaultVeryLargeStreamSize));
+            var buffer = GetRandomBuffer(1 << 20);
+            while (stream.Length < DefaultVeryLargeStreamSize)
+            {
+                stream.Write(buffer, 0, buffer.Length);
+            }
+
+            Assert.That(stream.Length, Is.EqualTo(DefaultVeryLargeStreamSize));
+
+            // It takes a VERY long time to check 3 GB byte-by-byte, so
+            // just check final 100 MB
+            byte[] checkBuffer = new byte[buffer.Length];
+            stream.Seek(-checkBuffer.Length, SeekOrigin.End);
+            stream.Read(checkBuffer, 0, checkBuffer.Length);
+
+            RMSAssert.BuffersAreEqual(buffer, checkBuffer, buffer.Length);
         }
 
         [Test]
@@ -2480,14 +2485,14 @@ namespace Microsoft.IO.UnitTests
             var stream = GetMultiGBStream();
             stream.SetLength(DefaultVeryLargeStreamSize);
             Assert.That(stream.Length, Is.EqualTo(DefaultVeryLargeStreamSize));
-            Assert.That(stream.Capacity, Is.AtLeast(DefaultVeryLargeStreamSize));
+            Assert.That(stream.Capacity64, Is.AtLeast(DefaultVeryLargeStreamSize));
             stream.SetLength(DefaultVeryLargeStreamSize * 2);
             Assert.That(stream.Length, Is.EqualTo(2 * DefaultVeryLargeStreamSize));
-            Assert.That(stream.Capacity, Is.AtLeast(2 * DefaultVeryLargeStreamSize));
+            Assert.That(stream.Capacity64, Is.AtLeast(2 * DefaultVeryLargeStreamSize));
         }
 
         [Test]
-        public void VeryLargeStream_CannotConvertLargeBufferToMultiGBStream()
+        public void VeryLargeStream_ExistingLargeBufferThrowsOnMultiGBLength()
         {
             var stream = GetDefaultStream();
             var data = GetRandomBuffer(1 << 20);
@@ -2495,6 +2500,43 @@ namespace Microsoft.IO.UnitTests
             var buffer = stream.GetBuffer();
             Assert.Throws<OutOfMemoryException>(() => stream.SetLength(DefaultVeryLargeStreamSize));
         }
+
+        [Test]
+        public void VeryLargeStream_GetBufferThrows()
+        {
+            var stream = GetMultiGBStream();
+            Assert.Throws<OutOfMemoryException>(() => stream.GetBuffer());
+        }
+
+        [Test]
+        public void VeryLargeStream_WriteByte()
+        {
+            var stream = GetMultiGBStream();
+            var buffer = GetRandomBuffer(100 << 20);
+            while (stream.Length < DefaultVeryLargeStreamSize)
+            {
+                stream.Write(buffer);
+            }
+
+            var startingLength = stream.Length;
+            Assert.That(startingLength, Is.GreaterThan(int.MaxValue));
+            stream.WriteByte(13);
+            Assert.That(stream.Length, Is.EqualTo(startingLength + 1));
+        }
+
+#if NETCOREAPP2_1 || NETSTANDARD2_1
+        [Test]
+        public void VeryLargeStream_GetReadOnlySequence()
+        {
+            var stream = GetMultiGBStream();
+            var buffer = GetRandomBuffer(100 << 20);
+            while (stream.Length < DefaultVeryLargeStreamSize)
+            {
+                stream.Write(buffer);
+            }
+            Assert.Throws<InvalidOperationException>(() => stream.GetReadOnlySequence());
+        }
+#endif
 
         private RecyclableMemoryStream GetMultiGBStream()
         {

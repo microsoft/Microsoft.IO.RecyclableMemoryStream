@@ -368,7 +368,7 @@ namespace Microsoft.IO
                 {
                     throw new InvalidOperationException("Capacity is larger than int.MaxValue. Use Capacity64 instead");
                 }
-                return (int)Math.Min(int.MaxValue, size);
+                return (int)size;
             }
             set
             {
@@ -735,7 +735,7 @@ namespace Microsoft.IO
             int blockSize = this.memoryManager.BlockSize;
             long end = (long)this.position + count;
 
-            this.EnsureCapacity((int)end);
+            this.EnsureCapacity(end);
 
             if (this.largeBuffer == null)
             {
@@ -763,7 +763,7 @@ namespace Microsoft.IO
             {
                 Buffer.BlockCopy(buffer, offset, this.largeBuffer, (int)this.position, count);
             }
-            this.position = (int)end;
+            this.position = end;
             this.length = Math.Max(this.position, this.length);
         }
 
@@ -781,7 +781,7 @@ namespace Microsoft.IO
             int blockSize = this.memoryManager.BlockSize;
             long end = (long)this.position + source.Length;
 
-            this.EnsureCapacity((int)end);
+            this.EnsureCapacity(end);
 
             if (this.largeBuffer == null)
             {
@@ -838,7 +838,7 @@ namespace Microsoft.IO
 
                 if (block >= this.blocks.Count)
                 {
-                    this.EnsureCapacity((int)end);
+                    this.EnsureCapacity(end);
                 }
 
                 this.blocks[block][this.position % blockSize] = value;
@@ -847,13 +847,13 @@ namespace Microsoft.IO
             {
                 if (this.position >= this.largeBuffer.Length)
                 {
-                    this.EnsureCapacity((int)end);
+                    this.EnsureCapacity(end);
                 }
 
                 this.largeBuffer[this.position] = value;
             }
 
-            this.position = (int)end;
+            this.position = end;
 
             if (this.position > this.length)
             {
@@ -1015,7 +1015,7 @@ namespace Microsoft.IO
         }
 #endregion
 
-#region Helper Methods
+        #region Helper Methods
         private bool Disposed => Interlocked.Read(ref this.disposedState) != 0;
 
         [MethodImpl((MethodImplOptions)256)]
@@ -1178,6 +1178,6 @@ namespace Microsoft.IO
 
             this.largeBuffer = null;
         }
-#endregion
+        #endregion
     }
 }
