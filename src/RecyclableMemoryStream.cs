@@ -31,6 +31,7 @@ namespace Microsoft.IO
     using System.IO;
     using System.Runtime.CompilerServices;
     using System.Threading;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// MemoryStream implementation that deals with pooling and managing memory streams which use potentially large
@@ -509,6 +510,60 @@ namespace Microsoft.IO
 
             return this.largeBuffer;
         }
+
+#if !NET40
+        /// <summary>Asynchronously reads all the bytes from the current stream and writes them to another stream.</summary>
+        /// <param name="destination">The stream to which the contents of the current stream will be copied.</param>
+        /// <param name="bufferSize">This parameter is ignored.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous copy operation.</returns>
+        /// <exception cref="T:System.ArgumentNullException">
+        ///   <paramref name="destination" /> is <see langword="null" />.</exception>
+        /// <exception cref="T:System.ObjectDisposedException">Either the current stream or the destination stream is disposed.</exception>
+        /// <exception cref="T:System.NotSupportedException">The current stream does not support reading, or the destination stream does not support writing.</exception>
+        public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
+        {
+            if (destination == null)
+            {
+                throw new ArgumentNullException(nameof(destination));
+            }
+
+            CheckDisposed();
+            var destinationRMS = destination as MemoryStream;
+            if (destinationRMS != null)
+            {
+                this.WriteTo(destinationRMS);
+#if NET45
+                return Task.FromResult(true);
+#else
+                return Task.CompletedTask;
+#endif
+            }
+            else
+            {
+                var task = Task.Run(async () =>
+                {
+                    if (this.largeBuffer == null)
+                    {
+                        var bytesRemaining = this.length;
+                        int currentBlock = 0;
+                        while (bytesRemaining > 0)
+                        {
+                            int amountToCopy = Math.Min(this.blocks[currentBlock].Length, bytesRemaining);
+                            await destination.WriteAsync(this.blocks[currentBlock], 0, amountToCopy, cancellationToken);
+                            bytesRemaining -= amountToCopy;
+                            ++currentBlock;
+                        }
+                    }
+                    else
+                    {
+                        await destination.WriteAsync(this.largeBuffer, 0, this.length, cancellationToken);
+                    }
+                });
+                return task;
+            }
+        }
+#endif
 
 #if NETCOREAPP2_1 || NETSTANDARD2_1
         /// <summary>
@@ -1011,7 +1066,6 @@ namespace Microsoft.IO
             {
                 stream.Write(this.largeBuffer, (int)offset, (int)count);
             }
-
         }
 #endregion
 
