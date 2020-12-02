@@ -31,7 +31,6 @@ namespace Microsoft.IO.UnitTests
     using System.Threading.Tasks;
     
     using Microsoft.IO;
-    using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel;
     using NUnit.Framework;
     
     /// <summary>
@@ -2623,6 +2622,15 @@ namespace Microsoft.IO.UnitTests
         {
             var stream = GetMultiGBStream();
             Assert.Throws<OutOfMemoryException>(() => stream.GetBuffer());
+        }
+
+        [Test]
+        public void VeryLargeStream_SetPositionThrowsIfLargeBuffer()
+        {
+            var stream = GetDefaultStream();
+            stream.SetLength(1 << 20);
+            var buffer = stream.GetBuffer();
+            Assert.Throws<InvalidOperationException>(() => stream.Position = DefaultVeryLargeStreamSize);
         }
 
         [Test]

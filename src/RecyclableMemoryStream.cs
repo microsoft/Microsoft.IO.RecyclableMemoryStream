@@ -61,6 +61,10 @@ namespace Microsoft.IO
     /// large buffer. The large buffer can be replaced by a larger buffer from the pool as needed. All blocks and large buffers 
     /// are maintained in the stream until the stream is disposed (unless AggressiveBufferReturn is enabled in the stream manager).
     /// 
+    /// A further wrinkle is what happens when the stream is longer than the maximum allowable array length under .NET. This is allowed
+    /// when only blocks are in use, and only the Read/Write APIs are used. Once a stream grows to this size, any attempt to convert it
+    /// to a single buffer will result in an exception. Similarly, if a stream is already converted to use a single larger buffer, then
+    /// it cannot grow beyond the limits of the maximum allowable array size.
     /// </remarks>
     public sealed class RecyclableMemoryStream : MemoryStream
     {
@@ -351,7 +355,7 @@ namespace Microsoft.IO
         /// Writing past the current capacity will cause Capacity to automatically increase, until MaximumStreamCapacity is reached.
         /// 
         /// If the capacity is larger than int.MaxValue, then Int.MaxValue will be returned. If you anticipate using
-        /// larger stream,s use the <see cref="Capacity64"/> property instead.
+        /// larger streams, use the <see cref="Capacity64"/> property instead.
         /// </remarks>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public override int Capacity
@@ -407,6 +411,7 @@ namespace Microsoft.IO
         /// Gets the number of bytes written to this stream.
         /// </summary>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+        /// <remarks>If the buffer has already been converted to a large buffer, then the maximum length is limited by the maximum allowed array length in .NET.</remarks>
         public override long Length
         {
             get
@@ -422,6 +427,9 @@ namespace Microsoft.IO
         /// Gets the current position in the stream
         /// </summary>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+        /// <exception cref="ArgumentOutOfRangeException">A negative value was passed</exception>
+        /// <exception cref="InvalidOperationException">Stream is in large-buffer mode, but an attempt was made to set the position past the maximum allowed array length.</exception>
+        /// <remarks>If the buffer has already been converted to a large buffer, then the maximum length (and thus position) is limited by the maximum allowed array length in .NET.</remarks>
         public override long Position
         {
             get
@@ -549,7 +557,7 @@ namespace Microsoft.IO
                         int currentBlock = 0;
                         while (bytesRemaining > 0)
                         {
-                            int amountToCopy = Math.Min(this.blocks[currentBlock].Length, bytesRemaining);
+                            int amountToCopy = (int)Math.Min((long)this.blocks[currentBlock].Length, bytesRemaining);
                             await destination.WriteAsync(this.blocks[currentBlock], 0, amountToCopy, cancellationToken);
                             bytesRemaining -= amountToCopy;
                             ++currentBlock;
@@ -557,7 +565,7 @@ namespace Microsoft.IO
                     }
                     else
                     {
-                        await destination.WriteAsync(this.largeBuffer, 0, this.length, cancellationToken);
+                        await destination.WriteAsync(this.largeBuffer, 0, (int)this.length, cancellationToken);
                     }
                 });
                 return task;
