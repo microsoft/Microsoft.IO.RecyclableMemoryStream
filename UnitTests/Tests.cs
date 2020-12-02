@@ -2435,7 +2435,7 @@ namespace Microsoft.IO.UnitTests
         }
         #endregion
 
- #region CopyToAsync Tests
+		#region CopyToAsync Tests
         [Test]
         public void CopyToAsyncThrowsOnNullDestination()
         {
