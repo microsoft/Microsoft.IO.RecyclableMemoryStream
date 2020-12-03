@@ -3,7 +3,7 @@
 Logged when a stream grows beyond the maximum capacity.
 
 ```csharp
-public void MemoryStreamOverCapacity(int requestedCapacity, long maxCapacity, string tag, 
+public void MemoryStreamOverCapacity(long requestedCapacity, long maxCapacity, string tag, 
     string allocationStack)
 ```
 

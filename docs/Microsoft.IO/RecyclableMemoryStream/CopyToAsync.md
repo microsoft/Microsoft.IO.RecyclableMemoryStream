@@ -11,7 +11,7 @@ public override Task CopyToAsync(Stream destination, int bufferSize,
 | --- | --- |
 | destination | The stream to which the contents of the current stream will be copied. |
 | bufferSize | This parameter is ignored. |
-| cancellationToken | This parameter is ignored. |
+| cancellationToken | The token to monitor for cancellation requests. |
 
 ## Return Value
 

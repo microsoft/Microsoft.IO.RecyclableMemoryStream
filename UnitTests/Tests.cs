@@ -1013,7 +1013,7 @@ namespace Microsoft.IO.UnitTests
         public void SafeReadByteDoesNotUpdateStreamPosition()
         {
             var stream = this.GetRandomStream();
-            for (long i = 0; i < stream.Length; i++)
+            for (var i = 0L; i < stream.Length; i++)
             {
                 var position = i;
                 stream.SafeReadByte(ref position);
@@ -1029,7 +1029,7 @@ namespace Microsoft.IO.UnitTests
             var buffer = this.GetRandomBuffer(stream.Capacity * 2);
             stream.Write(buffer, 0, buffer.Length);
 
-            for (long i = 0; i < stream.Length; i++)
+            for (var i = 0L; i < stream.Length; i++)
             {
                 stream.Position = this.random.Next(0, buffer.Length - 1);
                 var position = i;
@@ -1051,7 +1051,7 @@ namespace Microsoft.IO.UnitTests
             {
                 for (var i = 0; i < 1000; i++)
                 {
-                    long position = this.random.Next(0, bufferLength);
+                    var position = this.random.Next(0, bufferLength);
                     var byteRead = stream.SafeReadByte(ref position);
 
                     Assert.That(byteRead, Is.EqualTo(buffer[position - 1]));
@@ -1319,7 +1319,7 @@ namespace Microsoft.IO.UnitTests
             {
                 for (var i = 0; i < 5; i++)
                 {
-                    long position = this.random.Next(0, bufferLength);
+                    var position = this.random.Next(0, bufferLength);
                     var startPosition = position;
                     var length = this.random.Next(0, (int)(bufferLength - position));
                     var readBuffer = new byte[length];
@@ -2621,7 +2621,7 @@ namespace Microsoft.IO.UnitTests
         public void VeryLargeStream_GetBufferThrows()
         {
             var stream = GetMultiGBStream();
-            Assert.Throws<OutOfMemoryException>(() => stream.GetBuffer());
+            Assert.Throws<InvalidOperationException>(() => stream.GetBuffer());
         }
 
         [Test]
