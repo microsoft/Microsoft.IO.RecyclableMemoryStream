@@ -588,7 +588,7 @@ namespace Microsoft.IO
                 {
                     if (this.blocks.Count == 1)
                     {
-                        return destination.WriteAsync(this.blocks[0], 0, this.length, cancellationToken);
+                        return destination.WriteAsync(this.blocks[0], 0,(int)this.length, cancellationToken);
                     }
                     else
                     {
@@ -600,7 +600,7 @@ namespace Microsoft.IO
                             int currentBlock = 0;
                             while (bytesRemaining > 0)
                             {
-                                int amountToCopy = Math.Min(this.blocks[currentBlock].Length, bytesRemaining);
+                                var amountToCopy = (int)Math.Min(this.blocks[currentBlock].Length, bytesRemaining);
                                 await destination.WriteAsync(this.blocks[currentBlock], 0, amountToCopy, cancellationToken);
                                 bytesRemaining -= amountToCopy;
                                 ++currentBlock;
@@ -610,7 +610,7 @@ namespace Microsoft.IO
                 }
                 else
                 {
-                    return destination.WriteAsync(this.largeBuffer, 0, this.length, cancellationToken);
+                    return destination.WriteAsync(this.largeBuffer, 0, (int)this.length, cancellationToken);
                 }
             }
         }
