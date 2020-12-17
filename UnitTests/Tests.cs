@@ -2470,6 +2470,32 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        public void CopyToAsyncZeroBlocks()
+        {
+            using (var stream = GetDefaultStream())
+            {
+                var otherStream = GetDefaultStream();
+                stream.CopyToAsync(otherStream);
+                Assert.That(otherStream.Length, Is.EqualTo(0));
+            }
+        }
+
+        [Test]
+        public void CopyToAsyncZeroBlocksNonMemoryStream()
+        {
+            using (var stream = GetDefaultStream())
+            {
+                var filename = Path.GetRandomFileName();
+                using (var fileStream = new FileStream(filename, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, DefaultBlockSize, FileOptions.Asynchronous))
+                {
+                    stream.CopyToAsync(fileStream).Wait();
+                }
+                var otherBuffer = File.ReadAllBytes(filename);
+                Assert.That(otherBuffer.Length, Is.EqualTo(0));
+            }
+        }
+
+        [Test]
         public void CopyToAsyncOneBlock()
         {
             using (var stream = GetDefaultStream())
@@ -2480,6 +2506,24 @@ namespace Microsoft.IO.UnitTests
                 stream.CopyToAsync(otherStream);
                 Assert.That(otherStream.Length, Is.EqualTo(stream.Length));
                 RMSAssert.BuffersAreEqual(stream.GetBuffer(), otherStream.GetBuffer(), buffer.Length);
+            }
+        }
+
+        [Test]
+        public void CopyToAsyncOneBlockNonMemoryStream()
+        {
+            using (var stream = GetDefaultStream())
+            {
+                var buffer = GetRandomBuffer(DefaultBlockSize);
+                stream.Write(buffer, 0, buffer.Length);
+                var filename = Path.GetRandomFileName();
+                using (var fileStream = new FileStream(filename, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, DefaultBlockSize, FileOptions.Asynchronous))
+                {
+                    stream.CopyToAsync(fileStream).Wait();
+                }
+                var otherBuffer = File.ReadAllBytes(filename);
+                Assert.That(otherBuffer.Length, Is.EqualTo(stream.Length));
+                RMSAssert.BuffersAreEqual(stream.GetBuffer(), otherBuffer, buffer.Length);
             }
         }
 

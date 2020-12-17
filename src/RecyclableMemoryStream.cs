@@ -563,8 +563,17 @@ namespace Microsoft.IO
             }
 
             CheckDisposed();
-            var destinationRMS = destination as MemoryStream;
-            if (destinationRMS != null)
+
+            if (this.length == 0)
+            {
+#if NET45
+                return Task.FromResult(true);
+#else
+                return Task.CompletedTask;
+#endif
+            }
+
+            if (destination is MemoryStream destinationRMS)
             {
                 this.WriteTo(destinationRMS);
 #if NET45
@@ -575,26 +584,34 @@ namespace Microsoft.IO
             }
             else
             {
-                var task = Task.Run(async () =>
+                if (this.largeBuffer == null)
                 {
-                    if (this.largeBuffer == null)
+                    if (this.blocks.Count == 1)
                     {
-                        var bytesRemaining = this.length;
-                        int currentBlock = 0;
-                        while (bytesRemaining > 0)
-                        {
-                            int amountToCopy = (int)Math.Min((long)this.blocks[currentBlock].Length, bytesRemaining);
-                            await destination.WriteAsync(this.blocks[currentBlock], 0, amountToCopy, cancellationToken);
-                            bytesRemaining -= amountToCopy;
-                            ++currentBlock;
-                        }
+                        return destination.WriteAsync(this.blocks[0], 0, this.length, cancellationToken);
                     }
                     else
                     {
-                        await destination.WriteAsync(this.largeBuffer, 0, (int)this.length, cancellationToken);
+                        return CopyToAsyncImpl();
+
+                        async Task CopyToAsyncImpl()
+                        {
+                            var bytesRemaining = this.length;
+                            int currentBlock = 0;
+                            while (bytesRemaining > 0)
+                            {
+                                int amountToCopy = Math.Min(this.blocks[currentBlock].Length, bytesRemaining);
+                                await destination.WriteAsync(this.blocks[currentBlock], 0, amountToCopy, cancellationToken);
+                                bytesRemaining -= amountToCopy;
+                                ++currentBlock;
+                            }
+                        }
                     }
-                });
-                return task;
+                }
+                else
+                {
+                    return destination.WriteAsync(this.largeBuffer, 0, this.length, cancellationToken);
+                }
             }
         }
 #endif
@@ -681,7 +698,7 @@ namespace Microsoft.IO
         public override byte[] ToArray()
         {
             this.CheckDisposed();
-            
+
             string stack = this.memoryManager.GenerateCallStacks ? Environment.StackTrace : null;
             RecyclableMemoryStreamManager.Events.Writer.MemoryStreamToArray(this.id, this.tag, stack, this.length);
 
@@ -1178,7 +1195,7 @@ namespace Microsoft.IO
                 stream.Write(this.largeBuffer, (int)offset, (int)count);
             }
         }
-#endregion
+        #endregion
 
         #region Helper Methods
         private bool Disposed => Interlocked.Read(ref this.disposedState) != 0;
