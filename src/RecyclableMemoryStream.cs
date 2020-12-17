@@ -230,18 +230,6 @@ namespace Microsoft.IO
         /// <param name="tag">A string identifying this stream for logging and debugging purposes</param>
         /// <param name="requestedSize">The initial requested size to prevent future allocations</param>
         /// <param name="initialLargeBuffer">An initial buffer to use. This buffer will be owned by the stream and returned to the memory manager upon Dispose.</param>
-        internal RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string tag, int requestedSize, byte[] initialLargeBuffer)
-            : this(memoryManager, id, tag, (long)requestedSize, initialLargeBuffer)
-        { }
-
-        /// <summary>
-        /// Allocate a new RecyclableMemoryStream object
-        /// </summary>
-        /// <param name="memoryManager">The memory manager</param>
-        /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
-        /// <param name="tag">A string identifying this stream for logging and debugging purposes</param>
-        /// <param name="requestedSize">The initial requested size to prevent future allocations</param>
-        /// <param name="initialLargeBuffer">An initial buffer to use. This buffer will be owned by the stream and returned to the memory manager upon Dispose.</param>
         internal RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string tag, long requestedSize, byte[] initialLargeBuffer)
             : base(emptyArray)
         {
