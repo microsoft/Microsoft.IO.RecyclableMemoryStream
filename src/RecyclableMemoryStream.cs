@@ -27,6 +27,7 @@ namespace Microsoft.IO
     using System.Buffers;
 #endif
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Runtime.CompilerServices;
@@ -533,6 +534,7 @@ namespace Microsoft.IO
 
             // InternalRead will check for existence of largeBuffer, so make sure we
             // don't set it until after we've copied the data.
+            AssertLengthIsSmall();
             this.InternalRead(newBuffer, 0, (int)this.length, 0);
             this.largeBuffer = newBuffer;
 
@@ -588,6 +590,7 @@ namespace Microsoft.IO
                 {
                     if (this.blocks.Count == 1)
                     {
+                        AssertLengthIsSmall();
                         return destination.WriteAsync(this.blocks[0], 0,(int)this.length, cancellationToken);
                     }
                     else
@@ -610,6 +613,7 @@ namespace Microsoft.IO
                 }
                 else
                 {
+                    AssertLengthIsSmall();
                     return destination.WriteAsync(this.largeBuffer, 0, (int)this.length, cancellationToken);
                 }
             }
@@ -629,11 +633,13 @@ namespace Microsoft.IO
 
             if (this.largeBuffer != null)
             {
+                AssertLengthIsSmall();
                 return new ReadOnlySequence<byte>(this.largeBuffer, 0, (int)this.length);
             }
 
             if (this.blocks.Count == 1)
             {
+            AssertLengthIsSmall();
                 return new ReadOnlySequence<byte>(this.blocks[0], 0, (int)this.length);
             }
 
@@ -651,6 +657,7 @@ namespace Microsoft.IO
                 last = last.Append(this.blocks[blockIdx]);
             }
 
+            Debug.Assert(this.length <= Int32.MaxValue);
             return new ReadOnlySequence<byte>(first, 0, last, (int)this.length - (int)last.RunningIndex);
         }
 
@@ -681,6 +688,7 @@ namespace Microsoft.IO
 #endif
         {
             this.CheckDisposed();
+            Debug.Assert(this.length <= Int32.MaxValue);
             buffer = new ArraySegment<byte>(this.GetBuffer(), 0, (int)this.Length);
             // GetBuffer has no failure modes, so this should always succeed
             return true;
@@ -709,6 +717,7 @@ namespace Microsoft.IO
 
             var newBuffer = new byte[this.Length];
 
+            Debug.Assert(this.length <= Int32.MaxValue);
             this.InternalRead(newBuffer, 0, (int)this.length, 0);
             this.memoryManager.ReportStreamToArray();
 
@@ -1325,6 +1334,7 @@ namespace Microsoft.IO
                 if (newCapacity > this.largeBuffer.Length)
                 {
                     var newBuffer = this.memoryManager.GetLargeBuffer(newCapacity, this.tag);
+                    Debug.Assert(this.length <= Int32.MaxValue);
                     this.InternalRead(newBuffer, 0, (int)this.length, 0);
                     this.ReleaseLargeBuffer();
                     this.largeBuffer = newBuffer;
@@ -1359,6 +1369,13 @@ namespace Microsoft.IO
             }
 
             this.largeBuffer = null;
+        }
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        private void AssertLengthIsSmall()
+        {
+            Debug.Assert(this.length <= Int32.MaxValue, "this.length was assumed to be <= Int32.MaxValue, but was larger.");
         }
         #endregion
     }
