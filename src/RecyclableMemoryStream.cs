@@ -595,16 +595,16 @@ namespace Microsoft.IO
                     }
                     else
                     {
-                        return CopyToAsyncImpl();
+                        return CopyToAsyncImpl(cancellationToken);
 
-                        async Task CopyToAsyncImpl()
+                        async Task CopyToAsyncImpl(CancellationToken ct)
                         {
                             var bytesRemaining = this.length;
                             int currentBlock = 0;
                             while (bytesRemaining > 0)
                             {
                                 var amountToCopy = (int)Math.Min(this.blocks[currentBlock].Length, bytesRemaining);
-                                await destination.WriteAsync(this.blocks[currentBlock], 0, amountToCopy, cancellationToken);
+                                await destination.WriteAsync(this.blocks[currentBlock], 0, amountToCopy, ct);
                                 bytesRemaining -= amountToCopy;
                                 ++currentBlock;
                             }
