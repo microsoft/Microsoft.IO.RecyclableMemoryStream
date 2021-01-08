@@ -514,7 +514,7 @@ namespace Microsoft.IO
 
             if (destination is MemoryStream destinationRMS)
             {
-                this.WriteTo(destinationRMS);
+                this.WriteTo(destinationRMS, this.position, this.length - this.position);
 #if NET45
                 return Task.FromResult(true);
 #else
@@ -527,29 +527,32 @@ namespace Microsoft.IO
                 {
                     if (this.blocks.Count == 1)
                     {
-                        return destination.WriteAsync(this.blocks[0], 0, this.length, cancellationToken);
+                        return destination.WriteAsync(this.blocks[0], this.position, this.length - this.position, cancellationToken);
                     }
                     else
                     {
                         return CopyToAsyncImpl(cancellationToken);
 
                         async Task CopyToAsyncImpl(CancellationToken ct)
-                        {
-                            var bytesRemaining = this.length;
-                            int currentBlock = 0;
+                        {                            
+                            var bytesRemaining = this.length - this.position;
+                            var blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
+                            int currentBlock = blockAndOffset.Block;
+                            var currentOffset = blockAndOffset.Offset;
                             while (bytesRemaining > 0)
                             {
-                                int amountToCopy = Math.Min(this.blocks[currentBlock].Length, bytesRemaining);
-                                await destination.WriteAsync(this.blocks[currentBlock], 0, amountToCopy, ct);
+                                int amountToCopy = Math.Min(this.blocks[currentBlock].Length - currentOffset, bytesRemaining);
+                                await destination.WriteAsync(this.blocks[currentBlock], currentOffset, amountToCopy, ct);
                                 bytesRemaining -= amountToCopy;
                                 ++currentBlock;
+                                currentOffset = 0;
                             }
                         }
                     }
                 }
                 else
                 {
-                    return destination.WriteAsync(this.largeBuffer, 0, this.length, cancellationToken);
+                    return destination.WriteAsync(this.largeBuffer, this.position, this.length - this.position, cancellationToken);
                 }
             }
         }
