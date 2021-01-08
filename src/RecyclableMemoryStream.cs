@@ -485,7 +485,7 @@ namespace Microsoft.IO
         }
 
 #if !NET40
-        /// <summary>Asynchronously reads all the bytes from the current stream and writes them to another stream.</summary>
+        /// <summary>Asynchronously reads all the bytes from the current position in this stream and writes them to another stream.</summary>
         /// <param name="destination">The stream to which the contents of the current stream will be copied.</param>
         /// <param name="bufferSize">This parameter is ignored.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
