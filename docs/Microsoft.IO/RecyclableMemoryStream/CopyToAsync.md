@@ -1,6 +1,6 @@
 # RecyclableMemoryStream.CopyToAsync method
 
-Asynchronously reads all the bytes from the current stream and writes them to another stream.
+Asynchronously reads all the bytes from the current position in this stream and writes them to another stream.
 
 ```csharp
 public override Task CopyToAsync(Stream destination, int bufferSize, 
@@ -11,7 +11,7 @@ public override Task CopyToAsync(Stream destination, int bufferSize,
 | --- | --- |
 | destination | The stream to which the contents of the current stream will be copied. |
 | bufferSize | This parameter is ignored. |
-| cancellationToken | This parameter is ignored. |
+| cancellationToken | The token to monitor for cancellation requests. |
 
 ## Return Value
 
