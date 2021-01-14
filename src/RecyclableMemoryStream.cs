@@ -548,7 +548,7 @@ namespace Microsoft.IO
         }
 
 #if !NET40
-        /// <summary>Asynchronously reads all the bytes from the current stream and writes them to another stream.</summary>
+        /// <summary>Asynchronously reads all the bytes from the current position in this stream and writes them to another stream.</summary>
         /// <param name="destination">The stream to which the contents of the current stream will be copied.</param>
         /// <param name="bufferSize">This parameter is ignored.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
@@ -577,7 +577,7 @@ namespace Microsoft.IO
 
             if (destination is MemoryStream destinationRMS)
             {
-                this.WriteTo(destinationRMS);
+                this.WriteTo(destinationRMS, this.position, this.length - this.position);
 #if NET45
                 return Task.FromResult(true);
 #else
@@ -591,22 +591,25 @@ namespace Microsoft.IO
                     if (this.blocks.Count == 1)
                     {
                         AssertLengthIsSmall();
-                        return destination.WriteAsync(this.blocks[0], 0,(int)this.length, cancellationToken);
+                        return destination.WriteAsync(this.blocks[0], (int)this.position, (int)(this.length - this.position), cancellationToken);
                     }
                     else
                     {
                         return CopyToAsyncImpl(cancellationToken);
 
                         async Task CopyToAsyncImpl(CancellationToken ct)
-                        {
-                            var bytesRemaining = this.length;
-                            int currentBlock = 0;
+                        {                            
+                            var bytesRemaining = this.length - this.position;
+                            var blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
+                            int currentBlock = blockAndOffset.Block;
+                            var currentOffset = blockAndOffset.Offset;
                             while (bytesRemaining > 0)
                             {
-                                var amountToCopy = (int)Math.Min(this.blocks[currentBlock].Length, bytesRemaining);
-                                await destination.WriteAsync(this.blocks[currentBlock], 0, amountToCopy, ct);
+                                int amountToCopy = (int)Math.Min(this.blocks[currentBlock].Length - currentOffset, bytesRemaining);
+                                await destination.WriteAsync(this.blocks[currentBlock], currentOffset, amountToCopy, ct);
                                 bytesRemaining -= amountToCopy;
                                 ++currentBlock;
+                                currentOffset = 0;
                             }
                         }
                     }
@@ -614,7 +617,7 @@ namespace Microsoft.IO
                 else
                 {
                     AssertLengthIsSmall();
-                    return destination.WriteAsync(this.largeBuffer, 0, (int)this.length, cancellationToken);
+                    return destination.WriteAsync(this.largeBuffer, (int)this.position, (int)(this.length - this.position), cancellationToken);
                 }
             }
         }

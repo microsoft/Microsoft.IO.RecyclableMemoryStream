@@ -20,7 +20,7 @@ public sealed class RecyclableMemoryStream : MemoryStream
 | override [Length](RecyclableMemoryStream/Length.md) { get; } | Gets the number of bytes written to this stream. |
 | override [Position](RecyclableMemoryStream/Position.md) { get; set; } | Gets the current position in the stream |
 | override [Close](RecyclableMemoryStream/Close.md)() | Equivalent to Dispose |
-| override [CopyToAsync](RecyclableMemoryStream/CopyToAsync.md)(…) | Asynchronously reads all the bytes from the current stream and writes them to another stream. |
+| override [CopyToAsync](RecyclableMemoryStream/CopyToAsync.md)(…) | Asynchronously reads all the bytes from the current position in this stream and writes them to another stream. |
 | override [GetBuffer](RecyclableMemoryStream/GetBuffer.md)() | Returns a single buffer containing the contents of the stream. The buffer may be longer than the stream length. |
 | [GetReadOnlySequence](RecyclableMemoryStream/GetReadOnlySequence.md)() | Returns a sequence containing the contents of the stream. |
 | override [Read](RecyclableMemoryStream/Read.md)(…) | Reads from the current position into the provided buffer (2 methods) |
