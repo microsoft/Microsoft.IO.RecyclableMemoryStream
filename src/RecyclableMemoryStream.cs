@@ -292,7 +292,6 @@ namespace Microsoft.IO
 
                 RecyclableMemoryStreamManager.Events.Writer.MemoryStreamFinalized(this.id, this.tag, this.AllocationStack);
 
-#if !NETSTANDARD1_4
                 if (AppDomain.CurrentDomain.IsFinalizingForUnload())
                 {
                     // If we're being finalized because of a shutdown, don't go any further.
@@ -301,7 +300,6 @@ namespace Microsoft.IO
                     base.Dispose(disposing);
                     return;
                 }
-#endif
 
                 this.memoryManager.ReportStreamFinalized();
             }
@@ -330,11 +328,7 @@ namespace Microsoft.IO
         /// <summary>
         /// Equivalent to Dispose
         /// </summary>
-#if NETSTANDARD1_4
-        public void Close()
-#else
         public override void Close()
-#endif
         {
             this.Dispose(true);
         }
@@ -446,11 +440,7 @@ namespace Microsoft.IO
         /// <remarks>IMPORTANT: Doing a Write() after calling GetBuffer() invalidates the buffer. The old buffer is held onto
         /// until Dispose is called, but the next time GetBuffer() is called, a new buffer from the pool will be required.</remarks>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
-#if NETSTANDARD1_4
-        public byte[] GetBuffer()
-#else
         public override byte[] GetBuffer()
-#endif
         {
             this.CheckDisposed();
 
@@ -484,7 +474,6 @@ namespace Microsoft.IO
             return this.largeBuffer;
         }
 
-#if !NET40
         /// <summary>Asynchronously reads all the bytes from the current position in this stream and writes them to another stream.</summary>
         /// <param name="destination">The stream to which the contents of the current stream will be copied.</param>
         /// <param name="bufferSize">This parameter is ignored.</param>
@@ -556,7 +545,6 @@ namespace Microsoft.IO
                 }
             }
         }
-#endif
 
 #if NETCOREAPP2_1 || NETSTANDARD2_1
         /// <summary>
@@ -611,7 +599,7 @@ namespace Microsoft.IO
         /// <returns>Always returns true.</returns>
         /// <remarks>GetBuffer has no failure modes (it always returns something, even if it's an empty buffer), therefore this method
         /// always returns a valid ArraySegment to the same buffer returned by GetBuffer.</remarks>
-#if NET40 || NET45
+#if NET45
         public bool TryGetBuffer(out ArraySegment<byte> buffer)  
 #else
         public override bool TryGetBuffer(out ArraySegment<byte> buffer)
