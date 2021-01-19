@@ -1,29 +1,29 @@
-#Version 1.4.0
+# Version 1.4.0
 
 * Added netstandard2.0 target. There was an issue calling `GetBuffer` from a netstandard2.0 project, which would resolve to the netstandard1.4 target of RMS. netstandard1.4 doesn't support overriding `GetBuffer`, so you could hit `UnauthorizedAccessException`.
 * A bug fix for `CopyToAsync`. It was copying the entire stream, but the expected behavior based on `System.IO.MemoryStream` is to copy from the current position.
 * Some performance improvements to `CopyToAsync`. 
 
-#Version 1.3.6
+# Version 1.3.6
 
 **Minor updates:**
 
 * Override `CopyToAsync` to save some allocations.
 * Apply `AllowPartiallyTrustedCallers` attribute to assembly
 
-#Version 1.3.5
+# Version 1.3.5
 
 **Performance Improvements**
 
 * `WriteByte` has been significantly optimized to be faster.
 * `CheckDisposed`, which is called in many code paths, has similarly been optimized.
 
-#Version 1.3.4
+# Version 1.3.4
 
 New API:
 * `void WriteTo(Stream stream, int offset, int count)` -- Allows you to write a portion of the current stream to a destination stream without first having to call `GetBuffer`.
 
-#Version 1.3.3
+# Version 1.3.3
 
 **Functionality**
 
