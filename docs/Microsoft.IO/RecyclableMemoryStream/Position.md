@@ -11,6 +11,12 @@ public override long Position { get; set; }
 | exception | condition |
 | --- | --- |
 | ObjectDisposedException | Object has been disposed |
+| ArgumentOutOfRangeException | A negative value was passed |
+| InvalidOperationException | Stream is in large-buffer mode, but an attempt was made to set the position past the maximum allowed array length. |
+
+## Remarks
+
+If the buffer has already been converted to a large buffer, then the maximum length (and thus position) is limited by the maximum allowed array length in .NET.
 
 ## See Also
 

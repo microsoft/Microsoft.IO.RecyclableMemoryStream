@@ -3,7 +3,7 @@
 Logged when a buffer is created that is too large to pool.
 
 ```csharp
-public void MemoryStreamNonPooledLargeBufferCreated(int requiredSize, string tag, 
+public void MemoryStreamNonPooledLargeBufferCreated(long requiredSize, string tag, 
     string allocationStack)
 ```
 

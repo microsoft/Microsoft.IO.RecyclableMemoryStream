@@ -12,6 +12,10 @@ public override long Length { get; }
 | --- | --- |
 | ObjectDisposedException | Object has been disposed |
 
+## Remarks
+
+If the buffer has already been converted to a large buffer, then the maximum length is limited by the maximum allowed array length in .NET.
+
 ## See Also
 
 * class [RecyclableMemoryStream](../RecyclableMemoryStream.md)

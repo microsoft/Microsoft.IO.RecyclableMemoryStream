@@ -3,7 +3,7 @@
 Logged when a new large buffer is created.
 
 ```csharp
-public void MemoryStreamNewLargeBufferCreated(int requiredSize, long largePoolInUseBytes)
+public void MemoryStreamNewLargeBufferCreated(long requiredSize, long largePoolInUseBytes)
 ```
 
 | parameter | description |

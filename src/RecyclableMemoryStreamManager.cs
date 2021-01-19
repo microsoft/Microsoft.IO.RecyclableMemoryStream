@@ -44,6 +44,13 @@ namespace Microsoft.IO
     public partial class RecyclableMemoryStreamManager
     {
         /// <summary>
+        /// Maximum length of a single array.
+        /// </summary>
+        /// <remarks>See documentation at https://docs.microsoft.com/dotnet/api/system.array?view=netcore-3.1
+        /// </remarks>
+        internal const int MaxArrayLength = 0X7FFFFFC7;
+
+        /// <summary>
         /// Generic delegate for handling events without any arguments.
         /// </summary>
         public delegate void EventHandler();
@@ -335,8 +342,14 @@ namespace Microsoft.IO
         /// <param name="requiredSize">The minimum length of the buffer</param>
         /// <param name="tag">The tag of the stream returning this buffer, for logging if necessary.</param>
         /// <returns>A buffer of at least the required size.</returns>
-        internal byte[] GetLargeBuffer(int requiredSize, string tag)
+        /// <exception cref="System.OutOfMemoryException">Requested array size is larger than the maximum allowed.</exception>
+        internal byte[] GetLargeBuffer(long requiredSize, string tag)
         {
+            if (requiredSize > MaxArrayLength)
+            {
+                throw new OutOfMemoryException($"Requested size exceeds maximum array length of {MaxArrayLength}");
+            }
+
             requiredSize = this.RoundToLargeBufferSize(requiredSize);
 
             var poolIndex = this.GetPoolIndex(requiredSize);
@@ -381,7 +394,7 @@ namespace Microsoft.IO
             return buffer;
         }
 
-        private int RoundToLargeBufferSize(int requiredSize)
+        private long RoundToLargeBufferSize(long requiredSize)
         {
             if (this.UseExponentialLargeBuffer)
             {
@@ -405,7 +418,7 @@ namespace Microsoft.IO
                                         : (value % this.LargeBufferMultiple) == 0);
         }
 
-        private int GetPoolIndex(int length)
+        private int GetPoolIndex(long length)
         {
             if (this.UseExponentialLargeBuffer)
             {
@@ -418,7 +431,7 @@ namespace Microsoft.IO
             }
             else
             {
-                return length / this.LargeBufferMultiple - 1;
+                return (int)(length / this.LargeBufferMultiple - 1);
             }
         }
 
