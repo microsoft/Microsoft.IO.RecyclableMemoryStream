@@ -829,7 +829,7 @@ namespace Microsoft.IO
         public event Action<StreamOverCapacityEventArgs> StreamOverCapacity;
 
         /// <summary>
-        /// Triggered when a buffer of either tpye is discarded, along with the reason for the discard.
+        /// Triggered when a buffer of either type is discarded, along with the reason for the discard.
         /// </summary>
         public Action<BufferDiscardedEventArgs> BufferDiscarded;
 
