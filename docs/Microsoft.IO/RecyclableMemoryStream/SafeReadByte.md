@@ -1,9 +1,39 @@
-# RecyclableMemoryStream.SafeReadByte method
+# RecyclableMemoryStream.SafeReadByte method (1 of 2)
 
 Reads a single byte from the specified position in the stream.
 
 ```csharp
 public int SafeReadByte(ref int streamPosition)
+```
+
+| parameter | description |
+| --- | --- |
+| streamPosition | The position in the stream to read from |
+
+## Return Value
+
+The byte at the current position, or -1 if the position is at the end of the stream.
+
+## Exceptions
+
+| exception | condition |
+| --- | --- |
+| ObjectDisposedException | Object has been disposed |
+| InvalidOperationException | Stream position is beyond int.MaxValue |
+
+## See Also
+
+* class [RecyclableMemoryStream](../RecyclableMemoryStream.md)
+* namespace [Microsoft.IO](../../Microsoft.IO.RecyclableMemoryStream.md)
+
+---
+
+# RecyclableMemoryStream.SafeReadByte method (2 of 2)
+
+Reads a single byte from the specified position in the stream.
+
+```csharp
+public int SafeReadByte(ref long streamPosition)
 ```
 
 | parameter | description |
