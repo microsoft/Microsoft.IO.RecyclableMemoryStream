@@ -225,6 +225,10 @@ If `Dispose` is called twice on the same stream, an event is logged with the rel
 
 If `Dispose` is never called for a stream, the finalize will eventually be called by the CLR, and an event will be logged with relevant stream information, including the allocation stack, if enabled. Buffers for finalized streams are lost to the pool, and this should be considered a bug. 
 
+### Concurrency
+
+Concurent stream use is not supported under any circumstances.
+
 ### ETW Events ###
 
 Use an ETW event monitor such as [PerfView](https://www.microsoft.com/download/details.aspx?id=28567) to collect and analyze ETW events.

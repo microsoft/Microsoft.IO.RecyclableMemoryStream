@@ -1,3 +1,9 @@
+# Version 2.0
+
+* Removed 2 GB stream limit. Extremely large streams can be created by chaining together blocks. Attempts to convert a stream into a contiguous buffer longer than the runtime's limits will result in an exception.
+* Removed build targets for net40 and netstandard1.4.
+* Removed use of `Interlocked` methods when checking whether the stream is disposed. Concurrent use of streams is not supported.
+
 # Version 1.4.0
 
 * Added netstandard2.0 target. There was an issue calling `GetBuffer` from a netstandard2.0 project, which would resolve to the netstandard1.4 target of RMS. netstandard1.4 doesn't support overriding `GetBuffer`, so you could hit `UnauthorizedAccessException`.

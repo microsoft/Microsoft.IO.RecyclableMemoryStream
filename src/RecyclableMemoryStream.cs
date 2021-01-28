@@ -89,8 +89,7 @@ namespace Microsoft.IO
         /// </summary>
         private List<byte[]> dirtyBuffers;
 
-        // long to allow Interlocked.Read (for .NET Standard 1.4 compat)
-        private long disposedState;
+        private bool disposed;
 
         /// <summary>
         /// This is only set by GetBuffer() if the necessary buffer is larger than a single block size, or on
@@ -280,7 +279,7 @@ namespace Microsoft.IO
             Justification = "We have different disposal semantics, so SuppressFinalize is in a different spot.")]
         protected override void Dispose(bool disposing)
         {
-            if (Interlocked.CompareExchange(ref this.disposedState, 1, 0) != 0)
+            if (this.disposed)
             {
                 string doubleDisposeStack = null;
                 if (this.memoryManager.GenerateCallStacks)
@@ -294,6 +293,8 @@ namespace Microsoft.IO
                                                                                      doubleDisposeStack);
                 return;
             }
+
+            this.disposed = true;
 
             RecyclableMemoryStreamManager.Events.Writer.MemoryStreamDisposed(this.id, this.tag);
 
@@ -322,7 +323,6 @@ namespace Microsoft.IO
                     base.Dispose(disposing);
                     return;
                 }
-
                 this.memoryManager.ReportStreamFinalized();
             }
 
@@ -1198,7 +1198,7 @@ namespace Microsoft.IO
         #endregion
 
         #region Helper Methods
-        private bool Disposed => Interlocked.Read(ref this.disposedState) != 0;
+        private bool Disposed => this.disposed;
 
         [MethodImpl((MethodImplOptions)256)]
         private void CheckDisposed()
