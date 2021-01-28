@@ -291,13 +291,12 @@ namespace Microsoft.IO
 
             this.disposed = true;
 
-			this.memoryManager.ReportStreamDisposed(this.id, this.tag, this.AllocationStack, this.DisposeStack);
             if (this.memoryManager.GenerateCallStacks)
             {
                 this.DisposeStack = Environment.StackTrace;
             }
 
-            
+            this.memoryManager.ReportStreamDisposed(this.id, this.tag, this.AllocationStack, this.DisposeStack);
 
             if (disposing)
             {
