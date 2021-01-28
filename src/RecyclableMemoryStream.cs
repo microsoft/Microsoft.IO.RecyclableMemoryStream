@@ -258,7 +258,7 @@ namespace Microsoft.IO
                 this.AllocationStack = Environment.StackTrace;
             }
 
-            this.memoryManager.ReportStreamCreated(this.id, this.tag, requestedSize);
+            this.memoryManager.ReportStreamCreated(this.id, this.tag, requestedSize, actualRequestedSize);
         }
         #endregion
 
@@ -532,7 +532,7 @@ namespace Microsoft.IO
 
             if (this.blocks.Count > 0 && this.memoryManager.AggressiveBufferReturn)
             {
-                this.memoryManager.ReturnBlocks(this.blocks, Guid.Empty, this.tag);
+                this.memoryManager.ReturnBlocks(this.blocks, this.id, this.tag);
                 this.blocks.Clear();
             }
 

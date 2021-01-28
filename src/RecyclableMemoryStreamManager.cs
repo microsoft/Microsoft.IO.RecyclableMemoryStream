@@ -357,7 +357,7 @@ namespace Microsoft.IO
             }
 
             Interlocked.Add(ref this.largeBufferInUseSize[poolIndex], buffer.Length);
-            ReportLargeBufferCreated(requiredSize, pooled:(poolIndex < this.largePools.Length), id, tag, callStack);
+            ReportLargeBufferCreated(id, tag, requiredSize, pooled: (poolIndex < this.largePools.Length), callStack: callStack);
 
             return buffer;
         }
@@ -506,7 +506,7 @@ namespace Microsoft.IO
             this.BlockCreated?.Invoke(new BlockCreatedEventArgs(this.smallPoolInUseSize));
         }
 
-        internal void ReportLargeBufferCreated(long requiredSize, bool pooled, Guid id, string tag, string callStack)
+        internal void ReportLargeBufferCreated(Guid id, string tag, long requiredSize, bool pooled, string callStack)
         {
             if (pooled)
             {
@@ -516,7 +516,7 @@ namespace Microsoft.IO
             {
                 Events.Writer.MemoryStreamNonPooledLargeBufferCreated(id, tag, requiredSize, callStack);
             }
-            this.LargeBufferCreated?.Invoke(new LargeBufferCreatedEventArgs(requiredSize, this.LargePoolInUseSize, pooled, id, tag, callStack));
+            this.LargeBufferCreated?.Invoke(new LargeBufferCreatedEventArgs(id, tag, requiredSize, this.LargePoolInUseSize, pooled, callStack));
         }
 
         internal void ReportBufferDiscarded(Guid id, string tag, Events.MemoryStreamBufferType bufferType, Events.MemoryStreamDiscardReason reason)
@@ -525,10 +525,10 @@ namespace Microsoft.IO
             this.BufferDiscarded?.Invoke(new BufferDiscardedEventArgs(id, tag, bufferType, reason));
         }
 
-        internal void ReportStreamCreated(Guid id, string tag, long requestedSize)
+        internal void ReportStreamCreated(Guid id, string tag, long requestedSize, long actualSize)
         {
-            Events.Writer.MemoryStreamCreated(id, tag, requestedSize);
-            this.StreamCreated?.Invoke(new StreamCreatedEventArgs(id, tag, requestedSize));
+            Events.Writer.MemoryStreamCreated(id, tag, requestedSize, actualSize);
+            this.StreamCreated?.Invoke(new StreamCreatedEventArgs(id, tag, requestedSize, actualSize));
         }
 
         internal void ReportStreamDisposed(Guid id, string tag, string allocationStack, string disposeStack)
@@ -824,7 +824,7 @@ namespace Microsoft.IO
         public event Action<StreamConvertedToArrayEventArgs> StreamConvertedToArray;
 
         /// <summary>
-        /// Triggered when a stream is requested to expand the maximum length specified by the responsible RecyclableMemoryStreamManager.
+        /// Triggered when a stream is requested to expand beyond the maximum length specified by the responsible RecyclableMemoryStreamManager.
         /// </summary>
         public event Action<StreamOverCapacityEventArgs> StreamOverCapacity;
 

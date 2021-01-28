@@ -13,14 +13,21 @@
             /// Unique ID for the stream
             /// </summary>
             public Guid Id { get; }
+
             /// <summary>
             /// Optional Tag for the event
             /// </summary>
             public string Tag { get; }
+
             /// <summary>
             /// Requested stream size
             /// </summary>
             public long RequestedSize { get; }
+
+            /// <summary>
+            /// Actual stream size
+            /// </summary>
+            public long ActualSize{ get; }
 
             /// <summary>
             /// Initializes a StreamCreatedEventArgs struct
@@ -28,11 +35,13 @@
             /// <param name="id">Unique ID of the stream</param>
             /// <param name="tag">Tag of the stream</param>
             /// <param name="requestedSize">The requested stream size</param>
-            public StreamCreatedEventArgs(Guid id, string tag, long requestedSize)
+            /// <param name="actualSize">The actual stream size</param>
+            public StreamCreatedEventArgs(Guid id, string tag, long requestedSize, long actualSize)
             {
                 this.Id = id;
                 this.Tag = tag;
                 this.RequestedSize = requestedSize;
+                this.ActualSize = actualSize;
             }
         }
 
@@ -301,13 +310,13 @@
             /// <summary>
             /// Initializes a LargeBufferCreatedEventArgs struct
             /// </summary>
+            /// <param name="id">Unique ID of the stream</param>
+            /// <param name="tag">Tag of the stream</param>
             /// <param name="requiredSize">Required size of the new buffer</param>
             /// <param name="largePoolInUse">How many bytes from the large pool are currently in use</param>
             /// <param name="pooled">Whether the buffer was satisfied from the pool or not</param>
-            /// <param name="id">Unique ID of the stream</param>
-            /// <param name="tag">Tag of the stream</param>
             /// <param name="callStack">Callstack of the allocation, if it wasn't pooled.</param>
-            internal LargeBufferCreatedEventArgs(long requiredSize, long largePoolInUse, bool pooled, Guid id, string tag, string callStack)
+            internal LargeBufferCreatedEventArgs(Guid id, string tag, long requiredSize, long largePoolInUse, bool pooled, string callStack)
             {
                 this.RequiredSize = requiredSize;
                 this.LargePoolInUse = largePoolInUse;

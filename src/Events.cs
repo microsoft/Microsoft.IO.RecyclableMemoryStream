@@ -74,12 +74,13 @@ namespace Microsoft.IO
             /// <param name="guid">A unique ID for this stream.</param>
             /// <param name="tag">A temporary ID for this stream, usually indicates current usage.</param>
             /// <param name="requestedSize">Requested size of the stream</param>
+            /// <param name="actualSize">Actual size given to the stream from the pool</param>
             [Event(1, Level = EventLevel.Verbose, Version = 2)]
-            public void MemoryStreamCreated(Guid guid, string tag, long requestedSize)
+            public void MemoryStreamCreated(Guid guid, string tag, long requestedSize, long actualSize)
             {
                 if (this.IsEnabled(EventLevel.Verbose, EventKeywords.None))
                 {
-                    WriteEvent(1, guid, tag ?? string.Empty, requestedSize);
+                    WriteEvent(1, guid, tag ?? string.Empty, requestedSize, actualSize);
                 }
             }
 
@@ -197,52 +198,52 @@ namespace Microsoft.IO
             /// <summary>
             /// Logged when a buffer is created that is too large to pool.
             /// </summary>
-            /// <param name="id">Unique stream ID</param>
+            /// <param name="guid">Unique stream ID</param>
             /// <param name="tag">A temporary ID for this stream, usually indicates current usage.</param>
             /// <param name="requiredSize">Size requested by the caller</param>
             /// <param name="allocationStack">Call stack of the requested stream.</param>
             /// <remarks>Note: Stacks will only be populated if RecyclableMemoryStreamManager.GenerateCallStacks is true.</remarks>
             [Event(9, Level = EventLevel.Verbose, Version = 3)]
-            public void MemoryStreamNonPooledLargeBufferCreated(Guid id, string tag, long requiredSize, string allocationStack)
+            public void MemoryStreamNonPooledLargeBufferCreated(Guid guid, string tag, long requiredSize, string allocationStack)
             {
                 if (this.IsEnabled(EventLevel.Verbose, EventKeywords.None))
                 {
-                    WriteEvent(9, id, tag ?? string.Empty, requiredSize, allocationStack ?? string.Empty);
+                    WriteEvent(9, guid, tag ?? string.Empty, requiredSize, allocationStack ?? string.Empty);
                 }
             }
 
             /// <summary>
             /// Logged when a buffer is discarded (not put back in the pool, but given to GC to clean up).
             /// </summary>
-            /// <param name="id">Unique stream ID</param>
+            /// <param name="guid">Unique stream ID</param>
             /// <param name="tag">A temporary ID for this stream, usually indicates current usage.</param>
             /// <param name="bufferType">Type of the buffer being discarded.</param>
             /// <param name="reason">Reason for the discard.</param>
             [Event(10, Level = EventLevel.Warning, Version = 2)]
-            public void MemoryStreamDiscardBuffer(Guid id, string tag, MemoryStreamBufferType bufferType,
+            public void MemoryStreamDiscardBuffer(Guid guid, string tag, MemoryStreamBufferType bufferType,
                                                   MemoryStreamDiscardReason reason)
             {
                 if (this.IsEnabled())
                 {
-                    WriteEvent(10, id, tag ?? string.Empty, bufferType, reason);
+                    WriteEvent(10, guid, tag ?? string.Empty, bufferType, reason);
                 }
             }
 
             /// <summary>
             /// Logged when a stream grows beyond the maximum capacity.
             /// </summary>
-            /// <param name="id">Unique stream ID</param>
+            /// <param name="guid">Unique stream ID</param>
             /// <param name="requestedCapacity">The requested capacity.</param>
             /// <param name="maxCapacity">Maximum capacity, as configured by RecyclableMemoryStreamManager.</param>
             /// <param name="tag">A temporary ID for this stream, usually indicates current usage.</param>
             /// <param name="allocationStack">Call stack for the capacity request.</param>
             /// <remarks>Note: Stacks will only be populated if RecyclableMemoryStreamManager.GenerateCallStacks is true.</remarks>
             [Event(11, Level = EventLevel.Error, Version = 3)]
-            public void MemoryStreamOverCapacity(Guid id, string tag, long requestedCapacity, long maxCapacity, string allocationStack)
+            public void MemoryStreamOverCapacity(Guid guid, string tag, long requestedCapacity, long maxCapacity, string allocationStack)
             {
                 if (this.IsEnabled())
                 {
-                    WriteEvent(11, id, tag ?? string.Empty, requestedCapacity, maxCapacity, allocationStack ?? string.Empty);
+                    WriteEvent(11, guid, tag ?? string.Empty, requestedCapacity, maxCapacity, allocationStack ?? string.Empty);
                 }
             }
         }
