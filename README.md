@@ -36,7 +36,9 @@ Microsoft.IO.RecyclableMemoryStream is a MemoryStream replacement that offers su
 
 At least MSBuild 15 is required to build the code. You get this with Visual Studio 2017.
 
-Build targets are: net40, net45, netstandard1.4, netstandard2.1, and netcoreapp2.1.
+Build targets in v2 are: net45, net46, netstandard2.0, netstandard2.1, and netcoreapp2.1 (net40 and netstandard1.4 were deprecated).
+
+
 
 ## Testing
 
@@ -223,6 +225,10 @@ If `Dispose` is called twice on the same stream, an event is logged with the rel
 ### Non-Dispose Detection ###
 
 If `Dispose` is never called for a stream, the finalize will eventually be called by the CLR, and an event will be logged with relevant stream information, including the allocation stack, if enabled. Buffers for finalized streams are lost to the pool, and this should be considered a bug. 
+
+### Concurrency
+
+Concurent stream use is not supported under any circumstances.
 
 ### ETW Events ###
 

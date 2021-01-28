@@ -89,8 +89,7 @@ namespace Microsoft.IO
         /// </summary>
         private List<byte[]> dirtyBuffers;
 
-        // long to allow Interlocked.Read (for .NET Standard 1.4 compat)
-        private long disposedState;
+        private bool disposed;
 
         /// <summary>
         /// This is only set by GetBuffer() if the necessary buffer is larger than a single block size, or on
@@ -278,7 +277,7 @@ namespace Microsoft.IO
         /// <param name="disposing">Whether we're disposing (true), or being called by the finalizer (false)</param>
         protected override void Dispose(bool disposing)
         {
-            if (Interlocked.CompareExchange(ref this.disposedState, 1, 0) != 0)
+            if (this.disposed)
             {
                 string doubleDisposeStack = null;
                 if (this.memoryManager.GenerateCallStacks)
@@ -290,12 +289,15 @@ namespace Microsoft.IO
                 return;
             }
 
+            this.disposed = true;
+
+			this.memoryManager.ReportStreamDisposed(this.id, this.tag, this.AllocationStack, this.DisposeStack);
             if (this.memoryManager.GenerateCallStacks)
             {
                 this.DisposeStack = Environment.StackTrace;
             }
 
-            this.memoryManager.ReportStreamDisposed(this.id, this.tag, this.AllocationStack, this.DisposeStack);
+            
 
             if (disposing)
             {
@@ -306,7 +308,6 @@ namespace Microsoft.IO
                 // We're being finalized.
                 this.memoryManager.ReportStreamFinalized(this.id, this.tag, this.AllocationStack);
 
-#if !NETSTANDARD1_4
                 if (AppDomain.CurrentDomain.IsFinalizingForUnload())
                 {
                     // If we're being finalized because of a shutdown, don't go any further.
@@ -315,8 +316,6 @@ namespace Microsoft.IO
                     base.Dispose(disposing);
                     return;
                 }
-#endif
-
                 
             }
 
@@ -344,11 +343,7 @@ namespace Microsoft.IO
         /// <summary>
         /// Equivalent to Dispose
         /// </summary>
-#if NETSTANDARD1_4
-        public void Close()
-#else
         public override void Close()
-#endif
         {
             this.Dispose(true);
         }
@@ -494,11 +489,7 @@ namespace Microsoft.IO
         /// until Dispose is called, but the next time GetBuffer() is called, a new buffer from the pool will be required.</remarks>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         /// <exception cref="InvalidOperationException">stream is too large for a contiguous buffer.</exception>
-#if NETSTANDARD1_4
-        public byte[] GetBuffer()
-#else
         public override byte[] GetBuffer()
-#endif
         {
             this.CheckDisposed();
 
@@ -539,7 +530,6 @@ namespace Microsoft.IO
             return this.largeBuffer;
         }
 
-#if !NET40
         /// <summary>Asynchronously reads all the bytes from the current position in this stream and writes them to another stream.</summary>
         /// <param name="destination">The stream to which the contents of the current stream will be copied.</param>
         /// <param name="bufferSize">This parameter is ignored.</param>
@@ -613,7 +603,6 @@ namespace Microsoft.IO
                 }
             }
         }
-#endif
 
 #if NETCOREAPP2_1 || NETSTANDARD2_1
         /// <summary>
@@ -676,7 +665,7 @@ namespace Microsoft.IO
         /// <returns>Always returns true.</returns>
         /// <remarks>GetBuffer has no failure modes (it always returns something, even if it's an empty buffer), therefore this method
         /// always returns a valid ArraySegment to the same buffer returned by GetBuffer.</remarks>
-#if NET40 || NET45
+#if NET45
         public bool TryGetBuffer(out ArraySegment<byte> buffer)  
 #else
         public override bool TryGetBuffer(out ArraySegment<byte> buffer)
@@ -1201,7 +1190,7 @@ namespace Microsoft.IO
         #endregion
 
         #region Helper Methods
-        private bool Disposed => Interlocked.Read(ref this.disposedState) != 0;
+        private bool Disposed => this.disposed;
 
         [MethodImpl((MethodImplOptions)256)]
         private void CheckDisposed()
