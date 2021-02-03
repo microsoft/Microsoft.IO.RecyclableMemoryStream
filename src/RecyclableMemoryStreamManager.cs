@@ -325,14 +325,13 @@ namespace Microsoft.IO
 
             var poolIndex = this.GetPoolIndex(requiredSize);
 
-            string callStack = string.Empty;
-
             byte[] buffer;
             if (poolIndex < this.largePools.Length)
             {
                 if (!this.largePools[poolIndex].TryPop(out buffer))
                 {
                     buffer = new byte[requiredSize];
+                    ReportLargeBufferCreated(id, tag, requiredSize, pooled: true, callStack: string.Empty);
                 }
                 else
                 {
@@ -349,16 +348,17 @@ namespace Microsoft.IO
 
                 // We still want to round up to reduce heap fragmentation.
                 buffer = new byte[requiredSize];
+                string callStack = string.Empty;
                 if (this.GenerateCallStacks)
                 {
                     // Grab the stack -- we want to know who requires such large buffers
                     callStack = Environment.StackTrace;
-                }                
+                }
+                ReportLargeBufferCreated(id, tag, requiredSize, pooled: false, callStack);
             }
 
             Interlocked.Add(ref this.largeBufferInUseSize[poolIndex], buffer.Length);
-            ReportLargeBufferCreated(id, tag, requiredSize, pooled: (poolIndex < this.largePools.Length), callStack: callStack);
-
+            
             return buffer;
         }
 
@@ -831,7 +831,7 @@ namespace Microsoft.IO
         /// <summary>
         /// Triggered when a buffer of either type is discarded, along with the reason for the discard.
         /// </summary>
-        public Action<BufferDiscardedEventArgs> BufferDiscarded;
+        public event Action<BufferDiscardedEventArgs> BufferDiscarded;
 
         /// <summary>
         /// Periodically triggered to report usage statistics.
