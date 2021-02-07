@@ -36,7 +36,9 @@ Microsoft.IO.RecyclableMemoryStream is a MemoryStream replacement that offers su
 
 At least MSBuild 15 is required to build the code. You get this with Visual Studio 2017.
 
-Build targets are: net40, net45, netstandard1.4, netstandard2.1, and netcoreapp2.1.
+Build targets in v2 are: net45, net46, netstandard2.0, netstandard2.1, and netcoreapp2.1 (net40 and netstandard1.4 were deprecated).
+
+
 
 ## Testing
 
@@ -153,7 +155,7 @@ When configuring the options, consider questions such as these:
 
 `RecyclableMemoryStream` is designed to operate primarily on chained small pool blocks. However, realistically, many people will still need to get a single, contiguous buffer for the whole stream, especially to interoperate with certain I/O APIs. For this purpose, there are two APIs which `RecyclableMemoryStream` overrides from its parent `MemoryStream` class:
 
-* `GetBuffer` - If possible, a reference to the single block will be returned to the caller. If multiple blocks are in use, they will be converted into a single large pool buffer and the data copied into it. In all cases, the caller must use the `Length` property to determine who much usable data is actually in the returned buffer. If the stream length is longer than the maximum allowable stream size, a single buffer will still be returned, but it will not be pooled.
+* `GetBuffer` - If possible, a reference to the single block will be returned to the caller. If multiple blocks are in use, they will be converted into a single large pool buffer and the data copied into it. In all cases, the caller must use the `Length` property to determine how much usable data is actually in the returned buffer. If the stream length is longer than the maximum allowable stream size, a single buffer will still be returned, but it will not be pooled.
 * `ToArray` - It looks similar to `GetBuffer` on the surface, but is actually significantly different. In `ToArray` the data is *always* copied into a new array that is exactly the right length for the full contents of the stream. This new buffer is never pooled. Users of this library should consider any call to `ToArray` to be a bug, as it wipes out many of the benefits of `RecyclableMemoryStream` completely. However, the method is included for completeness, especially if you are calling other APIs that only take a `byte` array with no length parameter. An event is logged on all `ToArray` calls.
 
 You can optionally configure the `RecyclableStreamManager.ThrowExceptionOnToArray` property to disallow calls to `RecyclableMemoryStream.ToArray`. If this value is set to true, then any calls to `ToArray` will result in a `NotSupportedException`.
@@ -222,6 +224,10 @@ If `Dispose` is called twice on the same stream, an event is logged with the rel
 ### Non-Dispose Detection ###
 
 If `Dispose` is never called for a stream, the finalize will eventually be called by the CLR, and an event will be logged with relevant stream information, including the allocation stack, if enabled. Buffers for finalized streams are lost to the pool, and this should be considered a bug. 
+
+### Concurrency
+
+Concurent stream use is not supported under any circumstances.
 
 ### ETW Events ###
 

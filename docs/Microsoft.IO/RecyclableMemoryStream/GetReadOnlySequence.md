@@ -1,10 +1,14 @@
-# RecyclableMemoryStream.Length property
+# RecyclableMemoryStream.GetReadOnlySequence method
 
-Gets the number of bytes written to this stream.
+Returns a sequence containing the contents of the stream.
 
 ```csharp
-public override long Length { get; }
+public ReadOnlySequence<byte> GetReadOnlySequence()
 ```
+
+## Return Value
+
+A ReadOnlySequence of bytes
 
 ## Exceptions
 
@@ -14,7 +18,7 @@ public override long Length { get; }
 
 ## Remarks
 
-If the buffer has already been converted to a large buffer, then the maximum length is limited by the maximum allowed array length in .NET.
+IMPORTANT: Doing a Write(), Dispose(), or Close() after calling GetReadOnlySequence() invalidates the sequence.
 
 ## See Also
 
