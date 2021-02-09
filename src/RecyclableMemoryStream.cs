@@ -616,7 +616,21 @@ namespace Microsoft.IO
         }
 
 #if NETCOREAPP2_1 || NETSTANDARD2_1
-        /// <inheritdoc/>
+        private byte[] bufferWriterBuffer;
+        private long positionWhenBufferRequested;
+
+        /// <summary>
+        /// Notifies the stream that <paramref name="count"/> bytes were written to the buffer returned by <see cref="GetMemory(int)"/> or <see cref="GetSpan(int)"/>.
+        /// <para></para>
+        /// Seeks forward by <paramref name="count"/> bytes.
+        /// </summary>
+        /// <remarks>
+        /// You must request a new buffer after calling Advance to continue writing more data and cannot write to a previously acquired buffer.
+        /// </remarks>
+        /// <param name="count">How many bytes to advance</param>
+        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="count"/> is negative</exception>
+        /// <exception cref="InvalidOperationException"><paramref name="count"/> is larger than the size of the previously requested buffer</exception>
         public void Advance(int count)
         {
             this.CheckDisposed();
@@ -625,15 +639,40 @@ namespace Microsoft.IO
                 throw new ArgumentOutOfRangeException(nameof(count), $"{nameof(count)} must be non-negative.");
             }
 
-            long newPosition = (long)this.position + count;
-            
-            if (newPosition > MaxStreamLength)
+            byte[] buffer = this.bufferWriterBuffer;
+            if (buffer != null)
             {
-                throw new InvalidOperationException($"Cannot advance stream position past {MaxStreamLength}.");
-            }
+                if (count > buffer.Length)
+                {
+                    throw new InvalidOperationException($"Cannot advance past the end of the buffer, which has a size of {buffer.Length}.");
+                }
 
-            this.position = (int)newPosition;
-            this.length = Math.Max(this.position, this.length);
+                this.Write(buffer, 0, count);
+                if (buffer.Length == this.memoryManager.BlockSize)
+                {
+                    this.memoryManager.ReturnBlock(buffer, this.tag);
+                }
+                else
+                {
+                    this.memoryManager.ReturnLargeBuffer(buffer, this.tag);
+                }
+
+                this.bufferWriterBuffer = null;
+            }
+            else
+            {
+                long bufferSize = this.largeBuffer == null
+                    ? this.memoryManager.BlockSize - this.GetBlockAndRelativeOffset(this.position).Offset
+                    : this.largeBuffer.Length - this.position;
+
+                if (count > bufferSize)
+                {
+                    throw new InvalidOperationException($"Cannot advance past the end of the buffer, which has a size of {bufferSize}.");
+                }
+
+                this.position += count;
+                this.length = Math.Max(this.position, this.length);
+            }
         }
 
         /// <inheritdoc/>
@@ -643,8 +682,8 @@ namespace Microsoft.IO
         /// </remarks>
         public Memory<byte> GetMemory(int sizeHint = 0)
         {
-            var (buffer, start, count) = this.GetArrayAndRange(sizeHint);
-            return buffer.AsMemory(start, count);
+            int start = this.SetupTempBuffer(sizeHint);
+            return this.bufferWriterBuffer.AsMemory(start);
         }
 
         /// <inheritdoc/>
@@ -654,11 +693,11 @@ namespace Microsoft.IO
         /// </remarks>
         public Span<byte> GetSpan(int sizeHint = 0)
         {
-            var (buffer, start, count) = this.GetArrayAndRange(sizeHint);
-            return buffer.AsSpan(start, count);
+            int start = this.SetupTempBuffer(sizeHint);
+            return this.bufferWriterBuffer.AsSpan(start);
         }
 
-        private (byte[] buffer, int start, int count) GetArrayAndRange(int sizeHint)
+        private int SetupTempBuffer(int sizeHint)
         {
             this.CheckDisposed();
             if (sizeHint < 0)
@@ -667,30 +706,33 @@ namespace Microsoft.IO
             }
 
             sizeHint = Math.Max(sizeHint, 1);
-            long newCapacity = ((long)this.position) + sizeHint;
-            if (newCapacity > MaxStreamLength)
+            long newCapacity = this.position + sizeHint;
+
+            this.EnsureCapacity(newCapacity, throwOomExceptionOnOverCapacity: true);
+
+            this.bufferWriterBuffer = null;
+            this.positionWhenBufferRequested = this.position;
+
+            if (this.largeBuffer != null)
             {
-                // The IBufferWriter<T> contract requires that we throw an OutOfMemoryException.
-                throw new OutOfMemoryException("Maximum capacity exceeded");
+                this.bufferWriterBuffer = this.largeBuffer;
+                return (int)this.position;
             }
 
-            this.EnsureCapacity((int)newCapacity, throwOomExceptionOnOverCapacity: true);
-
-            if (this.largeBuffer == null)
+            BlockAndOffset blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
+            int blockRemaining = this.MemoryManager.BlockSize - blockAndOffset.Offset;
+            if (blockRemaining >= sizeHint)
             {
-                BlockAndOffset blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
-                int blockRemaining = this.MemoryManager.BlockSize - blockAndOffset.Offset;
-                if (blockRemaining >= sizeHint)
-                {
-                    return (this.blocks[blockAndOffset.Block], blockAndOffset.Offset, blockRemaining);
-                }
-
-                // We must return a buffer of at least sizeHint bytes, so if the current block doesn't 
-                // have enough space we must switch to a large buffer.
-                this.GetBuffer();
+                this.bufferWriterBuffer = this.blocks[blockAndOffset.Block];
+                return blockAndOffset.Offset;
             }
 
-            return (this.largeBuffer, this.position, this.largeBuffer.Length - this.position);
+            this.positionWhenBufferRequested = this.positionWhenBufferRequested;
+            this.bufferWriterBuffer = sizeHint > this.memoryManager.BlockSize ?
+                this.memoryManager.GetLargeBuffer(sizeHint, this.tag) :
+                this.memoryManager.GetBlock();
+
+            return 0;
         }
 
         /// <summary>
@@ -1389,7 +1431,7 @@ namespace Microsoft.IO
             return new BlockAndOffset(blockIndex, offsetIndex);
         }
 
-        private void EnsureCapacity(long newCapacity)
+        private void EnsureCapacity(long newCapacity, bool throwOomExceptionOnOverCapacity = false)
         {
             if (newCapacity > this.memoryManager.MaximumStreamCapacity && this.memoryManager.MaximumStreamCapacity > 0)
             {

@@ -536,6 +536,44 @@ namespace Microsoft.IO
                               this.LargePoolFreeSize);
         }
 
+        /// <summary>
+        /// Returns a block to the pool
+        /// </summary>
+        /// <param name="block">Block to return to the pool</param>
+        /// <param name="tag">The tag of the stream returning this, for logging if necessary.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="block"/> is null</exception>
+        /// <exception cref="ArgumentException"><paramref name="block"/> is the wrong size for this memory manager</exception>
+        internal void ReturnBlock(byte[] block, string tag)
+        {
+            var bytesToReturn = this.BlockSize;
+            Interlocked.Add(ref this.smallPoolInUseSize, -bytesToReturn);
+
+            if (block == null)
+            {
+                throw new ArgumentNullException(nameof(block));
+            }
+
+            if (block.Length != this.BlockSize)
+            {
+                throw new ArgumentException($"{nameof(block)} is not not {nameof(BlockSize)} in length");
+            }
+
+            if (this.MaximumFreeSmallPoolBytes == 0 || this.SmallPoolFreeSize < this.MaximumFreeSmallPoolBytes)
+            {
+                Interlocked.Add(ref this.smallPoolFreeSize, this.BlockSize);
+                this.smallPool.Push(block);
+            }
+            else
+            {
+                Events.Writer.MemoryStreamDiscardBuffer(Events.MemoryStreamBufferType.Small, tag,
+                                                        Events.MemoryStreamDiscardReason.EnoughFree);
+                ReportBlockDiscarded();
+            }
+
+            ReportUsageReport(this.smallPoolInUseSize, this.smallPoolFreeSize, this.LargePoolInUseSize,
+                              this.LargePoolFreeSize);
+        }
+
         internal void ReportBlockCreated()
         {
             this.BlockCreated?.Invoke();
