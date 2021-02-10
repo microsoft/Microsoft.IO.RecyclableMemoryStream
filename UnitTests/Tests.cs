@@ -2665,7 +2665,7 @@ namespace Microsoft.IO.UnitTests
         {
             var mgr = GetMemoryManager();
             bool raised = false;
-            mgr.StreamCreated += (args) => 
+            mgr.StreamCreated += (obj, args) => 
             {
                 Assert.That(args.Id, Is.Not.EqualTo(Guid.Empty));
                 Assert.That(args.Tag, Is.EqualTo("UnitTest"));
@@ -2682,7 +2682,7 @@ namespace Microsoft.IO.UnitTests
             var mgr = GetMemoryManager();
             mgr.GenerateCallStacks = true;
             bool raised = false;
-            mgr.StreamDisposed += (args) =>
+            mgr.StreamDisposed += (obj, args) =>
             {
                 Assert.That(args.Id, Is.Not.EqualTo(Guid.Empty));
                 Assert.That(args.Tag, Is.EqualTo("UnitTest"));
@@ -2701,7 +2701,7 @@ namespace Microsoft.IO.UnitTests
             var mgr = GetMemoryManager();
             mgr.GenerateCallStacks = true;
             bool raised = false;
-            mgr.StreamDoubleDisposed += (args) =>
+            mgr.StreamDoubleDisposed += (obj, args) =>
             {
                 Assert.That(args.Id, Is.Not.EqualTo(Guid.Empty));
                 Assert.That(args.Tag, Is.EqualTo("UnitTest"));
@@ -2722,7 +2722,7 @@ namespace Microsoft.IO.UnitTests
             var mgr = GetMemoryManager();
             mgr.GenerateCallStacks = true;
             bool raised = false;
-            mgr.StreamConvertedToArray += (args) =>
+            mgr.StreamConvertedToArray += (obj, args) =>
             {
                 Assert.That(args.Id, Is.Not.EqualTo(Guid.Empty));
                 Assert.That(args.Tag, Is.EqualTo("UnitTest"));
@@ -2743,7 +2743,7 @@ namespace Microsoft.IO.UnitTests
             mgr.MaximumStreamCapacity = mgr.BlockSize;
             mgr.GenerateCallStacks = true;
             bool raised = false;
-            mgr.StreamOverCapacity += (args) =>
+            mgr.StreamOverCapacity += (obj, args) =>
             {
                 Assert.That(args.Id, Is.Not.EqualTo(Guid.Empty));
                 Assert.That(args.Tag, Is.EqualTo("UnitTest"));
@@ -2763,7 +2763,7 @@ namespace Microsoft.IO.UnitTests
         {
             var mgr = GetMemoryManager();
             bool raised = false;
-            mgr.BlockCreated += (args) =>
+            mgr.BlockCreated += (obj, args) =>
             {
                 Assert.That(args.SmallPoolInUse, Is.EqualTo(mgr.BlockSize));
                 raised = true;
@@ -2778,14 +2778,14 @@ namespace Microsoft.IO.UnitTests
             var mgr = GetMemoryManager();
             bool raised = false;
             long requestedSize = mgr.LargeBufferMultiple;
-            mgr.LargeBufferCreated += (args) =>
+            mgr.LargeBufferCreated += (obj, args) =>
             {
                 Assert.That(args.Id, Is.Not.EqualTo(Guid.Empty));
                 Assert.That(args.Tag, Is.EqualTo("UnitTest"));
                 Assert.That(args.Pooled, Is.True);
                 Assert.That(args.RequiredSize, Is.EqualTo(requestedSize));
                 Assert.That(args.LargePoolInUse, Is.EqualTo(mgr.LargeBufferMultiple));
-                Assert.That(args.CallStack, Is.EqualTo(string.Empty));
+                Assert.That(args.CallStack, Is.Null);
 
                 raised = true;
             };
@@ -2803,14 +2803,14 @@ namespace Microsoft.IO.UnitTests
             mgr.GenerateCallStacks = true;
             bool raised = false;
             long requestedSize = mgr.MaximumBufferSize + 1;
-            mgr.LargeBufferCreated += (args) =>
+            mgr.LargeBufferCreated += (obj, args) =>
             {
                 Assert.That(args.Id, Is.Not.EqualTo(Guid.Empty));
                 Assert.That(args.Tag, Is.EqualTo("UnitTest"));
                 Assert.That(args.Pooled, Is.False);
                 Assert.That(args.RequiredSize, Is.AtLeast(requestedSize));
                 Assert.That(args.LargePoolInUse, Is.AtLeast(requestedSize));
-                Assert.That(args.CallStack, Is.Not.EqualTo(string.Empty));
+                Assert.That(args.CallStack, Is.Not.EqualTo(null));
 
                 raised = true;
             };
@@ -2828,7 +2828,7 @@ namespace Microsoft.IO.UnitTests
             mgr.MaximumFreeSmallPoolBytes = mgr.BlockSize;
             int raisedCount = 0;
             long requestedSize = mgr.BlockSize;
-            mgr.BufferDiscarded += (args) =>
+            mgr.BufferDiscarded += (obj, args) =>
             {
                 Assert.That(args.Id, Is.Not.EqualTo(Guid.Empty));
                 Assert.That(args.Tag, Is.EqualTo("UnitTest"));
@@ -2854,7 +2854,7 @@ namespace Microsoft.IO.UnitTests
             mgr.MaximumFreeLargePoolBytes = mgr.LargeBufferMultiple;
             int raisedCount = 0;
             long requestedSize = mgr.LargeBufferMultiple;
-            mgr.BufferDiscarded += (args) =>
+            mgr.BufferDiscarded += (obj, args) =>
             {
                 Assert.That(args.Id, Is.Not.EqualTo(Guid.Empty));
                 Assert.That(args.Tag, Is.EqualTo("UnitTest"));
@@ -2882,7 +2882,7 @@ namespace Microsoft.IO.UnitTests
             
             int raisedCount = 0;
             long requestedSize = mgr.MaximumBufferSize + 1;
-            mgr.BufferDiscarded += (args) =>
+            mgr.BufferDiscarded += (obj, args) =>
             {
                 Assert.That(args.Id, Is.Not.EqualTo(Guid.Empty));
                 Assert.That(args.Tag, Is.EqualTo("UnitTest"));
@@ -2908,7 +2908,7 @@ namespace Microsoft.IO.UnitTests
 
             int raisedCount = 0;
             long requestedSize = mgr.BlockSize;
-            mgr.UsageReport += (args) =>
+            mgr.UsageReport += (obj, args) =>
             {
                 Assert.That(args.SmallPoolFreeBytes, Is.EqualTo(mgr.BlockSize));
                 Assert.That(args.SmallPoolInUseBytes, Is.EqualTo(0));

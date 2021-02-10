@@ -26,6 +26,7 @@ namespace Microsoft.IO
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.IO;
+    using System.Resources;
     using System.Threading;
 
     /// <summary>
@@ -325,13 +326,17 @@ namespace Microsoft.IO
 
             var poolIndex = this.GetPoolIndex(requiredSize);
 
+            bool createdNew = false;
+            bool pooled = true;
+            string callStack = null;
+
             byte[] buffer;
             if (poolIndex < this.largePools.Length)
             {
                 if (!this.largePools[poolIndex].TryPop(out buffer))
                 {
                     buffer = new byte[requiredSize];
-                    ReportLargeBufferCreated(id, tag, requiredSize, pooled: true, callStack: string.Empty);
+                    createdNew = true;
                 }
                 else
                 {
@@ -348,17 +353,21 @@ namespace Microsoft.IO
 
                 // We still want to round up to reduce heap fragmentation.
                 buffer = new byte[requiredSize];
-                string callStack = string.Empty;
                 if (this.GenerateCallStacks)
                 {
                     // Grab the stack -- we want to know who requires such large buffers
                     callStack = Environment.StackTrace;
                 }
-                ReportLargeBufferCreated(id, tag, requiredSize, pooled: false, callStack);
+                createdNew = true;
+                pooled = false;
             }
 
             Interlocked.Add(ref this.largeBufferInUseSize[poolIndex], buffer.Length);
-            
+            if (createdNew)
+            {
+                ReportLargeBufferCreated(id, tag, requiredSize, pooled: pooled, callStack);
+            }
+
             return buffer;
         }
 
@@ -503,7 +512,7 @@ namespace Microsoft.IO
         internal void ReportBlockCreated()
         {
             Events.Writer.MemoryStreamNewBlockCreated(this.smallPoolInUseSize);
-            this.BlockCreated?.Invoke(new BlockCreatedEventArgs(this.smallPoolInUseSize));
+            this.BlockCreated?.Invoke(this, new BlockCreatedEventArgs(this.smallPoolInUseSize));
         }
 
         internal void ReportLargeBufferCreated(Guid id, string tag, long requiredSize, bool pooled, string callStack)
@@ -516,60 +525,60 @@ namespace Microsoft.IO
             {
                 Events.Writer.MemoryStreamNonPooledLargeBufferCreated(id, tag, requiredSize, callStack);
             }
-            this.LargeBufferCreated?.Invoke(new LargeBufferCreatedEventArgs(id, tag, requiredSize, this.LargePoolInUseSize, pooled, callStack));
+            this.LargeBufferCreated?.Invoke(this, new LargeBufferCreatedEventArgs(id, tag, requiredSize, this.LargePoolInUseSize, pooled, callStack));
         }
 
         internal void ReportBufferDiscarded(Guid id, string tag, Events.MemoryStreamBufferType bufferType, Events.MemoryStreamDiscardReason reason)
         {
             Events.Writer.MemoryStreamDiscardBuffer(id, tag, bufferType, reason);
-            this.BufferDiscarded?.Invoke(new BufferDiscardedEventArgs(id, tag, bufferType, reason));
+            this.BufferDiscarded?.Invoke(this, new BufferDiscardedEventArgs(id, tag, bufferType, reason));
         }
 
         internal void ReportStreamCreated(Guid id, string tag, long requestedSize, long actualSize)
         {
             Events.Writer.MemoryStreamCreated(id, tag, requestedSize, actualSize);
-            this.StreamCreated?.Invoke(new StreamCreatedEventArgs(id, tag, requestedSize, actualSize));
+            this.StreamCreated?.Invoke(this, new StreamCreatedEventArgs(id, tag, requestedSize, actualSize));
         }
 
         internal void ReportStreamDisposed(Guid id, string tag, string allocationStack, string disposeStack)
         {
             RecyclableMemoryStreamManager.Events.Writer.MemoryStreamDisposed(id, tag, allocationStack, disposeStack);
-            this.StreamDisposed?.Invoke(new StreamDisposedEventArgs(id, tag, allocationStack, disposeStack));
+            this.StreamDisposed?.Invoke(this, new StreamDisposedEventArgs(id, tag, allocationStack, disposeStack));
         }
 
         internal void ReportStreamDoubleDisposed(Guid id, string tag, string allocationStack, string disposeStack1, string disposeStack2)
         {
             Events.Writer.MemoryStreamDoubleDispose(id, tag, allocationStack, disposeStack1, disposeStack2);
-            this.StreamDoubleDisposed?.Invoke(new StreamDoubleDisposedEventArgs(id, tag, allocationStack,disposeStack1, disposeStack2));
+            this.StreamDoubleDisposed?.Invoke(this, new StreamDoubleDisposedEventArgs(id, tag, allocationStack,disposeStack1, disposeStack2));
         }
 
         internal void ReportStreamFinalized(Guid id, string tag, string allocationStack)
         {
             Events.Writer.MemoryStreamFinalized(id, tag, allocationStack);
-            this.StreamFinalized?.Invoke(new StreamFinalizedEventArgs(id, tag, allocationStack));
+            this.StreamFinalized?.Invoke(this, new StreamFinalizedEventArgs(id, tag, allocationStack));
         }
 
         internal void ReportStreamLength(long bytes)
         {
-            this.StreamLength?.Invoke(new StreamLengthEventArgs(bytes));
+            this.StreamLength?.Invoke(this, new StreamLengthEventArgs(bytes));
         }
 
         internal void ReportStreamToArray(Guid id, string tag, string stack, long length)
         {
             Events.Writer.MemoryStreamToArray(id, tag, stack, length);
-            this.StreamConvertedToArray?.Invoke(new StreamConvertedToArrayEventArgs(id, tag, stack, length));
+            this.StreamConvertedToArray?.Invoke(this, new StreamConvertedToArrayEventArgs(id, tag, stack, length));
         }
 
         internal void ReportStreamOverCapacity(Guid id, string tag, long requestedCapacity, string allocationStack)
         {
             RecyclableMemoryStreamManager.Events.Writer.MemoryStreamOverCapacity(id, tag,
                 requestedCapacity,this.MaximumStreamCapacity, allocationStack);
-            this.StreamOverCapacity?.Invoke(new StreamOverCapacityEventArgs(id, tag, requestedCapacity, this.MaximumStreamCapacity, allocationStack));
+            this.StreamOverCapacity?.Invoke(this, new StreamOverCapacityEventArgs(id, tag, requestedCapacity, this.MaximumStreamCapacity, allocationStack));
         }
 
         internal void ReportUsageReport(long smallPoolInUseBytes, long smallPoolFreeBytes, long largePoolInUseBytes, long largePoolFreeBytes)
         {
-            this.UsageReport?.Invoke(new UsageReportEventArgs(smallPoolInUseBytes, smallPoolFreeBytes, largePoolInUseBytes, largePoolFreeBytes));
+            this.UsageReport?.Invoke(this, new UsageReportEventArgs(smallPoolInUseBytes, smallPoolFreeBytes, largePoolInUseBytes, largePoolFreeBytes));
         }
 
         /// <summary>
@@ -786,56 +795,56 @@ namespace Microsoft.IO
         /// <summary>
         /// Triggered when a new block is created.
         /// </summary>
-        public event Action<BlockCreatedEventArgs> BlockCreated;
+        public event EventHandler<BlockCreatedEventArgs> BlockCreated;
 
         /// <summary>
         /// Triggered when a new large buffer is created.
         /// </summary>
-        public event Action<LargeBufferCreatedEventArgs> LargeBufferCreated;
+        public event EventHandler<LargeBufferCreatedEventArgs> LargeBufferCreated;
 
         /// <summary>
         /// Triggered when a new stream is created.
         /// </summary>
-        public event Action<StreamCreatedEventArgs> StreamCreated;
+        public event EventHandler<StreamCreatedEventArgs> StreamCreated;
 
         /// <summary>
         /// Triggered when a stream is disposed.
         /// </summary>
-        public event Action<StreamDisposedEventArgs> StreamDisposed;
+        public event EventHandler<StreamDisposedEventArgs> StreamDisposed;
 
         /// <summary>
         /// Triggered when a stream is disposed of twice (an error).
         /// </summary>
-        public event Action<StreamDoubleDisposedEventArgs> StreamDoubleDisposed;
+        public event EventHandler<StreamDoubleDisposedEventArgs> StreamDoubleDisposed;
 
         /// <summary>
         /// Triggered when a stream is finalized.
         /// </summary>
-        public event Action<StreamFinalizedEventArgs> StreamFinalized;
+        public event EventHandler<StreamFinalizedEventArgs> StreamFinalized;
 
         /// <summary>
         /// Triggered when a stream is finalized.
         /// </summary>
-        public event Action<StreamLengthEventArgs> StreamLength;
+        public event EventHandler<StreamLengthEventArgs> StreamLength;
 
         /// <summary>
         /// Triggered when a user converts a stream to array.
         /// </summary>
-        public event Action<StreamConvertedToArrayEventArgs> StreamConvertedToArray;
+        public event EventHandler<StreamConvertedToArrayEventArgs> StreamConvertedToArray;
 
         /// <summary>
         /// Triggered when a stream is requested to expand beyond the maximum length specified by the responsible RecyclableMemoryStreamManager.
         /// </summary>
-        public event Action<StreamOverCapacityEventArgs> StreamOverCapacity;
+        public event EventHandler<StreamOverCapacityEventArgs> StreamOverCapacity;
 
         /// <summary>
         /// Triggered when a buffer of either type is discarded, along with the reason for the discard.
         /// </summary>
-        public event Action<BufferDiscardedEventArgs> BufferDiscarded;
+        public event EventHandler<BufferDiscardedEventArgs> BufferDiscarded;
 
         /// <summary>
         /// Periodically triggered to report usage statistics.
         /// </summary>
-        public event Action<UsageReportEventArgs> UsageReport;
+        public event EventHandler<UsageReportEventArgs> UsageReport;
     }
 }

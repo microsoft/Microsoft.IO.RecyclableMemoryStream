@@ -7,7 +7,7 @@
         /// <summary>
         /// Arguments for the StreamCreated event
         /// </summary>
-        public struct StreamCreatedEventArgs
+        public sealed class StreamCreatedEventArgs : EventArgs
         {
             /// <summary>
             /// Unique ID for the stream
@@ -48,7 +48,7 @@
         /// <summary>
         /// Arguments for the StreamDisposed event
         /// </summary>
-        public struct StreamDisposedEventArgs
+        public sealed class StreamDisposedEventArgs : EventArgs
         {
             /// <summary>
             /// Unique ID for the stream
@@ -88,7 +88,7 @@
         /// <summary>
         /// Arguments for the StreamDoubleDisposed event
         /// </summary>
-        public struct StreamDoubleDisposedEventArgs
+        public sealed class StreamDoubleDisposedEventArgs : EventArgs
         {
             /// <summary>
             /// Unique ID for the stream
@@ -135,7 +135,7 @@
         /// <summary>
         /// Arguments for the StreamFinalized event
         /// </summary>
-        public struct StreamFinalizedEventArgs
+        public sealed class StreamFinalizedEventArgs : EventArgs
         {
             /// <summary>
             /// Unique ID for the stream
@@ -168,7 +168,7 @@
         /// <summary>
         /// Arguments for the StreamConvertedToArray event
         /// </summary>
-        public struct StreamConvertedToArrayEventArgs
+        public sealed class StreamConvertedToArrayEventArgs : EventArgs
         {
             /// <summary>
             /// Unique ID for the stream
@@ -207,7 +207,7 @@
         /// <summary>
         /// Arguments for the StreamOverCapacity event
         /// </summary>
-        public struct StreamOverCapacityEventArgs
+        public sealed class StreamOverCapacityEventArgs : EventArgs
         {
             /// <summary>
             /// Unique ID for the stream
@@ -254,7 +254,7 @@
         /// <summary>
         /// Arguments for BlockCreated event
         /// </summary>
-        public struct BlockCreatedEventArgs
+        public sealed class BlockCreatedEventArgs : EventArgs
         {
             /// <summary>
             /// How many bytes are currently in use from the small pool
@@ -274,7 +274,7 @@
         /// <summary>
         /// Arguments for the LargeBufferCreated events
         /// </summary>
-        public struct LargeBufferCreatedEventArgs
+        public sealed class LargeBufferCreatedEventArgs : EventArgs
         {
             /// <summary>
             /// Unique ID for the stream
@@ -330,7 +330,7 @@
         /// <summary>
         /// Arguments for the BufferDiscarded event
         /// </summary>
-        public struct BufferDiscardedEventArgs
+        public sealed class BufferDiscardedEventArgs : EventArgs
         {
             /// <summary>
             /// Unique ID for the stream
@@ -371,7 +371,7 @@
         /// <summary>
         /// Arguments for the StreamLength event
         /// </summary>
-        public struct StreamLengthEventArgs
+        public sealed class StreamLengthEventArgs : EventArgs
         {
             /// <summary>
             /// Length of the stream
@@ -391,7 +391,7 @@
         /// <summary>
         /// Arguments for the UsageReport event
         /// </summary>
-        public struct UsageReportEventArgs
+        public sealed class UsageReportEventArgs : EventArgs
         {
             /// <summary>
             /// Bytes from the small pool currently in use
