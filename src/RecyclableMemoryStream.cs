@@ -557,21 +557,13 @@ namespace Microsoft.IO
 
             if (this.length == 0)
             {
-#if NET45
-                return Task.FromResult(true);
-#else
                 return Task.CompletedTask;
-#endif
             }
 
             if (destination is MemoryStream destinationRMS)
             {
                 this.WriteTo(destinationRMS, this.position, this.length - this.position);
-#if NET45
-                return Task.FromResult(true);
-#else
                 return Task.CompletedTask;
-#endif
             }
             else
             {
@@ -672,11 +664,7 @@ namespace Microsoft.IO
         /// <returns>Always returns true.</returns>
         /// <remarks>GetBuffer has no failure modes (it always returns something, even if it's an empty buffer), therefore this method
         /// always returns a valid ArraySegment to the same buffer returned by GetBuffer.</remarks>
-#if NET45
-        public bool TryGetBuffer(out ArraySegment<byte> buffer)  
-#else
         public override bool TryGetBuffer(out ArraySegment<byte> buffer)
-#endif
         {
             this.CheckDisposed();
             Debug.Assert(this.length <= Int32.MaxValue);
