@@ -3,14 +3,15 @@
 Logged when a buffer is created that is too large to pool.
 
 ```csharp
-public void MemoryStreamNonPooledLargeBufferCreated(long requiredSize, string tag, 
+public void MemoryStreamNonPooledLargeBufferCreated(Guid guid, string tag, long requiredSize, 
     string allocationStack)
 ```
 
 | parameter | description |
 | --- | --- |
-| requiredSize | Size requested by the caller |
+| guid | Unique stream ID |
 | tag | A temporary ID for this stream, usually indicates current usage. |
+| requiredSize | Size requested by the caller |
 | allocationStack | Call stack of the requested stream. |
 
 ## Remarks

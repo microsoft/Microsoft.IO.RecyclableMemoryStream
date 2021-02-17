@@ -20,7 +20,7 @@ public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager)
 
 # RecyclableMemoryStream constructor (2 of 8)
 
-Allocate a new RecyclableMemoryStream object.
+Allocate a new `RecyclableMemoryStream` object.
 
 ```csharp
 public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id)
@@ -41,7 +41,7 @@ public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid 
 
 # RecyclableMemoryStream constructor (3 of 8)
 
-Allocate a new RecyclableMemoryStream object
+Allocate a new `RecyclableMemoryStream` object
 
 ```csharp
 public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string tag)
@@ -62,7 +62,7 @@ public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, strin
 
 # RecyclableMemoryStream constructor (4 of 8)
 
-Allocate a new RecyclableMemoryStream object
+Allocate a new `RecyclableMemoryStream` object
 
 ```csharp
 public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string tag)
@@ -84,7 +84,7 @@ public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid 
 
 # RecyclableMemoryStream constructor (5 of 8)
 
-Allocate a new RecyclableMemoryStream object
+Allocate a new `RecyclableMemoryStream` object
 
 ```csharp
 public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string tag, 
@@ -107,7 +107,7 @@ public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, strin
 
 # RecyclableMemoryStream constructor (6 of 8)
 
-Allocate a new RecyclableMemoryStream object
+Allocate a new `RecyclableMemoryStream` object
 
 ```csharp
 public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string tag, 
@@ -130,7 +130,7 @@ public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, strin
 
 # RecyclableMemoryStream constructor (7 of 8)
 
-Allocate a new RecyclableMemoryStream object
+Allocate a new `RecyclableMemoryStream` object
 
 ```csharp
 public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string tag, 
@@ -154,7 +154,7 @@ public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid 
 
 # RecyclableMemoryStream constructor (8 of 8)
 
-Allocate a new RecyclableMemoryStream object
+Allocate a new `RecyclableMemoryStream` object
 
 ```csharp
 public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string tag, 

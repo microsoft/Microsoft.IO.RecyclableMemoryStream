@@ -20,7 +20,7 @@ The number of bytes read
 | exception | condition |
 | --- | --- |
 | ObjectDisposedException | Object has been disposed |
-| InvalidOperationException | Stream position is beyond int.MaxValue |
+| InvalidOperationException | Stream position is beyond `int.MaxValue` |
 
 ## See Also
 
@@ -86,7 +86,7 @@ The number of bytes read
 | ArgumentOutOfRangeException | offset or count is less than 0 |
 | ArgumentException | offset subtracted from the buffer length is less than count |
 | ObjectDisposedException | Object has been disposed |
-| InvalidOperationException | Stream position is beyond int.MaxValue |
+| InvalidOperationException | Stream position is beyond `int.MaxValue` |
 
 ## See Also
 

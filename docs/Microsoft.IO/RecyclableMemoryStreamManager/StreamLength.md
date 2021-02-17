@@ -3,12 +3,12 @@
 Triggered when a stream is finalized.
 
 ```csharp
-public event StreamLengthReportHandler StreamLength;
+public event EventHandler<StreamLengthEventArgs> StreamLength;
 ```
 
 ## See Also
 
-* delegate [StreamLengthReportHandler](../RecyclableMemoryStreamManager.StreamLengthReportHandler.md)
+* class [StreamLengthEventArgs](../RecyclableMemoryStreamManager.StreamLengthEventArgs.md)
 * class [RecyclableMemoryStreamManager](../RecyclableMemoryStreamManager.md)
 * namespace [Microsoft.IO](../../Microsoft.IO.RecyclableMemoryStream.md)
 

@@ -3,12 +3,12 @@
 Triggered when a new stream is created.
 
 ```csharp
-public event EventHandler StreamCreated;
+public event EventHandler<StreamCreatedEventArgs> StreamCreated;
 ```
 
 ## See Also
 
-* delegate [EventHandler](../RecyclableMemoryStreamManager.EventHandler.md)
+* class [StreamCreatedEventArgs](../RecyclableMemoryStreamManager.StreamCreatedEventArgs.md)
 * class [RecyclableMemoryStreamManager](../RecyclableMemoryStreamManager.md)
 * namespace [Microsoft.IO](../../Microsoft.IO.RecyclableMemoryStream.md)
 

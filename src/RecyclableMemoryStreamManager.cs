@@ -30,15 +30,18 @@ namespace Microsoft.IO
     using System.Threading;
 
     /// <summary>
-    /// Manages pools of RecyclableMemoryStream objects.
+    /// Manages pools of <see cref="RecyclableMemoryStream"/> objects.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// There are two pools managed in here. The small pool contains same-sized buffers that are handed to streams
     /// as they write more data.
-    ///
-    /// For scenarios that need to call GetBuffer(), the large pool contains buffers of various sizes, all
-    /// multiples/exponentials of LargeBufferMultiple (1 MB by default). They are split by size to avoid overly-wasteful buffer
+    ///</para>
+    ///<para>
+    /// For scenarios that need to call <see cref="RecyclableMemoryStream.GetBuffer"/>, the large pool contains buffers of various sizes, all
+    /// multiples/exponentials of <see cref="LargeBufferMultiple"/> (1 MB by default). They are split by size to avoid overly-wasteful buffer
     /// usage. There should be far fewer 8 MB buffers than 1 MB buffers, for example.
+    /// </para>
     /// </remarks>
     public partial class RecyclableMemoryStreamManager
     {
@@ -267,26 +270,32 @@ namespace Microsoft.IO
         public bool GenerateCallStacks { get; set; }
 
         /// <summary>
-        /// Whether dirty buffers can be immediately returned to the buffer pool. E.g. when GetBuffer() is called on
-        /// a stream and creates a single large buffer, if this setting is enabled, the other blocks will be returned
+        /// Whether dirty buffers can be immediately returned to the buffer pool.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// When <see cref="RecyclableMemoryStream.GetBuffer"/> is called on a stream and creates a single large buffer, if this setting is enabled, the other blocks will be returned
         /// to the buffer pool immediately.
+        /// </para>
+        /// <para>
         /// Note when enabling this setting that the user is responsible for ensuring that any buffer previously
         /// retrieved from a stream which is subsequently modified is not used after modification (as it may no longer
         /// be valid).
-        /// </summary>
+        /// </para>
+        /// </remarks>
         public bool AggressiveBufferReturn { get; set; }
 
         /// <summary>
-        /// Causes an exception to be thrown if ToArray is ever called.
+        /// Causes an exception to be thrown if <see cref="RecyclableMemoryStream.ToArray"/> is ever called.
         /// </summary>
-        /// <remarks>Calling ToArray defeats the purpose of a pooled buffer. Use this property to discover code that is calling ToArray. If this is 
-        /// set and stream.ToArray() is called, a NotSupportedException will be thrown.</remarks>
+        /// <remarks>Calling <see cref="RecyclableMemoryStream.ToArray"/> defeats the purpose of a pooled buffer. Use this property to discover code that is calling <see cref="RecyclableMemoryStream.ToArray"/>. If this is 
+        /// set and <see cref="RecyclableMemoryStream.ToArray"/> is called, a <c>NotSupportedException</c> will be thrown.</remarks>
         public bool ThrowExceptionOnToArray { get; set; }
 
         /// <summary>
         /// Removes and returns a single block from the pool.
         /// </summary>
-        /// <returns>A byte[] array</returns>
+        /// <returns>A <c>byte[]</c> array</returns>
         internal byte[] GetBlock()
         {
             Interlocked.Add(ref this.smallPoolInUseSize, this.BlockSize);
@@ -419,7 +428,7 @@ namespace Microsoft.IO
         /// <param name="id">Unique stream ID</param>
         /// <param name="tag">The tag of the stream returning this buffer, for logging if necessary.</param>
         /// <exception cref="ArgumentNullException">buffer is null</exception>
-        /// <exception cref="ArgumentException">buffer.Length is not a multiple/exponential of LargeBufferMultiple (it did not originate from this pool)</exception>
+        /// <exception cref="ArgumentException"><c>buffer.Length</c> is not a multiple/exponential of <see cref="LargeBufferMultiple"/> (it did not originate from this pool)</exception>
         internal void ReturnLargeBuffer(byte[] buffer, Guid id, string tag)
         {
             if (buffer == null)
@@ -582,81 +591,81 @@ namespace Microsoft.IO
         }
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with no tag and a default initial capacity.
+        /// Retrieve a new <c>MemoryStream</c> object with no tag and a default initial capacity.
         /// </summary>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream()
         {
             return new RecyclableMemoryStream(this);
         }
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with no tag and a default initial capacity.
+        /// Retrieve a new <c>MemoryStream</c> object with no tag and a default initial capacity.
         /// </summary>
         /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(Guid id)
         {
             return new RecyclableMemoryStream(this, id);
         }
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with the given tag and a default initial capacity.
+        /// Retrieve a new <c>MemoryStream</c> object with the given tag and a default initial capacity.
         /// </summary>
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(string tag)
         {
             return new RecyclableMemoryStream(this, tag);
         }
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with the given tag and a default initial capacity.
+        /// Retrieve a new <c>MemoryStream</c> object with the given tag and a default initial capacity.
         /// </summary>
         /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(Guid id, string tag)
         {
             return new RecyclableMemoryStream(this, id, tag);
         }
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with the given tag and at least the given capacity.
+        /// Retrieve a new <c>MemoryStream</c> object with the given tag and at least the given capacity.
         /// </summary>
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
         /// <param name="requiredSize">The minimum desired capacity for the stream.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(string tag, int requiredSize)
         {
             return new RecyclableMemoryStream(this, tag, requiredSize);
         }
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with the given tag and at least the given capacity.
+        /// Retrieve a new <c>MemoryStream</c> object with the given tag and at least the given capacity.
         /// </summary>
         /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
         /// <param name="requiredSize">The minimum desired capacity for the stream.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(Guid id, string tag, int requiredSize)
         {
             return new RecyclableMemoryStream(this, id, tag, requiredSize);
         }
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with the given tag and at least the given capacity, possibly using
+        /// Retrieve a new <c>MemoryStream</c> object with the given tag and at least the given capacity, possibly using
         /// a single contiguous underlying buffer.
         /// </summary>
-        /// <remarks>Retrieving a MemoryStream which provides a single contiguous buffer can be useful in situations
+        /// <remarks>Retrieving a <c>MemoryStream</c> which provides a single contiguous buffer can be useful in situations
         /// where the initial size is known and it is desirable to avoid copying data between the smaller underlying
-        /// buffers to a single large one. This is most helpful when you know that you will always call GetBuffer
+        /// buffers to a single large one. This is most helpful when you know that you will always call <see cref="RecyclableMemoryStream.GetBuffer"/> 
         /// on the underlying stream.</remarks>
         /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
         /// <param name="requiredSize">The minimum desired capacity for the stream.</param>
         /// <param name="asContiguousBuffer">Whether to attempt to use a single contiguous buffer.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(Guid id, string tag, int requiredSize, bool asContiguousBuffer)
         {
             if (!asContiguousBuffer || requiredSize <= this.BlockSize)
@@ -668,24 +677,24 @@ namespace Microsoft.IO
         }
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with the given tag and at least the given capacity, possibly using
+        /// Retrieve a new <c>MemoryStream</c> object with the given tag and at least the given capacity, possibly using
         /// a single contiguous underlying buffer.
         /// </summary>
         /// <remarks>Retrieving a MemoryStream which provides a single contiguous buffer can be useful in situations
         /// where the initial size is known and it is desirable to avoid copying data between the smaller underlying
-        /// buffers to a single large one. This is most helpful when you know that you will always call GetBuffer
+        /// buffers to a single large one. This is most helpful when you know that you will always call <see cref="RecyclableMemoryStream.GetBuffer"/> 
         /// on the underlying stream.</remarks>
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
         /// <param name="requiredSize">The minimum desired capacity for the stream.</param>
         /// <param name="asContiguousBuffer">Whether to attempt to use a single contiguous buffer.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(string tag, int requiredSize, bool asContiguousBuffer)
         {
             return GetStream(Guid.NewGuid(), tag, requiredSize, asContiguousBuffer);
         }
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with the given tag and with contents copied from the provided
+        /// Retrieve a new <c>MemoryStream</c> object with the given tag and with contents copied from the provided
         /// buffer. The provided buffer is not wrapped or used after construction.
         /// </summary>
         /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
@@ -694,7 +703,7 @@ namespace Microsoft.IO
         /// <param name="buffer">The byte buffer to copy data from.</param>
         /// <param name="offset">The offset from the start of the buffer to copy from.</param>
         /// <param name="count">The number of bytes to copy from the buffer.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(Guid id, string tag, byte[] buffer, int offset, int count)
         {
             RecyclableMemoryStream stream = null;
@@ -711,14 +720,14 @@ namespace Microsoft.IO
                 throw;
             }
         }
-				
+
         /// <summary>
-        /// Retrieve a new MemoryStream object with the contents copied from the provided
+        /// Retrieve a new <c>MemoryStream</c> object with the contents copied from the provided
         /// buffer. The provided buffer is not wrapped or used after construction.
         /// </summary>
         /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
         /// <param name="buffer">The byte buffer to copy data from.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(byte[] buffer)
         {
             return GetStream(null, buffer, 0, buffer.Length);
@@ -726,7 +735,7 @@ namespace Microsoft.IO
 
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with the given tag and with contents copied from the provided
+        /// Retrieve a new <c>MemoryStream</c> object with the given tag and with contents copied from the provided
         /// buffer. The provided buffer is not wrapped or used after construction.
         /// </summary>
         /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
@@ -734,7 +743,7 @@ namespace Microsoft.IO
         /// <param name="buffer">The byte buffer to copy data from.</param>
         /// <param name="offset">The offset from the start of the buffer to copy from.</param>
         /// <param name="count">The number of bytes to copy from the buffer.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(string tag, byte[] buffer, int offset, int count)
         {
             return GetStream(Guid.NewGuid(), tag, buffer, offset, count);
@@ -742,14 +751,14 @@ namespace Microsoft.IO
 
 #if NETCOREAPP2_1 || NETSTANDARD2_1
         /// <summary>
-        /// Retrieve a new MemoryStream object with the given tag and with contents copied from the provided
+        /// Retrieve a new <c>MemoryStream</c> object with the given tag and with contents copied from the provided
         /// buffer. The provided buffer is not wrapped or used after construction.
         /// </summary>
         /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
         /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
         /// <param name="buffer">The byte buffer to copy data from.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(Guid id, string tag, Memory<byte> buffer)
         {
             RecyclableMemoryStream stream = null;
@@ -768,25 +777,25 @@ namespace Microsoft.IO
         }
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with the contents copied from the provided
+        /// Retrieve a new <c>MemoryStream</c> object with the contents copied from the provided
         /// buffer. The provided buffer is not wrapped or used after construction.
         /// </summary>
         /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
         /// <param name="buffer">The byte buffer to copy data from.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(Memory<byte> buffer)
         {
             return GetStream(null, buffer);
         }
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with the given tag and with contents copied from the provided
+        /// Retrieve a new <c>MemoryStream</c> object with the given tag and with contents copied from the provided
         /// buffer. The provided buffer is not wrapped or used after construction.
         /// </summary>
         /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
         /// <param name="buffer">The byte buffer to copy data from.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(string tag, Memory<byte> buffer)
         {
             return GetStream(Guid.NewGuid(), tag, buffer);

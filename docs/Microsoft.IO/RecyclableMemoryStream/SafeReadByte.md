@@ -19,7 +19,7 @@ The byte at the current position, or -1 if the position is at the end of the str
 | exception | condition |
 | --- | --- |
 | ObjectDisposedException | Object has been disposed |
-| InvalidOperationException | Stream position is beyond int.MaxValue |
+| InvalidOperationException | Stream position is beyond `int.MaxValue` |
 
 ## See Also
 

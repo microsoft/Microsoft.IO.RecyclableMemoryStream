@@ -1,6 +1,6 @@
 # RecyclableMemoryStream.TryGetBuffer method
 
-Returns an ArraySegment that wraps a single buffer containing the contents of the stream.
+Returns an `ArraySegment` that wraps a single buffer containing the contents of the stream.
 
 ```csharp
 public override bool TryGetBuffer(out ArraySegment<byte> buffer)
@@ -8,7 +8,7 @@ public override bool TryGetBuffer(out ArraySegment<byte> buffer)
 
 | parameter | description |
 | --- | --- |
-| buffer | An ArraySegment containing a reference to the underlying bytes. |
+| buffer | An `ArraySegment` containing a reference to the underlying bytes. |
 
 ## Return Value
 
@@ -16,7 +16,7 @@ Always returns true.
 
 ## Remarks
 
-GetBuffer has no failure modes (it always returns something, even if it's an empty buffer), therefore this method always returns a valid ArraySegment to the same buffer returned by GetBuffer.
+[`GetBuffer`](GetBuffer.md) has no failure modes (it always returns something, even if it's an empty buffer), therefore this method always returns a valid `ArraySegment` to the same buffer returned by [`GetBuffer`](GetBuffer.md).
 
 ## See Also
 
