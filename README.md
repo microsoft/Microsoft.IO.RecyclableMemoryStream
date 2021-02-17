@@ -168,17 +168,17 @@ RecyclableMemoryStream has an `EventSource` provider that produces a number of e
 
 | Name | Level | Description |
 | -----|-------|-------------|
-| MemoryStreamCreated | Verbose | Logged every time a stream object is allocated. Fields: `guid`, `tag`, `requestedSize`. |
-| MemoryStreamDisposed | Verbose | Logged every time a stream object is disposed. Fields: `guid`, `tag`. |
-| MemoryStreamDoubleDisposed | Critical | Logged if a stream is disposed more than once. This indicates a logic error by the user of the stream. Dispose should happen exactly once per stream to avoid resource usage bugs. Fields: `guid`, `tag`, `allocationStack`, `disposeStack1`, `disposeStack2`. |
+| MemoryStreamCreated | Verbose | Logged every time a stream object is allocated. Fields: `guid`, `tag`, `requestedSize`, `actualSize`. |
+| MemoryStreamDisposed | Verbose | Logged every time a stream object is disposed. Fields: `guid`, `tag`, `allocationStack`, `disposeStack`. |
+| MemoryStreamDoubleDispose | Critical | Logged if a stream is disposed more than once. This indicates a logic error by the user of the stream. Dispose should happen exactly once per stream to avoid resource usage bugs. Fields: `guid`, `tag`, `allocationStack`, `disposeStack1`, `disposeStack2`. |
 | MemoryStreamFinalized | Error | Logged if a stream has gone out of scope without being disposed. This indicates a resource leak. Fields: `guid`, `tag`, `allocationStack`.|
 | MemoryStreamToArray | Verbose | Logged whenever `ToArray` is called. This indicates a potential problem, as calling `ToArray` goes against the concepts of good memory practice which `RecyclableMemoryStream` is trying to solve. Fields: `guid`, `tag`, `stack`, `size`.|
 | MemoryStreamManagerInitialized| Informational | Logged when the `RecyclableMemoryStreamManager` is initialized. Fields: `blockSize`, `largeBufferMultiple`, `maximumBufferSize`.|
 | MemoryStreamNewBlockCreated | Verbose | Logged whenever a block for the small pool is created. Fields: `smallPoolInUseBytes`.|
 | MemoryStreamNewLargeBufferCreated | Verbose | Logged whenever a large buffer is allocated. Fields: `requiredSize`, `largePoolInUseBytes`.|
-| MemoryStreamNonPooledLargeBufferCreated | Verbose | Logged whenever a buffer is requested that is larger than the maximum pooled size. The buffer is still created and returned to the user, but it can not be re-pooled. Fields: `requiredSize`, `tag`, `allocationStack`. |
-| MemoryStreamDiscardBuffer | Warning | Logged whenever a buffer is discarded rather than put back in the pool. Fields: `bufferType` (`Small`, `Large`), `tag`, `reason` (`TooLarge`, `EnoughFree`). |
-| MemoryStreamOverCapacity | Error | Logged whenever an attempt is made to set the capacity of the stream beyond the limits of `RecyclableMemoryStreamManager.MaximumStreamCapacity`, if such a limit is set. Fields: `requestedCapacity`, `maxCapacity`, `tag`, `allocationStack`.|
+| MemoryStreamNonPooledLargeBufferCreated | Verbose | Logged whenever a buffer is requested that is larger than the maximum pooled size. The buffer is still created and returned to the user, but it can not be re-pooled. Fields: `guid`, `tag`, `requiredSize`, `allocationStack`. |
+| MemoryStreamDiscardBuffer | Warning | Logged whenever a buffer is discarded rather than put back in the pool. Fields: `guid`, `tag`, `bufferType` (`Small`, `Large`), `tag`, `reason` (`TooLarge`, `EnoughFree`). |
+| MemoryStreamOverCapacity | Error | Logged whenever an attempt is made to set the capacity of the stream beyond the limits of `RecyclableMemoryStreamManager.MaximumStreamCapacity`, if such a limit is set. Fields: `guid`, `tag`, `requestedCapacity`, `maxCapacity`, `allocationStack`.|
 
 ### Event Hooks ###
 
@@ -187,14 +187,15 @@ In addition to the logged ETW events, there are a number of .NET event hooks on 
 | Name | Description |
 |---------|------------|
 | `BlockCreated` | A new small pool block has been allocated. |
-| `BlockDiscarded` | A small pool block has been refused re-entry to the pool and given over to the garbage collector. |
+| `BufferDiscarded` | A buffer has been refused re-entry to the pool and given over to the garbage collector. |
 | `LargeBufferCreated` | A large buffer has been allocated. |
-| `LargeBufferDiscarded` | A large buffer has been refused re-entry to the pool and given over to the garbage collector. |
 | `StreamCreated` | A new stream has been created. |
 | `StreamDisposed` | A stream has been disposed. |
+| `StreamDoubleDisposed` | A stream has been disposed twice, indicating an error. |
 | `StreamFinalized` | A stream has been finalized, which means it was never disposed before it went ouf of scope. |
 | `StreamLength` | Reports the stream's length upon disposal. Can allow you to track stream metrics. |
 | `StreamConvertedToArray` | Someone called `ToArray` on a stream. |
+| `StreamOverCapacity` | An attempt was made to expand beyond the maximum capacity allowed by the pool manager. |
 | `UsageReport` | Provides stats on pool usage for metrics tracking. |
 
 ## Debugging Problems

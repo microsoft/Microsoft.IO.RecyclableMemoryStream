@@ -236,15 +236,16 @@ namespace Microsoft.IO
             this.memoryManager = memoryManager;
             this.id = id;
             this.tag = tag;
-
-            if (requestedSize < memoryManager.BlockSize)
+            
+            var actualRequestedSize = requestedSize;
+            if (actualRequestedSize < this.memoryManager.BlockSize)
             {
-                requestedSize = memoryManager.BlockSize;
+                actualRequestedSize = this.memoryManager.BlockSize;
             }
 
             if (initialLargeBuffer == null)
             {
-                this.EnsureCapacity(requestedSize);
+                this.EnsureCapacity(actualRequestedSize);
             }
             else
             {
@@ -256,8 +257,7 @@ namespace Microsoft.IO
                 this.AllocationStack = Environment.StackTrace;
             }
 
-            RecyclableMemoryStreamManager.Events.Writer.MemoryStreamCreated(this.id, this.tag, requestedSize);
-            this.memoryManager.ReportStreamCreated();
+            this.memoryManager.ReportStreamCreated(this.id, this.tag, requestedSize, actualRequestedSize);
         }
         #endregion
 
@@ -275,8 +275,6 @@ namespace Microsoft.IO
         /// Returns the memory used by this stream back to the pool.
         /// </summary>
         /// <param name="disposing">Whether we're disposing (true), or being called by the finalizer (false)</param>
-        [SuppressMessage("Microsoft.Usage", "CA1816:CallGCSuppressFinalizeCorrectly",
-            Justification = "We have different disposal semantics, so SuppressFinalize is in a different spot.")]
         protected override void Dispose(bool disposing)
         {
             if (this.disposed)
@@ -287,33 +285,27 @@ namespace Microsoft.IO
                     doubleDisposeStack = Environment.StackTrace;
                 }
 
-                RecyclableMemoryStreamManager.Events.Writer.MemoryStreamDoubleDispose(this.id, this.tag,
-                                                                                     this.AllocationStack,
-                                                                                     this.DisposeStack,
-                                                                                     doubleDisposeStack);
+                this.memoryManager.ReportStreamDoubleDisposed(this.id, this.tag, this.AllocationStack, this.DisposeStack, doubleDisposeStack);
                 return;
             }
 
             this.disposed = true;
-
-            RecyclableMemoryStreamManager.Events.Writer.MemoryStreamDisposed(this.id, this.tag);
 
             if (this.memoryManager.GenerateCallStacks)
             {
                 this.DisposeStack = Environment.StackTrace;
             }
 
+            this.memoryManager.ReportStreamDisposed(this.id, this.tag, this.AllocationStack, this.DisposeStack);
+
             if (disposing)
             {
-                this.memoryManager.ReportStreamDisposed();
-
                 GC.SuppressFinalize(this);
             }
             else
             {
                 // We're being finalized.
-
-                RecyclableMemoryStreamManager.Events.Writer.MemoryStreamFinalized(this.id, this.tag, this.AllocationStack);
+                this.memoryManager.ReportStreamFinalized(this.id, this.tag, this.AllocationStack);
 
                 if (AppDomain.CurrentDomain.IsFinalizingForUnload())
                 {
@@ -323,25 +315,25 @@ namespace Microsoft.IO
                     base.Dispose(disposing);
                     return;
                 }
-                this.memoryManager.ReportStreamFinalized();
+                
             }
 
             this.memoryManager.ReportStreamLength(this.length);
 
             if (this.largeBuffer != null)
             {
-                this.memoryManager.ReturnLargeBuffer(this.largeBuffer, this.tag);
+                this.memoryManager.ReturnLargeBuffer(this.largeBuffer, this.id, this.tag);
             }
 
             if (this.dirtyBuffers != null)
             {
                 foreach (var buffer in this.dirtyBuffers)
                 {
-                    this.memoryManager.ReturnLargeBuffer(buffer, this.tag);
+                    this.memoryManager.ReturnLargeBuffer(buffer, this.id, this.tag);
                 }
             }
 
-            this.memoryManager.ReturnBlocks(this.blocks, this.tag);
+            this.memoryManager.ReturnBlocks(this.blocks, this.id, this.tag);
             this.blocks.Clear();
 
             base.Dispose(disposing);
@@ -520,7 +512,7 @@ namespace Microsoft.IO
                 throw new InvalidOperationException("Stream is too large for a contiguous buffer.");
             }
 
-            var newBuffer = this.memoryManager.GetLargeBuffer(this.Capacity64, this.tag);
+            var newBuffer = this.memoryManager.GetLargeBuffer(this.Capacity64, this.id, this.tag);
 
             // InternalRead will check for existence of largeBuffer, so make sure we
             // don't set it until after we've copied the data.
@@ -530,7 +522,7 @@ namespace Microsoft.IO
 
             if (this.blocks.Count > 0 && this.memoryManager.AggressiveBufferReturn)
             {
-                this.memoryManager.ReturnBlocks(this.blocks, this.tag);
+                this.memoryManager.ReturnBlocks(this.blocks, this.id, this.tag);
                 this.blocks.Clear();
             }
 
@@ -699,7 +691,7 @@ namespace Microsoft.IO
             this.CheckDisposed();
 
             string stack = this.memoryManager.GenerateCallStacks ? Environment.StackTrace : null;
-            RecyclableMemoryStreamManager.Events.Writer.MemoryStreamToArray(this.id, this.tag, stack, this.length);
+            this.memoryManager.ReportStreamToArray(this.id, this.tag, stack, this.length);
 
             if (this.memoryManager.ThrowExceptionOnToArray)
             {
@@ -710,7 +702,6 @@ namespace Microsoft.IO
 
             Debug.Assert(this.length <= Int32.MaxValue);
             this.InternalRead(newBuffer, 0, (int)this.length, 0);
-            this.memoryManager.ReportStreamToArray();
 
             return newBuffer;
         }
@@ -1312,10 +1303,7 @@ namespace Microsoft.IO
         {
             if (newCapacity > this.memoryManager.MaximumStreamCapacity && this.memoryManager.MaximumStreamCapacity > 0)
             {
-                RecyclableMemoryStreamManager.Events.Writer.MemoryStreamOverCapacity(newCapacity,
-                                                                                    this.memoryManager
-                                                                                        .MaximumStreamCapacity, this.tag,
-                                                                                    this.AllocationStack);
+                this.memoryManager.ReportStreamOverCapacity(this.id, this.tag, newCapacity, this.AllocationStack);
                 throw new InvalidOperationException("Requested capacity is too large: " + newCapacity + ". Limit is " +
                                                     this.memoryManager.MaximumStreamCapacity);
             }
@@ -1324,7 +1312,7 @@ namespace Microsoft.IO
             {
                 if (newCapacity > this.largeBuffer.Length)
                 {
-                    var newBuffer = this.memoryManager.GetLargeBuffer(newCapacity, this.tag);
+                    var newBuffer = this.memoryManager.GetLargeBuffer(newCapacity, this.id, this.tag);
                     Debug.Assert(this.length <= Int32.MaxValue);
                     this.InternalRead(newBuffer, 0, (int)this.length, 0);
                     this.ReleaseLargeBuffer();
@@ -1347,7 +1335,7 @@ namespace Microsoft.IO
         {
             if (this.memoryManager.AggressiveBufferReturn)
             {
-                this.memoryManager.ReturnLargeBuffer(this.largeBuffer, this.tag);
+                this.memoryManager.ReturnLargeBuffer(this.largeBuffer, this.id, this.tag);
             }
             else
             {
