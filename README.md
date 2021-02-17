@@ -36,7 +36,7 @@ Microsoft.IO.RecyclableMemoryStream is a MemoryStream replacement that offers su
 
 At least MSBuild 15 is required to build the code. You get this with Visual Studio 2017.
 
-Build targets in v2 are: net45, net46, netstandard2.0, netstandard2.1, and netcoreapp2.1 (net40 and netstandard1.4 were deprecated).
+Build targets in v2 are: net462, netstandard2.0, netstandard2.1, and netcoreapp2.1 (net40, net45, net46 and netstandard1.4 were deprecated).
 
 
 
