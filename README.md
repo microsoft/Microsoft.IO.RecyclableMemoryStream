@@ -188,7 +188,7 @@ In addition to the logged ETW events, there are a number of .NET event hooks on 
 |---------|------------|
 | `BlockCreated` | A new small pool block has been allocated. |
 | `BufferDiscarded` | A buffer has been refused re-entry to the pool and given over to the garbage collector. |
-| `LargeBufferCreatd` | A large buffer has been allocated. |
+| `LargeBufferCreated` | A large buffer has been allocated. |
 | `StreamCreated` | A new stream has been created. |
 | `StreamDisposed` | A stream has been disposed. |
 | `StreamDoubleDisposed` | A stream has been disposed twice, indicating an error. |
