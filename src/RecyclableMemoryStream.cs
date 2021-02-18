@@ -1332,9 +1332,15 @@ namespace Microsoft.IO
             }
             else
             {
+                // Let's save some re-allocs of the blocks list
+                var blocksRequired = (newCapacity / this.memoryManager.BlockSize) + 1;
+                if (this.blocks.Capacity < blocksRequired)
+                {
+                    this.blocks.Capacity = (int)blocksRequired;
+                }
                 while (this.Capacity64 < newCapacity)
                 {
-                    blocks.Add((this.memoryManager.GetBlock()));
+                    this.blocks.Add((this.memoryManager.GetBlock()));
                 }
             }
         }
