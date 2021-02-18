@@ -3,14 +3,15 @@
 Logged when a buffer is discarded (not put back in the pool, but given to GC to clean up).
 
 ```csharp
-public void MemoryStreamDiscardBuffer(MemoryStreamBufferType bufferType, string tag, 
+public void MemoryStreamDiscardBuffer(Guid guid, string tag, MemoryStreamBufferType bufferType, 
     MemoryStreamDiscardReason reason)
 ```
 
 | parameter | description |
 | --- | --- |
-| bufferType | Type of the buffer being discarded. |
+| guid | Unique stream ID |
 | tag | A temporary ID for this stream, usually indicates current usage. |
+| bufferType | Type of the buffer being discarded. |
 | reason | Reason for the discard. |
 
 ## See Also

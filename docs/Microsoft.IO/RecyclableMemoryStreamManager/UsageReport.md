@@ -3,12 +3,12 @@
 Periodically triggered to report usage statistics.
 
 ```csharp
-public event UsageReportEventHandler UsageReport;
+public event EventHandler<UsageReportEventArgs> UsageReport;
 ```
 
 ## See Also
 
-* delegate [UsageReportEventHandler](../RecyclableMemoryStreamManager.UsageReportEventHandler.md)
+* class [UsageReportEventArgs](../RecyclableMemoryStreamManager.UsageReportEventArgs.md)
 * class [RecyclableMemoryStreamManager](../RecyclableMemoryStreamManager.md)
 * namespace [Microsoft.IO](../../Microsoft.IO.RecyclableMemoryStream.md)
 

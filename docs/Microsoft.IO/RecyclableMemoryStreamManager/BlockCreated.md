@@ -3,12 +3,12 @@
 Triggered when a new block is created.
 
 ```csharp
-public event EventHandler BlockCreated;
+public event EventHandler<BlockCreatedEventArgs> BlockCreated;
 ```
 
 ## See Also
 
-* delegate [EventHandler](../RecyclableMemoryStreamManager.EventHandler.md)
+* class [BlockCreatedEventArgs](../RecyclableMemoryStreamManager.BlockCreatedEventArgs.md)
 * class [RecyclableMemoryStreamManager](../RecyclableMemoryStreamManager.md)
 * namespace [Microsoft.IO](../../Microsoft.IO.RecyclableMemoryStream.md)
 

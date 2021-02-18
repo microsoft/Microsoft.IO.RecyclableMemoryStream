@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.GetStream method (1 of 14)
 
-Retrieve a new MemoryStream object with no tag and a default initial capacity.
+Retrieve a new `MemoryStream` object with no tag and a default initial capacity.
 
 ```csharp
 public MemoryStream GetStream()
@@ -8,7 +8,7 @@ public MemoryStream GetStream()
 
 ## Return Value
 
-A MemoryStream.
+A `MemoryStream`.
 
 ## See Also
 
@@ -19,7 +19,7 @@ A MemoryStream.
 
 # RecyclableMemoryStreamManager.GetStream method (2 of 14)
 
-Retrieve a new MemoryStream object with the contents copied from the provided buffer. The provided buffer is not wrapped or used after construction.
+Retrieve a new `MemoryStream` object with the contents copied from the provided buffer. The provided buffer is not wrapped or used after construction.
 
 ```csharp
 public MemoryStream GetStream(byte[] buffer)
@@ -31,7 +31,7 @@ public MemoryStream GetStream(byte[] buffer)
 
 ## Return Value
 
-A MemoryStream.
+A `MemoryStream`.
 
 ## Remarks
 
@@ -46,7 +46,7 @@ The new stream's position is set to the beginning of the stream when returned.
 
 # RecyclableMemoryStreamManager.GetStream method (3 of 14)
 
-Retrieve a new MemoryStream object with no tag and a default initial capacity.
+Retrieve a new `MemoryStream` object with no tag and a default initial capacity.
 
 ```csharp
 public MemoryStream GetStream(Guid id)
@@ -58,7 +58,7 @@ public MemoryStream GetStream(Guid id)
 
 ## Return Value
 
-A MemoryStream.
+A `MemoryStream`.
 
 ## See Also
 
@@ -69,7 +69,7 @@ A MemoryStream.
 
 # RecyclableMemoryStreamManager.GetStream method (4 of 14)
 
-Retrieve a new MemoryStream object with the contents copied from the provided buffer. The provided buffer is not wrapped or used after construction.
+Retrieve a new `MemoryStream` object with the contents copied from the provided buffer. The provided buffer is not wrapped or used after construction.
 
 ```csharp
 public MemoryStream GetStream(Memory<byte> buffer)
@@ -81,7 +81,7 @@ public MemoryStream GetStream(Memory<byte> buffer)
 
 ## Return Value
 
-A MemoryStream.
+A `MemoryStream`.
 
 ## Remarks
 
@@ -96,7 +96,7 @@ The new stream's position is set to the beginning of the stream when returned.
 
 # RecyclableMemoryStreamManager.GetStream method (5 of 14)
 
-Retrieve a new MemoryStream object with the given tag and a default initial capacity.
+Retrieve a new `MemoryStream` object with the given tag and a default initial capacity.
 
 ```csharp
 public MemoryStream GetStream(string tag)
@@ -108,7 +108,7 @@ public MemoryStream GetStream(string tag)
 
 ## Return Value
 
-A MemoryStream.
+A `MemoryStream`.
 
 ## See Also
 
@@ -119,7 +119,7 @@ A MemoryStream.
 
 # RecyclableMemoryStreamManager.GetStream method (6 of 14)
 
-Retrieve a new MemoryStream object with the given tag and a default initial capacity.
+Retrieve a new `MemoryStream` object with the given tag and a default initial capacity.
 
 ```csharp
 public MemoryStream GetStream(Guid id, string tag)
@@ -132,7 +132,7 @@ public MemoryStream GetStream(Guid id, string tag)
 
 ## Return Value
 
-A MemoryStream.
+A `MemoryStream`.
 
 ## See Also
 
@@ -143,7 +143,7 @@ A MemoryStream.
 
 # RecyclableMemoryStreamManager.GetStream method (7 of 14)
 
-Retrieve a new MemoryStream object with the given tag and at least the given capacity.
+Retrieve a new `MemoryStream` object with the given tag and at least the given capacity.
 
 ```csharp
 public MemoryStream GetStream(string tag, int requiredSize)
@@ -156,7 +156,7 @@ public MemoryStream GetStream(string tag, int requiredSize)
 
 ## Return Value
 
-A MemoryStream.
+A `MemoryStream`.
 
 ## See Also
 
@@ -167,7 +167,7 @@ A MemoryStream.
 
 # RecyclableMemoryStreamManager.GetStream method (8 of 14)
 
-Retrieve a new MemoryStream object with the given tag and with contents copied from the provided buffer. The provided buffer is not wrapped or used after construction.
+Retrieve a new `MemoryStream` object with the given tag and with contents copied from the provided buffer. The provided buffer is not wrapped or used after construction.
 
 ```csharp
 public MemoryStream GetStream(string tag, Memory<byte> buffer)
@@ -180,7 +180,7 @@ public MemoryStream GetStream(string tag, Memory<byte> buffer)
 
 ## Return Value
 
-A MemoryStream.
+A `MemoryStream`.
 
 ## Remarks
 
@@ -195,7 +195,7 @@ The new stream's position is set to the beginning of the stream when returned.
 
 # RecyclableMemoryStreamManager.GetStream method (9 of 14)
 
-Retrieve a new MemoryStream object with the given tag and at least the given capacity.
+Retrieve a new `MemoryStream` object with the given tag and at least the given capacity.
 
 ```csharp
 public MemoryStream GetStream(Guid id, string tag, int requiredSize)
@@ -209,7 +209,7 @@ public MemoryStream GetStream(Guid id, string tag, int requiredSize)
 
 ## Return Value
 
-A MemoryStream.
+A `MemoryStream`.
 
 ## See Also
 
@@ -220,7 +220,7 @@ A MemoryStream.
 
 # RecyclableMemoryStreamManager.GetStream method (10 of 14)
 
-Retrieve a new MemoryStream object with the given tag and with contents copied from the provided buffer. The provided buffer is not wrapped or used after construction.
+Retrieve a new `MemoryStream` object with the given tag and with contents copied from the provided buffer. The provided buffer is not wrapped or used after construction.
 
 ```csharp
 public MemoryStream GetStream(Guid id, string tag, Memory<byte> buffer)
@@ -234,7 +234,7 @@ public MemoryStream GetStream(Guid id, string tag, Memory<byte> buffer)
 
 ## Return Value
 
-A MemoryStream.
+A `MemoryStream`.
 
 ## Remarks
 
@@ -249,7 +249,7 @@ The new stream's position is set to the beginning of the stream when returned.
 
 # RecyclableMemoryStreamManager.GetStream method (11 of 14)
 
-Retrieve a new MemoryStream object with the given tag and at least the given capacity, possibly using a single contiguous underlying buffer.
+Retrieve a new `MemoryStream` object with the given tag and at least the given capacity, possibly using a single contiguous underlying buffer.
 
 ```csharp
 public MemoryStream GetStream(string tag, int requiredSize, bool asContiguousBuffer)
@@ -263,11 +263,11 @@ public MemoryStream GetStream(string tag, int requiredSize, bool asContiguousBuf
 
 ## Return Value
 
-A MemoryStream.
+A `MemoryStream`.
 
 ## Remarks
 
-Retrieving a MemoryStream which provides a single contiguous buffer can be useful in situations where the initial size is known and it is desirable to avoid copying data between the smaller underlying buffers to a single large one. This is most helpful when you know that you will always call GetBuffer on the underlying stream.
+Retrieving a MemoryStream which provides a single contiguous buffer can be useful in situations where the initial size is known and it is desirable to avoid copying data between the smaller underlying buffers to a single large one. This is most helpful when you know that you will always call [`GetBuffer`](../RecyclableMemoryStream/GetBuffer.md) on the underlying stream.
 
 ## See Also
 
@@ -278,7 +278,7 @@ Retrieving a MemoryStream which provides a single contiguous buffer can be usefu
 
 # RecyclableMemoryStreamManager.GetStream method (12 of 14)
 
-Retrieve a new MemoryStream object with the given tag and at least the given capacity, possibly using a single contiguous underlying buffer.
+Retrieve a new `MemoryStream` object with the given tag and at least the given capacity, possibly using a single contiguous underlying buffer.
 
 ```csharp
 public MemoryStream GetStream(Guid id, string tag, int requiredSize, bool asContiguousBuffer)
@@ -293,11 +293,11 @@ public MemoryStream GetStream(Guid id, string tag, int requiredSize, bool asCont
 
 ## Return Value
 
-A MemoryStream.
+A `MemoryStream`.
 
 ## Remarks
 
-Retrieving a MemoryStream which provides a single contiguous buffer can be useful in situations where the initial size is known and it is desirable to avoid copying data between the smaller underlying buffers to a single large one. This is most helpful when you know that you will always call GetBuffer on the underlying stream.
+Retrieving a `MemoryStream` which provides a single contiguous buffer can be useful in situations where the initial size is known and it is desirable to avoid copying data between the smaller underlying buffers to a single large one. This is most helpful when you know that you will always call [`GetBuffer`](../RecyclableMemoryStream/GetBuffer.md) on the underlying stream.
 
 ## See Also
 
@@ -308,7 +308,7 @@ Retrieving a MemoryStream which provides a single contiguous buffer can be usefu
 
 # RecyclableMemoryStreamManager.GetStream method (13 of 14)
 
-Retrieve a new MemoryStream object with the given tag and with contents copied from the provided buffer. The provided buffer is not wrapped or used after construction.
+Retrieve a new `MemoryStream` object with the given tag and with contents copied from the provided buffer. The provided buffer is not wrapped or used after construction.
 
 ```csharp
 public MemoryStream GetStream(string tag, byte[] buffer, int offset, int count)
@@ -323,7 +323,7 @@ public MemoryStream GetStream(string tag, byte[] buffer, int offset, int count)
 
 ## Return Value
 
-A MemoryStream.
+A `MemoryStream`.
 
 ## Remarks
 
@@ -338,7 +338,7 @@ The new stream's position is set to the beginning of the stream when returned.
 
 # RecyclableMemoryStreamManager.GetStream method (14 of 14)
 
-Retrieve a new MemoryStream object with the given tag and with contents copied from the provided buffer. The provided buffer is not wrapped or used after construction.
+Retrieve a new `MemoryStream` object with the given tag and with contents copied from the provided buffer. The provided buffer is not wrapped or used after construction.
 
 ```csharp
 public MemoryStream GetStream(Guid id, string tag, byte[] buffer, int offset, int count)
@@ -354,7 +354,7 @@ public MemoryStream GetStream(Guid id, string tag, byte[] buffer, int offset, in
 
 ## Return Value
 
-A MemoryStream.
+A `MemoryStream`.
 
 ## Remarks
 

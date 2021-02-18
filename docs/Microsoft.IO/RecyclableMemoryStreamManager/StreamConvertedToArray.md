@@ -3,12 +3,12 @@
 Triggered when a user converts a stream to array.
 
 ```csharp
-public event EventHandler StreamConvertedToArray;
+public event EventHandler<StreamConvertedToArrayEventArgs> StreamConvertedToArray;
 ```
 
 ## See Also
 
-* delegate [EventHandler](../RecyclableMemoryStreamManager.EventHandler.md)
+* class [StreamConvertedToArrayEventArgs](../RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs.md)
 * class [RecyclableMemoryStreamManager](../RecyclableMemoryStreamManager.md)
 * namespace [Microsoft.IO](../../Microsoft.IO.RecyclableMemoryStream.md)
 

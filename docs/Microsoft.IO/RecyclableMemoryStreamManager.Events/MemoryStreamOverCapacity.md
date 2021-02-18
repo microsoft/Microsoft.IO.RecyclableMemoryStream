@@ -3,12 +3,13 @@
 Logged when a stream grows beyond the maximum capacity.
 
 ```csharp
-public void MemoryStreamOverCapacity(long requestedCapacity, long maxCapacity, string tag, 
-    string allocationStack)
+public void MemoryStreamOverCapacity(Guid guid, string tag, long requestedCapacity, 
+    long maxCapacity, string allocationStack)
 ```
 
 | parameter | description |
 | --- | --- |
+| guid | Unique stream ID |
 | requestedCapacity | The requested capacity. |
 | maxCapacity | Maximum capacity, as configured by RecyclableMemoryStreamManager. |
 | tag | A temporary ID for this stream, usually indicates current usage. |

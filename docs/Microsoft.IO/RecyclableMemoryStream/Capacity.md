@@ -14,7 +14,11 @@ public override int Capacity { get; set; }
 
 ## Remarks
 
-Capacity is always in multiples of the memory manager's block size, unless the large buffer is in use. Capacity never decreases during a stream's lifetime. Explicitly setting the capacity to a lower value than the current value will have no effect. This is because the buffers are all pooled by chunks and there's little reason to allow stream truncation. Writing past the current capacity will cause Capacity to automatically increase, until MaximumStreamCapacity is reached. If the capacity is larger than int.MaxValue, then Int.MaxValue will be returned. If you anticipate using larger streams, use the [`Capacity64`](Capacity64.md) property instead.
+Capacity is always in multiples of the memory manager's block size, unless the large buffer is in use. Capacity never decreases during a stream's lifetime. Explicitly setting the capacity to a lower value than the current value will have no effect. This is because the buffers are all pooled by chunks and there's little reason to allow stream truncation.
+
+Writing past the current capacity will cause `Capacity` to automatically increase, until MaximumStreamCapacity is reached.
+
+If the capacity is larger than `int.MaxValue`, then `int.MaxValue` will be returned. If you anticipate using larger streams, use the [`Capacity64`](Capacity64.md) property instead.
 
 ## See Also
 

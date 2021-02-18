@@ -1,6 +1,6 @@
 # RecyclableMemoryStream.Close method
 
-Equivalent to Dispose
+Equivalent to `Dispose`
 
 ```csharp
 public override void Close()

@@ -3,12 +3,12 @@
 Triggered when a stream is disposed.
 
 ```csharp
-public event EventHandler StreamDisposed;
+public event EventHandler<StreamDisposedEventArgs> StreamDisposed;
 ```
 
 ## See Also
 
-* delegate [EventHandler](../RecyclableMemoryStreamManager.EventHandler.md)
+* class [StreamDisposedEventArgs](../RecyclableMemoryStreamManager.StreamDisposedEventArgs.md)
 * class [RecyclableMemoryStreamManager](../RecyclableMemoryStreamManager.md)
 * namespace [Microsoft.IO](../../Microsoft.IO.RecyclableMemoryStream.md)
 
