@@ -386,7 +386,7 @@ namespace Microsoft.IO.UnitTests
             stream.Write(buffer, 0, buffer.Length);
             var returnedBuffer = stream.GetBuffer();
             var returnedBuffer2 = stream.GetBuffer();
-            Assert.That(returnedBuffer, Is.SameAs(returnedBuffer2));
+            RMSAssert.BuffersAreEqual(returnedBuffer, returnedBuffer2);
             RMSAssert.TryGetBufferEqualToGetBuffer(stream);
         }
 
@@ -483,8 +483,8 @@ namespace Microsoft.IO.UnitTests
             Assert.That(returnedSequence.IsSingleSegment);
             Assert.That(returnedSequence.Length, Is.EqualTo(stream.MemoryManager.BlockSize));
             Assert.That(returnedSequence.First.Length, Is.EqualTo(stream.MemoryManager.BlockSize));
-            Assert.That(MemoryMarshal.TryGetArray(returnedSequence.First, out ArraySegment<byte> arraySegment));
-            Assert.That(arraySegment.Array, Is.SameAs(stream.GetBuffer()));
+            Assert.That(MemoryMarshal.TryGetArray(returnedSequence.First, out ArraySegment<byte> arraySegment), Is.True);
+            RMSAssert.BuffersAreEqual(arraySegment.Array, stream.GetBuffer(), stream.GetBuffer().Length);
         }
 
         [Test]
@@ -499,7 +499,7 @@ namespace Microsoft.IO.UnitTests
             Assert.That(returnedSequence.Length, Is.EqualTo(size));
             Assert.That(returnedSequence.First.Length, Is.EqualTo(size));
             Assert.That(MemoryMarshal.TryGetArray(returnedSequence.First, out ArraySegment<byte> arraySegment));
-            Assert.That(arraySegment.Array, Is.SameAs(stream.GetBuffer()));
+            RMSAssert.BuffersAreEqual(arraySegment.Array, stream.GetBuffer(), stream.GetBuffer().Length);
         }
 
         [Test]
@@ -516,7 +516,7 @@ namespace Microsoft.IO.UnitTests
             Assert.That(returnedSequence.First.Length, Is.EqualTo(stream.MemoryManager.BlockSize));
             Assert.That(returnedSequence.Slice(stream.MemoryManager.BlockSize).IsSingleSegment);
             Assert.That(returnedSequence.Slice(stream.MemoryManager.BlockSize).Length, Is.EqualTo(1));
-            Assert.That(returnedSequence.ToArray(), Is.EquivalentTo(getBufferArraySegment));
+            RMSAssert.BuffersAreEqual(returnedSequence.ToArray(), getBufferArraySegment, (int)returnedSequence.Length);
         }
 
         [Test]
@@ -531,7 +531,7 @@ namespace Microsoft.IO.UnitTests
             Assert.That(returnedSequence.Length, Is.EqualTo(stream.MemoryManager.LargeBufferMultiple));
             Assert.That(returnedSequence.First.Length, Is.EqualTo(stream.MemoryManager.LargeBufferMultiple));
             Assert.That(MemoryMarshal.TryGetArray(returnedSequence.First, out ArraySegment<byte> sequenceArraySegment));
-            Assert.That(sequenceArraySegment, Is.EqualTo(getBufferArraySegment));
+            RMSAssert.BuffersAreEqual(returnedSequence.ToArray(), getBufferArraySegment, (int)returnedSequence.Length);
         }
 
         [Test]
@@ -545,8 +545,8 @@ namespace Microsoft.IO.UnitTests
             var returnedSequence2 = stream.GetReadOnlySequence();
             Assert.That(MemoryMarshal.TryGetArray(returnedSequence1.First, out ArraySegment<byte> arraySegment1));
             Assert.That(MemoryMarshal.TryGetArray(returnedSequence2.First, out ArraySegment<byte> arraySegment2));
-            Assert.That(arraySegment0, Is.EqualTo(arraySegment2));
-            Assert.That(arraySegment1, Is.EqualTo(arraySegment2));
+            RMSAssert.BuffersAreEqual(arraySegment0, arraySegment2);
+            RMSAssert.BuffersAreEqual(arraySegment1, arraySegment2);
         }
         #endregion
 
@@ -1109,12 +1109,13 @@ namespace Microsoft.IO.UnitTests
             var buffer = this.GetRandomBuffer(stream.MemoryManager.LargeBufferMultiple);
             stream.Write(buffer, 0, buffer.Length);
             stream.Position = 0;
+            var copy = new byte[buffer.Length];
             for (var i = 0; i < stream.Length; i++)
             {
-                var b = stream.ReadByte();
-                Assert.That(b, Is.EqualTo(buffer[i]));
-                Assert.That(b, Is.EqualTo(stream.GetBuffer()[i]));
+                copy[i] = (byte)stream.ReadByte();
             }
+            RMSAssert.BuffersAreEqual(buffer, copy);
+            RMSAssert.BuffersAreEqual(buffer, stream.GetBuffer(), buffer.Length);
         }
         #endregion
 
@@ -1195,8 +1196,8 @@ namespace Microsoft.IO.UnitTests
                 readSlow.Write(readBuffer, 0, read);
             }
 
-            CollectionAssert.AreEqual(readSlow.ToArray(), buffer);
-            CollectionAssert.AreEqual(readFast.ToArray(), buffer);
+            RMSAssert.BuffersAreEqual(readSlow.ToArray(), buffer);
+            RMSAssert.BuffersAreEqual(readFast.ToArray(), buffer);
         }
 
         [Test]
@@ -1302,8 +1303,8 @@ namespace Microsoft.IO.UnitTests
                 readSlow.Write(readBuffer, 0, read);
             }
 
-            CollectionAssert.AreEqual(readSlow.ToArray(), buffer);
-            CollectionAssert.AreEqual(readFast.ToArray(), buffer);
+            RMSAssert.BuffersAreEqual(readSlow.ToArray(), buffer);
+            RMSAssert.BuffersAreEqual(readFast.ToArray(), buffer);
         }
 
         [Test]
@@ -2938,10 +2939,7 @@ namespace Microsoft.IO.UnitTests
         protected byte[] GetRandomBuffer(int length)
         {
             var buffer = new byte[length];
-            for (var i = 0; i < buffer.Length; ++i)
-            {
-                buffer[i] = (byte)this.random.Next(byte.MinValue, byte.MaxValue + 1);
-            }
+            random.NextBytes(buffer);
             return buffer;
         }
 
@@ -2974,6 +2972,15 @@ namespace Microsoft.IO.UnitTests
         protected static class RMSAssert
         {
             /// <summary>
+            /// Asserts that two array segments are equal
+            /// </summary>
+            internal static void BuffersAreEqual(ArraySegment<byte> seg1, ArraySegment<byte> seg2)
+            {
+                Assert.That(seg1.Count, Is.EqualTo(seg2.Count));
+                BuffersAreEqual(seg1, seg2, seg1.Count);
+            }
+
+            /// <summary>
             /// Asserts that two buffers are euqual, up to the given count
             /// </summary>
             internal static void BuffersAreEqual(ReadOnlySpan<byte> buffer1, ReadOnlySpan<byte> buffer2, int count)
@@ -3005,9 +3012,11 @@ namespace Microsoft.IO.UnitTests
                 {
                     if (tolerance == 0.0)
                     {
-                        Assert.That(buffer1[i1], Is.EqualTo(buffer2[i2]),
-                                    string.Format("Buffers are different. buffer1[{0}]=={1}, buffer2[{2}]=={3}", i1,
+                        if (buffer1[i1] != buffer2[i2])
+                        {
+                            Assert.Fail(string.Format("Buffers are different. buffer1[{0}]=={1}, buffer2[{2}]=={3}", i1,
                                                   buffer1[i1], i2, buffer2[i2]));
+                        }
                     }
                     else
                     {
@@ -3029,7 +3038,7 @@ namespace Microsoft.IO.UnitTests
                 Assert.That(stream.TryGetBuffer(out ArraySegment<Byte> segment), Is.True);
                 Assert.That(segment.Offset, Is.Zero);
                 Assert.That(segment.Count, Is.EqualTo(stream.Length));
-                Assert.That(segment.Array, Is.SameAs(buffer));
+                RMSAssert.BuffersAreEqual(segment.Array, buffer, buffer.Length);
             }
 
             /// <summary>
