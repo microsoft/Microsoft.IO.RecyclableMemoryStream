@@ -3,7 +3,7 @@
 MemoryStream implementation that deals with pooling and managing memory streams which use potentially large buffers.
 
 ```csharp
-public sealed class RecyclableMemoryStream : MemoryStream
+public class RecyclableMemoryStream : MemoryStream
 ```
 
 ## Public Members

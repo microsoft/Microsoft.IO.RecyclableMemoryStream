@@ -85,7 +85,7 @@ namespace Microsoft.IO
     /// it cannot grow beyond the limits of the maximum allowable array size.
     /// </para>
     /// </remarks>
-    public sealed class RecyclableMemoryStream : MemoryStream
+    public class RecyclableMemoryStream : MemoryStream
     {
         private static readonly byte[] emptyArray = new byte[0];
 
