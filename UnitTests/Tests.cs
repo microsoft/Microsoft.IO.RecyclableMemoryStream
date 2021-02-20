@@ -550,39 +550,38 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
-        public void GetSpanMemoryReturnsLargeBufferWhenHintIsLongerThanRestOfBlock()
+        public void GetSpanMemoryReturnsLargeTempBufferWhenHintIsLongerThanBlock()
         {
             var stream = this.GetDefaultStream();
-            var size = stream.MemoryManager.BlockSize;
+            var size = stream.MemoryManager.BlockSize + 1;
 
             var span = stream.GetSpan(size + 1);
-            var memory = stream.GetMemory(size + 1);
+            byte[] randomBuffer = this.GetRandomBuffer(size);
+            randomBuffer.AsSpan().CopyTo(span);
             stream.Advance(size);
 
-            MemoryMarshal.TryGetArray(memory, out ArraySegment<byte> arraySegment);
-            var memoryArray = arraySegment.Array;
-            Assert.IsTrue(span == memory.Span);
-            Assert.That(span.Length, Is.GreaterThan(size + 1));
-            Assert.That(memoryArray, Is.SameAs(stream.GetBuffer()));
+            Span<byte> bufferSpan = stream.GetBuffer().AsSpan(0, size);
+            Assert.IsTrue(bufferSpan.SequenceEqual(randomBuffer));
+            Assert.IsFalse(bufferSpan == span);
+            Assert.AreEqual(stream.MemoryManager.LargeBufferMultiple, span.Length);
         }
 
-
         [Test]
-        public void GetSpanMemoryReturnsLargeBufferStreamAlreadyHasLargeBuffer()
+        public void GetSpanMemoryReturnsBlockTempBufferWhenHintGoesPastEndOfBlock()
         {
             var stream = this.GetDefaultStream();
-            var size = stream.MemoryManager.BlockSize;
+            var size = stream.MemoryManager.BlockSize / 2;
 
-            stream.Write(this.GetRandomBuffer(size+1));
-            stream.Position = 0;
-            var buffer = stream.GetBuffer();
-            var span = stream.GetSpan();
-            var memory = stream.GetMemory();
+            stream.Position = size + 1;
+            var span = stream.GetSpan(size);
+            byte[] randomBuffer = this.GetRandomBuffer(size);
+            randomBuffer.AsSpan().CopyTo(span);
+            stream.Advance(size);
 
-            MemoryMarshal.TryGetArray(memory, out ArraySegment<byte> arraySegment);
-            var memoryArray = arraySegment.Array;
-            Assert.IsTrue(span == memory.Span);
-            Assert.That(memoryArray, Is.SameAs(buffer));
+            Span<byte> bufferSpan = stream.GetBuffer().AsSpan(size + 1, size);
+            Assert.IsTrue(bufferSpan.SequenceEqual(randomBuffer));
+            Assert.IsFalse(bufferSpan == span);
+            Assert.AreEqual(stream.MemoryManager.BlockSize, span.Length);
         }
         #endregion
 
@@ -2134,6 +2133,32 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        public void AdvancePastTempBufferLengthThrowsException()
+        {
+            var stream = this.GetDefaultStream();
+            var memory = stream.GetMemory(stream.MemoryManager.BlockSize + 1);
+            Assert.Throws<InvalidOperationException>(() => stream.Advance(memory.Length + 1));
+        }
+
+        [Test]
+        public void AdvancePastBlockLengthThrowsException()
+        {
+            var stream = this.GetDefaultStream();
+            var memory = stream.GetMemory();
+            Assert.Throws<InvalidOperationException>(() => stream.Advance(memory.Length + 1));
+        }
+
+        [Test]
+        public void AdvancePastLargeBufferLengthThrowsException()
+        {
+            var stream = this.GetDefaultStream();
+            stream.Position = stream.MemoryManager.BlockSize + 1;
+            stream.GetBuffer();
+            var memory = stream.GetMemory();
+            Assert.Throws<InvalidOperationException>(() => stream.Advance(memory.Length + 1));
+        }
+
+        [Test]
         public void AdvanceToAnyValue()
         {
             var stream = this.GetDefaultStream();
@@ -2141,6 +2166,7 @@ namespace Microsoft.IO.UnitTests
             var step = maxValue / 32;
             for (int i = 1; i <= 32; i++)
             {
+                stream.GetSpan(step);
                 stream.Advance(step);
                 Assert.That(stream.Position, Is.EqualTo(i * step));
                 Assert.That(stream.Length, Is.EqualTo(i * step));
@@ -2149,6 +2175,7 @@ namespace Microsoft.IO.UnitTests
             stream.Position = 0;
             for (int i = 1; i <= 32; i++)
             {
+                stream.GetSpan(step);
                 stream.Advance(step);
                 Assert.That(stream.Position, Is.EqualTo(i * step));
                 Assert.That(stream.Length, Is.EqualTo(32 * step));

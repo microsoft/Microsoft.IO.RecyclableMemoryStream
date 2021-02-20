@@ -616,8 +616,7 @@ namespace Microsoft.IO
         }
 
 #if NETCOREAPP2_1 || NETSTANDARD2_1
-        private byte[] bufferWriterBuffer;
-        private long positionWhenBufferRequested;
+        private byte[] bufferWriterTempBuffer;
 
         /// <summary>
         /// Notifies the stream that <paramref name="count"/> bytes were written to the buffer returned by <see cref="GetMemory(int)"/> or <see cref="GetSpan(int)"/>.
@@ -639,7 +638,7 @@ namespace Microsoft.IO
                 throw new ArgumentOutOfRangeException(nameof(count), $"{nameof(count)} must be non-negative.");
             }
 
-            byte[] buffer = this.bufferWriterBuffer;
+            byte[] buffer = this.bufferWriterTempBuffer;
             if (buffer != null)
             {
                 if (count > buffer.Length)
@@ -648,16 +647,8 @@ namespace Microsoft.IO
                 }
 
                 this.Write(buffer, 0, count);
-                if (buffer.Length == this.memoryManager.BlockSize)
-                {
-                    this.memoryManager.ReturnBlock(buffer, this.tag);
-                }
-                else
-                {
-                    this.memoryManager.ReturnLargeBuffer(buffer, this.tag);
-                }
-
-                this.bufferWriterBuffer = null;
+                this.ReturnTempBuffer(buffer);
+                this.bufferWriterTempBuffer = null;
             }
             else
             {
@@ -675,15 +666,16 @@ namespace Microsoft.IO
             }
         }
 
-        /// <inheritdoc/>
-        /// <remarks>
-        /// IMPORTANT: Calling Write(), GetBuffer(), TryGetBuffer(), Seek(), GetLength(), Advance(),
-        /// or setting Position after calling GetMemory() invalidates the memory.
-        /// </remarks>
-        public Memory<byte> GetMemory(int sizeHint = 0)
+        private void ReturnTempBuffer(byte[] buffer)
         {
-            int start = this.SetupTempBuffer(sizeHint);
-            return this.bufferWriterBuffer.AsMemory(start);
+            if (buffer.Length == this.memoryManager.BlockSize)
+            {
+                this.memoryManager.ReturnBlock(buffer, this.tag);
+            }
+            else
+            {
+                this.memoryManager.ReturnLargeBuffer(buffer, this.tag);
+            }
         }
 
         /// <inheritdoc/>
@@ -691,13 +683,16 @@ namespace Microsoft.IO
         /// IMPORTANT: Calling Write(), GetBuffer(), TryGetBuffer(), Seek(), GetLength(), Advance(),
         /// or setting Position after calling GetMemory() invalidates the memory.
         /// </remarks>
-        public Span<byte> GetSpan(int sizeHint = 0)
-        {
-            int start = this.SetupTempBuffer(sizeHint);
-            return this.bufferWriterBuffer.AsSpan(start);
-        }
+        public Memory<byte> GetMemory(int sizeHint = 0) => this.GetWritableBuffer(sizeHint);
 
-        private int SetupTempBuffer(int sizeHint)
+        /// <inheritdoc/>
+        /// <remarks>
+        /// IMPORTANT: Calling Write(), GetBuffer(), TryGetBuffer(), Seek(), GetLength(), Advance(),
+        /// or setting Position after calling GetMemory() invalidates the memory.
+        /// </remarks>
+        public Span<byte> GetSpan(int sizeHint = 0) => this.GetWritableBuffer(sizeHint);
+
+        private ArraySegment<byte> GetWritableBuffer(int sizeHint)
         {
             this.CheckDisposed();
             if (sizeHint < 0)
@@ -706,33 +701,30 @@ namespace Microsoft.IO
             }
 
             sizeHint = Math.Max(sizeHint, 1);
-            long newCapacity = this.position + sizeHint;
-
-            this.EnsureCapacity(newCapacity, throwOomExceptionOnOverCapacity: true);
-
-            this.bufferWriterBuffer = null;
-            this.positionWhenBufferRequested = this.position;
+            this.EnsureCapacity(this.position + sizeHint, throwOomExceptionOnOverCapacity: true);
+            if (this.bufferWriterTempBuffer != null)
+            {
+                this.ReturnTempBuffer(this.bufferWriterTempBuffer);
+                this.bufferWriterTempBuffer = null;
+            }
 
             if (this.largeBuffer != null)
             {
-                this.bufferWriterBuffer = this.largeBuffer;
-                return (int)this.position;
+                return new ArraySegment<byte>(this.largeBuffer, (int)this.position, this.largeBuffer.Length - (int)this.position);
             }
 
             BlockAndOffset blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
-            int blockRemaining = this.MemoryManager.BlockSize - blockAndOffset.Offset;
-            if (blockRemaining >= sizeHint)
+            int remainingBytesInBlock = this.MemoryManager.BlockSize - blockAndOffset.Offset;
+            if (remainingBytesInBlock >= sizeHint)
             {
-                this.bufferWriterBuffer = this.blocks[blockAndOffset.Block];
-                return blockAndOffset.Offset;
+                return new ArraySegment<byte>(this.blocks[blockAndOffset.Block], blockAndOffset.Offset, this.MemoryManager.BlockSize - blockAndOffset.Offset);
             }
 
-            this.positionWhenBufferRequested = this.positionWhenBufferRequested;
-            this.bufferWriterBuffer = sizeHint > this.memoryManager.BlockSize ?
+            this.bufferWriterTempBuffer = sizeHint > this.memoryManager.BlockSize ?
                 this.memoryManager.GetLargeBuffer(sizeHint, this.tag) :
                 this.memoryManager.GetBlock();
 
-            return 0;
+            return new ArraySegment<byte>(this.bufferWriterTempBuffer);
         }
 
         /// <summary>
