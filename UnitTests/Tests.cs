@@ -514,6 +514,19 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        public void GetSpanMemoryReturnsLargeBufferWithNoHint()
+        {
+            var stream = this.GetDefaultStream();
+            stream.Capacity = stream.MemoryManager.BlockSize + 1;
+            var buffer = stream.GetBuffer();
+            var span = stream.GetSpan();
+            var memory = stream.GetMemory();
+            MemoryMarshal.TryGetArray(memory, out ArraySegment<byte> arraySegment);
+            Assert.AreEqual(buffer, arraySegment.Array);
+            Assert.IsTrue(buffer.AsSpan() == span);
+        }
+
+        [Test]
         public void GetSpanMemoryReturnsSingleBlockWithNoHintPositionedMidBlock()
         {
             var stream = this.GetDefaultStream();
