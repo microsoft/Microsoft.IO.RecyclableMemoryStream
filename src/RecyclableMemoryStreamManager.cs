@@ -25,21 +25,23 @@ namespace Microsoft.IO
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.IO;
-    using System.Linq;
+    using System.Resources;
     using System.Threading;
 
     /// <summary>
-    /// Manages pools of RecyclableMemoryStream objects.
+    /// Manages pools of <see cref="RecyclableMemoryStream"/> objects.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// There are two pools managed in here. The small pool contains same-sized buffers that are handed to streams
     /// as they write more data.
-    ///
-    /// For scenarios that need to call GetBuffer(), the large pool contains buffers of various sizes, all
-    /// multiples/exponentials of LargeBufferMultiple (1 MB by default). They are split by size to avoid overly-wasteful buffer
+    ///</para>
+    ///<para>
+    /// For scenarios that need to call <see cref="RecyclableMemoryStream.GetBuffer"/>, the large pool contains buffers of various sizes, all
+    /// multiples/exponentials of <see cref="LargeBufferMultiple"/> (1 MB by default). They are split by size to avoid overly-wasteful buffer
     /// usage. There should be far fewer 8 MB buffers than 1 MB buffers, for example.
+    /// </para>
     /// </remarks>
     public partial class RecyclableMemoryStreamManager
     {
@@ -49,33 +51,6 @@ namespace Microsoft.IO
         /// <remarks>See documentation at https://docs.microsoft.com/dotnet/api/system.array?view=netcore-3.1
         /// </remarks>
         internal const int MaxArrayLength = 0X7FFFFFC7;
-
-        /// <summary>
-        /// Generic delegate for handling events without any arguments.
-        /// </summary>
-        public delegate void EventHandler();
-
-        /// <summary>
-        /// Delegate for handling large buffer discard reports.
-        /// </summary>
-        /// <param name="reason">Reason the buffer was discarded.</param>
-        public delegate void LargeBufferDiscardedEventHandler(Events.MemoryStreamDiscardReason reason);
-
-        /// <summary>
-        /// Delegate for handling reports of stream size when streams are allocated
-        /// </summary>
-        /// <param name="bytes">Bytes allocated.</param>
-        public delegate void StreamLengthReportHandler(long bytes);
-
-        /// <summary>
-        /// Delegate for handling periodic reporting of memory use statistics.
-        /// </summary>
-        /// <param name="smallPoolInUseBytes">Bytes currently in use in the small pool.</param>
-        /// <param name="smallPoolFreeBytes">Bytes currently free in the small pool.</param>
-        /// <param name="largePoolInUseBytes">Bytes currently in use in the large pool.</param>
-        /// <param name="largePoolFreeBytes">Bytes currently free in the large pool.</param>
-        public delegate void UsageReportEventHandler(
-            long smallPoolInUseBytes, long smallPoolFreeBytes, long largePoolInUseBytes, long largePoolFreeBytes);
 
         /// <summary>
         /// Default block size, in bytes
@@ -295,35 +270,41 @@ namespace Microsoft.IO
         public bool GenerateCallStacks { get; set; }
 
         /// <summary>
-        /// Whether dirty buffers can be immediately returned to the buffer pool. E.g. when GetBuffer() is called on
-        /// a stream and creates a single large buffer, if this setting is enabled, the other blocks will be returned
+        /// Whether dirty buffers can be immediately returned to the buffer pool.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// When <see cref="RecyclableMemoryStream.GetBuffer"/> is called on a stream and creates a single large buffer, if this setting is enabled, the other blocks will be returned
         /// to the buffer pool immediately.
+        /// </para>
+        /// <para>
         /// Note when enabling this setting that the user is responsible for ensuring that any buffer previously
         /// retrieved from a stream which is subsequently modified is not used after modification (as it may no longer
         /// be valid).
-        /// </summary>
+        /// </para>
+        /// </remarks>
         public bool AggressiveBufferReturn { get; set; }
 
         /// <summary>
-        /// Causes an exception to be thrown if ToArray is ever called.
+        /// Causes an exception to be thrown if <see cref="RecyclableMemoryStream.ToArray"/> is ever called.
         /// </summary>
-        /// <remarks>Calling ToArray defeats the purpose of a pooled buffer. Use this property to discover code that is calling ToArray. If this is 
-        /// set and stream.ToArray() is called, a NotSupportedException will be thrown.</remarks>
+        /// <remarks>Calling <see cref="RecyclableMemoryStream.ToArray"/> defeats the purpose of a pooled buffer. Use this property to discover code that is calling <see cref="RecyclableMemoryStream.ToArray"/>. If this is 
+        /// set and <see cref="RecyclableMemoryStream.ToArray"/> is called, a <c>NotSupportedException</c> will be thrown.</remarks>
         public bool ThrowExceptionOnToArray { get; set; }
 
         /// <summary>
         /// Removes and returns a single block from the pool.
         /// </summary>
-        /// <returns>A byte[] array</returns>
+        /// <returns>A <c>byte[]</c> array</returns>
         internal byte[] GetBlock()
         {
-            byte[] block;
-            if (!this.smallPool.TryPop(out block))
+            Interlocked.Add(ref this.smallPoolInUseSize, this.BlockSize);
+
+            if (!this.smallPool.TryPop(out byte[] block))
             {
                 // We'll add this back to the pool when the stream is disposed
                 // (unless our free pool is too large)
                 block = new byte[this.BlockSize];
-                Events.Writer.MemoryStreamNewBlockCreated(this.smallPoolInUseSize);
                 ReportBlockCreated();
             }
             else
@@ -331,7 +312,6 @@ namespace Microsoft.IO
                 Interlocked.Add(ref this.smallPoolFreeSize, -this.BlockSize);
             }
 
-            Interlocked.Add(ref this.smallPoolInUseSize, this.BlockSize);
             return block;
         }
 
@@ -340,10 +320,11 @@ namespace Microsoft.IO
         /// will be at least the requiredSize and always be a multiple/exponential of largeBufferMultiple.
         /// </summary>
         /// <param name="requiredSize">The minimum length of the buffer</param>
+        /// <param name="id">Unique ID for the stream</param>
         /// <param name="tag">The tag of the stream returning this buffer, for logging if necessary.</param>
         /// <returns>A buffer of at least the required size.</returns>
         /// <exception cref="System.OutOfMemoryException">Requested array size is larger than the maximum allowed.</exception>
-        internal byte[] GetLargeBuffer(long requiredSize, string tag)
+        internal byte[] GetLargeBuffer(long requiredSize, Guid id, string tag)
         {
             if (requiredSize > MaxArrayLength)
             {
@@ -354,15 +335,17 @@ namespace Microsoft.IO
 
             var poolIndex = this.GetPoolIndex(requiredSize);
 
+            bool createdNew = false;
+            bool pooled = true;
+            string callStack = null;
+
             byte[] buffer;
             if (poolIndex < this.largePools.Length)
             {
                 if (!this.largePools[poolIndex].TryPop(out buffer))
                 {
                     buffer = new byte[requiredSize];
-
-                    Events.Writer.MemoryStreamNewLargeBufferCreated(requiredSize, this.LargePoolInUseSize);
-                    ReportLargeBufferCreated();
+                    createdNew = true;
                 }
                 else
                 {
@@ -372,24 +355,27 @@ namespace Microsoft.IO
             else
             {
                 // Buffer is too large to pool. They get a new buffer.
-
+                
                 // We still want to track the size, though, and we've reserved a slot
                 // in the end of the inuse array for nonpooled bytes in use.
                 poolIndex = this.largeBufferInUseSize.Length - 1;
 
                 // We still want to round up to reduce heap fragmentation.
                 buffer = new byte[requiredSize];
-                string callStack = null;
                 if (this.GenerateCallStacks)
                 {
                     // Grab the stack -- we want to know who requires such large buffers
                     callStack = Environment.StackTrace;
                 }
-                Events.Writer.MemoryStreamNonPooledLargeBufferCreated(requiredSize, tag, callStack);
-                ReportLargeBufferCreated();
+                createdNew = true;
+                pooled = false;
             }
 
             Interlocked.Add(ref this.largeBufferInUseSize[poolIndex], buffer.Length);
+            if (createdNew)
+            {
+                ReportLargeBufferCreated(id, tag, requiredSize, pooled: pooled, callStack);
+            }
 
             return buffer;
         }
@@ -439,10 +425,11 @@ namespace Microsoft.IO
         /// Returns the buffer to the large pool
         /// </summary>
         /// <param name="buffer">The buffer to return.</param>
+        /// <param name="id">Unique stream ID</param>
         /// <param name="tag">The tag of the stream returning this buffer, for logging if necessary.</param>
         /// <exception cref="ArgumentNullException">buffer is null</exception>
-        /// <exception cref="ArgumentException">buffer.Length is not a multiple/exponential of LargeBufferMultiple (it did not originate from this pool)</exception>
-        internal void ReturnLargeBuffer(byte[] buffer, string tag)
+        /// <exception cref="ArgumentException"><c>buffer.Length</c> is not a multiple/exponential of <see cref="LargeBufferMultiple"/> (it did not originate from this pool)</exception>
+        internal void ReturnLargeBuffer(byte[] buffer, Guid id, string tag)
         {
             if (buffer == null)
             {
@@ -469,9 +456,7 @@ namespace Microsoft.IO
                 }
                 else
                 {
-                    Events.Writer.MemoryStreamDiscardBuffer(Events.MemoryStreamBufferType.Large, tag,
-                                                           Events.MemoryStreamDiscardReason.EnoughFree);
-                    ReportLargeBufferDiscarded(Events.MemoryStreamDiscardReason.EnoughFree);
+                    ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Large, Events.MemoryStreamDiscardReason.EnoughFree);
                 }
             }
             else
@@ -480,9 +465,7 @@ namespace Microsoft.IO
                 // analysis. We have space in the inuse array for this.
                 poolIndex = this.largeBufferInUseSize.Length - 1;
 
-                Events.Writer.MemoryStreamDiscardBuffer(Events.MemoryStreamBufferType.Large, tag,
-                                                       Events.MemoryStreamDiscardReason.TooLarge);
-                ReportLargeBufferDiscarded(Events.MemoryStreamDiscardReason.TooLarge);
+                ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Large, Events.MemoryStreamDiscardReason.TooLarge);
             }
 
             Interlocked.Add(ref this.largeBufferInUseSize[poolIndex], -buffer.Length);
@@ -495,10 +478,11 @@ namespace Microsoft.IO
         /// Returns the blocks to the pool
         /// </summary>
         /// <param name="blocks">Collection of blocks to return to the pool</param>
+        /// <param name="id">Unique Stream ID</param>
         /// <param name="tag">The tag of the stream returning these blocks, for logging if necessary.</param>
         /// <exception cref="ArgumentNullException">blocks is null</exception>
         /// <exception cref="ArgumentException">blocks contains buffers that are the wrong size (or null) for this memory manager</exception>
-        internal void ReturnBlocks(ICollection<byte[]> blocks, string tag)
+        internal void ReturnBlocks(ICollection<byte[]> blocks, Guid id, string tag)
         {
             if (blocks == null)
             {
@@ -525,9 +509,7 @@ namespace Microsoft.IO
                 }
                 else
                 {
-                    Events.Writer.MemoryStreamDiscardBuffer(Events.MemoryStreamBufferType.Small, tag,
-                                                           Events.MemoryStreamDiscardReason.EnoughFree);
-                    ReportBlockDiscarded();
+                    ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Small, Events.MemoryStreamDiscardReason.EnoughFree);
                     break;
                 }
             }
@@ -540,10 +522,11 @@ namespace Microsoft.IO
         /// Returns a block to the pool
         /// </summary>
         /// <param name="block">Block to return to the pool</param>
+        /// <param name="id">Unique Stream ID</param>
         /// <param name="tag">The tag of the stream returning this, for logging if necessary.</param>
         /// <exception cref="ArgumentNullException"><paramref name="block"/> is null</exception>
         /// <exception cref="ArgumentException"><paramref name="block"/> is the wrong size for this memory manager</exception>
-        internal void ReturnBlock(byte[] block, string tag)
+        internal void ReturnBlock(byte[] block, Guid id, string tag)
         {
             var bytesToReturn = this.BlockSize;
             Interlocked.Add(ref this.smallPoolInUseSize, -bytesToReturn);
@@ -565,9 +548,7 @@ namespace Microsoft.IO
             }
             else
             {
-                Events.Writer.MemoryStreamDiscardBuffer(Events.MemoryStreamBufferType.Small, tag,
-                                                        Events.MemoryStreamDiscardReason.EnoughFree);
-                ReportBlockDiscarded();
+                ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Small, Events.MemoryStreamDiscardReason.EnoughFree);
             }
 
             ReportUsageReport(this.smallPoolInUseSize, this.smallPoolFreeSize, this.LargePoolInUseSize,
@@ -576,131 +557,152 @@ namespace Microsoft.IO
 
         internal void ReportBlockCreated()
         {
-            this.BlockCreated?.Invoke();
+            Events.Writer.MemoryStreamNewBlockCreated(this.smallPoolInUseSize);
+            this.BlockCreated?.Invoke(this, new BlockCreatedEventArgs(this.smallPoolInUseSize));
         }
 
-        internal void ReportBlockDiscarded()
+        internal void ReportLargeBufferCreated(Guid id, string tag, long requiredSize, bool pooled, string callStack)
         {
-            this.BlockDiscarded?.Invoke();
+            if (pooled)
+            {
+                Events.Writer.MemoryStreamNewLargeBufferCreated(requiredSize, this.LargePoolInUseSize);
+            }
+            else
+            {
+                Events.Writer.MemoryStreamNonPooledLargeBufferCreated(id, tag, requiredSize, callStack);
+            }
+            this.LargeBufferCreated?.Invoke(this, new LargeBufferCreatedEventArgs(id, tag, requiredSize, this.LargePoolInUseSize, pooled, callStack));
         }
 
-        internal void ReportLargeBufferCreated()
+        internal void ReportBufferDiscarded(Guid id, string tag, Events.MemoryStreamBufferType bufferType, Events.MemoryStreamDiscardReason reason)
         {
-            this.LargeBufferCreated?.Invoke();
+            Events.Writer.MemoryStreamDiscardBuffer(id, tag, bufferType, reason);
+            this.BufferDiscarded?.Invoke(this, new BufferDiscardedEventArgs(id, tag, bufferType, reason));
         }
 
-        internal void ReportLargeBufferDiscarded(Events.MemoryStreamDiscardReason reason)
+        internal void ReportStreamCreated(Guid id, string tag, long requestedSize, long actualSize)
         {
-            this.LargeBufferDiscarded?.Invoke(reason);
+            Events.Writer.MemoryStreamCreated(id, tag, requestedSize, actualSize);
+            this.StreamCreated?.Invoke(this, new StreamCreatedEventArgs(id, tag, requestedSize, actualSize));
         }
 
-        internal void ReportStreamCreated()
+        internal void ReportStreamDisposed(Guid id, string tag, string allocationStack, string disposeStack)
         {
-            this.StreamCreated?.Invoke();
+            RecyclableMemoryStreamManager.Events.Writer.MemoryStreamDisposed(id, tag, allocationStack, disposeStack);
+            this.StreamDisposed?.Invoke(this, new StreamDisposedEventArgs(id, tag, allocationStack, disposeStack));
         }
 
-        internal void ReportStreamDisposed()
+        internal void ReportStreamDoubleDisposed(Guid id, string tag, string allocationStack, string disposeStack1, string disposeStack2)
         {
-            this.StreamDisposed?.Invoke();
+            Events.Writer.MemoryStreamDoubleDispose(id, tag, allocationStack, disposeStack1, disposeStack2);
+            this.StreamDoubleDisposed?.Invoke(this, new StreamDoubleDisposedEventArgs(id, tag, allocationStack,disposeStack1, disposeStack2));
         }
 
-        internal void ReportStreamFinalized()
+        internal void ReportStreamFinalized(Guid id, string tag, string allocationStack)
         {
-            this.StreamFinalized?.Invoke();
+            Events.Writer.MemoryStreamFinalized(id, tag, allocationStack);
+            this.StreamFinalized?.Invoke(this, new StreamFinalizedEventArgs(id, tag, allocationStack));
         }
 
         internal void ReportStreamLength(long bytes)
         {
-            this.StreamLength?.Invoke(bytes);
+            this.StreamLength?.Invoke(this, new StreamLengthEventArgs(bytes));
         }
 
-        internal void ReportStreamToArray()
+        internal void ReportStreamToArray(Guid id, string tag, string stack, long length)
         {
-            this.StreamConvertedToArray?.Invoke();
+            Events.Writer.MemoryStreamToArray(id, tag, stack, length);
+            this.StreamConvertedToArray?.Invoke(this, new StreamConvertedToArrayEventArgs(id, tag, stack, length));
         }
 
-        internal void ReportUsageReport(
-            long smallPoolInUseBytes, long smallPoolFreeBytes, long largePoolInUseBytes, long largePoolFreeBytes)
+        internal void ReportStreamOverCapacity(Guid id, string tag, long requestedCapacity, string allocationStack)
         {
-            this.UsageReport?.Invoke(smallPoolInUseBytes, smallPoolFreeBytes, largePoolInUseBytes, largePoolFreeBytes);
+            RecyclableMemoryStreamManager.Events.Writer.MemoryStreamOverCapacity(id, tag,
+                requestedCapacity,this.MaximumStreamCapacity, allocationStack);
+            this.StreamOverCapacity?.Invoke(this, new StreamOverCapacityEventArgs(id, tag, requestedCapacity, this.MaximumStreamCapacity, allocationStack));
+        }
+
+        internal void ReportUsageReport(long smallPoolInUseBytes, long smallPoolFreeBytes, long largePoolInUseBytes, long largePoolFreeBytes)
+        {
+            this.UsageReport?.Invoke(this, new UsageReportEventArgs(smallPoolInUseBytes, smallPoolFreeBytes, largePoolInUseBytes, largePoolFreeBytes));
         }
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with no tag and a default initial capacity.
+        /// Retrieve a new <c>MemoryStream</c> object with no tag and a default initial capacity.
         /// </summary>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream()
         {
             return new RecyclableMemoryStream(this);
         }
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with no tag and a default initial capacity.
+        /// Retrieve a new <c>MemoryStream</c> object with no tag and a default initial capacity.
         /// </summary>
         /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(Guid id)
         {
             return new RecyclableMemoryStream(this, id);
         }
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with the given tag and a default initial capacity.
+        /// Retrieve a new <c>MemoryStream</c> object with the given tag and a default initial capacity.
         /// </summary>
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(string tag)
         {
             return new RecyclableMemoryStream(this, tag);
         }
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with the given tag and a default initial capacity.
+        /// Retrieve a new <c>MemoryStream</c> object with the given tag and a default initial capacity.
         /// </summary>
         /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(Guid id, string tag)
         {
             return new RecyclableMemoryStream(this, id, tag);
         }
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with the given tag and at least the given capacity.
+        /// Retrieve a new <c>MemoryStream</c> object with the given tag and at least the given capacity.
         /// </summary>
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
         /// <param name="requiredSize">The minimum desired capacity for the stream.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(string tag, int requiredSize)
         {
             return new RecyclableMemoryStream(this, tag, requiredSize);
         }
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with the given tag and at least the given capacity.
+        /// Retrieve a new <c>MemoryStream</c> object with the given tag and at least the given capacity.
         /// </summary>
         /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
         /// <param name="requiredSize">The minimum desired capacity for the stream.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(Guid id, string tag, int requiredSize)
         {
             return new RecyclableMemoryStream(this, id, tag, requiredSize);
         }
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with the given tag and at least the given capacity, possibly using
+        /// Retrieve a new <c>MemoryStream</c> object with the given tag and at least the given capacity, possibly using
         /// a single contiguous underlying buffer.
         /// </summary>
-        /// <remarks>Retrieving a MemoryStream which provides a single contiguous buffer can be useful in situations
+        /// <remarks>Retrieving a <c>MemoryStream</c> which provides a single contiguous buffer can be useful in situations
         /// where the initial size is known and it is desirable to avoid copying data between the smaller underlying
-        /// buffers to a single large one. This is most helpful when you know that you will always call GetBuffer
+        /// buffers to a single large one. This is most helpful when you know that you will always call <see cref="RecyclableMemoryStream.GetBuffer"/> 
         /// on the underlying stream.</remarks>
         /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
         /// <param name="requiredSize">The minimum desired capacity for the stream.</param>
         /// <param name="asContiguousBuffer">Whether to attempt to use a single contiguous buffer.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(Guid id, string tag, int requiredSize, bool asContiguousBuffer)
         {
             if (!asContiguousBuffer || requiredSize <= this.BlockSize)
@@ -708,28 +710,28 @@ namespace Microsoft.IO
                 return this.GetStream(id, tag, requiredSize);
             }
 
-            return new RecyclableMemoryStream(this, id, tag, requiredSize, this.GetLargeBuffer(requiredSize, tag));
+            return new RecyclableMemoryStream(this, id, tag, requiredSize, this.GetLargeBuffer(requiredSize, id, tag));
         }
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with the given tag and at least the given capacity, possibly using
+        /// Retrieve a new <c>MemoryStream</c> object with the given tag and at least the given capacity, possibly using
         /// a single contiguous underlying buffer.
         /// </summary>
         /// <remarks>Retrieving a MemoryStream which provides a single contiguous buffer can be useful in situations
         /// where the initial size is known and it is desirable to avoid copying data between the smaller underlying
-        /// buffers to a single large one. This is most helpful when you know that you will always call GetBuffer
+        /// buffers to a single large one. This is most helpful when you know that you will always call <see cref="RecyclableMemoryStream.GetBuffer"/> 
         /// on the underlying stream.</remarks>
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
         /// <param name="requiredSize">The minimum desired capacity for the stream.</param>
         /// <param name="asContiguousBuffer">Whether to attempt to use a single contiguous buffer.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(string tag, int requiredSize, bool asContiguousBuffer)
         {
             return GetStream(Guid.NewGuid(), tag, requiredSize, asContiguousBuffer);
         }
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with the given tag and with contents copied from the provided
+        /// Retrieve a new <c>MemoryStream</c> object with the given tag and with contents copied from the provided
         /// buffer. The provided buffer is not wrapped or used after construction.
         /// </summary>
         /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
@@ -738,7 +740,7 @@ namespace Microsoft.IO
         /// <param name="buffer">The byte buffer to copy data from.</param>
         /// <param name="offset">The offset from the start of the buffer to copy from.</param>
         /// <param name="count">The number of bytes to copy from the buffer.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(Guid id, string tag, byte[] buffer, int offset, int count)
         {
             RecyclableMemoryStream stream = null;
@@ -755,14 +757,14 @@ namespace Microsoft.IO
                 throw;
             }
         }
-				
+
         /// <summary>
-        /// Retrieve a new MemoryStream object with the contents copied from the provided
+        /// Retrieve a new <c>MemoryStream</c> object with the contents copied from the provided
         /// buffer. The provided buffer is not wrapped or used after construction.
         /// </summary>
         /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
         /// <param name="buffer">The byte buffer to copy data from.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(byte[] buffer)
         {
             return GetStream(null, buffer, 0, buffer.Length);
@@ -770,7 +772,7 @@ namespace Microsoft.IO
 
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with the given tag and with contents copied from the provided
+        /// Retrieve a new <c>MemoryStream</c> object with the given tag and with contents copied from the provided
         /// buffer. The provided buffer is not wrapped or used after construction.
         /// </summary>
         /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
@@ -778,7 +780,7 @@ namespace Microsoft.IO
         /// <param name="buffer">The byte buffer to copy data from.</param>
         /// <param name="offset">The offset from the start of the buffer to copy from.</param>
         /// <param name="count">The number of bytes to copy from the buffer.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(string tag, byte[] buffer, int offset, int count)
         {
             return GetStream(Guid.NewGuid(), tag, buffer, offset, count);
@@ -786,14 +788,14 @@ namespace Microsoft.IO
 
 #if NETCOREAPP2_1 || NETSTANDARD2_1
         /// <summary>
-        /// Retrieve a new MemoryStream object with the given tag and with contents copied from the provided
+        /// Retrieve a new <c>MemoryStream</c> object with the given tag and with contents copied from the provided
         /// buffer. The provided buffer is not wrapped or used after construction.
         /// </summary>
         /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
         /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
         /// <param name="buffer">The byte buffer to copy data from.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(Guid id, string tag, Memory<byte> buffer)
         {
             RecyclableMemoryStream stream = null;
@@ -812,25 +814,25 @@ namespace Microsoft.IO
         }
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with the contents copied from the provided
+        /// Retrieve a new <c>MemoryStream</c> object with the contents copied from the provided
         /// buffer. The provided buffer is not wrapped or used after construction.
         /// </summary>
         /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
         /// <param name="buffer">The byte buffer to copy data from.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(Memory<byte> buffer)
         {
             return GetStream(null, buffer);
         }
 
         /// <summary>
-        /// Retrieve a new MemoryStream object with the given tag and with contents copied from the provided
+        /// Retrieve a new <c>MemoryStream</c> object with the given tag and with contents copied from the provided
         /// buffer. The provided buffer is not wrapped or used after construction.
         /// </summary>
         /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
         /// <param name="buffer">The byte buffer to copy data from.</param>
-        /// <returns>A MemoryStream.</returns>
+        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(string tag, Memory<byte> buffer)
         {
             return GetStream(Guid.NewGuid(), tag, buffer);
@@ -839,51 +841,56 @@ namespace Microsoft.IO
         /// <summary>
         /// Triggered when a new block is created.
         /// </summary>
-        public event EventHandler BlockCreated;
-
-        /// <summary>
-        /// Triggered when a new block is created.
-        /// </summary>
-        public event EventHandler BlockDiscarded;
+        public event EventHandler<BlockCreatedEventArgs> BlockCreated;
 
         /// <summary>
         /// Triggered when a new large buffer is created.
         /// </summary>
-        public event EventHandler LargeBufferCreated;
+        public event EventHandler<LargeBufferCreatedEventArgs> LargeBufferCreated;
 
         /// <summary>
         /// Triggered when a new stream is created.
         /// </summary>
-        public event EventHandler StreamCreated;
+        public event EventHandler<StreamCreatedEventArgs> StreamCreated;
 
         /// <summary>
         /// Triggered when a stream is disposed.
         /// </summary>
-        public event EventHandler StreamDisposed;
+        public event EventHandler<StreamDisposedEventArgs> StreamDisposed;
+
+        /// <summary>
+        /// Triggered when a stream is disposed of twice (an error).
+        /// </summary>
+        public event EventHandler<StreamDoubleDisposedEventArgs> StreamDoubleDisposed;
 
         /// <summary>
         /// Triggered when a stream is finalized.
         /// </summary>
-        public event EventHandler StreamFinalized;
+        public event EventHandler<StreamFinalizedEventArgs> StreamFinalized;
 
         /// <summary>
         /// Triggered when a stream is finalized.
         /// </summary>
-        public event StreamLengthReportHandler StreamLength;
+        public event EventHandler<StreamLengthEventArgs> StreamLength;
 
         /// <summary>
         /// Triggered when a user converts a stream to array.
         /// </summary>
-        public event EventHandler StreamConvertedToArray;
+        public event EventHandler<StreamConvertedToArrayEventArgs> StreamConvertedToArray;
 
         /// <summary>
-        /// Triggered when a large buffer is discarded, along with the reason for the discard.
+        /// Triggered when a stream is requested to expand beyond the maximum length specified by the responsible RecyclableMemoryStreamManager.
         /// </summary>
-        public event LargeBufferDiscardedEventHandler LargeBufferDiscarded;
+        public event EventHandler<StreamOverCapacityEventArgs> StreamOverCapacity;
+
+        /// <summary>
+        /// Triggered when a buffer of either type is discarded, along with the reason for the discard.
+        /// </summary>
+        public event EventHandler<BufferDiscardedEventArgs> BufferDiscarded;
 
         /// <summary>
         /// Periodically triggered to report usage statistics.
         /// </summary>
-        public event UsageReportEventHandler UsageReport;
+        public event EventHandler<UsageReportEventArgs> UsageReport;
     }
 }

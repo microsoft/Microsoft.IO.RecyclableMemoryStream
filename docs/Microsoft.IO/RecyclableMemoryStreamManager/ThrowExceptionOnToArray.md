@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.ThrowExceptionOnToArray property
 
-Causes an exception to be thrown if ToArray is ever called.
+Causes an exception to be thrown if [`ToArray`](../RecyclableMemoryStream/ToArray.md) is ever called.
 
 ```csharp
 public bool ThrowExceptionOnToArray { get; set; }
@@ -8,7 +8,7 @@ public bool ThrowExceptionOnToArray { get; set; }
 
 ## Remarks
 
-Calling ToArray defeats the purpose of a pooled buffer. Use this property to discover code that is calling ToArray. If this is set and stream.ToArray() is called, a NotSupportedException will be thrown.
+Calling [`ToArray`](../RecyclableMemoryStream/ToArray.md) defeats the purpose of a pooled buffer. Use this property to discover code that is calling [`ToArray`](../RecyclableMemoryStream/ToArray.md). If this is set and [`ToArray`](../RecyclableMemoryStream/ToArray.md) is called, a `NotSupportedException` will be thrown.
 
 ## See Also
 

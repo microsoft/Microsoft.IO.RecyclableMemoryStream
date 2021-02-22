@@ -3,12 +3,12 @@
 Triggered when a stream is finalized.
 
 ```csharp
-public event EventHandler StreamFinalized;
+public event EventHandler<StreamFinalizedEventArgs> StreamFinalized;
 ```
 
 ## See Also
 
-* delegate [EventHandler](../RecyclableMemoryStreamManager.EventHandler.md)
+* class [StreamFinalizedEventArgs](../RecyclableMemoryStreamManager.StreamFinalizedEventArgs.md)
 * class [RecyclableMemoryStreamManager](../RecyclableMemoryStreamManager.md)
 * namespace [Microsoft.IO](../../Microsoft.IO.RecyclableMemoryStream.md)
 

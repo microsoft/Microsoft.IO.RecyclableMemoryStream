@@ -1,6 +1,6 @@
 # RecyclableMemoryStream.Capacity64 property
 
-Returns a 64-bit version of capacity, for streams larger than int.MaxValue in length.
+Returns a 64-bit version of capacity, for streams larger than `int.MaxValue` in length.
 
 ```csharp
 public long Capacity64 { get; set; }

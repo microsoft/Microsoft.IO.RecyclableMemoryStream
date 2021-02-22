@@ -1,8 +1,10 @@
 # Version 2.0
 
 * Removed 2 GB stream limit. Extremely large streams can be created by chaining together blocks. Attempts to convert a stream into a contiguous buffer longer than the runtime's limits will result in an exception.
-* Removed build targets for net40 and netstandard1.4.
+* Removed build targets for net40, net45, net46, and netstandard1.4. Added net462.
 * Removed use of `Interlocked` methods when checking whether the stream is disposed. Concurrent use of streams is not supported.
+* Refactored .NET events to match the information payloads of the ETW events.
+* Reformatted all code documentation to be more readable.
 
 # Version 1.4.0
 
