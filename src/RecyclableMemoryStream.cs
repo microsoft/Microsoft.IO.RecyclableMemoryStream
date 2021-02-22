@@ -692,6 +692,10 @@ namespace Microsoft.IO
         /// </remarks>
         public Span<byte> GetSpan(int sizeHint = 0) => this.GetWritableBuffer(sizeHint);
 
+        /// <summary>
+        /// When callers to GetSpan() or GetMemory() request a buffer that is larger than the remaining size of the current block
+        /// this method return a temp buffer. When Advance() is called, that temp buffer is then copied into the stream.
+        /// </summary>
         private ArraySegment<byte> GetWritableBuffer(int sizeHint)
         {
             this.CheckDisposed();
