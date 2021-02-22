@@ -2194,6 +2194,33 @@ namespace Microsoft.IO.UnitTests
                 Assert.That(stream.Length, Is.EqualTo(32 * step));
             }
         }
+
+        [Test]
+        public void AdvanceOverTempBufferMakesWritesVisible()
+        {
+            var stream = this.GetDefaultStream();
+            var buffer = this.GetRandomBuffer(32);
+            var memory = stream.GetMemory(stream.MemoryManager.BlockSize + 1);
+            buffer.CopyTo(memory);
+            Assert.That(stream.GetBuffer().AsMemory(0, 32).ToArray(), Is.Not.EquivalentTo(buffer));
+            stream.Advance(buffer.Length);
+            Assert.That(stream.GetBuffer().AsMemory(0, 32).ToArray(), Is.EquivalentTo(buffer));
+        }
+
+        [Test]
+        public void AdvanceOverReplacedTempBufferDoesNotMakeWritesVisible()
+        {
+            var stream = this.GetDefaultStream();
+            var buffer1 = this.GetRandomBuffer(32);
+            var buffer2 = this.GetRandomBuffer(32);
+            var memory = stream.GetMemory(stream.MemoryManager.BlockSize + 1);
+            buffer1.CopyTo(memory);
+            memory = stream.GetMemory(stream.MemoryManager.BlockSize + 1);
+            buffer2.CopyTo(memory);
+            stream.Advance(buffer2.Length);
+            Assert.That(stream.GetBuffer().AsMemory(0, 32).ToArray(), Is.Not.EquivalentTo(buffer1));
+            Assert.That(stream.GetBuffer().AsMemory(0, 32).ToArray(), Is.EquivalentTo(buffer2));
+        }
         #endregion
 
         #region Dispose and Pooling Tests
