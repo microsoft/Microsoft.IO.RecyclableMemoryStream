@@ -628,7 +628,6 @@ namespace Microsoft.IO
 
         /// <summary>
         /// Notifies the stream that <paramref name="count"/> bytes were written to the buffer returned by <see cref="GetMemory(int)"/> or <see cref="GetSpan(int)"/>.
-        /// <para></para>
         /// Seeks forward by <paramref name="count"/> bytes.
         /// </summary>
         /// <remarks>
