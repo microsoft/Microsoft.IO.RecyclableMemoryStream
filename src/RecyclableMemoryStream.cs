@@ -29,6 +29,7 @@ namespace Microsoft.IO
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
+    using System.Globalization;
     using System.IO;
     using System.Runtime.CompilerServices;
     using System.Threading;
@@ -1438,7 +1439,8 @@ namespace Microsoft.IO
             if (newCapacity > this.memoryManager.MaximumStreamCapacity && this.memoryManager.MaximumStreamCapacity > 0)
             {
                 this.memoryManager.ReportStreamOverCapacity(this.id, this.tag, newCapacity, this.AllocationStack);
-                string message = $"Requested capacity is too large: {newCapacity}. Limit is {this.memoryManager.MaximumStreamCapacity}";
+                string message = "Requested capacity is too large: " + newCapacity.ToString(CultureInfo.InvariantCulture) +
+                    ". Limit is " + this.memoryManager.MaximumStreamCapacity.ToString(CultureInfo.InvariantCulture);
 
                 if (throwOomExceptionOnOverCapacity)
                 {
