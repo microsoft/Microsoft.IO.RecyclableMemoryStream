@@ -703,16 +703,20 @@ namespace Microsoft.IO
         /// When callers to GetSpan() or GetMemory() request a buffer that is larger than the remaining size of the current block
         /// this method return a temp buffer. When Advance() is called, that temp buffer is then copied into the stream.
         /// </summary>
-        private ArraySegment<byte> GetWritableBuffer(int sizeHint)
+        private ArraySegment<byte> GetWritableBuffer(int minimumBufferSize)
         {
             this.CheckDisposed();
-            if (sizeHint < 0)
+            if (minimumBufferSize < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(sizeHint), $"{nameof(sizeHint)} must be non-negative");
+                throw new ArgumentOutOfRangeException("sizeHint", $"sizeHint must be non-negative");
             }
 
-            sizeHint = Math.Max(sizeHint, 1);
-            this.EnsureCapacity(this.position + sizeHint, throwOomExceptionOnOverCapacity: true);
+            if (minimumBufferSize == 0) 
+            { 
+                minimumBufferSize = 1; 
+            }
+
+            this.EnsureCapacity(this.position + minimumBufferSize, throwOomExceptionOnOverCapacity: true);
             if (this.bufferWriterTempBuffer != null)
             {
                 this.ReturnTempBuffer(this.bufferWriterTempBuffer);
@@ -726,13 +730,13 @@ namespace Microsoft.IO
 
             BlockAndOffset blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
             int remainingBytesInBlock = this.MemoryManager.BlockSize - blockAndOffset.Offset;
-            if (remainingBytesInBlock >= sizeHint)
+            if (remainingBytesInBlock >= minimumBufferSize)
             {
                 return new ArraySegment<byte>(this.blocks[blockAndOffset.Block], blockAndOffset.Offset, this.MemoryManager.BlockSize - blockAndOffset.Offset);
             }
 
-            this.bufferWriterTempBuffer = sizeHint > this.memoryManager.BlockSize ?
-                this.memoryManager.GetLargeBuffer(sizeHint, this.id, this.tag) :
+            this.bufferWriterTempBuffer = minimumBufferSize > this.memoryManager.BlockSize ?
+                this.memoryManager.GetLargeBuffer(minimumBufferSize, this.id, this.tag) :
                 this.memoryManager.GetBlock();
 
             return new ArraySegment<byte>(this.bufferWriterTempBuffer);
