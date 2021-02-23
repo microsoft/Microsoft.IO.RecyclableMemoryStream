@@ -716,7 +716,7 @@ namespace Microsoft.IO
                 minimumBufferSize = 1; 
             }
 
-            this.EnsureCapacity(this.position + minimumBufferSize, throwOomExceptionOnOverCapacity: true);
+            this.EnsureCapacity(this.position + minimumBufferSize);
             if (this.bufferWriterTempBuffer != null)
             {
                 this.ReturnTempBuffer(this.bufferWriterTempBuffer);
@@ -1433,22 +1433,14 @@ namespace Microsoft.IO
             return new BlockAndOffset(blockIndex, offsetIndex);
         }
 
-        private void EnsureCapacity(long newCapacity, bool throwOomExceptionOnOverCapacity = false)
+        private void EnsureCapacity(long newCapacity)
         {
             if (newCapacity > this.memoryManager.MaximumStreamCapacity && this.memoryManager.MaximumStreamCapacity > 0)
             {
                 this.memoryManager.ReportStreamOverCapacity(this.id, this.tag, newCapacity, this.AllocationStack);
-                string message = "Requested capacity is too large: " + newCapacity.ToString(CultureInfo.InvariantCulture) +
-                    ". Limit is " + this.memoryManager.MaximumStreamCapacity.ToString(CultureInfo.InvariantCulture);
-
-                if (throwOomExceptionOnOverCapacity)
-                {
-                    throw new OutOfMemoryException(message);
-                }
-                else 
-                {
-                    throw new InvalidOperationException(message);
-                }
+                throw new OutOfMemoryException(
+                    "Requested capacity is too large: " + newCapacity.ToString(CultureInfo.InvariantCulture) +
+                    ". Limit is " + this.memoryManager.MaximumStreamCapacity.ToString(CultureInfo.InvariantCulture));
             }
 
             if (this.largeBuffer != null)

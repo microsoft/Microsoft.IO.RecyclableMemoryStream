@@ -2552,7 +2552,7 @@ namespace Microsoft.IO.UnitTests
             var maxCapacity = DefaultMaximumBufferSize * 2;
             stream.MemoryManager.MaximumStreamCapacity = maxCapacity;
             Assert.DoesNotThrow(() => stream.Capacity = maxCapacity);
-            Assert.Throws<InvalidOperationException>(() => stream.Capacity = maxCapacity + 1);
+            Assert.Throws<OutOfMemoryException>(() => stream.Capacity = maxCapacity + 1);
         }
 
         [Test]
@@ -2563,7 +2563,7 @@ namespace Microsoft.IO.UnitTests
             stream.MemoryManager.MaximumStreamCapacity = maxCapacity;
             Assert.DoesNotThrow(() => stream.Capacity = maxCapacity);
             var oldCapacity = stream.Capacity;
-            Assert.Throws<InvalidOperationException>(() => stream.Capacity = maxCapacity + 1);
+            Assert.Throws<OutOfMemoryException>(() => stream.Capacity = maxCapacity + 1);
             Assert.That(stream.Capacity, Is.EqualTo(oldCapacity));
         }
 
@@ -2579,7 +2579,7 @@ namespace Microsoft.IO.UnitTests
             var oldCapacity = stream.Capacity;
             var oldPosition = stream.Position;
             var buffer2 = this.GetRandomBuffer(maxCapacity);
-            Assert.Throws<InvalidOperationException>(() => stream.Write(buffer2, 0, buffer2.Length));
+            Assert.Throws<OutOfMemoryException>(() => stream.Write(buffer2, 0, buffer2.Length));
             Assert.That(stream.Length, Is.EqualTo(oldLength));
             Assert.That(stream.Capacity, Is.EqualTo(oldCapacity));
             Assert.That(stream.Position, Is.EqualTo(oldPosition));
@@ -2975,7 +2975,7 @@ namespace Microsoft.IO.UnitTests
             };
             var stream = mgr.GetStream("UnitTest", 13);
             
-            Assert.Throws<InvalidOperationException>(()=>stream.Capacity = mgr.BlockSize * 2);
+            Assert.Throws<OutOfMemoryException>(()=>stream.Capacity = mgr.BlockSize * 2);
             Assert.That(raised, Is.True);
         }
 
