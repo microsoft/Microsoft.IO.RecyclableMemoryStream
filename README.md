@@ -179,8 +179,7 @@ using (var sha256Hasher = IncrementalHash.CreateHash(HashAlgorithmName.SHA256))
         sha256Hasher.AppendData(memory.Span);	
     }
     
-    byte[] hash = new byte[sha256Hasher.HashLengthInBytes];
-    sha256Hasher.GetHashAndReset(hash);
+    sha256Hasher.GetHashAndReset();
 }
 ```
 
