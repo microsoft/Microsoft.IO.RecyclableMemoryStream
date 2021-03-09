@@ -471,6 +471,131 @@ namespace Microsoft.IO.UnitTests
         }
         #endregion
 
+        #region GetSpan/Memory Tests
+        [Test]
+        public void GetSpanMemoryWithNegativeHintFails()
+        {
+            var stream = this.GetDefaultStream();
+            Assert.Throws<ArgumentOutOfRangeException>(() => stream.GetSpan(-1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => stream.GetMemory(-1));
+        }
+
+        [Test]
+        public void GetSpanMemoryWithTooLargeHintFails()
+        {
+            var stream = this.GetDefaultStream();
+            stream.Position = 1;
+            Assert.Throws<OutOfMemoryException>(() => stream.GetSpan(int.MaxValue));
+            Assert.Throws<OutOfMemoryException>(() => stream.GetMemory(int.MaxValue));
+        }
+
+        [Test]
+        public void GetSpanMemoryWithHintLargerThanMaximumStreamCapacityFails()
+        {
+            var memoryManager = this.GetMemoryManager();
+            memoryManager.MaximumStreamCapacity = short.MaxValue;
+            var stream = new RecyclableMemoryStream(memoryManager, string.Empty, 0);
+            Assert.Throws<OutOfMemoryException>(() => stream.GetSpan(short.MaxValue + 1));
+            Assert.Throws<OutOfMemoryException>(() => stream.GetMemory(short.MaxValue + 1));
+        }
+
+        [Test]
+        public void GetSpanMemoryReturnsSingleBlockWithNoHint()
+        {
+            var stream = this.GetDefaultStream();
+            var buffer = stream.GetBuffer();
+            var span = stream.GetSpan();
+            var memory = stream.GetMemory();
+            MemoryMarshal.TryGetArray(memory, out ArraySegment<byte> arraySegment);
+            Assert.AreEqual(buffer, arraySegment.Array);
+            Assert.IsTrue(buffer.AsSpan() == span);
+        }
+
+        [Test]
+        public void GetSpanMemoryReturnsLargeBufferWithNoHint()
+        {
+            var stream = this.GetDefaultStream();
+            stream.Capacity = stream.MemoryManager.BlockSize + 1;
+            var buffer = stream.GetBuffer();
+            var span = stream.GetSpan();
+            var memory = stream.GetMemory();
+            MemoryMarshal.TryGetArray(memory, out ArraySegment<byte> arraySegment);
+            Assert.AreEqual(buffer, arraySegment.Array);
+            Assert.IsTrue(buffer.AsSpan() == span);
+        }
+
+        [Test]
+        public void GetSpanMemoryReturnsSingleBlockWithNoHintPositionedMidBlock()
+        {
+            var stream = this.GetDefaultStream();
+            stream.Advance(1);
+            var buffer = stream.GetBuffer();
+            var span = stream.GetSpan();
+            var memory = stream.GetMemory();
+            MemoryMarshal.TryGetArray(memory, out ArraySegment<byte> arraySegment);
+            Assert.AreEqual(buffer, arraySegment.Array);
+            Assert.AreEqual(buffer.Length - 1, memory.Length);
+            Assert.IsTrue(buffer.AsSpan(1) == span);
+        }
+
+        [Test]
+        public void GetSpanMemoryReturnsNewBlockWithNoHintPositionedEndOfBlock()
+        {
+            var stream = this.GetDefaultStream();
+            var size = stream.MemoryManager.BlockSize;
+
+            stream.Position = size;
+            var span = stream.GetSpan();
+            var memory = stream.GetMemory();
+            this.GetRandomBuffer(size).AsSpan().CopyTo(span);
+            stream.Advance(size);
+            MemoryMarshal.TryGetArray(memory, out ArraySegment<byte> arraySegment);
+            var memoryArray = arraySegment.Array;
+
+            Assert.IsTrue(span == memory.Span);
+            Assert.AreEqual(size, span.Length);
+            Assert.AreEqual(size, memoryArray.Length);
+            Span<byte> bufferSpan = stream.GetBuffer().AsSpan(size, size);
+            Assert.IsTrue(bufferSpan.SequenceEqual(span));
+            Assert.IsFalse(bufferSpan == span);
+        }
+
+        [Test]
+        public void GetSpanMemoryReturnsLargeTempBufferWhenHintIsLongerThanBlock()
+        {
+            var stream = this.GetDefaultStream();
+            var size = stream.MemoryManager.BlockSize + 1;
+
+            var span = stream.GetSpan(size + 1);
+            byte[] randomBuffer = this.GetRandomBuffer(size);
+            randomBuffer.AsSpan().CopyTo(span);
+            stream.Advance(size);
+
+            Span<byte> bufferSpan = stream.GetBuffer().AsSpan(0, size);
+            Assert.IsTrue(bufferSpan.SequenceEqual(randomBuffer));
+            Assert.IsFalse(bufferSpan == span);
+            Assert.AreEqual(stream.MemoryManager.LargeBufferMultiple, span.Length);
+        }
+
+        [Test]
+        public void GetSpanMemoryReturnsBlockTempBufferWhenHintGoesPastEndOfBlock()
+        {
+            var stream = this.GetDefaultStream();
+            var size = stream.MemoryManager.BlockSize / 2;
+
+            stream.Position = size + 1;
+            var span = stream.GetSpan(size);
+            byte[] randomBuffer = this.GetRandomBuffer(size);
+            randomBuffer.AsSpan().CopyTo(span);
+            stream.Advance(size);
+
+            Span<byte> bufferSpan = stream.GetBuffer().AsSpan(size + 1, size);
+            Assert.IsTrue(bufferSpan.SequenceEqual(randomBuffer));
+            Assert.IsFalse(bufferSpan == span);
+            Assert.AreEqual(stream.MemoryManager.BlockSize, span.Length);
+        }
+        #endregion
+
         #region GetReadOnlySequence Tests
         [Test]
         public void GetReadOnlySequenceReturnsSingleBlockForBlockSize()
@@ -2002,6 +2127,101 @@ namespace Microsoft.IO.UnitTests
         }
         #endregion
 
+        #region Advance Tests
+        [Test]
+        public void AdvanceByNegativeThrowsException()
+        {
+            var stream = this.GetDefaultStream();
+            stream.Position = 10;
+            Assert.Throws<ArgumentOutOfRangeException>(() => stream.Advance(-1));
+        }
+
+        [Test]
+        public void AdvancePastLargerThanMaxStreamLengthThrowsException()
+        {
+            var stream = this.GetDefaultStream();
+            stream.Advance(1);
+            Assert.Throws<InvalidOperationException>(() => stream.Advance(Int32.MaxValue));
+        }
+
+        [Test]
+        public void AdvancePastTempBufferLengthThrowsException()
+        {
+            var stream = this.GetDefaultStream();
+            var memory = stream.GetMemory(stream.MemoryManager.BlockSize + 1);
+            Assert.Throws<InvalidOperationException>(() => stream.Advance(memory.Length + 1));
+        }
+
+        [Test]
+        public void AdvancePastBlockLengthThrowsException()
+        {
+            var stream = this.GetDefaultStream();
+            var memory = stream.GetMemory();
+            Assert.Throws<InvalidOperationException>(() => stream.Advance(memory.Length + 1));
+        }
+
+        [Test]
+        public void AdvancePastLargeBufferLengthThrowsException()
+        {
+            var stream = this.GetDefaultStream();
+            stream.Position = stream.MemoryManager.BlockSize + 1;
+            stream.GetBuffer();
+            var memory = stream.GetMemory();
+            Assert.Throws<InvalidOperationException>(() => stream.Advance(memory.Length + 1));
+        }
+
+        [Test]
+        public void AdvanceToAnyValue()
+        {
+            var stream = this.GetDefaultStream();
+            var maxValue = Int32.MaxValue;
+            var step = maxValue / 32;
+            for (int i = 1; i <= 32; i++)
+            {
+                stream.GetSpan(step);
+                stream.Advance(step);
+                Assert.That(stream.Position, Is.EqualTo(i * step));
+                Assert.That(stream.Length, Is.EqualTo(i * step));
+            }
+
+            stream.Position = 0;
+            for (int i = 1; i <= 32; i++)
+            {
+                stream.GetSpan(step);
+                stream.Advance(step);
+                Assert.That(stream.Position, Is.EqualTo(i * step));
+                Assert.That(stream.Length, Is.EqualTo(32 * step));
+            }
+        }
+
+        [Test]
+        public void AdvanceOverTempBufferMakesWritesVisible()
+        {
+            var stream = this.GetDefaultStream();
+            var buffer = this.GetRandomBuffer(32);
+            var memory = stream.GetMemory(stream.MemoryManager.BlockSize + 1);
+            buffer.CopyTo(memory);
+            Assert.That(stream.GetBuffer().AsMemory(0, 32).ToArray(), Is.Not.EquivalentTo(buffer));
+            stream.Advance(buffer.Length);
+            Assert.That(stream.GetBuffer().AsMemory(0, 32).ToArray(), Is.EquivalentTo(buffer));
+        }
+
+        [Test]
+        public void AdvanceOverReplacedTempBufferDoesNotMakeWritesVisible()
+        {
+            var stream = this.GetDefaultStream();
+            var buffer1 = this.GetRandomBuffer(32);
+            var buffer2 = this.GetRandomBuffer(32);
+            var memory = stream.GetMemory(stream.MemoryManager.BlockSize + 1);
+            buffer1.CopyTo(memory);
+            memory = stream.GetMemory(stream.MemoryManager.BlockSize + 1);
+            buffer2.CopyTo(memory);
+            stream.Advance(buffer2.Length);
+            Assert.That(stream.GetBuffer().AsMemory(0, 32).ToArray(), Is.Not.EquivalentTo(buffer1));
+            Assert.That(stream.GetBuffer().AsMemory(0, 32).ToArray(), Is.EquivalentTo(buffer2));
+        }
+        #endregion
+
         #region Dispose and Pooling Tests
         [Test]
         public void Pooling_NewMemoryManagerHasZeroFreeAndInUseBytes()
@@ -2332,7 +2552,7 @@ namespace Microsoft.IO.UnitTests
             var maxCapacity = DefaultMaximumBufferSize * 2;
             stream.MemoryManager.MaximumStreamCapacity = maxCapacity;
             Assert.DoesNotThrow(() => stream.Capacity = maxCapacity);
-            Assert.Throws<InvalidOperationException>(() => stream.Capacity = maxCapacity + 1);
+            Assert.Throws<OutOfMemoryException>(() => stream.Capacity = maxCapacity + 1);
         }
 
         [Test]
@@ -2343,7 +2563,7 @@ namespace Microsoft.IO.UnitTests
             stream.MemoryManager.MaximumStreamCapacity = maxCapacity;
             Assert.DoesNotThrow(() => stream.Capacity = maxCapacity);
             var oldCapacity = stream.Capacity;
-            Assert.Throws<InvalidOperationException>(() => stream.Capacity = maxCapacity + 1);
+            Assert.Throws<OutOfMemoryException>(() => stream.Capacity = maxCapacity + 1);
             Assert.That(stream.Capacity, Is.EqualTo(oldCapacity));
         }
 
@@ -2359,7 +2579,7 @@ namespace Microsoft.IO.UnitTests
             var oldCapacity = stream.Capacity;
             var oldPosition = stream.Position;
             var buffer2 = this.GetRandomBuffer(maxCapacity);
-            Assert.Throws<InvalidOperationException>(() => stream.Write(buffer2, 0, buffer2.Length));
+            Assert.Throws<OutOfMemoryException>(() => stream.Write(buffer2, 0, buffer2.Length));
             Assert.That(stream.Length, Is.EqualTo(oldLength));
             Assert.That(stream.Capacity, Is.EqualTo(oldCapacity));
             Assert.That(stream.Position, Is.EqualTo(oldPosition));
@@ -2755,7 +2975,7 @@ namespace Microsoft.IO.UnitTests
             };
             var stream = mgr.GetStream("UnitTest", 13);
             
-            Assert.Throws<InvalidOperationException>(()=>stream.Capacity = mgr.BlockSize * 2);
+            Assert.Throws<OutOfMemoryException>(()=>stream.Capacity = mgr.BlockSize * 2);
             Assert.That(raised, Is.True);
         }
 

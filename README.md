@@ -138,7 +138,7 @@ While this library strives to be very general and not impose too many restraints
 
 1. Set the `blockSize`, `largeBufferMultiple`, `maxBufferSize`, `MaximumFreeLargePoolBytes` and `MaximumFreeSmallPoolBytes` properties to reasonable values for your application and resource requirements.
 2. Always dispose of each stream exactly once.
-3. Never call `ToArray` and avoid calling `GetBuffer` if possible.
+3. Never call `ToArray` and avoid calling `GetBuffer` if possible. Instead, use `GetReadOnlySequence` for reading and `GetSpan`\\`GetMemory` with `Advance` for writing.
 4. Experiment to find the appropriate settings for your scenario.
 
 A working knowledge of the garbage collector is a very good idea before you try to optimize your scenario with this library. An article such as [Garbage Collection](https://docs.microsoft.com/dotnet/standard/garbage-collection/), or a book like *Writing High-Performance .NET Code* will help you understand the design principles of this library.
@@ -151,9 +151,41 @@ When configuring the options, consider questions such as these:
 * How resilient to spikes in activity do I need to be? i.e., How many free bytes should I keep around in case?
 * What are my physical memory limitations on the machines where this will be used?
 
+### IBufferWriter\<byte\>: GetMemory, GetSpan, and Advance ###
+
+`RecyclableMemoryStream` implements [IBufferWriter<byte>](https://docs.microsoft.com/en-us/dotnet/api/system.buffers.ibufferwriter-1?view=netstandard-2.1) so it can be used for zero-copy encoding and formatting. You can also directly modify the stream contents using `GetSpan`\\`GetMemory` with `Advance`. For instance, writing a `BigInteger` to a stream:
+
+```
+var bigInt = BigInteger.Parse("123456789013374299100987654321");
+
+using (var stream = manager.GetStream())
+{
+    Span<byte> buffer = stream.GetSpan(bigInt.GetByteCount());
+    bigInt.TryWriteBytes(buffer, out int bytesWritten);
+    stream.Advance(bytesWritten);
+}
+```
+
+### GetReadOnlySequence ###
+
+`GetReadOnlySequence` returns a [ReadOnlySequence<byte>](https://docs.microsoft.com/en-us/dotnet/api/system.buffers.readonlysequence-1?view=netstandard-2.1) that can be used for zero-copy stream processing. For example, hashing the contents of a stream: 
+
+```
+using (var stream = manager.GetStream())
+using (var sha256Hasher = IncrementalHash.CreateHash(HashAlgorithmName.SHA256))
+{
+    foreach (var memory in stream.GetReadOnlySequence())
+    {
+        sha256Hasher.AppendData(memory.Span);	
+    }
+    
+    sha256Hasher.GetHashAndReset();
+}
+```
+
 ### GetBuffer and ToArray ###
 
-`RecyclableMemoryStream` is designed to operate primarily on chained small pool blocks. However, realistically, many people will still need to get a single, contiguous buffer for the whole stream, especially to interoperate with certain I/O APIs. For this purpose, there are two APIs which `RecyclableMemoryStream` overrides from its parent `MemoryStream` class:
+`RecyclableMemoryStream` is designed to operate primarily on chained small pool blocks. To access these blocks use `GetReadOnlySequence` for reading and `GetSpan`\\`GetMemory` with `Advance` for writing. However, if you still want a contiguous buffer for the whole stream there are two APIs which `RecyclableMemoryStream` overrides from its parent `MemoryStream` class:
 
 * `GetBuffer` - If possible, a reference to the single block will be returned to the caller. If multiple blocks are in use, they will be converted into a single large pool buffer and the data copied into it. In all cases, the caller must use the `Length` property to determine how much usable data is actually in the returned buffer. If the stream length is longer than the maximum allowable stream size, a single buffer will still be returned, but it will not be pooled.
 * `ToArray` - It looks similar to `GetBuffer` on the surface, but is actually significantly different. In `ToArray` the data is *always* copied into a new array that is exactly the right length for the full contents of the stream. This new buffer is never pooled. Users of this library should consider any call to `ToArray` to be a bug, as it wipes out many of the benefits of `RecyclableMemoryStream` completely. However, the method is included for completeness, especially if you are calling other APIs that only take a `byte` array with no length parameter. An event is logged on all `ToArray` calls.

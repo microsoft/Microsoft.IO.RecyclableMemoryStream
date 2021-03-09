@@ -29,6 +29,7 @@ namespace Microsoft.IO
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
+    using System.Globalization;
     using System.IO;
     using System.Runtime.CompilerServices;
     using System.Threading;
@@ -85,7 +86,11 @@ namespace Microsoft.IO
     /// it cannot grow beyond the limits of the maximum allowable array size.
     /// </para>
     /// </remarks>
+#if NETCOREAPP2_1 || NETSTANDARD2_1
+    public sealed class RecyclableMemoryStream : MemoryStream, IBufferWriter<byte>
+#else
     public sealed class RecyclableMemoryStream : MemoryStream
+#endif
     {
         private static readonly byte[] emptyArray = new byte[0];
 
@@ -619,11 +624,129 @@ namespace Microsoft.IO
         }
 
 #if NETCOREAPP2_1 || NETSTANDARD2_1
+        private byte[] bufferWriterTempBuffer;
+
+        /// <summary>
+        /// Notifies the stream that <paramref name="count"/> bytes were written to the buffer returned by <see cref="GetMemory(int)"/> or <see cref="GetSpan(int)"/>.
+        /// Seeks forward by <paramref name="count"/> bytes.
+        /// </summary>
+        /// <remarks>
+        /// You must request a new buffer after calling Advance to continue writing more data and cannot write to a previously acquired buffer.
+        /// </remarks>
+        /// <param name="count">How many bytes to advance</param>
+        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="count"/> is negative</exception>
+        /// <exception cref="InvalidOperationException"><paramref name="count"/> is larger than the size of the previously requested buffer</exception>
+        public void Advance(int count)
+        {
+            this.CheckDisposed();
+            if (count < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(count), $"{nameof(count)} must be non-negative.");
+            }
+
+            byte[] buffer = this.bufferWriterTempBuffer;
+            if (buffer != null)
+            {
+                if (count > buffer.Length)
+                {
+                    throw new InvalidOperationException($"Cannot advance past the end of the buffer, which has a size of {buffer.Length}.");
+                }
+
+                this.Write(buffer, 0, count);
+                this.ReturnTempBuffer(buffer);
+                this.bufferWriterTempBuffer = null;
+            }
+            else
+            {
+                long bufferSize = this.largeBuffer == null
+                    ? this.memoryManager.BlockSize - this.GetBlockAndRelativeOffset(this.position).Offset
+                    : this.largeBuffer.Length - this.position;
+
+                if (count > bufferSize)
+                {
+                    throw new InvalidOperationException($"Cannot advance past the end of the buffer, which has a size of {bufferSize}.");
+                }
+
+                this.position += count;
+                this.length = Math.Max(this.position, this.length);
+            }
+        }
+
+        private void ReturnTempBuffer(byte[] buffer)
+        {
+            if (buffer.Length == this.memoryManager.BlockSize)
+            {
+                this.memoryManager.ReturnBlock(buffer, this.id, this.tag);
+            }
+            else
+            {
+                this.memoryManager.ReturnLargeBuffer(buffer, this.id, this.tag);
+            }
+        }
+
+        /// <inheritdoc/>
+        /// <remarks>
+        /// IMPORTANT: Calling Write(), GetBuffer(), TryGetBuffer(), Seek(), GetLength(), Advance(),
+        /// or setting Position after calling GetMemory() invalidates the memory.
+        /// </remarks>
+        public Memory<byte> GetMemory(int sizeHint = 0) => this.GetWritableBuffer(sizeHint);
+
+        /// <inheritdoc/>
+        /// <remarks>
+        /// IMPORTANT: Calling Write(), GetBuffer(), TryGetBuffer(), Seek(), GetLength(), Advance(),
+        /// or setting Position after calling GetMemory() invalidates the memory.
+        /// </remarks>
+        public Span<byte> GetSpan(int sizeHint = 0) => this.GetWritableBuffer(sizeHint);
+
+        /// <summary>
+        /// When callers to GetSpan() or GetMemory() request a buffer that is larger than the remaining size of the current block
+        /// this method return a temp buffer. When Advance() is called, that temp buffer is then copied into the stream.
+        /// </summary>
+        private ArraySegment<byte> GetWritableBuffer(int minimumBufferSize)
+        {
+            this.CheckDisposed();
+            if (minimumBufferSize < 0)
+            {
+                throw new ArgumentOutOfRangeException("sizeHint", $"sizeHint must be non-negative");
+            }
+
+            if (minimumBufferSize == 0) 
+            { 
+                minimumBufferSize = 1; 
+            }
+
+            this.EnsureCapacity(this.position + minimumBufferSize);
+            if (this.bufferWriterTempBuffer != null)
+            {
+                this.ReturnTempBuffer(this.bufferWriterTempBuffer);
+                this.bufferWriterTempBuffer = null;
+            }
+
+            if (this.largeBuffer != null)
+            {
+                return new ArraySegment<byte>(this.largeBuffer, (int)this.position, this.largeBuffer.Length - (int)this.position);
+            }
+
+            BlockAndOffset blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
+            int remainingBytesInBlock = this.MemoryManager.BlockSize - blockAndOffset.Offset;
+            if (remainingBytesInBlock >= minimumBufferSize)
+            {
+                return new ArraySegment<byte>(this.blocks[blockAndOffset.Block], blockAndOffset.Offset, this.MemoryManager.BlockSize - blockAndOffset.Offset);
+            }
+
+            this.bufferWriterTempBuffer = minimumBufferSize > this.memoryManager.BlockSize ?
+                this.memoryManager.GetLargeBuffer(minimumBufferSize, this.id, this.tag) :
+                this.memoryManager.GetBlock();
+
+            return new ArraySegment<byte>(this.bufferWriterTempBuffer);
+        }
+
         /// <summary>
         /// Returns a sequence containing the contents of the stream.
         /// </summary>
         /// <returns>A ReadOnlySequence of bytes</returns>
-        /// <remarks>IMPORTANT: Doing a Write(), Dispose(), or Close() after calling GetReadOnlySequence() invalidates the sequence.</remarks>
+        /// <remarks>IMPORTANT: Calling Write(), GetMemory(), GetSpan(), Dispose(), or Close() after calling GetReadOnlySequence() invalidates the sequence.</remarks>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public ReadOnlySequence<byte> GetReadOnlySequence()
         {
@@ -1315,8 +1438,9 @@ namespace Microsoft.IO
             if (newCapacity > this.memoryManager.MaximumStreamCapacity && this.memoryManager.MaximumStreamCapacity > 0)
             {
                 this.memoryManager.ReportStreamOverCapacity(this.id, this.tag, newCapacity, this.AllocationStack);
-                throw new InvalidOperationException("Requested capacity is too large: " + newCapacity + ". Limit is " +
-                                                    this.memoryManager.MaximumStreamCapacity);
+                throw new OutOfMemoryException(
+                    "Requested capacity is too large: " + newCapacity.ToString(CultureInfo.InvariantCulture) +
+                    ". Limit is " + this.memoryManager.MaximumStreamCapacity.ToString(CultureInfo.InvariantCulture));
             }
 
             if (this.largeBuffer != null)
