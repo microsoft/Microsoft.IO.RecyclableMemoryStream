@@ -566,6 +566,7 @@ namespace Microsoft.IO
         ///   <paramref name="destination" /> is <see langword="null" />.</exception>
         /// <exception cref="T:System.ObjectDisposedException">Either the current stream or the destination stream is disposed.</exception>
         /// <exception cref="T:System.NotSupportedException">The current stream does not support reading, or the destination stream does not support writing.</exception>
+        /// <remarks>Similarly to <c>MemoryStream</c>'s behavior, <c>CopyToAsync</c> will adjust the source stream's position by the number of bytes written to the destination stream, as a Read would do.</remarks>
         public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
         {
             if (destination == null)
@@ -580,9 +581,12 @@ namespace Microsoft.IO
                 return Task.CompletedTask;
             }
 
+            var count = this.length - this.position;
+
             if (destination is MemoryStream destinationRMS)
-            {
-                this.WriteTo(destinationRMS, this.position, this.length - this.position);
+            {                
+                this.WriteTo(destinationRMS, this.position, count);
+                this.position += count;
                 return Task.CompletedTask;
             }
             else
@@ -592,15 +596,16 @@ namespace Microsoft.IO
                     if (this.blocks.Count == 1)
                     {
                         AssertLengthIsSmall();
-                        return destination.WriteAsync(this.blocks[0], (int)this.position, (int)(this.length - this.position), cancellationToken);
+                        return destination.WriteAsync(this.blocks[0], (int)this.position, (int)count, cancellationToken).ContinueWith((task) => this.position += count);
                     }
                     else
                     {
-                        return CopyToAsyncImpl(cancellationToken);
+                        return CopyToAsyncImpl(cancellationToken, count);
 
-                        async Task CopyToAsyncImpl(CancellationToken ct)
+                        async Task CopyToAsyncImpl(CancellationToken ct, long totalBytesToWrite)
                         {                            
-                            var bytesRemaining = this.length - this.position;
+                            var bytesRemaining = totalBytesToWrite;
+                            var totalBytesToaDd = bytesRemaining;
                             var blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
                             int currentBlock = blockAndOffset.Block;
                             var currentOffset = blockAndOffset.Offset;
@@ -612,13 +617,14 @@ namespace Microsoft.IO
                                 ++currentBlock;
                                 currentOffset = 0;
                             }
+                            this.position += totalBytesToWrite;
                         }
                     }
                 }
                 else
                 {
                     AssertLengthIsSmall();
-                    return destination.WriteAsync(this.largeBuffer, (int)this.position, (int)(this.length - this.position), cancellationToken);
+                    return destination.WriteAsync(this.largeBuffer, (int)this.position, (int)count, cancellationToken).ContinueWith((task) => this.position += count);
                 }
             }
         }
