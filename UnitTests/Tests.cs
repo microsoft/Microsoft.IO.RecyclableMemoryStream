@@ -2881,7 +2881,6 @@ namespace Microsoft.IO.UnitTests
             Assert.That(stream.Length, Is.EqualTo(startingLength + 1));
         }
 
-#if NETCOREAPP2_1 || NETSTANDARD2_1
         [Test]
         public void VeryLargeStream_GetReadOnlySequence()
         {
@@ -2891,9 +2890,15 @@ namespace Microsoft.IO.UnitTests
             {
                 stream.Write(buffer);
             }
-            Assert.Throws<InvalidOperationException>(() => stream.GetReadOnlySequence());
+            
+            var sequence = new SequenceReader<byte>(stream.GetReadOnlySequence());
+            Assert.That(sequence.Length, Is.EqualTo(stream.Length));
+
+            while (sequence.Remaining != 0)
+            {
+                Assert.That(sequence.IsNext(buffer, true), Is.True);
+            }
         }
-#endif
 
         private RecyclableMemoryStream GetMultiGBStream()
         {

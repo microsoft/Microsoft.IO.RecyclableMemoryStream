@@ -766,26 +766,19 @@ namespace Microsoft.IO
 
             if (this.blocks.Count == 1)
             {
-            AssertLengthIsSmall();
+                AssertLengthIsSmall();
                 return new ReadOnlySequence<byte>(this.blocks[0], 0, (int)this.length);
-            }
-
-            if (this.length > RecyclableMemoryStreamManager.MaxArrayLength)
-            {
-                throw new InvalidOperationException($"Cannot return a ReadOnlySequence larger than {RecyclableMemoryStreamManager.MaxArrayLength}, but stream length is {this.length}.");
             }
 
             BlockSegment first = new BlockSegment(this.blocks[0]);
             BlockSegment last = first;
-
             
             for (int blockIdx = 1; blockIdx < blocks.Count; blockIdx++)
             {
                 last = last.Append(this.blocks[blockIdx]);
             }
 
-            Debug.Assert(this.length <= Int32.MaxValue);
-            return new ReadOnlySequence<byte>(first, 0, last, (int)this.length - (int)last.RunningIndex);
+            return new ReadOnlySequence<byte>(first, 0, last, (int)(this.length - last.RunningIndex));
         }
 
         private sealed class BlockSegment : ReadOnlySequenceSegment<byte>
