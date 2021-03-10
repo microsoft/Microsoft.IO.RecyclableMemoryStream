@@ -2641,6 +2641,27 @@ namespace Microsoft.IO.UnitTests
                 RMSAssert.BuffersAreEqual(new ReadOnlySpan<byte>(stream.GetBuffer(), offset, buffer.Length - offset), otherBuffer, buffer.Length - offset);
             }
         }
+
+        [TestCase(true, false)]
+        [TestCase(false, false)]
+        [TestCase(true, true)]
+        [TestCase(false, true)]
+        public void CopyToAsyncChangesSourcePosition(bool filestreamTarget, bool largeBuffer)
+        {
+            using (var targetStream = filestreamTarget ? (Stream)File.OpenWrite(Path.GetRandomFileName()) : (Stream)new MemoryStream())
+            {
+                using (var stream = GetDefaultStream())
+                {
+                    var buffer = GetRandomBuffer(largeBuffer ? DefaultBlockSize * 25 : 100);
+                    stream.Write(buffer);
+                    Assert.That(stream.Position, Is.EqualTo(buffer.Length));
+                    stream.Position = buffer.Length / 2;
+                    stream.CopyToAsync(targetStream).Wait();
+                    Assert.That(targetStream.Length, Is.EqualTo(buffer.Length / 2));
+                    Assert.That(stream.Position, Is.EqualTo(buffer.Length));
+                }
+            }
+        }
         #endregion
 
 
