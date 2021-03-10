@@ -512,9 +512,13 @@ namespace Microsoft.IO
 #endif
             }
 
+            int startPos = this.position;
+            var count = this.length - startPos;
+            this.position += count;
+
             if (destination is MemoryStream destinationRMS)
             {
-                this.WriteTo(destinationRMS, this.position, this.length - this.position);
+                this.WriteTo(destinationRMS, startPos, count);
 #if NET45
                 return Task.FromResult(true);
 #else
@@ -527,16 +531,16 @@ namespace Microsoft.IO
                 {
                     if (this.blocks.Count == 1)
                     {
-                        return destination.WriteAsync(this.blocks[0], this.position, this.length - this.position, cancellationToken);
+                        return destination.WriteAsync(this.blocks[0], startPos, count, cancellationToken);
                     }
                     else
                     {
-                        return CopyToAsyncImpl(cancellationToken);
+                        return CopyToAsyncImpl(cancellationToken, count);
 
-                        async Task CopyToAsyncImpl(CancellationToken ct)
+                        async Task CopyToAsyncImpl(CancellationToken ct, int totalBytesToWrite)
                         {                            
-                            var bytesRemaining = this.length - this.position;
-                            var blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
+                            var bytesRemaining = totalBytesToWrite;
+                            var blockAndOffset = this.GetBlockAndRelativeOffset(startPos);
                             int currentBlock = blockAndOffset.Block;
                             var currentOffset = blockAndOffset.Offset;
                             while (bytesRemaining > 0)
@@ -552,7 +556,7 @@ namespace Microsoft.IO
                 }
                 else
                 {
-                    return destination.WriteAsync(this.largeBuffer, this.position, this.length - this.position, cancellationToken);
+                    return destination.WriteAsync(this.largeBuffer, startPos, count, cancellationToken);
                 }
             }
         }
