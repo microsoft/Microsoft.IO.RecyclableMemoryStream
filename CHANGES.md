@@ -1,3 +1,7 @@
+# Version 1.4.1
+
+* Fixed a bug in `CopyToAsync` where it wasn't updating the current position, just like a Read would. This was different behavior than in the base class, `MemoryStream`.
+
 # Version 1.4.0
 
 * Added netstandard2.0 target. There was an issue calling `GetBuffer` from a netstandard2.0 project, which would resolve to the netstandard1.4 target of RMS. netstandard1.4 doesn't support overriding `GetBuffer`, so you could hit `UnauthorizedAccessException`.
