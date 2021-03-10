@@ -581,12 +581,13 @@ namespace Microsoft.IO
                 return Task.CompletedTask;
             }
 
-            var count = this.length - this.position;
+            long startPos = this.position;
+            var count = this.length - startPos;
+            this.position += count;
 
             if (destination is MemoryStream destinationRMS)
             {                
-                this.WriteTo(destinationRMS, this.position, count);
-                this.position += count;
+                this.WriteTo(destinationRMS, startPos, count);
                 return Task.CompletedTask;
             }
             else
@@ -596,7 +597,7 @@ namespace Microsoft.IO
                     if (this.blocks.Count == 1)
                     {
                         AssertLengthIsSmall();
-                        return destination.WriteAsync(this.blocks[0], (int)this.position, (int)count, cancellationToken).ContinueWith((task) => this.position += count);
+                        return destination.WriteAsync(this.blocks[0], (int)startPos, (int)count, cancellationToken);
                     }
                     else
                     {
@@ -606,7 +607,7 @@ namespace Microsoft.IO
                         {                            
                             var bytesRemaining = totalBytesToWrite;
                             var totalBytesToaDd = bytesRemaining;
-                            var blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
+                            var blockAndOffset = this.GetBlockAndRelativeOffset(startPos);
                             int currentBlock = blockAndOffset.Block;
                             var currentOffset = blockAndOffset.Offset;
                             while (bytesRemaining > 0)
@@ -617,14 +618,13 @@ namespace Microsoft.IO
                                 ++currentBlock;
                                 currentOffset = 0;
                             }
-                            this.position += totalBytesToWrite;
                         }
                     }
                 }
                 else
                 {
                     AssertLengthIsSmall();
-                    return destination.WriteAsync(this.largeBuffer, (int)this.position, (int)count, cancellationToken).ContinueWith((task) => this.position += count);
+                    return destination.WriteAsync(this.largeBuffer, (int)startPos, (int)count, cancellationToken);
                 }
             }
         }
