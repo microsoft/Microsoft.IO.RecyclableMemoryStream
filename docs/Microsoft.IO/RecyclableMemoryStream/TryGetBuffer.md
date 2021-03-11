@@ -12,11 +12,7 @@ public override bool TryGetBuffer(out ArraySegment<byte> buffer)
 
 ## Return Value
 
-Always returns true.
-
-## Remarks
-
-[`GetBuffer`](GetBuffer.md) has no failure modes (it always returns something, even if it's an empty buffer), therefore this method always returns a valid `ArraySegment` to the same buffer returned by [`GetBuffer`](GetBuffer.md).
+Returns true if a buffer can be returned; otherwise, false
 
 ## See Also
 
