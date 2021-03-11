@@ -921,8 +921,6 @@ namespace Microsoft.IO
             return amountRead;
         }
 
-
-
 #if NETCOREAPP2_1 || NETSTANDARD2_1
         /// <summary>
         /// Reads from the current position into the provided buffer
@@ -970,7 +968,6 @@ namespace Microsoft.IO
             streamPosition += amountRead;
             return amountRead;
         }
-        
 #endif
         
         /// <summary>
