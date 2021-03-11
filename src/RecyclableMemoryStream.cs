@@ -972,7 +972,7 @@ namespace Microsoft.IO
         }
         
 #endif
-
+        
         /// <summary>
         /// Writes the buffer to the stream
         /// </summary>
@@ -1257,6 +1257,7 @@ namespace Microsoft.IO
         /// <param name="stream">Destination stream</param>
         /// <remarks>Important: This does a synchronous write, which may not be desired in some situations</remarks>
         /// <exception cref="ArgumentNullException">stream is null</exception>
+        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public override void WriteTo(Stream stream)
         {
             this.WriteTo(stream, 0, this.length);
@@ -1270,6 +1271,7 @@ namespace Microsoft.IO
         /// <param name="count">Number of bytes to write</param>
         /// <exception cref="ArgumentNullException">stream is null</exception>
         /// <exception cref="ArgumentOutOfRangeException">Offset is less than 0, or offset + count is beyond  this stream's length.</exception>
+        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public void WriteTo(Stream stream, int offset, int count)
         {
             this.WriteTo(stream, (long)offset, (long)count);
@@ -1283,6 +1285,7 @@ namespace Microsoft.IO
         /// <param name="count">Number of bytes to write</param>
         /// <exception cref="ArgumentNullException">stream is null</exception>
         /// <exception cref="ArgumentOutOfRangeException">Offset is less than 0, or offset + count is beyond  this stream's length.</exception>
+        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public void WriteTo(Stream stream, long offset, long count)
         {
             this.CheckDisposed();
@@ -1317,6 +1320,88 @@ namespace Microsoft.IO
             else
             {
                 stream.Write(this.largeBuffer, (int)offset, (int)count);
+            }
+        }
+
+        /// <summary>
+        /// Writes bytes from the current stream to a destination <c>byte</c> array
+        /// </summary>
+        /// <param name="buffer">Target buffer</param>
+        /// <remarks>The entire stream is written to the target array.</remarks>
+        //// <exception cref="ArgumentNullException"><c>buffer</c> is null</exception>
+        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+        public void WriteTo(byte[] buffer)
+        {
+            this.WriteTo(buffer, 0, this.Length);
+        }
+
+        /// <summary>
+        /// Writes bytes from the current stream to a destination <c>byte</c> array
+        /// </summary>
+        /// <param name="buffer">Target buffer</param>
+        /// <param name="offset">Offset in the source stream, from which to start</param>
+        /// <param name="count">Number of bytes to write</param>
+        /// <exception cref="ArgumentNullException"><c>buffer</c> is null</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Offset is less than 0, or offset + count is beyond  this stream's length.</exception>
+        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+        public void WriteTo(byte[] buffer, long offset, long count)
+        {
+            this.WriteTo(buffer, offset, count, 0);
+        }
+
+        /// <summary>
+        /// Writes bytes from the current stream to a destination <c>byte</c> array
+        /// </summary>
+        /// <param name="buffer">Target buffer</param>
+        /// <param name="offset">Offset in the source stream, from which to start</param>
+        /// <param name="count">Number of bytes to write</param>
+        /// <param name="targetOffset">Offset in the target byte array to start writing</param>
+        /// <exception cref="ArgumentNullException"><c>buffer</c> is null</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Offset is less than 0, or offset + count is beyond  this stream's length.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">targetOffset is less than 0, or targetOffset + count is beyond the target buffer's length.</exception>
+        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+        public void WriteTo(byte[] buffer, long offset, long count, int targetOffset)
+        {
+            this.CheckDisposed();
+            if (buffer == null)
+            {
+                throw new ArgumentNullException(nameof(buffer));
+            }
+
+            if (offset < 0 || offset + count > this.length)
+            {
+                throw new ArgumentOutOfRangeException(message: "offset must not be negative and offset + count must not exceed the length of the stream", innerException: null);
+            }
+
+            if (targetOffset < 0 || count + targetOffset > buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException(message: "targetOffset must not be negative and targetOffset + count must not exceed the length of the target buffer", innerException: null);
+            }
+
+            if (this.largeBuffer == null)
+            {
+                var blockAndOffset = GetBlockAndRelativeOffset(offset);
+                long bytesRemaining = count;
+                int currentBlock = blockAndOffset.Block;
+                int currentOffset = blockAndOffset.Offset;
+                int currentTargetOffset = targetOffset;
+
+                while (bytesRemaining > 0)
+                {
+                    int amountToCopy = (int)Math.Min((long)this.blocks[currentBlock].Length - currentOffset, bytesRemaining);
+                    Buffer.BlockCopy(this.blocks[currentBlock], currentOffset, buffer, currentTargetOffset, amountToCopy);
+                    
+                    bytesRemaining -= amountToCopy;
+
+                    ++currentBlock;
+                    currentOffset = 0;
+                    currentTargetOffset += amountToCopy;
+                }
+            }
+            else
+            {
+                AssertLengthIsSmall();
+                Buffer.BlockCopy(this.largeBuffer, (int)offset, buffer, targetOffset, (int)count);
             }
         }
         #endregion
