@@ -59,7 +59,7 @@ Read the change log [here](CHANGES.md).
 The `RecyclableMemoryStreamManager` class maintains two separate pools of objects:
 
 1. **Small Pool** - Holds small buffers (of configurable size). Used by default for all normal read/write operations. Multiple small buffers are chained together in the `RecyclableMemoryStream` class and abstracted into a single stream.
-2. **Large Pool** - Holds large buffers, which are only used when you must have a single, contiguous buffer, such as when you plan to call `GetBuffer()`. It is possible to create streams longer than is possible to be represented by a single buffer because of .NET's array size limits.
+2. **Large Pool** - Holds large buffers, which are only used when you must have a single, contiguous buffer, such as when you plan to call `GetBuffer()`. It is possible to create streams larger than is possible to be represented by a single buffer because of .NET's array size limits.
 
 A `RecyclableMemoryStream` starts out by using a small buffer, chaining additional ones as the stream capacity grows. Should you ever call `GetBuffer()` and the length is greater than a single small buffer's capacity, then the small buffers are converted to a single large buffer. You can also request a stream with an initial capacity; if that capacity is larger than the small pool block size, a single large buffer will be assigned from the start. If you request a capacity larger than the maximum poolable size, you will still get a stream back, but the buffers will not be pooled. (Note: This is not referring to the the maximum array size. You can limit the poolable buffer sizes in `RecyclableMemoryStreamManager`)
 
@@ -110,7 +110,7 @@ using (var stream = manager.GetStream("Program.Main"))
 }
 ```
 
-You can also provide an existing buffer. It’s important to note that this buffer will be *copied* into the pooled buffers owned by `RecyclableMemoryStream`:
+You can also provide an existing buffer. It’s important to note that the data from this buffer will be *copied* into a buffer owned by the pool:
 
 ```
 var stream = manager.GetStream("Program.Main", sourceBuffer, 
@@ -140,7 +140,7 @@ While this library strives to be very general and not impose too many restraints
 
 1. Set the `blockSize`, `largeBufferMultiple`, `maxBufferSize`, `MaximumFreeLargePoolBytes` and `MaximumFreeSmallPoolBytes` properties to reasonable values for your application and resource requirements.
 2. Always dispose of each stream exactly once.
-3. Never call `ToArray` and avoid calling `GetBuffer` if possible. Instead, use `GetReadOnlySequence` for reading and `GetSpan`\\`GetMemory` with `Advance` for writing. There are also miscellaneous `CopyTo` and `WriteTo` methods that may be convenient.
+3. Never call `ToArray` and avoid calling `GetBuffer` if possible. Instead, use `GetReadOnlySequence` for reading and the `IBufferWriter` methods `GetSpan`\\`GetMemory` with `Advance` for writing. There are also miscellaneous `CopyTo` and `WriteTo` methods that may be convenient.
 4. Experiment to find the appropriate settings for your scenario.
 
 A working knowledge of the garbage collector is a very good idea before you try to optimize your scenario with this library. An article such as [Garbage Collection](https://docs.microsoft.com/dotnet/standard/garbage-collection/), or a book like *Writing High-Performance .NET Code* will help you understand the design principles of this library.
