@@ -3,7 +3,7 @@
 MemoryStream implementation that deals with pooling and managing memory streams which use potentially large buffers.
 
 ```csharp
-public sealed class RecyclableMemoryStream : MemoryStream
+public sealed class RecyclableMemoryStream : MemoryStream, IBufferWriter<byte>
 ```
 
 ## Public Members
@@ -19,10 +19,13 @@ public sealed class RecyclableMemoryStream : MemoryStream
 | [Capacity64](RecyclableMemoryStream/Capacity64.md) { get; set; } | Returns a 64-bit version of capacity, for streams larger than `int.MaxValue` in length. |
 | override [Length](RecyclableMemoryStream/Length.md) { get; } | Gets the number of bytes written to this stream. |
 | override [Position](RecyclableMemoryStream/Position.md) { get; set; } | Gets the current position in the stream |
+| [Advance](RecyclableMemoryStream/Advance.md)(…) | Notifies the stream that *count* bytes were written to the buffer returned by [`GetMemory`](RecyclableMemoryStream/GetMemory.md) or [`GetSpan`](RecyclableMemoryStream/GetSpan.md). Seeks forward by *count* bytes. |
 | override [Close](RecyclableMemoryStream/Close.md)() | Equivalent to `Dispose` |
 | override [CopyToAsync](RecyclableMemoryStream/CopyToAsync.md)(…) | Asynchronously reads all the bytes from the current position in this stream and writes them to another stream. |
 | override [GetBuffer](RecyclableMemoryStream/GetBuffer.md)() | Returns a single buffer containing the contents of the stream. The buffer may be longer than the stream length. |
+| [GetMemory](RecyclableMemoryStream/GetMemory.md)(…) |  |
 | [GetReadOnlySequence](RecyclableMemoryStream/GetReadOnlySequence.md)() | Returns a sequence containing the contents of the stream. |
+| [GetSpan](RecyclableMemoryStream/GetSpan.md)(…) |  |
 | override [Read](RecyclableMemoryStream/Read.md)(…) | Reads from the current position into the provided buffer (2 methods) |
 | override [ReadByte](RecyclableMemoryStream/ReadByte.md)() | Reads a single byte from the current position in the stream. |
 | [SafeRead](RecyclableMemoryStream/SafeRead.md)(…) | Reads from the specified position into the provided buffer (4 methods) |
@@ -60,6 +63,8 @@ The biggest wrinkle in this implementation is when [`GetBuffer`](RecyclableMemor
 Once a large buffer is assigned to the stream the small blocks are NEVER again used for this stream. All operations take place on the large buffer. The large buffer can be replaced by a larger buffer from the pool as needed. All blocks and large buffers are maintained in the stream until the stream is disposed (unless AggressiveBufferReturn is enabled in the stream manager).
 
 A further wrinkle is what happens when the stream is longer than the maximum allowable array length under .NET. This is allowed when only blocks are in use, and only the Read/Write APIs are used. Once a stream grows to this size, any attempt to convert it to a single buffer will result in an exception. Similarly, if a stream is already converted to use a single larger buffer, then it cannot grow beyond the limits of the maximum allowable array size.
+
+Any method that modifies the stream has the potential to throw an `OutOfMemoryException`, either because the stream is beyond the limits set in `RecyclableStreamManager`, or it would result in a buffer larger than the maximum array size supported by .NET.
 
 ## See Also
 

@@ -15,7 +15,7 @@ A byte[] buffer
 | exception | condition |
 | --- | --- |
 | ObjectDisposedException | Object has been disposed |
-| InvalidOperationException | stream is too large for a contiguous buffer. |
+| OutOfMemoryException | stream is too large for a contiguous buffer |
 
 ## Remarks
 

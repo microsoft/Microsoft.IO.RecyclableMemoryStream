@@ -85,6 +85,11 @@ namespace Microsoft.IO
     /// to a single buffer will result in an exception. Similarly, if a stream is already converted to use a single larger buffer, then
     /// it cannot grow beyond the limits of the maximum allowable array size.
     /// </para>
+    /// <para>
+    /// Any method that modifies the stream has the potential to throw an <c>OutOfMemoryException</c>, either because
+    /// the stream is beyond the limits set in <c>RecyclableStreamManager</c>, or it would result in a buffer larger than
+    /// the maximum array size supported by .NET.
+    /// </para>
     /// </remarks>
 #if NETCOREAPP2_1 || NETSTANDARD2_1
     public sealed class RecyclableMemoryStream : MemoryStream, IBufferWriter<byte>
@@ -515,7 +520,7 @@ namespace Microsoft.IO
         /// <remarks>IMPORTANT: Doing a <see cref="Write(byte[], int, int)"/> after calling <c>GetBuffer</c> invalidates the buffer. The old buffer is held onto
         /// until <see cref="Dispose(bool)"/> is called, but the next time <c>GetBuffer</c> is called, a new buffer from the pool will be required.</remarks>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
-        /// <exception cref="InvalidOperationException">stream is too large for a contiguous buffer.</exception>
+        /// <exception cref="OutOfMemoryException">stream is too large for a contiguous buffer</exception>
         public override byte[] GetBuffer()
         {
             this.CheckDisposed();
@@ -534,11 +539,6 @@ namespace Microsoft.IO
             // it's possible that people will manipulate the buffer directly
             // and set the length afterward. Capacity sets the expectation
             // for the size of the buffer.
-
-            if (this.Capacity64 > RecyclableMemoryStreamManager.MaxArrayLength)
-            {
-                throw new InvalidOperationException("Stream is too large for a contiguous buffer.");
-            }
 
             var newBuffer = this.memoryManager.GetLargeBuffer(this.Capacity64, this.id, this.tag);
 
@@ -798,16 +798,30 @@ namespace Microsoft.IO
         /// Returns an <c>ArraySegment</c> that wraps a single buffer containing the contents of the stream.
         /// </summary>
         /// <param name="buffer">An <c>ArraySegment</c> containing a reference to the underlying bytes.</param>
-        /// <returns>Always returns true.</returns>
-        /// <remarks><see cref="GetBuffer"/> has no failure modes (it always returns something, even if it's an empty buffer), therefore this method
-        /// always returns a valid <c>ArraySegment</c> to the same buffer returned by <see cref="GetBuffer" />.</remarks>
+        /// <returns>Returns true if a buffer can be returned; otherwise, false</returns>
         public override bool TryGetBuffer(out ArraySegment<byte> buffer)
         {
             this.CheckDisposed();
-            Debug.Assert(this.length <= Int32.MaxValue);
-            buffer = new ArraySegment<byte>(this.GetBuffer(), 0, (int)this.Length);
-            // GetBuffer has no failure modes, so this should always succeed
-            return true;
+
+            try
+            {
+                if (this.length <= RecyclableMemoryStreamManager.MaxArrayLength)
+                {
+                    buffer = new ArraySegment<byte>(this.GetBuffer(), 0, (int)this.Length);
+                    return true;
+                }
+            }
+            catch(OutOfMemoryException)
+            {
+                
+            }
+
+#if NETCOREAPP2_1 || NETSTANDARD2_1
+            buffer = ArraySegment<byte>.Empty;
+#else
+            buffer = new ArraySegment<byte>();
+#endif
+            return false;
         }
 
         /// <summary>
@@ -817,6 +831,7 @@ namespace Microsoft.IO
         /// </summary>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         /// <exception cref="NotSupportedException">The current <see cref="RecyclableMemoryStreamManager"/>object disallows <c>ToArray</c> calls.</exception>
+        /// <exception cref="OutOfMemoryException">The length of the stream is too long for a contiguous array</exception>
 #pragma warning disable CS0809
         [Obsolete("This method has degraded performance vs. GetBuffer and should be avoided.")]
         public override byte[] ToArray()
@@ -1577,6 +1592,6 @@ namespace Microsoft.IO
         {
             Debug.Assert(this.length <= Int32.MaxValue, "this.length was assumed to be <= Int32.MaxValue, but was larger.");
         }
-        #endregion
+#endregion
     }
 }
