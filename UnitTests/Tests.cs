@@ -2480,6 +2480,22 @@ namespace Microsoft.IO.UnitTests
             RMSAssert.BuffersAreEqual(buffer, stream2.GetBuffer(), buffer.Length);
         }
 
+        [Test]
+        public void WriteToOtherStreamDoesNotChangePosition()
+        {
+            var stream = this.GetDefaultStream();
+            var buffer = this.GetRandomBuffer(100);
+            stream.Write(buffer, 0, buffer.Length);
+            stream.Position = buffer.Length / 2;
+
+            var stream2 = this.GetDefaultStream();
+            stream.WriteTo(stream2);
+            Assert.That(stream.Position, Is.EqualTo(buffer.Length / 2));
+
+            Assert.That(stream2.Length, Is.EqualTo(stream.Length));
+            RMSAssert.BuffersAreEqual(buffer, stream2.GetBuffer(), buffer.Length);
+        }
+
         [TestCase(DefaultBlockSize / 2)]
         [TestCase(DefaultBlockSize * 2)]
         public void WriteToOtherStreamOffsetCountHasEqualContentsSubStream(int bufferSize)
@@ -2530,6 +2546,155 @@ namespace Microsoft.IO.UnitTests
             Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(stream, -1, (int)stream.Length));
             Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(stream, 1, (int)stream.Length));
             Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(stream, 0, (int)stream.Length + 1));
+        }
+
+        [Test]
+        public void WriteToByteArray_NullTarget()
+        {
+            using (var stream = GetDefaultStream())
+            {
+                Assert.Throws<ArgumentNullException>(() => stream.WriteTo((byte[])null));
+            }
+        }
+
+        [Test]
+        public void WriteToByteArray_FullArray_Small()
+        {
+            byte[] sourceBuffer = GetRandomBuffer(100);
+            using (var stream = GetDefaultStream())
+            {
+                stream.Write(sourceBuffer);
+                byte[] targetBuffer = new byte[sourceBuffer.Length];
+                stream.WriteTo(targetBuffer);
+                RMSAssert.BuffersAreEqual(sourceBuffer, targetBuffer);
+            }
+        }
+
+        [Test]
+        public void WriteToByteArrayDoesNotChangePosition()
+        {
+            byte[] sourceBuffer = GetRandomBuffer(100);
+            using (var stream = GetDefaultStream())
+            {
+                stream.Write(sourceBuffer);
+                stream.Position = sourceBuffer.Length / 2;
+                byte[] targetBuffer = new byte[sourceBuffer.Length];
+                stream.WriteTo(targetBuffer);
+                Assert.That(stream.Position, Is.EqualTo(sourceBuffer.Length / 2));
+                RMSAssert.BuffersAreEqual(sourceBuffer, targetBuffer);
+            }
+        }
+
+        [Test]
+        public void WriteToByteArray_Full_Array_Large()
+        {
+            byte[] sourceBuffer = GetRandomBuffer(25 * DefaultBlockSize);
+            using (var stream = GetDefaultStream())
+            {
+                stream.Write(sourceBuffer);
+                stream.GetBuffer();
+                byte[] targetBuffer = new byte[sourceBuffer.Length];
+                stream.WriteTo(targetBuffer);
+                RMSAssert.BuffersAreEqual(sourceBuffer, targetBuffer);
+            }
+        }
+
+        [Test]
+        public void WriteToByteArray_OffsetCount()
+        {
+            byte[] sourceBuffer = GetRandomBuffer(100);
+            using (var stream = GetDefaultStream())
+            {
+                stream.Write(sourceBuffer);
+                byte[] targetBuffer = new byte[sourceBuffer.Length];
+                stream.WriteTo(targetBuffer, sourceBuffer.Length / 2, sourceBuffer.Length / 2);
+                RMSAssert.BuffersAreEqual(sourceBuffer, sourceBuffer.Length / 2, targetBuffer, 0, sourceBuffer.Length / 2);
+            }
+        }
+
+        [Test]
+        public void WriteToByteArray_CountLargerThanSourceWithZeroOffset()
+        {
+            byte[] sourceBuffer = GetRandomBuffer(100);
+            using (var stream = GetDefaultStream())
+            {
+                stream.Write(sourceBuffer);
+                byte[] targetBuffer = new byte[sourceBuffer.Length];
+                Assert.Throws<ArgumentOutOfRangeException>(()=>stream.WriteTo(targetBuffer, 0, sourceBuffer.Length + 1));                
+            }
+        }
+
+        [Test]
+        public void WriteToByteArray_CountLargerThanSourceWithNonZeroOffset()
+        {
+            byte[] sourceBuffer = GetRandomBuffer(100);
+            using (var stream = GetDefaultStream())
+            {
+                stream.Write(sourceBuffer);
+                byte[] targetBuffer = new byte[sourceBuffer.Length];
+                Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, 1, sourceBuffer.Length));
+            }
+        }
+
+        [Test]
+        public void WriteToByteArray_CountLargerThanTargetZeroOffset()
+        {
+            byte[] sourceBuffer = GetRandomBuffer(100);
+            using (var stream = GetDefaultStream())
+            {
+                stream.Write(sourceBuffer);
+                byte[] targetBuffer = new byte[sourceBuffer.Length];
+                Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, 0, sourceBuffer.Length, 1));
+            }
+        }
+
+        [Test]
+        public void WriteToByteArray_CountLargerThanTargetNonZeroOffset()
+        {
+            byte[] sourceBuffer = GetRandomBuffer(100);
+            using (var stream = GetDefaultStream())
+            {
+                stream.Write(sourceBuffer);
+                byte[] targetBuffer = new byte[sourceBuffer.Length];
+                Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, 1, sourceBuffer.Length - 1, 2));
+            }
+        }
+
+        [Test]
+        public void WriteToByteArray_TargetOffsetLargerThanTarget()
+        {
+            byte[] sourceBuffer = GetRandomBuffer(100);
+            using (var stream = GetDefaultStream())
+            {
+                stream.Write(sourceBuffer);
+                byte[] targetBuffer = new byte[sourceBuffer.Length];
+                Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, 0, 1, sourceBuffer.Length));
+            }
+        }
+
+        [Test]
+        public void WriteToByteArray_NegativeOffsetThrowsException()
+        {
+            byte[] sourceBuffer = GetRandomBuffer(100);
+            using (var stream = GetDefaultStream())
+            {
+                stream.Write(sourceBuffer);
+                byte[] targetBuffer = new byte[sourceBuffer.Length];
+                Assert.Throws<ArgumentOutOfRangeException>(()=>stream.WriteTo(targetBuffer, -1, sourceBuffer.Length));
+            }
+        }
+
+
+        [Test]
+        public void WriteToByteArray_NegativeTargetOffsetThrowsException()
+        {
+            byte[] sourceBuffer = GetRandomBuffer(100);
+            using (var stream = GetDefaultStream())
+            {
+                stream.Write(sourceBuffer);
+                byte[] targetBuffer = new byte[sourceBuffer.Length];
+                Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, 0, sourceBuffer.Length, -1));
+            }
         }
 
 

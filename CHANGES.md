@@ -10,6 +10,7 @@
 * Other Changes
     * Removed use of `Interlocked` methods when checking whether the stream is disposed. This should improve performance. (Concurrent use of streams has never been supported.)
     * `RecyclableMemoryStream` now implements `IBufferWriter<byte>`
+    * New method overloads of `WriteTo` that allow you write the contents of the stream directly to another `byte[]` buffer.
     * Reformatted all code documentation to be more readable.
 
 * Development-only Changes
