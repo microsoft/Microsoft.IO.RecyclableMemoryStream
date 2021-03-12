@@ -4,6 +4,7 @@
 * Removed build targets for net40, net45, net46, and netstandard1.4. Added net462.
 * Removed use of `Interlocked` methods when checking whether the stream is disposed. Concurrent use of streams is not supported.
 * Refactored .NET events to match the information payloads of the ETW events.
+* New method overloads of `WriteTo` that allow you write the contents of the stream directly to another `byte[]` buffer.
 * Reformatted all code documentation to be more readable.
 
 # Version 1.4.0
