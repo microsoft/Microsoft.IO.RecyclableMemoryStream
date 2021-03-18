@@ -38,7 +38,7 @@ public sealed class RecyclableMemoryStream : MemoryStream, IBufferWriter<byte>
 | override [Write](RecyclableMemoryStream/Write.md)(…) | Writes the buffer to the stream (2 methods) |
 | override [WriteByte](RecyclableMemoryStream/WriteByte.md)(…) | Writes a single byte to the current position in the stream. |
 | override [WriteTo](RecyclableMemoryStream/WriteTo.md)(…) | Synchronously writes this stream's bytes to the argument stream. |
-| [WriteTo](RecyclableMemoryStream/WriteTo.md)(…) | Synchronously writes this stream's bytes, starting at offset, for count bytes, to the argument stream. (2 methods) |
+| [WriteTo](RecyclableMemoryStream/WriteTo.md)(…) | Synchronously writes this stream's bytes, starting at offset, for count bytes, to the argument stream. (5 methods) |
 
 ## Protected Members
 
