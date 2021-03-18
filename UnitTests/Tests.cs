@@ -3018,7 +3018,7 @@ namespace Microsoft.IO.UnitTests
         public void VeryLargeStream_GetBufferThrows()
         {
             var stream = GetMultiGBStream();
-            Assert.Throws<InvalidOperationException>(() => stream.GetBuffer());
+            Assert.Throws<OutOfMemoryException>(() => stream.GetBuffer());
         }
 
         [Test]

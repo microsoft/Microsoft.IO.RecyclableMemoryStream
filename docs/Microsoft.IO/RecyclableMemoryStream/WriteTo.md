@@ -1,4 +1,34 @@
-# RecyclableMemoryStream.WriteTo method (1 of 3)
+# RecyclableMemoryStream.WriteTo method (1 of 6)
+
+Writes bytes from the current stream to a destination `byte` array
+
+```csharp
+public void WriteTo(byte[] buffer)
+```
+
+| parameter | description |
+| --- | --- |
+| buffer | Target buffer |
+
+## Exceptions
+
+| exception | condition |
+| --- | --- |
+| ArgumentNullException | `buffer` is null |
+| ObjectDisposedException | Object has been disposed |
+
+## Remarks
+
+The entire stream is written to the target array.
+
+## See Also
+
+* class [RecyclableMemoryStream](../RecyclableMemoryStream.md)
+* namespace [Microsoft.IO](../../Microsoft.IO.RecyclableMemoryStream.md)
+
+---
+
+# RecyclableMemoryStream.WriteTo method (2 of 6)
 
 Synchronously writes this stream's bytes to the argument stream.
 
@@ -15,6 +45,7 @@ public override void WriteTo(Stream stream)
 | exception | condition |
 | --- | --- |
 | ArgumentNullException | stream is null |
+| ObjectDisposedException | Object has been disposed |
 
 ## Remarks
 
@@ -27,7 +58,36 @@ Important: This does a synchronous write, which may not be desired in some situa
 
 ---
 
-# RecyclableMemoryStream.WriteTo method (2 of 3)
+# RecyclableMemoryStream.WriteTo method (3 of 6)
+
+Writes bytes from the current stream to a destination `byte` array
+
+```csharp
+public void WriteTo(byte[] buffer, long offset, long count)
+```
+
+| parameter | description |
+| --- | --- |
+| buffer | Target buffer |
+| offset | Offset in the source stream, from which to start |
+| count | Number of bytes to write |
+
+## Exceptions
+
+| exception | condition |
+| --- | --- |
+| ArgumentNullException | `buffer` is null |
+| ArgumentOutOfRangeException | Offset is less than 0, or offset + count is beyond this stream's length. |
+| ObjectDisposedException | Object has been disposed |
+
+## See Also
+
+* class [RecyclableMemoryStream](../RecyclableMemoryStream.md)
+* namespace [Microsoft.IO](../../Microsoft.IO.RecyclableMemoryStream.md)
+
+---
+
+# RecyclableMemoryStream.WriteTo method (4 of 6)
 
 Synchronously writes this stream's bytes, starting at offset, for count bytes, to the argument stream.
 
@@ -47,6 +107,7 @@ public void WriteTo(Stream stream, int offset, int count)
 | --- | --- |
 | ArgumentNullException | stream is null |
 | ArgumentOutOfRangeException | Offset is less than 0, or offset + count is beyond this stream's length. |
+| ObjectDisposedException | Object has been disposed |
 
 ## See Also
 
@@ -55,7 +116,7 @@ public void WriteTo(Stream stream, int offset, int count)
 
 ---
 
-# RecyclableMemoryStream.WriteTo method (3 of 3)
+# RecyclableMemoryStream.WriteTo method (5 of 6)
 
 Synchronously writes this stream's bytes, starting at offset, for count bytes, to the argument stream.
 
@@ -75,6 +136,38 @@ public void WriteTo(Stream stream, long offset, long count)
 | --- | --- |
 | ArgumentNullException | stream is null |
 | ArgumentOutOfRangeException | Offset is less than 0, or offset + count is beyond this stream's length. |
+| ObjectDisposedException | Object has been disposed |
+
+## See Also
+
+* class [RecyclableMemoryStream](../RecyclableMemoryStream.md)
+* namespace [Microsoft.IO](../../Microsoft.IO.RecyclableMemoryStream.md)
+
+---
+
+# RecyclableMemoryStream.WriteTo method (6 of 6)
+
+Writes bytes from the current stream to a destination `byte` array
+
+```csharp
+public void WriteTo(byte[] buffer, long offset, long count, int targetOffset)
+```
+
+| parameter | description |
+| --- | --- |
+| buffer | Target buffer |
+| offset | Offset in the source stream, from which to start |
+| count | Number of bytes to write |
+| targetOffset | Offset in the target byte array to start writing |
+
+## Exceptions
+
+| exception | condition |
+| --- | --- |
+| ArgumentNullException | `buffer` is null |
+| ArgumentOutOfRangeException | Offset is less than 0, or offset + count is beyond this stream's length. |
+| ArgumentOutOfRangeException | targetOffset is less than 0, or targetOffset + count is beyond the target buffer's length. |
+| ObjectDisposedException | Object has been disposed |
 
 ## See Also
 

@@ -1340,7 +1340,7 @@ namespace Microsoft.IO
         /// </summary>
         /// <param name="buffer">Target buffer</param>
         /// <remarks>The entire stream is written to the target array.</remarks>
-        //// <exception cref="ArgumentNullException"><c>buffer</c> is null</exception>
+        /// <exception cref="ArgumentNullException"><c>buffer</c> is null</exception>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public void WriteTo(byte[] buffer)
         {
