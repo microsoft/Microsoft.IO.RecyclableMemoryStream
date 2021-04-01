@@ -1,3 +1,7 @@
+#Version 2.0.1
+
+* Added `RecyclableMemoryStreamManager` constructor overloads that take parameters for specifying the maximum free pool sizes. Updated IntelliSense documentation to make clear that these values need to be explciitly set to avoid unbounded pool growth.
+
 # Version 2.0
 
 * Breaking Changes
