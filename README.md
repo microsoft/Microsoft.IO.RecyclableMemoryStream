@@ -140,7 +140,7 @@ While this library strives to be very general and not impose too many restraints
 
 1. Set the `blockSize`, `largeBufferMultiple`, `maxBufferSize`, `MaximumFreeLargePoolBytes` and `MaximumFreeSmallPoolBytes` properties to reasonable values for your application and resource requirements.
 2. Always dispose of each stream exactly once.
-3. Never call `ToArray` and avoid calling `GetBuffer` if possible. Instead, use `GetReadOnlySequence` for reading and the `IBufferWriter` methods `GetSpan`\\`GetMemory` with `Advance` for writing. There are also miscellaneous `CopyTo` and `WriteTo` methods that may be convenient.
+3. Most applications should not call `ToArray` and should avoid calling `GetBuffer` if possible. Instead, use `GetReadOnlySequence` for reading and the `IBufferWriter` methods `GetSpan`\\`GetMemory` with `Advance` for writing. There are also miscellaneous `CopyTo` and `WriteTo` methods that may be convenient. The point is to avoid creating unnecessary GC pressure where possible.
 4. Experiment to find the appropriate settings for your scenario.
 
 A working knowledge of the garbage collector is a very good idea before you try to optimize your scenario with this library. An article such as [Garbage Collection](https://docs.microsoft.com/dotnet/standard/garbage-collection/), or a book like *Writing High-Performance .NET Code* will help you understand the design principles of this library.
