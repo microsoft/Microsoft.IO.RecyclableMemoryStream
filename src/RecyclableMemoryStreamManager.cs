@@ -65,6 +65,10 @@ namespace Microsoft.IO
         /// </summary>
         public const int DefaultMaximumBufferSize = 128 * 1024 * 1024;
 
+        // 0 to indicate unbounded
+        private const long DefaultMaxSmallPoolFreeBytes = 0L;
+        private const long DefaultMaxLargePoolFreeBytes = 0L;
+
         private readonly long[] largeBufferFreeSize;
         private readonly long[] largeBufferInUseSize;
 
@@ -77,13 +81,25 @@ namespace Microsoft.IO
         private long smallPoolInUseSize;
 
         /// <summary>
-        /// Initializes the memory manager with the default block/buffer specifications.
+        /// Initializes the memory manager with the default block/buffer specifications. This pool may have unbounded growth unless you modify <see cref="MaximumFreeSmallPoolBytes"/> and <see cref="MaximumFreeLargePoolBytes"/>.
         /// </summary>
         public RecyclableMemoryStreamManager()
-            : this(DefaultBlockSize, DefaultLargeBufferMultiple, DefaultMaximumBufferSize, false) { }
+            : this(DefaultBlockSize, DefaultLargeBufferMultiple, DefaultMaximumBufferSize, false, DefaultMaxSmallPoolFreeBytes, DefaultMaxLargePoolFreeBytes) { }
 
         /// <summary>
-        /// Initializes the memory manager with the given block requiredSize.
+        /// Initializes the memory manager with the default block/buffer specifications and maximum free bytes specifications.
+        /// </summary>
+        /// <param name="maximumSmallPoolFreeBytes">Maximum number of bytes to keep available in the small pool before future buffers get dropped for garbage collection</param>
+        /// <param name="maximumLargePoolFreeBytes">Maximum number of bytes to keep available in the large pool before future buffers get dropped for garbage collection</param>
+        /// <exception cref="ArgumentOutOfRangeException">maximumSmallPoolFreebytes is negative, or maximumLargePoolFreeBytes is negative.</exception>
+        public RecyclableMemoryStreamManager(long maximumSmallPoolFreeBytes, long maximumLargePoolFreeBytes)
+            :this(DefaultBlockSize, DefaultLargeBufferMultiple, DefaultMaximumBufferSize, useExponentialLargeBuffer:false, maximumSmallPoolFreeBytes, maximumLargePoolFreeBytes)
+        {
+
+        }
+
+        /// <summary>
+        /// Initializes the memory manager with the given block requiredSize. This pool may have unbounded growth unless you modify <see cref="MaximumFreeSmallPoolBytes"/> and <see cref="MaximumFreeLargePoolBytes"/>.
         /// </summary>
         /// <param name="blockSize">Size of each block that is pooled. Must be > 0.</param>
         /// <param name="largeBufferMultiple">Each large buffer will be a multiple of this value.</param>
@@ -91,10 +107,24 @@ namespace Microsoft.IO
         /// <exception cref="ArgumentOutOfRangeException">blockSize is not a positive number, or largeBufferMultiple is not a positive number, or maximumBufferSize is less than blockSize.</exception>
         /// <exception cref="ArgumentException">maximumBufferSize is not a multiple of largeBufferMultiple</exception>
         public RecyclableMemoryStreamManager(int blockSize, int largeBufferMultiple, int maximumBufferSize)
-            : this(blockSize, largeBufferMultiple, maximumBufferSize, false) { }
+            : this(blockSize, largeBufferMultiple, maximumBufferSize, false, DefaultMaxSmallPoolFreeBytes, DefaultMaxLargePoolFreeBytes) { }
 
         /// <summary>
         /// Initializes the memory manager with the given block requiredSize.
+        /// </summary>
+        /// <param name="blockSize">Size of each block that is pooled. Must be > 0.</param>
+        /// <param name="largeBufferMultiple">Each large buffer will be a multiple of this value.</param>
+        /// <param name="maximumBufferSize">Buffers larger than this are not pooled</param>
+        /// <param name="maximumSmallPoolFreeBytes">Maximum number of bytes to keep available in the small pool before future buffers get dropped for garbage collection</param>
+        /// <param name="maximumLargePoolFreeBytes">Maximum number of bytes to keep available in the large pool before future buffers get dropped for garbage collection</param>
+        /// <exception cref="ArgumentOutOfRangeException">blockSize is not a positive number, or largeBufferMultiple is not a positive number, or maximumBufferSize is less than blockSize, or maximumSmallPoolFreebytes is negative, or maximumLargePoolFreeBytes is negative.</exception>
+        /// <exception cref="ArgumentException">maximumBufferSize is not a multiple of largeBufferMultiple</exception>
+        public RecyclableMemoryStreamManager(int blockSize, int largeBufferMultiple, int maximumBufferSize, long maximumSmallPoolFreeBytes, long maximumLargePoolFreeBytes)
+            : this(blockSize, largeBufferMultiple, maximumBufferSize, false, maximumSmallPoolFreeBytes, maximumLargePoolFreeBytes) { }
+
+
+        /// <summary>
+        /// Initializes the memory manager with the given block requiredSize. This pool may have unbounded growth unless you modify <see cref="MaximumFreeSmallPoolBytes"/> and <see cref="MaximumFreeLargePoolBytes"/>.
         /// </summary>
         /// <param name="blockSize">Size of each block that is pooled. Must be > 0.</param>
         /// <param name="largeBufferMultiple">Each large buffer will be a multiple/exponential of this value.</param>
@@ -103,6 +133,23 @@ namespace Microsoft.IO
         /// <exception cref="ArgumentOutOfRangeException">blockSize is not a positive number, or largeBufferMultiple is not a positive number, or maximumBufferSize is less than blockSize.</exception>
         /// <exception cref="ArgumentException">maximumBufferSize is not a multiple/exponential of largeBufferMultiple</exception>
         public RecyclableMemoryStreamManager(int blockSize, int largeBufferMultiple, int maximumBufferSize, bool useExponentialLargeBuffer)
+            :this(blockSize, largeBufferMultiple, maximumBufferSize, useExponentialLargeBuffer, DefaultMaxSmallPoolFreeBytes, DefaultMaxLargePoolFreeBytes)
+        {
+
+        }
+
+        /// <summary>
+        /// Initializes the memory manager with the given block requiredSize.
+        /// </summary>
+        /// <param name="blockSize">Size of each block that is pooled. Must be > 0.</param>
+        /// <param name="largeBufferMultiple">Each large buffer will be a multiple/exponential of this value.</param>
+        /// <param name="maximumBufferSize">Buffers larger than this are not pooled</param>
+        /// <param name="useExponentialLargeBuffer">Switch to exponential large buffer allocation strategy</param>
+        /// <param name="maximumSmallPoolFreeBytes">Maximum number of bytes to keep available in the small pool before future buffers get dropped for garbage collection</param>
+        /// <param name="maximumLargePoolFreeBytes">Maximum number of bytes to keep available in the large pool before future buffers get dropped for garbage collection</param>
+        /// <exception cref="ArgumentOutOfRangeException">blockSize is not a positive number, or largeBufferMultiple is not a positive number, or maximumBufferSize is less than blockSize, or maximumSmallPoolFreebytes is negative, or maximumLargePoolFreeBytes is negative.</exception>
+        /// <exception cref="ArgumentException">maximumBufferSize is not a multiple/exponential of largeBufferMultiple</exception>
+        public RecyclableMemoryStreamManager(int blockSize, int largeBufferMultiple, int maximumBufferSize, bool useExponentialLargeBuffer, long maximumSmallPoolFreeBytes, long maximumLargePoolFreeBytes)
         {
             if (blockSize <= 0)
             {
@@ -121,10 +168,22 @@ namespace Microsoft.IO
                                                       "maximumBufferSize must be at least blockSize");
             }
 
+            if (maximumSmallPoolFreeBytes < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(maximumSmallPoolFreeBytes), "maximumSmallPoolFreeBytes must be non-negative");
+            }
+
+            if (maximumLargePoolFreeBytes < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(maximumLargePoolFreeBytes), "maximumLargePoolFreeBytes must be non-negative");
+            }
+
             this.BlockSize = blockSize;
             this.LargeBufferMultiple = largeBufferMultiple;
             this.MaximumBufferSize = maximumBufferSize;
             this.UseExponentialLargeBuffer = useExponentialLargeBuffer;
+            this.MaximumFreeSmallPoolBytes = maximumSmallPoolFreeBytes;
+            this.MaximumFreeLargePoolBytes = maximumLargePoolFreeBytes;
 
             if (!this.IsLargeBufferSize(maximumBufferSize))
             {
@@ -248,12 +307,14 @@ namespace Microsoft.IO
         /// How many bytes of small free blocks to allow before we start dropping
         /// those returned to us.
         /// </summary>
+        /// <remarks>The default value is 0, meaning the pool is unbounded.</remarks>
         public long MaximumFreeSmallPoolBytes { get; set; }
 
         /// <summary>
         /// How many bytes of large free buffers to allow before we start dropping
         /// those returned to us.
         /// </summary>
+        /// <remarks>The default value is 0, meaning the pool is unbounded.</remarks>
         public long MaximumFreeLargePoolBytes { get; set; }
 
         /// <summary>

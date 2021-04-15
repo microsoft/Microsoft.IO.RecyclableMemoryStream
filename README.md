@@ -138,7 +138,7 @@ manager.MaximumFreeSmallPoolBytes = 100 * blockSize;
 
 While this library strives to be very general and not impose too many restraints on how you use it, its purpose is to reduce the cost of garbage collections incurred by frequent large allocations. Thus, there are some general guidelines for usage that may be useful to you:
 
-1. Set the `blockSize`, `largeBufferMultiple`, `maxBufferSize`, `MaximumFreeLargePoolBytes` and `MaximumFreeSmallPoolBytes` properties to reasonable values for your application and resource requirements.
+1. Set the `blockSize`, `largeBufferMultiple`, `maxBufferSize`, `MaximumFreeLargePoolBytes` and `MaximumFreeSmallPoolBytes` properties to reasonable values for your application and resource requirements. **Important!**: If you do not set `MaximumFreeLargePoolBytes` and `MaximumFreeSmallPoolBytes` there is the possibility for unbounded memory growth!
 2. Always dispose of each stream exactly once.
 3. Most applications should not call `ToArray` and should avoid calling `GetBuffer` if possible. Instead, use `GetReadOnlySequence` for reading and the `IBufferWriter` methods `GetSpan`\\`GetMemory` with `Advance` for writing. There are also miscellaneous `CopyTo` and `WriteTo` methods that may be convenient. The point is to avoid creating unnecessary GC pressure where possible.
 4. Experiment to find the appropriate settings for your scenario.

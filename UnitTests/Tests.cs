@@ -90,6 +90,16 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        public void RecyclableMemoryManagerThrowsExceptionOnNegativeMaxFreeSizes()
+        {
+            Assert.Throws<ArgumentOutOfRangeException>(() => new RecyclableMemoryStreamManager(1, 100, 200, false, -1, 1000));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new RecyclableMemoryStreamManager(1, 100, 200, false, 1000, -1));
+            Assert.DoesNotThrow(() => new RecyclableMemoryStreamManager(1, 100, 200, false, 1000, 1000));
+            Assert.DoesNotThrow(() => new RecyclableMemoryStreamManager(1, 100, 200, false, 0, 0));
+
+        }
+
+        [Test]
         public virtual void GetLargeBufferAlwaysAMultipleOrExponentialOfMegabyteAndAtLeastAsMuchAsRequestedForLargeBuffer()
         {
             const int step = 200000;

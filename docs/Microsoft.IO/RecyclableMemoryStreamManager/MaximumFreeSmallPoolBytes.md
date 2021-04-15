@@ -6,6 +6,10 @@ How many bytes of small free blocks to allow before we start dropping those retu
 public long MaximumFreeSmallPoolBytes { get; set; }
 ```
 
+## Remarks
+
+The default value is 0, meaning the pool is unbounded.
+
 ## See Also
 
 * class [RecyclableMemoryStreamManager](../RecyclableMemoryStreamManager.md)

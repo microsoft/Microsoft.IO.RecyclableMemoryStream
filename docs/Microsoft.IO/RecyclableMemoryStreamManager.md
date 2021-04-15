@@ -10,8 +10,8 @@ public sealed class RecyclableMemoryStreamManager
 
 | name | description |
 | --- | --- |
-| [RecyclableMemoryStreamManager](RecyclableMemoryStreamManager/RecyclableMemoryStreamManager.md)() | Initializes the memory manager with the default block/buffer specifications. |
-| [RecyclableMemoryStreamManager](RecyclableMemoryStreamManager/RecyclableMemoryStreamManager.md)(…) | Initializes the memory manager with the given block requiredSize. (2 constructors) |
+| [RecyclableMemoryStreamManager](RecyclableMemoryStreamManager/RecyclableMemoryStreamManager.md)() | Initializes the memory manager with the default block/buffer specifications. This pool may have unbounded growth unless you modify [`MaximumFreeSmallPoolBytes`](RecyclableMemoryStreamManager/MaximumFreeSmallPoolBytes.md) and [`MaximumFreeLargePoolBytes`](RecyclableMemoryStreamManager/MaximumFreeLargePoolBytes.md). |
+| [RecyclableMemoryStreamManager](RecyclableMemoryStreamManager/RecyclableMemoryStreamManager.md)(…) | Initializes the memory manager with the default block/buffer specifications and maximum free bytes specifications. (5 constructors) |
 | [AggressiveBufferReturn](RecyclableMemoryStreamManager/AggressiveBufferReturn.md) { get; set; } | Whether dirty buffers can be immediately returned to the buffer pool. |
 | [BlockSize](RecyclableMemoryStreamManager/BlockSize.md) { get; } | The size of each block. It must be set at creation and cannot be changed. |
 | [GenerateCallStacks](RecyclableMemoryStreamManager/GenerateCallStacks.md) { get; set; } | Whether to save callstacks for stream allocations. This can help in debugging. It should NEVER be turned on generally in production. |
