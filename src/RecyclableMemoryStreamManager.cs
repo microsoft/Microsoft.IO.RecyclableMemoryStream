@@ -26,7 +26,7 @@ namespace Microsoft.IO
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.IO;
-    using System.Resources;
+    using System.Runtime.CompilerServices;
     using System.Threading;
 
     /// <summary>
@@ -304,7 +304,11 @@ namespace Microsoft.IO
             {
                 // We'll add this back to the pool when the stream is disposed
                 // (unless our free pool is too large)
+#if NET5_0_OR_GREATER
+                block = GC.AllocateUninitializedArray<byte>(this.BlockSize);
+#else
                 block = new byte[this.BlockSize];
+#endif
                 ReportBlockCreated();
             }
             else
@@ -355,13 +359,13 @@ namespace Microsoft.IO
             else
             {
                 // Buffer is too large to pool. They get a new buffer.
-                
+
                 // We still want to track the size, though, and we've reserved a slot
                 // in the end of the inuse array for nonpooled bytes in use.
                 poolIndex = this.largeBufferInUseSize.Length - 1;
 
                 // We still want to round up to reduce heap fragmentation.
-                buffer = new byte[requiredSize];
+                buffer = AllocateArray(requiredSize);
                 if (this.GenerateCallStacks)
                 {
                     // Grab the stack -- we want to know who requires such large buffers
@@ -378,6 +382,14 @@ namespace Microsoft.IO
             }
 
             return buffer;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            static byte[] AllocateArray(long requiredSize) =>
+#if NET5_0_OR_GREATER
+                GC.AllocateUninitializedArray<byte>((int)requiredSize);
+#else
+                new byte[requiredSize];
+#endif
         }
 
         private long RoundToLargeBufferSize(long requiredSize)
@@ -786,7 +798,7 @@ namespace Microsoft.IO
             return GetStream(Guid.NewGuid(), tag, buffer, offset, count);
         }
 
-#if NETCOREAPP2_1 || NETSTANDARD2_1
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
         /// <summary>
         /// Retrieve a new <c>MemoryStream</c> object with the given tag and with contents copied from the provided
         /// buffer. The provided buffer is not wrapped or used after construction.
