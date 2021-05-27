@@ -935,8 +935,6 @@ namespace Microsoft.IO
             return amountRead;
         }
 
-
-
 #if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
         /// <summary>
         /// Reads from the current position into the provided buffer
