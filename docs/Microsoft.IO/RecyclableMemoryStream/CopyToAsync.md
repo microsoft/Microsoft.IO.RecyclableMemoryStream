@@ -25,6 +25,10 @@ A task that represents the asynchronous copy operation.
 | ObjectDisposedException | Either the current stream or the destination stream is disposed. |
 | NotSupportedException | The current stream does not support reading, or the destination stream does not support writing. |
 
+## Remarks
+
+Similarly to `MemoryStream`'s behavior, `CopyToAsync` will adjust the source stream's position by the number of bytes written to the destination stream, as a Read would do.
+
 ## See Also
 
 * class [RecyclableMemoryStream](../RecyclableMemoryStream.md)

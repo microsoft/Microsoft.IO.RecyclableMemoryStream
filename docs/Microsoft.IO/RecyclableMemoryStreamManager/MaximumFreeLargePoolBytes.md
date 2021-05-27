@@ -6,6 +6,10 @@ How many bytes of large free buffers to allow before we start dropping those ret
 public long MaximumFreeLargePoolBytes { get; set; }
 ```
 
+## Remarks
+
+The default value is 0, meaning the pool is unbounded.
+
 ## See Also
 
 * class [RecyclableMemoryStreamManager](../RecyclableMemoryStreamManager.md)

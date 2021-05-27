@@ -1,10 +1,24 @@
+#Version 2.0.1
+
+* Added `RecyclableMemoryStreamManager` constructor overloads that take parameters for specifying the maximum free pool sizes. Updated IntelliSense documentation to make clear that these values need to be explciitly set to avoid unbounded pool growth.
+
 # Version 2.0
 
-* Removed 2 GB stream limit. Extremely large streams can be created by chaining together blocks. Attempts to convert a stream into a contiguous buffer longer than the runtime's limits will result in an exception.
-* Removed build targets for net40, net45, net46, and netstandard1.4. Added net462.
-* Removed use of `Interlocked` methods when checking whether the stream is disposed. Concurrent use of streams is not supported.
-* Refactored .NET events to match the information payloads of the ETW events.
-* Reformatted all code documentation to be more readable.
+* Breaking Changes
+    * Removed 2 GB stream limit. Extremely large streams can be created by chaining together blocks. Attempts to convert a stream into a contiguous buffer longer than the runtime's limits will result in an exception.
+    * Removed build targets for net40, net45, net46, and netstandard1.4. Added net462.
+    * Changed some ETW events to provide more information.
+    * Refactored .NET events to match the information payloads of the ETW events.
+    * `GetBuffer` now throws `OutOfMemoryException` instead of `InvalidOperationException` if the needed size is too large for a contiguous array.
+
+* Other Changes
+    * Removed use of `Interlocked` methods when checking whether the stream is disposed. This should improve performance. (Concurrent use of streams has never been supported.)
+    * `RecyclableMemoryStream` now implements `IBufferWriter<byte>`
+    * New method overloads of `WriteTo` that allow you write the contents of the stream directly to another `byte[]` buffer.
+    * Reformatted all code documentation to be more readable.
+
+* Development-only Changes
+    * Significantly improved unit test speed
 
 # Version 1.4.0
 

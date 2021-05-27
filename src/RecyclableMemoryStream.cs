@@ -28,7 +28,6 @@ namespace Microsoft.IO
 #endif
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.IO;
     using System.Runtime.CompilerServices;
@@ -84,6 +83,11 @@ namespace Microsoft.IO
     /// when only blocks are in use, and only the Read/Write APIs are used. Once a stream grows to this size, any attempt to convert it
     /// to a single buffer will result in an exception. Similarly, if a stream is already converted to use a single larger buffer, then
     /// it cannot grow beyond the limits of the maximum allowable array size.
+    /// </para>
+    /// <para>
+    /// Any method that modifies the stream has the potential to throw an <c>OutOfMemoryException</c>, either because
+    /// the stream is beyond the limits set in <c>RecyclableStreamManager</c>, or it would result in a buffer larger than
+    /// the maximum array size supported by .NET.
     /// </para>
     /// </remarks>
 #if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
@@ -515,7 +519,7 @@ namespace Microsoft.IO
         /// <remarks>IMPORTANT: Doing a <see cref="Write(byte[], int, int)"/> after calling <c>GetBuffer</c> invalidates the buffer. The old buffer is held onto
         /// until <see cref="Dispose(bool)"/> is called, but the next time <c>GetBuffer</c> is called, a new buffer from the pool will be required.</remarks>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
-        /// <exception cref="InvalidOperationException">stream is too large for a contiguous buffer.</exception>
+        /// <exception cref="OutOfMemoryException">stream is too large for a contiguous buffer</exception>
         public override byte[] GetBuffer()
         {
             this.CheckDisposed();
@@ -534,11 +538,6 @@ namespace Microsoft.IO
             // it's possible that people will manipulate the buffer directly
             // and set the length afterward. Capacity sets the expectation
             // for the size of the buffer.
-
-            if (this.Capacity64 > RecyclableMemoryStreamManager.MaxArrayLength)
-            {
-                throw new InvalidOperationException("Stream is too large for a contiguous buffer.");
-            }
 
             var newBuffer = this.memoryManager.GetLargeBuffer(this.Capacity64, this.id, this.tag);
 
@@ -566,6 +565,7 @@ namespace Microsoft.IO
         ///   <paramref name="destination" /> is <see langword="null" />.</exception>
         /// <exception cref="T:System.ObjectDisposedException">Either the current stream or the destination stream is disposed.</exception>
         /// <exception cref="T:System.NotSupportedException">The current stream does not support reading, or the destination stream does not support writing.</exception>
+        /// <remarks>Similarly to <c>MemoryStream</c>'s behavior, <c>CopyToAsync</c> will adjust the source stream's position by the number of bytes written to the destination stream, as a Read would do.</remarks>
         public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
         {
             if (destination == null)
@@ -580,9 +580,13 @@ namespace Microsoft.IO
                 return Task.CompletedTask;
             }
 
+            long startPos = this.position;
+            var count = this.length - startPos;
+            this.position += count;
+
             if (destination is MemoryStream destinationRMS)
-            {
-                this.WriteTo(destinationRMS, this.position, this.length - this.position);
+            {                
+                this.WriteTo(destinationRMS, startPos, count);
                 return Task.CompletedTask;
             }
             else
@@ -592,16 +596,17 @@ namespace Microsoft.IO
                     if (this.blocks.Count == 1)
                     {
                         AssertLengthIsSmall();
-                        return destination.WriteAsync(this.blocks[0], (int)this.position, (int)(this.length - this.position), cancellationToken);
+                        return destination.WriteAsync(this.blocks[0], (int)startPos, (int)count, cancellationToken);
                     }
                     else
                     {
-                        return CopyToAsyncImpl(cancellationToken);
+                        return CopyToAsyncImpl(cancellationToken, count);
 
-                        async Task CopyToAsyncImpl(CancellationToken ct)
+                        async Task CopyToAsyncImpl(CancellationToken ct, long totalBytesToWrite)
                         {                            
-                            var bytesRemaining = this.length - this.position;
-                            var blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
+                            var bytesRemaining = totalBytesToWrite;
+                            var totalBytesToaDd = bytesRemaining;
+                            var blockAndOffset = this.GetBlockAndRelativeOffset(startPos);
                             int currentBlock = blockAndOffset.Block;
                             var currentOffset = blockAndOffset.Offset;
                             while (bytesRemaining > 0)
@@ -618,7 +623,7 @@ namespace Microsoft.IO
                 else
                 {
                     AssertLengthIsSmall();
-                    return destination.WriteAsync(this.largeBuffer, (int)this.position, (int)(this.length - this.position), cancellationToken);
+                    return destination.WriteAsync(this.largeBuffer, (int)startPos, (int)count, cancellationToken);
                 }
             }
         }
@@ -760,26 +765,19 @@ namespace Microsoft.IO
 
             if (this.blocks.Count == 1)
             {
-            AssertLengthIsSmall();
+                AssertLengthIsSmall();
                 return new ReadOnlySequence<byte>(this.blocks[0], 0, (int)this.length);
-            }
-
-            if (this.length > RecyclableMemoryStreamManager.MaxArrayLength)
-            {
-                throw new InvalidOperationException($"Cannot return a ReadOnlySequence larger than {RecyclableMemoryStreamManager.MaxArrayLength}, but stream length is {this.length}.");
             }
 
             BlockSegment first = new BlockSegment(this.blocks[0]);
             BlockSegment last = first;
-
             
             for (int blockIdx = 1; blockIdx < blocks.Count; blockIdx++)
             {
                 last = last.Append(this.blocks[blockIdx]);
             }
 
-            Debug.Assert(this.length <= Int32.MaxValue);
-            return new ReadOnlySequence<byte>(first, 0, last, (int)this.length - (int)last.RunningIndex);
+            return new ReadOnlySequence<byte>(first, 0, last, (int)(this.length - last.RunningIndex));
         }
 
         private sealed class BlockSegment : ReadOnlySequenceSegment<byte>
@@ -799,16 +797,30 @@ namespace Microsoft.IO
         /// Returns an <c>ArraySegment</c> that wraps a single buffer containing the contents of the stream.
         /// </summary>
         /// <param name="buffer">An <c>ArraySegment</c> containing a reference to the underlying bytes.</param>
-        /// <returns>Always returns true.</returns>
-        /// <remarks><see cref="GetBuffer"/> has no failure modes (it always returns something, even if it's an empty buffer), therefore this method
-        /// always returns a valid <c>ArraySegment</c> to the same buffer returned by <see cref="GetBuffer" />.</remarks>
+        /// <returns>Returns true if a buffer can be returned; otherwise, false</returns>
         public override bool TryGetBuffer(out ArraySegment<byte> buffer)
         {
             this.CheckDisposed();
-            Debug.Assert(this.length <= Int32.MaxValue);
-            buffer = new ArraySegment<byte>(this.GetBuffer(), 0, (int)this.Length);
-            // GetBuffer has no failure modes, so this should always succeed
-            return true;
+
+            try
+            {
+                if (this.length <= RecyclableMemoryStreamManager.MaxArrayLength)
+                {
+                    buffer = new ArraySegment<byte>(this.GetBuffer(), 0, (int)this.Length);
+                    return true;
+                }
+            }
+            catch(OutOfMemoryException)
+            {
+                
+            }
+
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
+            buffer = ArraySegment<byte>.Empty;
+#else
+            buffer = new ArraySegment<byte>();
+#endif
+            return false;
         }
 
         /// <summary>
@@ -818,6 +830,7 @@ namespace Microsoft.IO
         /// </summary>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         /// <exception cref="NotSupportedException">The current <see cref="RecyclableMemoryStreamManager"/>object disallows <c>ToArray</c> calls.</exception>
+        /// <exception cref="OutOfMemoryException">The length of the stream is too long for a contiguous array</exception>
 #pragma warning disable CS0809
         [Obsolete("This method has degraded performance vs. GetBuffer and should be avoided.")]
         public override byte[] ToArray()
@@ -971,9 +984,8 @@ namespace Microsoft.IO
             streamPosition += amountRead;
             return amountRead;
         }
-        
 #endif
-
+        
         /// <summary>
         /// Writes the buffer to the stream
         /// </summary>
@@ -1258,6 +1270,7 @@ namespace Microsoft.IO
         /// <param name="stream">Destination stream</param>
         /// <remarks>Important: This does a synchronous write, which may not be desired in some situations</remarks>
         /// <exception cref="ArgumentNullException">stream is null</exception>
+        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public override void WriteTo(Stream stream)
         {
             this.WriteTo(stream, 0, this.length);
@@ -1271,6 +1284,7 @@ namespace Microsoft.IO
         /// <param name="count">Number of bytes to write</param>
         /// <exception cref="ArgumentNullException">stream is null</exception>
         /// <exception cref="ArgumentOutOfRangeException">Offset is less than 0, or offset + count is beyond  this stream's length.</exception>
+        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public void WriteTo(Stream stream, int offset, int count)
         {
             this.WriteTo(stream, (long)offset, (long)count);
@@ -1284,6 +1298,7 @@ namespace Microsoft.IO
         /// <param name="count">Number of bytes to write</param>
         /// <exception cref="ArgumentNullException">stream is null</exception>
         /// <exception cref="ArgumentOutOfRangeException">Offset is less than 0, or offset + count is beyond  this stream's length.</exception>
+        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public void WriteTo(Stream stream, long offset, long count)
         {
             this.CheckDisposed();
@@ -1318,6 +1333,88 @@ namespace Microsoft.IO
             else
             {
                 stream.Write(this.largeBuffer, (int)offset, (int)count);
+            }
+        }
+
+        /// <summary>
+        /// Writes bytes from the current stream to a destination <c>byte</c> array
+        /// </summary>
+        /// <param name="buffer">Target buffer</param>
+        /// <remarks>The entire stream is written to the target array.</remarks>
+        /// <exception cref="ArgumentNullException"><c>buffer</c> is null</exception>
+        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+        public void WriteTo(byte[] buffer)
+        {
+            this.WriteTo(buffer, 0, this.Length);
+        }
+
+        /// <summary>
+        /// Writes bytes from the current stream to a destination <c>byte</c> array
+        /// </summary>
+        /// <param name="buffer">Target buffer</param>
+        /// <param name="offset">Offset in the source stream, from which to start</param>
+        /// <param name="count">Number of bytes to write</param>
+        /// <exception cref="ArgumentNullException"><c>buffer</c> is null</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Offset is less than 0, or offset + count is beyond  this stream's length.</exception>
+        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+        public void WriteTo(byte[] buffer, long offset, long count)
+        {
+            this.WriteTo(buffer, offset, count, 0);
+        }
+
+        /// <summary>
+        /// Writes bytes from the current stream to a destination <c>byte</c> array
+        /// </summary>
+        /// <param name="buffer">Target buffer</param>
+        /// <param name="offset">Offset in the source stream, from which to start</param>
+        /// <param name="count">Number of bytes to write</param>
+        /// <param name="targetOffset">Offset in the target byte array to start writing</param>
+        /// <exception cref="ArgumentNullException"><c>buffer</c> is null</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Offset is less than 0, or offset + count is beyond  this stream's length.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">targetOffset is less than 0, or targetOffset + count is beyond the target buffer's length.</exception>
+        /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+        public void WriteTo(byte[] buffer, long offset, long count, int targetOffset)
+        {
+            this.CheckDisposed();
+            if (buffer == null)
+            {
+                throw new ArgumentNullException(nameof(buffer));
+            }
+
+            if (offset < 0 || offset + count > this.length)
+            {
+                throw new ArgumentOutOfRangeException(message: "offset must not be negative and offset + count must not exceed the length of the stream", innerException: null);
+            }
+
+            if (targetOffset < 0 || count + targetOffset > buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException(message: "targetOffset must not be negative and targetOffset + count must not exceed the length of the target buffer", innerException: null);
+            }
+
+            if (this.largeBuffer == null)
+            {
+                var blockAndOffset = GetBlockAndRelativeOffset(offset);
+                long bytesRemaining = count;
+                int currentBlock = blockAndOffset.Block;
+                int currentOffset = blockAndOffset.Offset;
+                int currentTargetOffset = targetOffset;
+
+                while (bytesRemaining > 0)
+                {
+                    int amountToCopy = (int)Math.Min((long)this.blocks[currentBlock].Length - currentOffset, bytesRemaining);
+                    Buffer.BlockCopy(this.blocks[currentBlock], currentOffset, buffer, currentTargetOffset, amountToCopy);
+                    
+                    bytesRemaining -= amountToCopy;
+
+                    ++currentBlock;
+                    currentOffset = 0;
+                    currentTargetOffset += amountToCopy;
+                }
+            }
+            else
+            {
+                AssertLengthIsSmall();
+                Buffer.BlockCopy(this.largeBuffer, (int)offset, buffer, targetOffset, (int)count);
             }
         }
         #endregion
@@ -1496,6 +1593,6 @@ namespace Microsoft.IO
         {
             Debug.Assert(this.length <= Int32.MaxValue, "this.length was assumed to be <= Int32.MaxValue, but was larger.");
         }
-        #endregion
+#endregion
     }
 }

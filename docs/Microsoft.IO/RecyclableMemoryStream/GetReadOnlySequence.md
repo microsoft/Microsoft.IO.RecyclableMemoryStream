@@ -18,7 +18,7 @@ A ReadOnlySequence of bytes
 
 ## Remarks
 
-IMPORTANT: Doing a Write(), Dispose(), or Close() after calling GetReadOnlySequence() invalidates the sequence.
+IMPORTANT: Calling Write(), GetMemory(), GetSpan(), Dispose(), or Close() after calling GetReadOnlySequence() invalidates the sequence.
 
 ## See Also
 
