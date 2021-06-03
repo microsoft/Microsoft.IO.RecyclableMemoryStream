@@ -66,7 +66,7 @@ A `RecyclableMemoryStream` starts out by using a small buffer, chaining addition
 There are two versions of the large pool:
 
 * **Linear** (default) - You specify a multiple and a maximum size, and an array of buffers, from size (1 * multiple), (2 * multiple), (3 * multiple), ... maximum is created. For example, if you specify a multiple of 1 MB and maximum size of 8 MB, then you will have an array of length 8. The first slot will contain 1 MB buffers, the second slot 2 MB buffers, and so on.
-* ** Exponential** - Instead of linearly growing, the buffers double in size for each slot. For example, if you specify a multiple of 256KB, and a maximum size of 8 MB, you will have an array of length 6, the slots containing buffers of size 256KB, 512KB, 1MB, 2MB, 4MB, and 8MB.
+* **Exponential** - Instead of linearly growing, the buffers double in size for each slot. For example, if you specify a multiple of 256KB, and a maximum size of 8 MB, you will have an array of length 6, the slots containing buffers of size 256KB, 512KB, 1MB, 2MB, 4MB, and 8MB.
 
 ![Pool Image Comparison](poolcomparison.png)
 
