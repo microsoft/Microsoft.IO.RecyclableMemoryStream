@@ -1,6 +1,10 @@
-#Version 2.0.1
+#Version 2.1.0
 
 * Added `RecyclableMemoryStreamManager` constructor overloads that take parameters for specifying the maximum free pool sizes. Updated IntelliSense documentation to make clear that these values need to be explciitly set to avoid unbounded pool growth.
+* Buffers are now allocated using `GC.AllocateUninitializedArray` in .NET 5.
+* net462 and netstandard2.0 targets can now support the `Span`-related APIs via a dependency on System.Memory.
+* Updated documentation to fix typos and clarify language in some parts.
+* Support for Source Link (Thank you @workgroupengineering)
 
 # Version 2.0
 
