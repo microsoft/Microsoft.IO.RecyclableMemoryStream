@@ -23,12 +23,11 @@
 namespace Microsoft.IO
 {
     using System;
-#if NETCOREAPP2_1 || NETSTANDARD2_1
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
     using System.Buffers;
 #endif
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.IO;
     using System.Runtime.CompilerServices;
@@ -91,7 +90,7 @@ namespace Microsoft.IO
     /// the maximum array size supported by .NET.
     /// </para>
     /// </remarks>
-#if NETCOREAPP2_1 || NETSTANDARD2_1
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
     public sealed class RecyclableMemoryStream : MemoryStream, IBufferWriter<byte>
 #else
     public sealed class RecyclableMemoryStream : MemoryStream
@@ -629,7 +628,7 @@ namespace Microsoft.IO
             }
         }
 
-#if NETCOREAPP2_1 || NETSTANDARD2_1
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
         private byte[] bufferWriterTempBuffer;
 
         /// <summary>
@@ -816,7 +815,7 @@ namespace Microsoft.IO
                 
             }
 
-#if NETCOREAPP2_1 || NETSTANDARD2_1
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
             buffer = ArraySegment<byte>.Empty;
 #else
             buffer = new ArraySegment<byte>();
@@ -936,7 +935,7 @@ namespace Microsoft.IO
             return amountRead;
         }
 
-#if NETCOREAPP2_1 || NETSTANDARD2_1
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
         /// <summary>
         /// Reads from the current position into the provided buffer
         /// </summary>
@@ -1054,7 +1053,7 @@ namespace Microsoft.IO
             this.length = Math.Max(this.position, this.length);
         }
 
-#if NETCOREAPP2_1 || NETSTANDARD2_1
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
         /// <summary>
         /// Writes the buffer to the stream
         /// </summary>
@@ -1471,7 +1470,7 @@ namespace Microsoft.IO
             return amountToCopy;
         }
 
-#if NETCOREAPP2_1 || NETSTANDARD2_1
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
         private int InternalRead(Span<byte> buffer, long fromPosition)
         {
             if (this.length - fromPosition <= 0)
