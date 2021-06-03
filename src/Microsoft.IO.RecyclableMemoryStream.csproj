@@ -48,8 +48,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+    <PackageReference Include="System.Memory" Version="4.5.4" Condition="'$(TargetFramework)' == 'net462' Or '$(TargetFramework)' == 'netstandard2.0'" />
   </ItemGroup>
-
+  
   <!-- Workaround for https://github.com/dotnet/sdk/issues/11105 -->
   <ItemGroup>
     <SourceRoot Include="$(NuGetPackageRoot)" Condition="'$(NuGetPackageRoot)' != ''" />

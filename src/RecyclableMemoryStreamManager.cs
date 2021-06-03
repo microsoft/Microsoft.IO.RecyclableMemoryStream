@@ -859,7 +859,6 @@ namespace Microsoft.IO
             return GetStream(Guid.NewGuid(), tag, buffer, offset, count);
         }
 
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
         /// <summary>
         /// Retrieve a new <c>MemoryStream</c> object with the given tag and with contents copied from the provided
         /// buffer. The provided buffer is not wrapped or used after construction.
@@ -910,7 +909,7 @@ namespace Microsoft.IO
         {
             return GetStream(Guid.NewGuid(), tag, buffer);
         }
-#endif
+
         /// <summary>
         /// Triggered when a new block is created.
         /// </summary>
