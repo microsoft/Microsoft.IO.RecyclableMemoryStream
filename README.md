@@ -160,7 +160,7 @@ When configuring the options, consider questions such as these:
 ```
 var bigInt = BigInteger.Parse("123456789013374299100987654321");
 
-using (var stream = manager.GetStream())
+using (var stream = manager.GetStream() as RecyclableMemoryStream)
 {
     Span<byte> buffer = stream.GetSpan(bigInt.GetByteCount());
     bigInt.TryWriteBytes(buffer, out int bytesWritten);
