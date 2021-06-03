@@ -160,7 +160,7 @@ When configuring the options, consider questions such as these:
 ```
 var bigInt = BigInteger.Parse("123456789013374299100987654321");
 
-using (var stream = manager.GetStream())
+using (var stream = manager.GetStream() as RecyclableMemoryStream)
 {
     Span<byte> buffer = stream.GetSpan(bigInt.GetByteCount());
     bigInt.TryWriteBytes(buffer, out int bytesWritten);
@@ -173,7 +173,7 @@ using (var stream = manager.GetStream())
 `GetReadOnlySequence` returns a [ReadOnlySequence<byte>](https://docs.microsoft.com/en-us/dotnet/api/system.buffers.readonlysequence-1?view=netstandard-2.1) that can be used for zero-copy stream processing. For example, hashing the contents of a stream: 
 
 ```
-using (var stream = manager.GetStream())
+using (var stream = manager.GetStream() as RecyclableMemoryStream)
 using (var sha256Hasher = IncrementalHash.CreateHash(HashAlgorithmName.SHA256))
 {
     foreach (var memory in stream.GetReadOnlySequence())
