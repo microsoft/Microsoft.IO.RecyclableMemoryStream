@@ -23,9 +23,7 @@
 namespace Microsoft.IO
 {
     using System;
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
     using System.Buffers;
-#endif
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
@@ -90,11 +88,7 @@ namespace Microsoft.IO
     /// the maximum array size supported by .NET.
     /// </para>
     /// </remarks>
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
     public sealed class RecyclableMemoryStream : MemoryStream, IBufferWriter<byte>
-#else
-    public sealed class RecyclableMemoryStream : MemoryStream
-#endif
     {
         private static readonly byte[] emptyArray = new byte[0];
 
@@ -628,7 +622,6 @@ namespace Microsoft.IO
             }
         }
 
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
         private byte[] bufferWriterTempBuffer;
 
         /// <summary>
@@ -791,7 +784,6 @@ namespace Microsoft.IO
                 return nextSegment;
             }
         }
-#endif
 
         /// <summary>
         /// Returns an <c>ArraySegment</c> that wraps a single buffer containing the contents of the stream.
@@ -935,14 +927,17 @@ namespace Microsoft.IO
             return amountRead;
         }
 
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
         /// <summary>
         /// Reads from the current position into the provided buffer
         /// </summary>
         /// <param name="buffer">Destination buffer</param>
         /// <returns>The number of bytes read</returns>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+#if NETSTANDARD2_0 || NET462
+        public int Read(Span<byte> buffer)
+#else
         public override int Read(Span<byte> buffer)
+#endif
         {
             return this.SafeRead(buffer, ref this.position);
         }
@@ -982,8 +977,7 @@ namespace Microsoft.IO
             streamPosition += amountRead;
             return amountRead;
         }
-#endif
-        
+
         /// <summary>
         /// Writes the buffer to the stream
         /// </summary>
@@ -1053,14 +1047,18 @@ namespace Microsoft.IO
             this.length = Math.Max(this.position, this.length);
         }
 
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
         /// <summary>
         /// Writes the buffer to the stream
         /// </summary>
         /// <param name="source">Source buffer</param>
         /// <exception cref="ArgumentNullException">buffer is null</exception>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
+#if NETSTANDARD2_0 || NET462
+        public void Write(ReadOnlySpan<byte> source)
+#else
         public override void Write(ReadOnlySpan<byte> source)
+#endif
+
         {
             this.CheckDisposed();
 
@@ -1095,7 +1093,6 @@ namespace Microsoft.IO
             this.position = end;
             this.length = Math.Max(this.position, this.length);
         }
-#endif
 
         /// <summary>
         /// Returns a useful string for debugging. This should not normally be called in actual production code.
@@ -1470,7 +1467,6 @@ namespace Microsoft.IO
             return amountToCopy;
         }
 
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
         private int InternalRead(Span<byte> buffer, long fromPosition)
         {
             if (this.length - fromPosition <= 0)
@@ -1505,7 +1501,6 @@ namespace Microsoft.IO
             this.largeBuffer.AsSpan((int)fromPosition, amountToCopy).CopyTo(buffer);
             return amountToCopy;
         }
-#endif
 
         private struct BlockAndOffset
         {
