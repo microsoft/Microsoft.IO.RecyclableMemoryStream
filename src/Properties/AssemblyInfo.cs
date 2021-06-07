@@ -44,3 +44,4 @@ using System.Security;
 #endif
 
 [assembly: AllowPartiallyTrustedCallers]
+[assembly: SecurityRules(SecurityRuleSet.Level1)]
