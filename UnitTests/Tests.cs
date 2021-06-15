@@ -3596,6 +3596,19 @@ namespace Microsoft.IO.UnitTests
             }
         }
 
+        // Issue #171 - Infinite Loop when particular values are chosen causing an int overflow during
+        // validation of buffer sizes.
+        // https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/issues/171
+        [Test, Timeout(10000)]
+        public void InvalidLargeBufferSizeDoesNotCauseOverflow()
+        {
+            const int BlockSize = 128;
+            const int LargeBufferMultiple = 1024;
+            const int MaxBufferSize = int.MaxValue;
+
+            Assert.Throws<ArgumentException>(()=>new RecyclableMemoryStreamManager(BlockSize, LargeBufferMultiple, MaxBufferSize, this.UseExponentialLargeBuffer) { AggressiveBufferReturn = this.AggressiveBufferRelease });
+        }
+
         [Test]
         public override void RequestTooLargeBufferAdjustsInUseCounter()
         {
