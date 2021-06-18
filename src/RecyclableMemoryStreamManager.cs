@@ -457,7 +457,7 @@ namespace Microsoft.IO
         {
             if (this.UseExponentialLargeBuffer)
             {
-                int pow = 1;
+                long pow = 1;
                 while (this.LargeBufferMultiple * pow < requiredSize)
                 {
                     pow <<= 1;
