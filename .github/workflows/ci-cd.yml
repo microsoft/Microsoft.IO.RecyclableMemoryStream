@@ -89,6 +89,7 @@ jobs:
           $nugetOutputPath = "${{ github.workspace }}/NuGet"
 
           msbuild Microsoft.IO.RecyclableMemoryStream.sln `
+          /p:Configuration=Release `
           /p:OutputPath=$buildOutputPath `
           /p:PackageVersion=$projectNewVersion `
           /p:PackageOutputPath=$nugetOutputPath `
@@ -113,6 +114,7 @@ jobs:
           $date = Get-Date -Format "MM-dd-yyyy"
 
           dotnet test Microsoft.IO.RecyclableMemoryStream.sln `
+          --configuration Release `
           --output 'Build output' `
           --logger "trx;LogFileName=$projectName-$date.trx;verbosity=normal" `
           --results-directory 'Test results/' `
