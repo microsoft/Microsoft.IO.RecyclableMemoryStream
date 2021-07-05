@@ -14,12 +14,13 @@ on:
 jobs:
   ci:
     name: Continuous Integration
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     outputs:
       latest_version: ${{ steps.tag_generator.outputs.new_version }}
     steps:
       - name: Data gatherer
         id: data_gatherer
+        shell: pwsh
         run: |
           # Get default branch
           $repo = "${{ github.repository }}"
@@ -29,6 +30,7 @@ jobs:
           
       - name: Conditionals handler
         id: conditionals_handler
+        shell: pwsh
         run: |
           $defaultBranch = "${{ steps.data_gatherer.outputs.default_branch }}"
           $githubRef = "${{ github.ref }}"
@@ -56,9 +58,6 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 5.0.203
-          
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.0.2
 
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -76,63 +75,98 @@ jobs:
           tag_prefix: ''
 
       - name: Restore solution
+        shell: pwsh
         run: |
-          nuget restore Microsoft.IO.RecyclableMemoryStream.sln
+          dotnet restore Microsoft.IO.RecyclableMemoryStream.sln
 
-      - name: Build and pack solution
+      - name: Build solution
+        shell: pwsh
         run: |
-          $gitNewVersion = if ("${{ steps.tag_generator.outputs.new_version }}") {"${{ steps.tag_generator.outputs.new_version }}"} else {$null}
-          $projectFilePath = 'src\Microsoft.IO.RecyclableMemoryStream.csproj'
-          $projectCurrentVersion = [String](([xml](Get-Content -Path $projectFilePath)).Project.PropertyGroup.PackageVersion) -replace '\s', ''
-          $projectNewVersion = $gitNewVersion ?? $projectCurrentVersion
-          $buildOutputPath = "${{ github.workspace }}/Build output"
-          $nugetOutputPath = "${{ github.workspace }}/NuGet"
-
-          msbuild Microsoft.IO.RecyclableMemoryStream.sln `
-          /p:Configuration=Release `
-          /p:OutputPath=$buildOutputPath `
-          /p:PackageVersion=$projectNewVersion `
-          /p:PackageOutputPath=$nugetOutputPath `
-          /t:build,pack
-
-      - name: Upload build output as pipeline artifact
-        uses: actions/upload-artifact@v1
-        with:
-          name: Build output
-          path: 'Build output/'
-
-      - name: Upload NuGet packages as pipeline artifact
-        uses: actions/upload-artifact@v1
-        with:
-          name: NuGet packages
-          path: NuGet/
+          dotnet build Microsoft.IO.RecyclableMemoryStream.sln `
+          --configuration Release `
+          --no-restore
 
       - name: Run unit tests
-        continue-on-error: true
+        shell: pwsh
         run: |
           $projectName = "${{ github.event.repository.name }}"
           $date = Get-Date -Format "MM-dd-yyyy"
 
           dotnet test Microsoft.IO.RecyclableMemoryStream.sln `
           --configuration Release `
-          --output 'Build output' `
           --logger "trx;LogFileName=$projectName-$date.trx;verbosity=normal" `
           --results-directory 'Test results/' `
           --no-build
 
       - name: Upload test results as pipeline artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         with:
           name: Test results
           path: 'Test results/'
 
+      - name: Version determiner
+        id: version_determiner
+        shell: pwsh
+        run: |
+          $gitNewVersion = if ("${{ steps.tag_generator.outputs.new_version }}") {"${{ steps.tag_generator.outputs.new_version }}"} else {$null}
+          $projectFilePath = 'src/Microsoft.IO.RecyclableMemoryStream.csproj'
+          $projectCurrentVersion = [String](([xml](Get-Content -Path $projectFilePath)).Project.PropertyGroup.PackageVersion) -replace '\s', ''
+          $projectNewVersion = $gitNewVersion ?? $projectCurrentVersion
+
+          Write-Output "::set-output name=project_version::$(echo $projectNewVersion)"
+
+      - name: Publish project for each target framework
+        shell: pwsh
+        run: |
+          $projectVersion = "${{ steps.version_determiner.outputs.project_version }}"
+          $projectFilePath = 'src/Microsoft.IO.RecyclableMemoryStream.csproj'
+          $targetFrameworksProperty = [String](([xml](Get-Content -Path $projectFilePath)).Project.PropertyGroup.TargetFrameworks)
+          $targetFrameworks = $targetFrameworksProperty.split(';')
+
+          foreach ( $framework in $targetFrameworks ) {
+            $frameworkNum = [String]($framework -replace ' ', '')
+
+            dotnet publish $projectFilePath `
+            --configuration Release `
+            --output "Publish outputs/$frameworkNum" `
+            --framework $frameworkNum `
+            -property:PackageVersion=$projectVersion `
+            --no-restore
+          }
+
+      - name: Upload publish output as pipeline artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: Publish outputs
+          path: 'Publish outputs/'
+
+      - name: Pack solution
+        shell: pwsh
+        run: |
+          $projectVersion = "${{ steps.version_determiner.outputs.project_version }}"
+
+          dotnet pack Microsoft.IO.RecyclableMemoryStream.sln `
+          --configuration Release `
+          --output NuGet `
+          -property:PackageVersion=$projectVersion `
+          --no-restore
+
+      - name: Upload NuGet packages as pipeline artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: NuGet packages
+          path: NuGet/
+
       - if: steps.tag_generator.outputs.new_version != ''
         name: Update version in project
+        shell: pwsh
         run: |
-          $projFilePath = 'src\Microsoft.IO.RecyclableMemoryStream.csproj'
+          $projFilePath = 'src/Microsoft.IO.RecyclableMemoryStream.csproj'
           $projContent = Get-Content -Path $projFilePath -Raw
           $updatedProjContent = $projContent -replace '<PackageVersion>.*</PackageVersion>', "<PackageVersion>${{ steps.tag_generator.outputs.new_version }}</PackageVersion>"
+
           $updatedProjContent | Set-Content -Path $projFilePath
+
           $userEmail = "ci-cd-pipeline@my.workflow"
           $userName = "ci-cd-pipeline"
           $commitMessage = "update project version to ${{ steps.tag_generator.outputs.new_version }}"
@@ -147,7 +181,7 @@ jobs:
     if: needs.ci.outputs.latest_version != ''
     name: Continuous Deployment
     needs: ci
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       # GH CLI requires a cloned repo
       - name: Checkout repository
@@ -161,6 +195,7 @@ jobs:
 
       - name: Push NuGet packages to NuGet.org
         continue-on-error: true
+        shell: pwsh
         run: |
           nuget push NuGet/Microsoft.IO.RecyclableMemoryStream.${{ needs.ci.outputs.latest_version }}.nupkg `
           -ApiKey $env:NUGET_API_KEY `
@@ -169,6 +204,7 @@ jobs:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 
       - name: Create and publish release
+        shell: pwsh
         run: |
           $releaseTag = "${{ needs.ci.outputs.latest_version }}"
           $releaseTitle = "Microsoft.IO.RecyclableMemoryStream ${{ needs.ci.outputs.latest_version }}"
