@@ -19,7 +19,7 @@
 		"vscode-icons-team.vscode-icons",
 		"editorconfig.editorconfig"
 	],
-	"postCreateCommand": "dotnet restore && dotnet build --no-restore && dotnet test --no-build",
+	"postCreateCommand": "dotnet restore",
 }
 
 // Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)
