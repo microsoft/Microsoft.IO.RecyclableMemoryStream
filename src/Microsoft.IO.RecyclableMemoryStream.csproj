@@ -1,27 +1,37 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+		<!-- General properties -->
     <TargetFrameworks>netstandard2.0;netstandard2.1;net462;netcoreapp2.1;net5.0</TargetFrameworks>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Microsoft.IO.RecyclableMemoryStream.xml</DocumentationFile>
-    <!-- NuGet properties -->
-    <PackageId>Microsoft.IO.RecyclableMemoryStream</PackageId>
-    <PackageVersion>2.1.2</PackageVersion>
-    <Title>Microsoft.IO.RecyclableMemoryStream</Title>
+    <Title>$(MSBuildProjectName)</Title>
     <Authors>Microsoft</Authors>
-    <Description>A pooled MemoryStream allocator to decrease GC load and improve performance on highly scalable systems.</Description>
-    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <RepositoryUrl>https://github.com/Microsoft/Microsoft.IO.RecyclableMemoryStream</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <IncludeBuildOutput>true</IncludeBuildOutput>
+    <LangVersion>9.0</LangVersion>
+		<VersionPrefix Condition="'$(VersionPrefix)' == ''">0.0.1</VersionPrefix>
+		<VersionSuffix Condition="'$(VersionSuffix)' == ''">0</VersionSuffix>
+		<Version>$(VersionPrefix)</Version>
+		<!-- NuGet properties -->
+    <PackageId>$(MSBuildProjectName)</PackageId>
+    <PackageVersion>$(Version)</PackageVersion>
+    <PackageProjectUrl>https://github.com/Microsoft/Microsoft.IO.RecyclableMemoryStream</PackageProjectUrl>
+    <PackageTags>MemoryStream;Memory;performance;GC;garbage collection;stream;scalable;buffer</PackageTags>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReleaseNotes>Additional framework targets, better .Net Core support, simplified build.</PackageReleaseNotes>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <PackageTags>MemoryStream;Memory;performance;GC;garbage collection;stream;scalable;buffer</PackageTags>
-    <RepositoryUrl>https://github.com/Microsoft/Microsoft.IO.RecyclableMemoryStream</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageProjectUrl>https://github.com/Microsoft/Microsoft.IO.RecyclableMemoryStream</PackageProjectUrl>
-    <IncludeBuildOutput>true</IncludeBuildOutput>
-    <LangVersion>9.0</LangVersion>
+		<!-- Assembly properties -->
+		<Company>Microsoft</Company>
+		<Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+		<Description>A pooled MemoryStream allocator to decrease GC load and improve performance on highly scalable systems.</Description>
+		<Product>$(MSBuildProjectName)</Product>
+		<AssemblyTitle>$(MSBuildProjectName)</AssemblyTitle>
+		<AssemblyVersion>$(Version).$(VersionSuffix)</AssemblyVersion>
+		<ProjectGuid>{9ca0730b-3653-4fc4-b722-9e59fa70ea0b}</ProjectGuid>
   </PropertyGroup>
+
   <!-- for assembly signing we use a magic variable coupled with a special build definition which skips UTs -->
   <PropertyGroup Condition="'$(SignedBuild)' == 'true'">
     <DefineConstants>$(DefineConstants);NOFRIENDASSEMBLY</DefineConstants>
@@ -29,7 +39,6 @@
     <DelaySign>true</DelaySign>
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
-
 
   <PropertyGroup>
     <DebugType>embedded</DebugType>

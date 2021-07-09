@@ -1,15 +1,6 @@
 name: CI/CD Pipeline
 
-on:
-  push:
-    paths:
-      - 'src/**'
-      - 'UnitTests/**'
-  pull_request:
-    paths:
-      - 'src/**'
-      - 'UnitTests/**'
-  workflow_dispatch:
+on: [ push, pull_request, workflow_dispatch ]
 
 jobs:
   ci:
@@ -27,7 +18,7 @@ jobs:
           $defaultBranch = Invoke-RestMethod -Method GET -Uri https://api.github.com/repos/$repo | Select-Object -ExpandProperty default_branch
 
           Write-Output "::set-output name=default_branch::$(echo $defaultBranch)"
-          
+
       - name: Conditionals handler
         id: conditionals_handler
         shell: pwsh
@@ -74,6 +65,21 @@ jobs:
           release_branches: ${{ steps.data_gatherer.outputs.default_branch }}
           tag_prefix: ''
 
+      - name: Version determiner
+        id: version_determiner
+        shell: pwsh
+        run: |
+          $gitNewVersion = if ( "${{ steps.tag_generator.outputs.new_version }}" ) { "${{ steps.tag_generator.outputs.new_version }}" } else { $null }
+
+          # fetch all tags from remote
+          git fetch --all --tags
+
+          $gitTagsList = git tag
+          $projectCurrentVersion = ( $gitTagsList | Where-Object { $_ -notmatch 'v' } | Sort-Object { [Version] $_ } -Descending )[0] -replace ' ', ''
+          $projectNewVersion = $gitNewVersion ?? $projectCurrentVersion
+
+          Write-Output "::set-output name=project_version::$(echo $projectNewVersion)"
+
       - name: Restore solution
         shell: pwsh
         run: |
@@ -82,6 +88,8 @@ jobs:
       - name: Build solution
         shell: pwsh
         run: |
+          $projectVersion = "${{ steps.version_determiner.outputs.project_version }}"
+
           dotnet build Microsoft.IO.RecyclableMemoryStream.sln `
           --configuration Release `
           --no-restore
@@ -104,17 +112,6 @@ jobs:
           name: Test results
           path: 'Test results/'
 
-      - name: Version determiner
-        id: version_determiner
-        shell: pwsh
-        run: |
-          $gitNewVersion = if ("${{ steps.tag_generator.outputs.new_version }}") {"${{ steps.tag_generator.outputs.new_version }}"} else {$null}
-          $projectFilePath = 'src/Microsoft.IO.RecyclableMemoryStream.csproj'
-          $projectCurrentVersion = [String](([xml](Get-Content -Path $projectFilePath)).Project.PropertyGroup.PackageVersion) -replace '\s', ''
-          $projectNewVersion = $gitNewVersion ?? $projectCurrentVersion
-
-          Write-Output "::set-output name=project_version::$(echo $projectNewVersion)"
-
       - name: Publish project for each target framework
         shell: pwsh
         run: |
@@ -130,8 +127,11 @@ jobs:
             --configuration Release `
             --output "Publish outputs/$frameworkNum" `
             --framework $frameworkNum `
-            -property:PackageVersion=$projectVersion `
-            --no-restore
+            --no-restore `
+            -property:VersionPrefix=$projectVersion `
+            -property:VersionSuffix=${{ github.run_number }} `
+            -property:GITHUB_ACTIONS=true `
+            -property:SignedBuild=true
           }
 
       - name: Upload publish output as pipeline artifact
@@ -148,34 +148,18 @@ jobs:
           dotnet pack Microsoft.IO.RecyclableMemoryStream.sln `
           --configuration Release `
           --output NuGet `
-          -property:PackageVersion=$projectVersion `
-          --no-restore
+          --include-symbols `
+          --no-restore `
+          -property:VersionPrefix=$projectVersion `
+          -property:VersionSuffix=${{ github.run_number }} `
+          -property:GITHUB_ACTIONS=true `
+          -property:SignedBuild=true
 
       - name: Upload NuGet packages as pipeline artifact
         uses: actions/upload-artifact@v2
         with:
           name: NuGet packages
           path: NuGet/
-
-      - if: steps.tag_generator.outputs.new_version != ''
-        name: Update version in project
-        shell: pwsh
-        run: |
-          $projFilePath = 'src/Microsoft.IO.RecyclableMemoryStream.csproj'
-          $projContent = Get-Content -Path $projFilePath -Raw
-          $updatedProjContent = $projContent -replace '<PackageVersion>.*</PackageVersion>', "<PackageVersion>${{ steps.tag_generator.outputs.new_version }}</PackageVersion>"
-
-          $updatedProjContent | Set-Content -Path $projFilePath
-
-          $userEmail = "ci-cd-pipeline@my.workflow"
-          $userName = "ci-cd-pipeline"
-          $commitMessage = "update project version to ${{ steps.tag_generator.outputs.new_version }}"
-          
-          git config --global user.email $userEmail
-          git config --global user.name $userName
-          git add $projFilePath
-          git commit -m $commitMessage
-          git push origin "${{ steps.data_gatherer.outputs.default_branch }}"
 
   cd:
     if: needs.ci.outputs.latest_version != ''
@@ -203,12 +187,29 @@ jobs:
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 
+      - name: Download and extract assemblies artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: Publish outputs
+          path: 'Publish outputs/'
+
+      - name: Archive assemblies for release
+        shell: pwsh
+        run: |
+          # Install or update 7z
+          sudo apt update
+          sudo apt install p7zip-full p7zip-rar
+
+          # Archive assemblies
+          cd './Publish outputs'
+          7z a '${{ github.workspace }}/Microsoft.IO.RecyclableMemoryStream ${{ needs.ci.outputs.latest_version }} Assemblies.7z' .
+
       - name: Create and publish release
         shell: pwsh
         run: |
           $releaseTag = "${{ needs.ci.outputs.latest_version }}"
           $releaseTitle = "Microsoft.IO.RecyclableMemoryStream ${{ needs.ci.outputs.latest_version }}"
-          $releaseAssets = "NuGet/Microsoft.IO.RecyclableMemoryStream.${{ needs.ci.outputs.latest_version }}.nupkg"
+          $releaseAssets = "NuGet/Microsoft.IO.RecyclableMemoryStream.${{ needs.ci.outputs.latest_version }}.nupkg", "NuGet/Microsoft.IO.RecyclableMemoryStream.${{ needs.ci.outputs.latest_version }}.snupkg", "Microsoft.IO.RecyclableMemoryStream ${{ needs.ci.outputs.latest_version }} Assemblies.7z"
 
           gh release create $releaseTag -t $releaseTitle $releaseAssets
         env:
