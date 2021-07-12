@@ -16,7 +16,7 @@ jobs:
 
       # Tooling setup
 
-      - name: Setup .NET SDK
+      - name: Install .NET SDK
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 5.0.203
