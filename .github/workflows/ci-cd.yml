@@ -9,7 +9,21 @@ jobs:
     outputs:
       latest_version: ${{ steps.tag_generator.outputs.new_version }}
     steps:
-      - name: Data gatherer
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Tooling setup
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.203
+
+      # Information setup
+
+      - name: Pipeline data gatherer
         id: data_gatherer
         shell: pwsh
         run: |
@@ -19,7 +33,7 @@ jobs:
 
           Write-Output "::set-output name=default_branch::$(echo $defaultBranch)"
 
-      - name: Conditionals handler
+      - name: Pipeline conditionals handler
         id: conditionals_handler
         shell: pwsh
         run: |
@@ -45,27 +59,17 @@ jobs:
           Write-Output "::set-output name=is_push::$(echo $isPush)"
           Write-Output "::set-output name=is_push_to_default_branch::$(echo $isPushToDefaultBranch)"
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 5.0.203
-
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - if: steps.conditionals_handler.outputs.is_push_to_default_branch == 'true'
-        name: Bump GH tag
+        name: GitHub tag generator
         id: tag_generator
-        uses: mathieudutour/github-tag-action@v5.4
+        uses: mathieudutour/github-tag-action@v5.5
         with: 
           github_token: ${{ secrets.GITHUB_TOKEN }}
           default_bump: false
           release_branches: ${{ steps.data_gatherer.outputs.default_branch }}
           tag_prefix: ''
 
-      - name: Version determiner
+      - name: Project version determiner
         id: version_determiner
         shell: pwsh
         run: |
@@ -79,6 +83,8 @@ jobs:
           $projectNewVersion = $gitNewVersion ?? $projectCurrentVersion
 
           Write-Output "::set-output name=project_version::$(echo $projectNewVersion)"
+
+      # Build and test validation
 
       - name: Restore solution
         shell: pwsh
@@ -111,6 +117,8 @@ jobs:
         with:
           name: Test results
           path: 'Test results/'
+
+      # Artifact generation and publish to pipeline
 
       - name: Publish project for each target framework
         shell: pwsh
@@ -167,9 +175,18 @@ jobs:
     needs: ci
     runs-on: ubuntu-latest
     steps:
-      # GH CLI requires a cloned repo
-      - name: Checkout repository
+      - name: Checkout repository # GH CLI requires a cloned repo
         uses: actions/checkout@v2
+
+      # Tooling setup
+
+      - name: Install/Update 7z
+        shell: pwsh
+        run: |
+          sudo apt update
+          sudo apt install p7zip-full p7zip-rar
+
+      # NuGet packages publish
 
       - name: Download and extract NuGet packages artifact
         uses: actions/download-artifact@v2
@@ -187,6 +204,8 @@ jobs:
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 
+      # GitHub release preparation and publish
+
       - name: Download and extract assemblies artifact
         uses: actions/download-artifact@v2
         with:
@@ -196,11 +215,6 @@ jobs:
       - name: Archive assemblies for release
         shell: pwsh
         run: |
-          # Install or update 7z
-          sudo apt update
-          sudo apt install p7zip-full p7zip-rar
-
-          # Archive assemblies
           cd './Publish outputs'
           7z a '${{ github.workspace }}/Microsoft.IO.RecyclableMemoryStream ${{ needs.ci.outputs.latest_version }} Assemblies.7z' .
 
