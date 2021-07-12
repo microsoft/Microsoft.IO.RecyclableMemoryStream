@@ -180,6 +180,11 @@ jobs:
 
       # Tooling setup
 
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.203
+
       - name: Install/Update 7z
         shell: pwsh
         run: |
@@ -198,11 +203,13 @@ jobs:
         continue-on-error: true
         shell: pwsh
         run: |
-          nuget push NuGet/Microsoft.IO.RecyclableMemoryStream.${{ needs.ci.outputs.latest_version }}.nupkg `
-          -ApiKey $env:NUGET_API_KEY `
-          -Source https://api.nuget.org/v3/index.json
-        env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          $packagePath = "NuGet/Microsoft.IO.RecyclableMemoryStream.${{ needs.ci.outputs.latest_version }}.nupkg"
+          $nugetSource = "https://api.nuget.org/v3/index.json"
+          $nugetApiKey = "${{ secrets.NUGET_API_KEY }}"
+
+          dotnet nuget push $packagePath `
+          --source $nugetSource `
+          --api-key $nugetApiKey
 
       # GitHub release preparation and publish
 
@@ -223,9 +230,13 @@ jobs:
         run: |
           $releaseTag = "${{ needs.ci.outputs.latest_version }}"
           $releaseTitle = "Microsoft.IO.RecyclableMemoryStream ${{ needs.ci.outputs.latest_version }}"
+          $releaseNotes = "NuGet: [Microsoft.IO.RecyclableMemoryStream ${{ needs.ci.outputs.latest_version }}](https://www.nuget.org/packages/Microsoft.IO.RecyclableMemoryStream/${{ needs.ci.outputs.latest_version }})"
           $releaseAssets = "NuGet/Microsoft.IO.RecyclableMemoryStream.${{ needs.ci.outputs.latest_version }}.nupkg", "NuGet/Microsoft.IO.RecyclableMemoryStream.${{ needs.ci.outputs.latest_version }}.snupkg", "Microsoft.IO.RecyclableMemoryStream ${{ needs.ci.outputs.latest_version }} Assemblies.7z"
 
-          gh release create $releaseTag -t $releaseTitle $releaseAssets
+          gh release create $releaseTag `
+          --title $releaseTitle `
+          --notes $releaseNotes `
+          $releaseAssets
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
