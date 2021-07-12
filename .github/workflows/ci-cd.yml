@@ -94,8 +94,6 @@ jobs:
       - name: Build solution
         shell: pwsh
         run: |
-          $projectVersion = "${{ steps.version_determiner.outputs.project_version }}"
-
           dotnet build Microsoft.IO.RecyclableMemoryStream.sln `
           --configuration Release `
           --no-restore
