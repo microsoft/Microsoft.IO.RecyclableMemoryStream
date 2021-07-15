@@ -95,7 +95,7 @@ jobs:
         shell: pwsh
         run: |
           dotnet build Microsoft.IO.RecyclableMemoryStream.sln `
-          --configuration Release `
+          --configuration Debug `
           --no-restore
 
       - name: Run unit tests
@@ -105,7 +105,7 @@ jobs:
           $date = Get-Date -Format "MM-dd-yyyy"
 
           dotnet test Microsoft.IO.RecyclableMemoryStream.sln `
-          --configuration Release `
+          --configuration Debug `
           --logger "trx;LogFileName=$projectName-$date.trx;verbosity=normal" `
           --results-directory 'Test results/' `
           --no-build
@@ -130,7 +130,7 @@ jobs:
             $frameworkNum = [String]($framework -replace ' ', '')
 
             dotnet publish $projectFilePath `
-            --configuration Release `
+            --configuration Debug `
             --output "Publish outputs/$frameworkNum" `
             --framework $frameworkNum `
             --no-restore `
@@ -154,7 +154,6 @@ jobs:
           dotnet pack Microsoft.IO.RecyclableMemoryStream.sln `
           --configuration Release `
           --output NuGet `
-          --include-symbols `
           --no-restore `
           -property:VersionPrefix=$projectVersion `
           -property:VersionSuffix=${{ github.run_number }} `
