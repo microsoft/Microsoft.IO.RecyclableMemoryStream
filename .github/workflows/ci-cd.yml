@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI Pipeline
 
 on: [ push, pull_request, workflow_dispatch ]
 
@@ -6,13 +6,9 @@ jobs:
   ci:
     name: Continuous Integration
     runs-on: ubuntu-latest
-    outputs:
-      latest_version: ${{ steps.tag_generator.outputs.new_version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       # Tooling setup
 
@@ -20,69 +16,6 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 5.0.203
-
-      # Information setup
-
-      - name: Pipeline data gatherer
-        id: data_gatherer
-        shell: pwsh
-        run: |
-          # Get default branch
-          $repo = "${{ github.repository }}"
-          $defaultBranch = Invoke-RestMethod -Method GET -Uri https://api.github.com/repos/$repo | Select-Object -ExpandProperty default_branch
-
-          Write-Output "::set-output name=default_branch::$(echo $defaultBranch)"
-
-      - name: Pipeline conditionals handler
-        id: conditionals_handler
-        shell: pwsh
-        run: |
-          $defaultBranch = "${{ steps.data_gatherer.outputs.default_branch }}"
-          $githubRef = "${{ github.ref }}"
-          $currentBranch = $githubRef -replace 'refs/heads/', ''
-          $githubEventName = "${{ github.event_name }}"
-          $isDefaultBranch = 'false'
-          $isPush = 'false'
-          $isPushToDefaultBranch = 'false'
-
-          if ( $currentBranch -eq $defaultBranch ) {
-            $isDefaultBranch = 'true'
-          }
-          if ( $githubEventName -eq 'push' ) {
-            $isPush = 'true'
-          }
-          if ( $currentBranch -eq $defaultBranch -and $githubEventName -eq 'push' ) {
-            $isPushToDefaultBranch = 'true'
-          }
-
-          Write-Output "::set-output name=is_default_branch::$(echo $isDefaultBranch)"
-          Write-Output "::set-output name=is_push::$(echo $isPush)"
-          Write-Output "::set-output name=is_push_to_default_branch::$(echo $isPushToDefaultBranch)"
-
-      - if: steps.conditionals_handler.outputs.is_push_to_default_branch == 'true'
-        name: GitHub tag generator
-        id: tag_generator
-        uses: mathieudutour/github-tag-action@v5.5
-        with: 
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          default_bump: false
-          release_branches: ${{ steps.data_gatherer.outputs.default_branch }}
-          tag_prefix: ''
-
-      - name: Project version determiner
-        id: version_determiner
-        shell: pwsh
-        run: |
-          $gitNewVersion = if ( "${{ steps.tag_generator.outputs.new_version }}" ) { "${{ steps.tag_generator.outputs.new_version }}" } else { $null }
-
-          # fetch all tags from remote
-          git fetch --all --tags
-
-          $gitTagsList = git tag
-          $projectCurrentVersion = ( $gitTagsList | Where-Object { $_ -notmatch 'v' } | Sort-Object { [Version] $_ } -Descending )[0] -replace ' ', ''
-          $projectNewVersion = $gitNewVersion ?? $projectCurrentVersion
-
-          Write-Output "::set-output name=project_version::$(echo $projectNewVersion)"
 
       # Build and test validation
 
@@ -121,7 +54,6 @@ jobs:
       - name: Publish project for each target framework
         shell: pwsh
         run: |
-          $projectVersion = "${{ steps.version_determiner.outputs.project_version }}"
           $projectFilePath = 'src/Microsoft.IO.RecyclableMemoryStream.csproj'
           $targetFrameworksProperty = [String](([xml](Get-Content -Path $projectFilePath)).Project.PropertyGroup.TargetFrameworks)
           $targetFrameworks = $targetFrameworksProperty.split(';')
@@ -134,8 +66,6 @@ jobs:
             --output "Publish outputs/$frameworkNum" `
             --framework $frameworkNum `
             --no-restore `
-            -property:VersionPrefix=$projectVersion `
-            -property:VersionSuffix=${{ github.run_number }} `
             -property:GITHUB_ACTIONS=true `
             -property:SignedBuild=true
           }
@@ -145,96 +75,5 @@ jobs:
         with:
           name: Publish outputs
           path: 'Publish outputs/'
-
-      - name: Pack solution
-        shell: pwsh
-        run: |
-          $projectVersion = "${{ steps.version_determiner.outputs.project_version }}"
-
-          dotnet pack Microsoft.IO.RecyclableMemoryStream.sln `
-          --configuration Release `
-          --output NuGet `
-          --no-restore `
-          -property:VersionPrefix=$projectVersion `
-          -property:VersionSuffix=${{ github.run_number }} `
-          -property:GITHUB_ACTIONS=true `
-          -property:SignedBuild=true
-
-      - name: Upload NuGet packages as pipeline artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: NuGet packages
-          path: NuGet/
-
-  cd:
-    if: needs.ci.outputs.latest_version != ''
-    name: Continuous Deployment
-    needs: ci
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository # GH CLI requires a cloned repo
-        uses: actions/checkout@v2
-
-      # Tooling setup
-
-      - name: Install .NET SDK
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 5.0.203
-
-      - name: Install/Update 7z
-        shell: pwsh
-        run: |
-          sudo apt update
-          sudo apt install p7zip-full p7zip-rar
-
-      # NuGet packages publish
-
-      - name: Download and extract NuGet packages artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: NuGet packages
-          path: NuGet/
-
-      - name: Push NuGet packages to NuGet.org
-        continue-on-error: true
-        shell: pwsh
-        run: |
-          $packagePath = "NuGet/Microsoft.IO.RecyclableMemoryStream.${{ needs.ci.outputs.latest_version }}.nupkg"
-          $nugetSource = "https://api.nuget.org/v3/index.json"
-          $nugetApiKey = "${{ secrets.NUGET_API_KEY }}"
-
-          dotnet nuget push $packagePath `
-          --source $nugetSource `
-          --api-key $nugetApiKey
-
-      # GitHub release preparation and publish
-
-      - name: Download and extract assemblies artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: Publish outputs
-          path: 'Publish outputs/'
-
-      - name: Archive assemblies for release
-        shell: pwsh
-        run: |
-          cd './Publish outputs'
-          7z a '${{ github.workspace }}/Microsoft.IO.RecyclableMemoryStream ${{ needs.ci.outputs.latest_version }} Assemblies.7z' .
-
-      - name: Create and publish release
-        shell: pwsh
-        run: |
-          $releaseTag = "${{ needs.ci.outputs.latest_version }}"
-          $releaseTitle = "Microsoft.IO.RecyclableMemoryStream ${{ needs.ci.outputs.latest_version }}"
-          $releaseNotes = "NuGet: [Microsoft.IO.RecyclableMemoryStream ${{ needs.ci.outputs.latest_version }}](https://www.nuget.org/packages/Microsoft.IO.RecyclableMemoryStream/${{ needs.ci.outputs.latest_version }})"
-          $releaseAssets = "NuGet/Microsoft.IO.RecyclableMemoryStream.${{ needs.ci.outputs.latest_version }}.nupkg", "NuGet/Microsoft.IO.RecyclableMemoryStream.${{ needs.ci.outputs.latest_version }}.snupkg", "Microsoft.IO.RecyclableMemoryStream ${{ needs.ci.outputs.latest_version }} Assemblies.7z"
-
-          gh release create $releaseTag `
-          --title $releaseTitle `
-          --notes $releaseNotes `
-          $releaseAssets
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 # Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)
