@@ -3403,7 +3403,7 @@ namespace Microsoft.IO.UnitTests
             for (int i = 0; i < 32000; i++)
             {
                 fillStream.Write(block1, 0, 128000);
-                Interlocked.Add(ref test1, -test2);
+                test1 -= test2;
             }
 
             Assert.That(test1, Is.EqualTo(0));

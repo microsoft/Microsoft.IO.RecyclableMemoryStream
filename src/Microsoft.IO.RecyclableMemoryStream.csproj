@@ -21,6 +21,7 @@
     <PackageProjectUrl>https://github.com/Microsoft/Microsoft.IO.RecyclableMemoryStream</PackageProjectUrl>
     <IncludeBuildOutput>true</IncludeBuildOutput>
     <LangVersion>9.0</LangVersion>
+    <CheckForOverflowUnderflow Condition="'$(Configuration)' == 'Debug'">true</CheckForOverflowUnderflow>
   </PropertyGroup>
   <!-- for assembly signing we use a magic variable coupled with a special build definition which skips UTs -->
   <PropertyGroup Condition="'$(SignedBuild)' == 'true'">
