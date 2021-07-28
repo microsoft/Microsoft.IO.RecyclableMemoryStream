@@ -1427,7 +1427,7 @@ namespace Microsoft.IO
         #region Helper Methods
         private bool Disposed => this.disposed;
 
-        [MethodImpl((MethodImplOptions)256)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void CheckDisposed()
         {
             if (this.Disposed)
@@ -1524,7 +1524,7 @@ namespace Microsoft.IO
             }
         }
 
-        [MethodImpl((MethodImplOptions)256)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private BlockAndOffset GetBlockAndRelativeOffset(long offset)
         {
             var blockSize = this.memoryManager.BlockSize;
