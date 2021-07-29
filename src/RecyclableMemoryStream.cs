@@ -399,7 +399,7 @@ namespace Microsoft.IO
                 long size = (long)this.blocks.Count * this.memoryManager.BlockSize;
                 if (size > int.MaxValue)
                 {
-                    throw new InvalidOperationException("Capacity is larger than int.MaxValue. Use Capacity64 instead.");
+                    throw new InvalidOperationException($"{nameof(Capacity)} is larger than int.MaxValue. Use {nameof(Capacity64)} instead.");
                 }
                 return (int)size;
             }
@@ -683,30 +683,30 @@ namespace Microsoft.IO
         /// IMPORTANT: Calling Write(), GetBuffer(), TryGetBuffer(), Seek(), GetLength(), Advance(),
         /// or setting Position after calling GetMemory() invalidates the memory.
         /// </remarks>
-        public Memory<byte> GetMemory(int sizeHint = 0) => this.GetWritableBuffer(sizeHint);
+        public Memory<byte> GetMemory(int sizeHint = 0) => this.GetWritableBuffer(sizeHint, nameof(sizeHint));
 
         /// <inheritdoc/>
         /// <remarks>
         /// IMPORTANT: Calling Write(), GetBuffer(), TryGetBuffer(), Seek(), GetLength(), Advance(),
         /// or setting Position after calling GetSpan() invalidates the span.
         /// </remarks>
-        public Span<byte> GetSpan(int sizeHint = 0) => this.GetWritableBuffer(sizeHint);
+        public Span<byte> GetSpan(int sizeHint = 0) => this.GetWritableBuffer(sizeHint, nameof(sizeHint));
 
         /// <summary>
         /// When callers to GetSpan() or GetMemory() request a buffer that is larger than the remaining size of the current block
         /// this method return a temp buffer. When Advance() is called, that temp buffer is then copied into the stream.
         /// </summary>
-        private ArraySegment<byte> GetWritableBuffer(int minimumBufferSize)
+        private ArraySegment<byte> GetWritableBuffer(int minimumBufferSize, string originalParamName)
         {
             this.CheckDisposed();
             if (minimumBufferSize < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(minimumBufferSize), $"{nameof(minimumBufferSize)} must be non-negative.");
+                throw new ArgumentOutOfRangeException(originalParamName, $"{originalParamName} must be non-negative.");
             }
 
-            if (minimumBufferSize == 0) 
-            { 
-                minimumBufferSize = 1; 
+            if (minimumBufferSize == 0)
+            {
+                minimumBufferSize = 1;
             }
 
             this.EnsureCapacity(this.position + minimumBufferSize);
@@ -993,7 +993,7 @@ namespace Microsoft.IO
             if (offset < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(offset), offset,
-                                                      $"{nameof(offset)} must be in the range of 0 - {nameof(buffer)}.Length-1.");
+                    $"{nameof(offset)} must be in the range of 0 - {nameof(buffer)}.{nameof(buffer.Length)}-1.");
             }
 
             if (count < 0)
@@ -1003,7 +1003,7 @@ namespace Microsoft.IO
 
             if (count + offset > buffer.Length)
             {
-                throw new ArgumentException($"{nameof(count)} must be greater than {nameof(buffer)}.Length - {nameof(offset)}.");
+                throw new ArgumentException($"{nameof(count)} must be greater than {nameof(buffer)}.{nameof(buffer.Length)} - {nameof(offset)}.");
             }
 
             int blockSize = this.memoryManager.BlockSize;
@@ -1538,9 +1538,7 @@ namespace Microsoft.IO
             if (newCapacity > this.memoryManager.MaximumStreamCapacity && this.memoryManager.MaximumStreamCapacity > 0)
             {
                 this.memoryManager.ReportStreamOverCapacity(this.id, this.tag, newCapacity, this.AllocationStack);
-                throw new OutOfMemoryException(
-                    "Requested capacity is too large: " + newCapacity.ToString(CultureInfo.InvariantCulture) +
-                    ". Limit is " + this.memoryManager.MaximumStreamCapacity.ToString(CultureInfo.InvariantCulture) + ".");
+                throw new OutOfMemoryException($"Requested capacity is too large: {newCapacity}. Limit is {this.memoryManager.MaximumStreamCapacity}.");
             }
 
             if (this.largeBuffer != null)
