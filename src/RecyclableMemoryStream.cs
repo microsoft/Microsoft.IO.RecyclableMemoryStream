@@ -1538,7 +1538,10 @@ namespace Microsoft.IO
             if (newCapacity > this.memoryManager.MaximumStreamCapacity && this.memoryManager.MaximumStreamCapacity > 0)
             {
                 this.memoryManager.ReportStreamOverCapacity(this.id, this.tag, newCapacity, this.AllocationStack);
-                throw new OutOfMemoryException($"Requested capacity is too large: {newCapacity}. Limit is {this.memoryManager.MaximumStreamCapacity}.");
+
+                var requestedCapacity = newCapacity.ToString(CultureInfo.InvariantCulture);
+                var limit = this.memoryManager.MaximumStreamCapacity.ToString(CultureInfo.InvariantCulture);
+                throw new OutOfMemoryException($"Requested capacity is too large: {requestedCapacity}. Limit is {limit}.");
             }
 
             if (this.largeBuffer != null)
