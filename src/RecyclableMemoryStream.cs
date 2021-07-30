@@ -683,31 +683,28 @@ namespace Microsoft.IO
         /// IMPORTANT: Calling Write(), GetBuffer(), TryGetBuffer(), Seek(), GetLength(), Advance(),
         /// or setting Position after calling GetMemory() invalidates the memory.
         /// </remarks>
-        public Memory<byte> GetMemory(int sizeHint = 0) => this.GetWritableBuffer(sizeHint, nameof(sizeHint));
+        public Memory<byte> GetMemory(int sizeHint = 0) => this.GetWritableBuffer(sizeHint);
 
         /// <inheritdoc/>
         /// <remarks>
         /// IMPORTANT: Calling Write(), GetBuffer(), TryGetBuffer(), Seek(), GetLength(), Advance(),
         /// or setting Position after calling GetSpan() invalidates the span.
         /// </remarks>
-        public Span<byte> GetSpan(int sizeHint = 0) => this.GetWritableBuffer(sizeHint, nameof(sizeHint));
+        public Span<byte> GetSpan(int sizeHint = 0) => this.GetWritableBuffer(sizeHint);
 
         /// <summary>
         /// When callers to GetSpan() or GetMemory() request a buffer that is larger than the remaining size of the current block
         /// this method return a temp buffer. When Advance() is called, that temp buffer is then copied into the stream.
         /// </summary>
-        private ArraySegment<byte> GetWritableBuffer(int minimumBufferSize, string originalParamName)
+        private ArraySegment<byte> GetWritableBuffer(int sizeHint)
         {
             this.CheckDisposed();
-            if (minimumBufferSize < 0)
+            if (sizeHint < 0)
             {
-                throw new ArgumentOutOfRangeException(originalParamName, $"{originalParamName} must be non-negative.");
+                throw new ArgumentOutOfRangeException(nameof(sizeHint), $"{nameof(sizeHint)} must be non-negative.");
             }
 
-            if (minimumBufferSize == 0)
-            {
-                minimumBufferSize = 1;
-            }
+            var minimumBufferSize = Math.Max(sizeHint, 1);
 
             this.EnsureCapacity(this.position + minimumBufferSize);
             if (this.bufferWriterTempBuffer != null)
