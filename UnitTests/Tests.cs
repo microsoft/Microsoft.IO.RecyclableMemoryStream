@@ -683,6 +683,16 @@ namespace Microsoft.IO.UnitTests
             RMSAssert.BuffersAreEqual(arraySegment0, arraySegment2);
             RMSAssert.BuffersAreEqual(arraySegment1, arraySegment2);
         }
+
+        [Test]
+        public void GetReadOnlySequenceReturnsSequenceWithSameLengthAsStreamAfterStreamShrinks()
+        {
+            var stream = this.GetDefaultStream();
+            stream.Position = DefaultBlockSize;
+            stream.WriteByte(0);
+            stream.SetLength(DefaultBlockSize - 1);
+            Assert.AreEqual(stream.Length, stream.GetReadOnlySequence().Length);
+        }
         #endregion
 
         #region Constructor tests

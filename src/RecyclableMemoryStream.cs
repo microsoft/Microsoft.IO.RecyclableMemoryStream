@@ -765,7 +765,7 @@ namespace Microsoft.IO
             BlockSegment first = new BlockSegment(this.blocks[0]);
             BlockSegment last = first;
             
-            for (int blockIdx = 1; blockIdx < blocks.Count; blockIdx++)
+            for (int blockIdx = 1; last.RunningIndex + last.Memory.Length < this.length; blockIdx++)
             {
                 last = last.Append(this.blocks[blockIdx]);
             }
