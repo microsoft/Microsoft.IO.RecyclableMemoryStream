@@ -457,7 +457,7 @@ namespace Microsoft.IO
         {
             if (this.UseExponentialLargeBuffer)
             {
-                int pow = 1;
+                long pow = 1;
                 while (this.LargeBufferMultiple * pow < requiredSize)
                 {
                     pow <<= 1;
@@ -562,7 +562,7 @@ namespace Microsoft.IO
                 throw new ArgumentNullException(nameof(blocks));
             }
 
-            var bytesToReturn = blocks.Count * this.BlockSize;
+            long bytesToReturn = (long)blocks.Count * (long)this.BlockSize;
             Interlocked.Add(ref this.smallPoolInUseSize, -bytesToReturn);
 
             foreach (var block in blocks)

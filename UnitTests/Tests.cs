@@ -3384,6 +3384,35 @@ namespace Microsoft.IO.UnitTests
         }
         #endregion
 
+        #region Bug Reports
+        // Issue #176 - SmallPoolInUseSize, SmallPoolFreeSize
+        [Test]
+        public void Issue176_PoolInUseSizeDoesNotDecrease()
+        {
+            long maximumFreeSmallPoolBytes = 32000L * 128000; //4096000000
+            long maximumFreeLargePoolBytes = UInt32.MaxValue;
+            int blockSize = 128000;
+
+            var mgr = new RecyclableMemoryStreamManager(blockSize, 1<<20, 8 * (1<<20),
+                                              maximumFreeSmallPoolBytes, maximumFreeLargePoolBytes);
+
+            MemoryStream fillStream = mgr.GetStream("pool", requiredSize: 128000, asContiguousBuffer: true);
+            byte[] block1 = new byte[128000];
+            long test1 = 4096000000;
+            int test2 = 128000;
+            for (int i = 0; i < 32000; i++)
+            {
+                fillStream.Write(block1, 0, 128000);
+                test1 -= test2;
+            }
+
+            Assert.That(test1, Is.EqualTo(0));
+            Assert.That(mgr.SmallPoolInUseSize, Is.EqualTo(maximumFreeSmallPoolBytes));
+            fillStream.Dispose();
+            Assert.That(mgr.SmallPoolInUseSize, Is.EqualTo(0));
+        }
+        #endregion
+
         protected abstract bool AggressiveBufferRelease { get; }
 
         protected virtual bool UseExponentialLargeBuffer
@@ -3594,6 +3623,19 @@ namespace Microsoft.IO.UnitTests
                 Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(size));
                 Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(0));
             }
+        }
+
+        // Issue #171 - Infinite Loop when particular values are chosen causing an int overflow during
+        // validation of buffer sizes.
+        // https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/issues/171
+        [Test, Timeout(10000)]
+        public void InvalidLargeBufferSizeDoesNotCauseOverflow()
+        {
+            const int BlockSize = 128;
+            const int LargeBufferMultiple = 1024;
+            const int MaxBufferSize = int.MaxValue;
+
+            Assert.Throws<ArgumentException>(()=>new RecyclableMemoryStreamManager(BlockSize, LargeBufferMultiple, MaxBufferSize, this.UseExponentialLargeBuffer) { AggressiveBufferReturn = this.AggressiveBufferRelease });
         }
 
         [Test]

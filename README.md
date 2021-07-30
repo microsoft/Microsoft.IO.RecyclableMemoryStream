@@ -82,7 +82,7 @@ Note that for performance reasons, the buffers are not ever pre-initialized or z
 
 You can jump right in with no fuss by just doing a simple replacement of `MemoryStream` with something like this:
 
-```
+```csharp
 class Program
 {
     private static readonly RecyclableMemoryStreamManager manager = new RecyclableMemoryStreamManager();
@@ -103,7 +103,7 @@ Note that `RecyclableMemoryStreamManager` should be declared once and it will li
 
 To facilitate easier debugging, you can optionally provide a string `tag`, which serves as a human-readable identifier for the stream. This can be something like “ClassName.MethodName”, but it can be whatever you want. Each stream also has a GUID to provide absolute identity if needed, but the `tag` is usually sufficient.
 
-```
+```csharp
 using (var stream = manager.GetStream("Program.Main"))
 {
     stream.Write(sourceBuffer, 0, sourceBuffer.Length);
@@ -112,14 +112,14 @@ using (var stream = manager.GetStream("Program.Main"))
 
 You can also provide an existing buffer. It’s important to note that the data from this buffer will be *copied* into a buffer owned by the pool:
 
-```
+```csharp
 var stream = manager.GetStream("Program.Main", sourceBuffer, 
                                     0, sourceBuffer.Length);
 ```
 
 You can also change the parameters of the pool itself:
 
-```
+```csharp
 int blockSize = 1024;
 int largeBufferMultiple = 1024 * 1024;
 int maxBufferSize = 16 * largeBufferMultiple;
@@ -157,7 +157,7 @@ When configuring the options, consider questions such as these:
 
 `RecyclableMemoryStream` implements [IBufferWriter<byte>](https://docs.microsoft.com/en-us/dotnet/api/system.buffers.ibufferwriter-1?view=netstandard-2.1) so it can be used for zero-copy encoding and formatting. You can also directly modify the stream contents using `GetSpan`\\`GetMemory` with `Advance`. For instance, writing a `BigInteger` to a stream:
 
-```
+```csharp
 var bigInt = BigInteger.Parse("123456789013374299100987654321");
 
 using (var stream = manager.GetStream() as RecyclableMemoryStream)
@@ -172,7 +172,7 @@ using (var stream = manager.GetStream() as RecyclableMemoryStream)
 
 `GetReadOnlySequence` returns a [ReadOnlySequence<byte>](https://docs.microsoft.com/en-us/dotnet/api/system.buffers.readonlysequence-1?view=netstandard-2.1) that can be used for zero-copy stream processing. For example, hashing the contents of a stream: 
 
-```
+```csharp
 using (var stream = manager.GetStream() as RecyclableMemoryStream)
 using (var sha256Hasher = IncrementalHash.CreateHash(HashAlgorithmName.SHA256))
 {

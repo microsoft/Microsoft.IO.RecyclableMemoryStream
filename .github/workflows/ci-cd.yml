@@ -1,0 +1,79 @@
+name: CI Pipeline
+
+on: [ push, pull_request, workflow_dispatch ]
+
+jobs:
+  ci:
+    name: Continuous Integration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Tooling setup
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.203
+
+      # Build and test validation
+
+      - name: Restore solution
+        shell: pwsh
+        run: |
+          dotnet restore Microsoft.IO.RecyclableMemoryStream.sln
+
+      - name: Build solution
+        shell: pwsh
+        run: |
+          dotnet build Microsoft.IO.RecyclableMemoryStream.sln `
+          --configuration Debug `
+          --no-restore
+
+      - name: Run unit tests
+        shell: pwsh
+        run: |
+          $projectName = "${{ github.event.repository.name }}"
+          $date = Get-Date -Format "MM-dd-yyyy"
+
+          dotnet test Microsoft.IO.RecyclableMemoryStream.sln `
+          --configuration Debug `
+          --logger "trx;LogFileName=$projectName-$date.trx;verbosity=normal" `
+          --results-directory 'Test results/' `
+          --no-build
+
+      - name: Upload test results as pipeline artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: Test results
+          path: 'Test results/'
+
+      # Artifact generation and publish to pipeline
+
+      - name: Publish project for each target framework
+        shell: pwsh
+        run: |
+          $projectFilePath = 'src/Microsoft.IO.RecyclableMemoryStream.csproj'
+          $targetFrameworksProperty = [String](([xml](Get-Content -Path $projectFilePath)).Project.PropertyGroup.TargetFrameworks)
+          $targetFrameworks = $targetFrameworksProperty.split(';')
+
+          foreach ( $framework in $targetFrameworks ) {
+            $frameworkNum = [String]($framework -replace ' ', '')
+
+            dotnet publish $projectFilePath `
+            --configuration Debug `
+            --output "Publish outputs/$frameworkNum" `
+            --framework $frameworkNum `
+            --no-restore `
+            -property:GITHUB_ACTIONS=true `
+            -property:SignedBuild=true
+          }
+
+      - name: Upload publish output as pipeline artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: Publish outputs
+          path: 'Publish outputs/'
+
+# Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)
