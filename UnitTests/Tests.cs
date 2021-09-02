@@ -26,6 +26,7 @@ namespace Microsoft.IO.UnitTests
     using System.Buffers;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Runtime.InteropServices;
     using System.Threading;
     using System.Threading.Tasks;
@@ -191,7 +192,7 @@ namespace Microsoft.IO.UnitTests
             buffers[0] = memMgr.GetBlock();
             buffers[1] = new byte[memMgr.BlockSize + 1];
             buffers[2] = memMgr.GetBlock();
-            Assert.Throws<ArgumentException>(() => memMgr.ReturnBlocks(buffers, Guid.Empty, string.Empty));
+            Assert.Throws<ArgumentException>(() => memMgr.ReturnBlocks(buffers.ToList(), Guid.Empty, string.Empty));
         }
 
         [Test]
@@ -241,7 +242,7 @@ namespace Microsoft.IO.UnitTests
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(BuffersToTest * memMgr.BlockSize));
 
             // All but one buffer should be returned to pool
-            memMgr.ReturnBlocks(buffers, Guid.Empty, string.Empty);
+            memMgr.ReturnBlocks(buffers.ToList(), Guid.Empty, string.Empty);
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(memMgr.MaximumFreeSmallPoolBytes));
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(0));
         }
@@ -263,7 +264,7 @@ namespace Microsoft.IO.UnitTests
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(0));
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(BuffersToTest * memMgr.BlockSize));
 
-            memMgr.ReturnBlocks(buffers, Guid.Empty, string.Empty);
+            memMgr.ReturnBlocks(buffers.ToList(), Guid.Empty, string.Empty);
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(BuffersToTest * memMgr.BlockSize));
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(0));
         }
