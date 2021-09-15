@@ -568,7 +568,7 @@ namespace Microsoft.IO
         /// <param name="tag">The tag of the stream returning these blocks, for logging if necessary.</param>
         /// <exception cref="ArgumentNullException"><paramref name="blocks"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="blocks"/> contains buffers that are the wrong size (or null) for this memory manager.</exception>
-        internal void ReturnBlocks(ICollection<byte[]> blocks, Guid id, string tag)
+        internal void ReturnBlocks(List<byte[]> blocks, Guid id, string tag)
         {
             if (blocks == null)
             {

@@ -186,11 +186,11 @@ namespace Microsoft.IO.UnitTests
         [Test]
         public void ReturnBlocksWithInvalidBuffersThrowsException()
         {
-            var buffers = new byte[3][];
+            var buffers = new List<byte[]>(3);
             var memMgr = this.GetMemoryManager();
-            buffers[0] = memMgr.GetBlock();
-            buffers[1] = new byte[memMgr.BlockSize + 1];
-            buffers[2] = memMgr.GetBlock();
+            buffers.Add(memMgr.GetBlock());
+            buffers.Add(new byte[memMgr.BlockSize + 1]);
+            buffers.Add(memMgr.GetBlock());
             Assert.Throws<ArgumentException>(() => memMgr.ReturnBlocks(buffers, Guid.Empty, string.Empty));
         }
 
@@ -231,10 +231,10 @@ namespace Microsoft.IO.UnitTests
 
             // Only allow 2 blocks in the free pool at a time
             memMgr.MaximumFreeSmallPoolBytes = MaxFreeBuffersAllowed * memMgr.BlockSize;
-            var buffers = new byte[BuffersToTest][];
-            for (var i = 0; i < buffers.Length; ++i)
+            var buffers = new List<byte[]>(BuffersToTest);
+            for (var i = buffers.Capacity; i>0 ; --i)
             {
-                buffers[i] = memMgr.GetBlock();
+                buffers.Add(memMgr.GetBlock());
             }
 
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(0));
@@ -254,10 +254,10 @@ namespace Microsoft.IO.UnitTests
             const int BuffersToTest = 99;
 
             memMgr.MaximumFreeSmallPoolBytes = 0;
-            var buffers = new byte[BuffersToTest][];
-            for (var i = 0; i < buffers.Length; ++i)
+            var buffers = new List<byte[]>(BuffersToTest);
+            for (var i = buffers.Capacity; i > 0; --i)
             {
-                buffers[i] = memMgr.GetBlock();
+                buffers.Add( memMgr.GetBlock());
             }
 
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(0));
