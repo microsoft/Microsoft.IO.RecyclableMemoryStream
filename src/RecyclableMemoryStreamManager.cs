@@ -897,6 +897,32 @@ namespace Microsoft.IO
         }
 
         /// <summary>
+        /// Retrieve a new <c>MemoryStream</c> object with the given tag and with contents copied from the provided
+        /// buffer. The provided buffer is not wrapped or used after construction.
+        /// </summary>
+        /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
+        /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
+        /// <param name="tag">A tag which can be used to track the source of the stream.</param>
+        /// <param name="buffer">The byte buffer to copy data from.</param>
+        /// <returns>A <c>MemoryStream</c>.</returns>
+        public MemoryStream GetStream(Guid id, string tag, ReadOnlyMemory<byte> buffer)
+        {
+            RecyclableMemoryStream stream = null;
+            try
+            {
+                stream = new RecyclableMemoryStream(this, id, tag, buffer.Length);
+                stream.Write(buffer.Span);
+                stream.Position = 0;
+                return stream;
+            }
+            catch
+            {
+                stream?.Dispose();
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Retrieve a new <c>MemoryStream</c> object with the contents copied from the provided
         /// buffer. The provided buffer is not wrapped or used after construction.
         /// </summary>
@@ -904,6 +930,18 @@ namespace Microsoft.IO
         /// <param name="buffer">The byte buffer to copy data from.</param>
         /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(Memory<byte> buffer)
+        {
+            return GetStream(null, buffer);
+        }
+
+        /// <summary>
+        /// Retrieve a new <c>MemoryStream</c> object with the contents copied from the provided
+        /// buffer. The provided buffer is not wrapped or used after construction.
+        /// </summary>
+        /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
+        /// <param name="buffer">The byte buffer to copy data from.</param>
+        /// <returns>A <c>MemoryStream</c>.</returns>
+        public MemoryStream GetStream(ReadOnlyMemory<byte> buffer)
         {
             return GetStream(null, buffer);
         }
@@ -917,6 +955,19 @@ namespace Microsoft.IO
         /// <param name="buffer">The byte buffer to copy data from.</param>
         /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(string tag, Memory<byte> buffer)
+        {
+            return GetStream(Guid.NewGuid(), tag, buffer);
+        }
+
+        /// <summary>
+        /// Retrieve a new <c>MemoryStream</c> object with the given tag and with contents copied from the provided
+        /// buffer. The provided buffer is not wrapped or used after construction.
+        /// </summary>
+        /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
+        /// <param name="tag">A tag which can be used to track the source of the stream.</param>
+        /// <param name="buffer">The byte buffer to copy data from.</param>
+        /// <returns>A <c>MemoryStream</c>.</returns>
+        public MemoryStream GetStream(string tag, ReadOnlyMemory<byte> buffer)
         {
             return GetStream(Guid.NewGuid(), tag, buffer);
         }

@@ -2476,6 +2476,31 @@ namespace Microsoft.IO.UnitTests
             RMSAssert.BuffersAreEqual(buffer.Span, stream.GetBuffer(), buffer.Length);
             Assert.That(buffer, Is.Not.SameAs(stream.GetBuffer()));
         }
+
+        [Test]
+        public void GetStreamWithReadOnlyMemoryBuffer()
+        {
+            var memMgr = this.GetMemoryManager();
+            var buffer = new ReadOnlyMemory<byte>(this.GetRandomBuffer(1000));
+            var bufferSlice = buffer.Slice(1);
+            var tag = "MyTag";
+
+            var stream = memMgr.GetStream(tag, bufferSlice) as RecyclableMemoryStream;
+            RMSAssert.BuffersAreEqual(bufferSlice.Span, stream.GetBuffer(), bufferSlice.Length);
+            Assert.That(bufferSlice, Is.Not.SameAs(stream.GetBuffer()));
+            Assert.That(stream.Tag, Is.EqualTo(tag));
+        }
+
+        [Test]
+        public void GetStreamWithOnlyReadOnlyMemoryBuffer()
+        {
+            var memMgr = this.GetMemoryManager();
+            var buffer = new ReadOnlyMemory<byte>(this.GetRandomBuffer(1000));
+
+            var stream = memMgr.GetStream(buffer) as RecyclableMemoryStream;
+            RMSAssert.BuffersAreEqual(buffer.Span, stream.GetBuffer(), buffer.Length);
+            Assert.That(buffer, Is.Not.SameAs(stream.GetBuffer()));
+        }
         #endregion
 
         #region WriteTo tests
