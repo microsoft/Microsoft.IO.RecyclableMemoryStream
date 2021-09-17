@@ -879,6 +879,7 @@ namespace Microsoft.IO
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
         /// <param name="buffer">The byte buffer to copy data from.</param>
         /// <returns>A <c>MemoryStream</c>.</returns>
+        [Obsolete("Use the ReadOnlySpan<byte> version of this method instead.")]
         public MemoryStream GetStream(Guid id, string tag, Memory<byte> buffer)
         {
             RecyclableMemoryStream stream = null;
@@ -905,13 +906,13 @@ namespace Microsoft.IO
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
         /// <param name="buffer">The byte buffer to copy data from.</param>
         /// <returns>A <c>MemoryStream</c>.</returns>
-        public MemoryStream GetStream(Guid id, string tag, ReadOnlyMemory<byte> buffer)
+        public MemoryStream GetStream(Guid id, string tag, ReadOnlySpan<byte> buffer)
         {
             RecyclableMemoryStream stream = null;
             try
             {
                 stream = new RecyclableMemoryStream(this, id, tag, buffer.Length);
-                stream.Write(buffer.Span);
+                stream.Write(buffer);
                 stream.Position = 0;
                 return stream;
             }
@@ -929,6 +930,7 @@ namespace Microsoft.IO
         /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
         /// <param name="buffer">The byte buffer to copy data from.</param>
         /// <returns>A <c>MemoryStream</c>.</returns>
+        [Obsolete("Use the ReadOnlySpan<byte> version of this method instead.")]
         public MemoryStream GetStream(Memory<byte> buffer)
         {
             return GetStream(null, buffer);
@@ -941,7 +943,7 @@ namespace Microsoft.IO
         /// <remarks>The new stream's position is set to the beginning of the stream when returned.</remarks>
         /// <param name="buffer">The byte buffer to copy data from.</param>
         /// <returns>A <c>MemoryStream</c>.</returns>
-        public MemoryStream GetStream(ReadOnlyMemory<byte> buffer)
+        public MemoryStream GetStream(ReadOnlySpan<byte> buffer)
         {
             return GetStream(null, buffer);
         }
@@ -954,6 +956,7 @@ namespace Microsoft.IO
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
         /// <param name="buffer">The byte buffer to copy data from.</param>
         /// <returns>A <c>MemoryStream</c>.</returns>
+        [Obsolete("Use the ReadOnlySpan<byte> version of this method instead.")]
         public MemoryStream GetStream(string tag, Memory<byte> buffer)
         {
             return GetStream(Guid.NewGuid(), tag, buffer);
@@ -967,7 +970,7 @@ namespace Microsoft.IO
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
         /// <param name="buffer">The byte buffer to copy data from.</param>
         /// <returns>A <c>MemoryStream</c>.</returns>
-        public MemoryStream GetStream(string tag, ReadOnlyMemory<byte> buffer)
+        public MemoryStream GetStream(string tag, ReadOnlySpan<byte> buffer)
         {
             return GetStream(Guid.NewGuid(), tag, buffer);
         }
