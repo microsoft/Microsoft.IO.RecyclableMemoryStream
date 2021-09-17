@@ -598,20 +598,21 @@ namespace Microsoft.IO
                     return destination.WriteAsync(this.largeBuffer, (int)startPos, (int)count, cancellationToken);
                 }
             }
-            async Task CopyToAsyncImpl(Stream destination, long startPos, long count, CancellationToken cancellationToken)
+        }
+
+        private async Task CopyToAsyncImpl(Stream destination, long startPos, long count, CancellationToken cancellationToken)
+        {
+            var bytesRemaining = count;
+            var blockAndOffset = this.GetBlockAndRelativeOffset(startPos);
+            int currentBlock = blockAndOffset.Block;
+            var currentOffset = blockAndOffset.Offset;
+            while (bytesRemaining > 0)
             {
-                var bytesRemaining = count;
-                var blockAndOffset = this.GetBlockAndRelativeOffset(startPos);
-                int currentBlock = blockAndOffset.Block;
-                var currentOffset = blockAndOffset.Offset;
-                while (bytesRemaining > 0)
-                {
-                    int amountToCopy = (int)Math.Min(this.blocks[currentBlock].Length - currentOffset, bytesRemaining);
-                    await destination.WriteAsync(this.blocks[currentBlock], currentOffset, amountToCopy, cancellationToken);
-                    bytesRemaining -= amountToCopy;
-                    ++currentBlock;
-                    currentOffset = 0;
-                }
+                int amountToCopy = (int)Math.Min(this.blocks[currentBlock].Length - currentOffset, bytesRemaining);
+                await destination.WriteAsync(this.blocks[currentBlock], currentOffset, amountToCopy, cancellationToken);
+                bytesRemaining -= amountToCopy;
+                ++currentBlock;
+                currentOffset = 0;
             }
         }
 
