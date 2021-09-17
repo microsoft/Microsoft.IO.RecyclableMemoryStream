@@ -26,7 +26,6 @@ namespace Microsoft.IO
     using System.Buffers;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Globalization;
     using System.IO;
     using System.Runtime.CompilerServices;
     using System.Threading;
@@ -590,29 +589,28 @@ namespace Microsoft.IO
                     }
                     else
                     {
-                        return CopyToAsyncImpl(cancellationToken, count);
-
-                        async Task CopyToAsyncImpl(CancellationToken ct, long totalBytesToWrite)
-                        {
-                            var bytesRemaining = totalBytesToWrite;
-                            var blockAndOffset = this.GetBlockAndRelativeOffset(startPos);
-                            int currentBlock = blockAndOffset.Block;
-                            var currentOffset = blockAndOffset.Offset;
-                            while (bytesRemaining > 0)
-                            {
-                                int amountToCopy = (int)Math.Min(this.blocks[currentBlock].Length - currentOffset, bytesRemaining);
-                                await destination.WriteAsync(this.blocks[currentBlock], currentOffset, amountToCopy, ct);
-                                bytesRemaining -= amountToCopy;
-                                ++currentBlock;
-                                currentOffset = 0;
-                            }
-                        }
+                        return CopyToAsyncImpl(destination, startPos, count, cancellationToken);
                     }
                 }
                 else
                 {
                     AssertLengthIsSmall();
                     return destination.WriteAsync(this.largeBuffer, (int)startPos, (int)count, cancellationToken);
+                }
+            }
+            async Task CopyToAsyncImpl(Stream destination, long startPos, long count, CancellationToken cancellationToken)
+            {
+                var bytesRemaining = count;
+                var blockAndOffset = this.GetBlockAndRelativeOffset(startPos);
+                int currentBlock = blockAndOffset.Block;
+                var currentOffset = blockAndOffset.Offset;
+                while (bytesRemaining > 0)
+                {
+                    int amountToCopy = (int)Math.Min(this.blocks[currentBlock].Length - currentOffset, bytesRemaining);
+                    await destination.WriteAsync(this.blocks[currentBlock], currentOffset, amountToCopy, cancellationToken);
+                    bytesRemaining -= amountToCopy;
+                    ++currentBlock;
+                    currentOffset = 0;
                 }
             }
         }
