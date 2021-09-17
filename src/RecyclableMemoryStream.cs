@@ -95,7 +95,7 @@ namespace Microsoft.IO
         /// <summary>
         /// All of these blocks must be the same size.
         /// </summary>
-        private readonly List<byte[]> blocks = new List<byte[]>(1);
+        private readonly List<byte[]> blocks = new List<byte[]>();
 
         private readonly Guid id;
 
