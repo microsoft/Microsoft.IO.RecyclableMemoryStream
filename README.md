@@ -40,11 +40,11 @@ Install-Package Microsoft.IO.RecyclableMemoryStream
 
 At least MSBuild 16.8 is required to build the code. You get this with Visual Studio 2019.
 
-Supported build targets in v2.0 are: net462, netstandard2.0, netstandard2.1, and netcoreapp2.1 (net40, net45, net46 and netstandard1.4 were deprecated).
+Supported build targets in v2.0 are: net462, netstandard2.0, netstandard2.1, and netcoreapp2.1 (net40, net45, net46 and netstandard1.4 were deprecated). Starting with v2.1, net5.0 target has been added.
 
 ## Testing
 
-A minimum of .NET Core 3.1 is required for executing the unit tests. Requirements:
+A minimum of .NET 5.0 is required for executing the unit tests. Requirements:
 - NUnit test adaptor (VS Extension)
 - Be sure to set the default processor architecture for tests to x64 (or the giant allocation test will fail)
 
@@ -211,7 +211,7 @@ You can optionally configure the `RecyclableStreamManager.ThrowExceptionOnToArra
 | MemoryStreamNewBlockCreated | Verbose | Logged whenever a block for the small pool is created. Fields: `smallPoolInUseBytes`.|
 | MemoryStreamNewLargeBufferCreated | Verbose | Logged whenever a large buffer is allocated. Fields: `requiredSize`, `largePoolInUseBytes`.|
 | MemoryStreamNonPooledLargeBufferCreated | Verbose | Logged whenever a buffer is requested that is larger than the maximum pooled size. The buffer is still created and returned to the user, but it can not be re-pooled. Fields: `guid`, `tag`, `requiredSize`, `allocationStack`. |
-| MemoryStreamDiscardBuffer | Warning | Logged whenever a buffer is discarded rather than put back in the pool. Fields: `guid`, `tag`, `bufferType` (`Small`, `Large`), `tag`, `reason` (`TooLarge`, `EnoughFree`). |
+| MemoryStreamDiscardBuffer | Warning | Logged whenever a buffer is discarded rather than put back in the pool. Fields: `guid`, `tag`, `bufferType` (`Small`, `Large`), `reason` (`TooLarge`, `EnoughFree`). |
 | MemoryStreamOverCapacity | Error | Logged whenever an attempt is made to set the capacity of the stream beyond the limits of `RecyclableMemoryStreamManager.MaximumStreamCapacity`, if such a limit is set. Fields: `guid`, `tag`, `requestedCapacity`, `maxCapacity`, `allocationStack`.|
 
 ### Event Hooks ###

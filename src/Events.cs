@@ -28,7 +28,7 @@ namespace Microsoft.IO
     public sealed partial class RecyclableMemoryStreamManager
     {
         /// <summary>
-        /// ETW events for RecyclableMemoryStream
+        /// ETW events for RecyclableMemoryStream.
         /// </summary>
         [EventSource(Name = "Microsoft-IO-RecyclableMemoryStream", Guid = "{B80CD4E4-890E-468D-9CBA-90EB7C82DFC7}")]
         public sealed class Events : EventSource
@@ -39,31 +39,31 @@ namespace Microsoft.IO
             public static Events Writer = new Events();
 
             /// <summary>
-            /// Type of buffer
+            /// Type of buffer.
             /// </summary>
             public enum MemoryStreamBufferType
             {
                 /// <summary>
-                /// Small block buffer
+                /// Small block buffer.
                 /// </summary>
                 Small,
                 /// <summary>
-                /// Large pool buffer
+                /// Large pool buffer.
                 /// </summary>
                 Large
             }
 
             /// <summary>
-            /// The possible reasons for discarding a buffer
+            /// The possible reasons for discarding a buffer.
             /// </summary>
             public enum MemoryStreamDiscardReason
             {
                 /// <summary>
-                /// Buffer was too large to be re-pooled
+                /// Buffer was too large to be re-pooled.
                 /// </summary>
                 TooLarge,
                 /// <summary>
-                /// There are enough free bytes in the pool
+                /// There are enough free bytes in the pool.
                 /// </summary>
                 EnoughFree
             }
@@ -73,8 +73,8 @@ namespace Microsoft.IO
             /// </summary>
             /// <param name="guid">A unique ID for this stream.</param>
             /// <param name="tag">A temporary ID for this stream, usually indicates current usage.</param>
-            /// <param name="requestedSize">Requested size of the stream</param>
-            /// <param name="actualSize">Actual size given to the stream from the pool</param>
+            /// <param name="requestedSize">Requested size of the stream.</param>
+            /// <param name="actualSize">Actual size given to the stream from the pool.</param>
             [Event(1, Level = EventLevel.Verbose, Version = 2)]
             public void MemoryStreamCreated(Guid guid, string tag, long requestedSize, long actualSize)
             {
@@ -85,7 +85,7 @@ namespace Microsoft.IO
             }
 
             /// <summary>
-            /// Logged when the stream is disposed
+            /// Logged when the stream is disposed.
             /// </summary>
             /// <param name="guid">A unique ID for this stream.</param>
             /// <param name="tag">A temporary ID for this stream, usually indicates current usage.</param>
@@ -142,7 +142,7 @@ namespace Microsoft.IO
             /// <param name="guid">A unique ID for this stream.</param>
             /// <param name="tag">A temporary ID for this stream, usually indicates current usage.</param>
             /// <param name="stack">Call stack of the ToArray call.</param>
-            /// <param name="size">Length of stream</param>
+            /// <param name="size">Length of stream.</param>
             /// <remarks>Note: Stacks will only be populated if RecyclableMemoryStreamManager.GenerateCallStacks is true.</remarks>
             [Event(5, Level = EventLevel.Verbose, Version = 2)]
             public void MemoryStreamToArray(Guid guid, string tag, string stack, long size)
@@ -184,7 +184,7 @@ namespace Microsoft.IO
             /// <summary>
             /// Logged when a new large buffer is created.
             /// </summary>
-            /// <param name="requiredSize">Requested size</param>
+            /// <param name="requiredSize">Requested size.</param>
             /// <param name="largePoolInUseBytes">Number of bytes in the large pool in use.</param>
             [Event(8, Level = EventLevel.Verbose, Version = 2)]
             public void MemoryStreamNewLargeBufferCreated(long requiredSize, long largePoolInUseBytes)
@@ -198,9 +198,9 @@ namespace Microsoft.IO
             /// <summary>
             /// Logged when a buffer is created that is too large to pool.
             /// </summary>
-            /// <param name="guid">Unique stream ID</param>
+            /// <param name="guid">Unique stream ID.</param>
             /// <param name="tag">A temporary ID for this stream, usually indicates current usage.</param>
-            /// <param name="requiredSize">Size requested by the caller</param>
+            /// <param name="requiredSize">Size requested by the caller.</param>
             /// <param name="allocationStack">Call stack of the requested stream.</param>
             /// <remarks>Note: Stacks will only be populated if RecyclableMemoryStreamManager.GenerateCallStacks is true.</remarks>
             [Event(9, Level = EventLevel.Verbose, Version = 3)]
@@ -215,7 +215,7 @@ namespace Microsoft.IO
             /// <summary>
             /// Logged when a buffer is discarded (not put back in the pool, but given to GC to clean up).
             /// </summary>
-            /// <param name="guid">Unique stream ID</param>
+            /// <param name="guid">Unique stream ID.</param>
             /// <param name="tag">A temporary ID for this stream, usually indicates current usage.</param>
             /// <param name="bufferType">Type of the buffer being discarded.</param>
             /// <param name="reason">Reason for the discard.</param>

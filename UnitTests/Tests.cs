@@ -186,11 +186,11 @@ namespace Microsoft.IO.UnitTests
         [Test]
         public void ReturnBlocksWithInvalidBuffersThrowsException()
         {
-            var buffers = new byte[3][];
+            var buffers = new List<byte[]>(3);
             var memMgr = this.GetMemoryManager();
-            buffers[0] = memMgr.GetBlock();
-            buffers[1] = new byte[memMgr.BlockSize + 1];
-            buffers[2] = memMgr.GetBlock();
+            buffers.Add(memMgr.GetBlock());
+            buffers.Add(new byte[memMgr.BlockSize + 1]);
+            buffers.Add(memMgr.GetBlock());
             Assert.Throws<ArgumentException>(() => memMgr.ReturnBlocks(buffers, Guid.Empty, string.Empty));
         }
 
@@ -231,10 +231,10 @@ namespace Microsoft.IO.UnitTests
 
             // Only allow 2 blocks in the free pool at a time
             memMgr.MaximumFreeSmallPoolBytes = MaxFreeBuffersAllowed * memMgr.BlockSize;
-            var buffers = new byte[BuffersToTest][];
-            for (var i = 0; i < buffers.Length; ++i)
+            var buffers = new List<byte[]>(BuffersToTest);
+            for (var i = buffers.Capacity; i>0 ; --i)
             {
-                buffers[i] = memMgr.GetBlock();
+                buffers.Add(memMgr.GetBlock());
             }
 
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(0));
@@ -254,10 +254,10 @@ namespace Microsoft.IO.UnitTests
             const int BuffersToTest = 99;
 
             memMgr.MaximumFreeSmallPoolBytes = 0;
-            var buffers = new byte[BuffersToTest][];
-            for (var i = 0; i < buffers.Length; ++i)
+            var buffers = new List<byte[]>(BuffersToTest);
+            for (var i = buffers.Capacity; i > 0; --i)
             {
-                buffers[i] = memMgr.GetBlock();
+                buffers.Add( memMgr.GetBlock());
             }
 
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(0));
@@ -682,6 +682,16 @@ namespace Microsoft.IO.UnitTests
             Assert.That(MemoryMarshal.TryGetArray(returnedSequence2.First, out ArraySegment<byte> arraySegment2));
             RMSAssert.BuffersAreEqual(arraySegment0, arraySegment2);
             RMSAssert.BuffersAreEqual(arraySegment1, arraySegment2);
+        }
+
+        [Test]
+        public void GetReadOnlySequenceReturnsSequenceWithSameLengthAsStreamAfterStreamShrinks()
+        {
+            var stream = this.GetDefaultStream();
+            stream.Position = DefaultBlockSize;
+            stream.WriteByte(0);
+            stream.SetLength(DefaultBlockSize - 1);
+            Assert.AreEqual(stream.Length, stream.GetReadOnlySequence().Length);
         }
         #endregion
 
@@ -2443,6 +2453,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        [Obsolete("GetStream(Memory<byte>) is obsolete.")]
         public void GetStreamWithMemoryBuffer()
         {
             var memMgr = this.GetMemoryManager();
@@ -2457,12 +2468,38 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        [Obsolete("GetStream(Memory<byte>) is obsolete.")]
         public void GetStreamWithOnlyMemoryBuffer()
         {
             var memMgr = this.GetMemoryManager();
             var buffer = this.GetRandomBuffer(1000).AsMemory();
 
             var stream = memMgr.GetStream(buffer) as RecyclableMemoryStream;
+            RMSAssert.BuffersAreEqual(buffer.Span, stream.GetBuffer(), buffer.Length);
+            Assert.That(buffer, Is.Not.SameAs(stream.GetBuffer()));
+        }
+
+        [Test]
+        public void GetStreamWithReadOnlySpan()
+        {
+            var memMgr = this.GetMemoryManager();
+            var buffer = new ReadOnlyMemory<byte>(this.GetRandomBuffer(1000));
+            var bufferSlice = buffer.Slice(1);
+            var tag = "MyTag";
+
+            var stream = memMgr.GetStream(tag, bufferSlice.Span) as RecyclableMemoryStream;
+            RMSAssert.BuffersAreEqual(bufferSlice.Span, stream.GetBuffer(), bufferSlice.Length);
+            Assert.That(bufferSlice, Is.Not.SameAs(stream.GetBuffer()));
+            Assert.That(stream.Tag, Is.EqualTo(tag));
+        }
+
+        [Test]
+        public void GetStreamWithOnlyReadOnlySpan()
+        {
+            var memMgr = this.GetMemoryManager();
+            var buffer = new ReadOnlyMemory<byte>(this.GetRandomBuffer(1000));
+
+            var stream = memMgr.GetStream(buffer.Span) as RecyclableMemoryStream;
             RMSAssert.BuffersAreEqual(buffer.Span, stream.GetBuffer(), buffer.Length);
             Assert.That(buffer, Is.Not.SameAs(stream.GetBuffer()));
         }
