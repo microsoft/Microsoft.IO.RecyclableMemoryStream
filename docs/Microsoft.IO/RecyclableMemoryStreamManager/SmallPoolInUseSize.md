@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.SmallPoolInUseSize property
 
-Number of bytes currently in use by stream from the small pool
+Number of bytes currently in use by stream from the small pool.
 
 ```csharp
 public long SmallPoolInUseSize { get; }

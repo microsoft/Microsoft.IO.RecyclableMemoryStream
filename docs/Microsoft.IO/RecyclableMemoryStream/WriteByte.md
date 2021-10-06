@@ -8,13 +8,13 @@ public override void WriteByte(byte value)
 
 | parameter | description |
 | --- | --- |
-| value | byte value to write |
+| value | byte value to write. |
 
 ## Exceptions
 
 | exception | condition |
 | --- | --- |
-| ObjectDisposedException | Object has been disposed |
+| ObjectDisposedException | Object has been disposed. |
 
 ## See Also
 

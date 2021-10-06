@@ -1,6 +1,6 @@
 # RecyclableMemoryStream.ToArray method
 
-Returns a new array with a copy of the buffer's contents. You should almost certainly be using [`GetBuffer`](GetBuffer.md) combined with the [`Length`](Length.md) to access the bytes in this stream. Calling `ToArray` will destroy the benefits of pooled buffers, but it is included for the sake of completeness.
+Returns a new array with a copy of the buffer's contents. You should almost certainly be using [`GetBuffer`](./GetBuffer.md) combined with the [`Length`](./Length.md) to access the bytes in this stream. Calling `ToArray` will destroy the benefits of pooled buffers, but it is included for the sake of completeness.
 
 ```csharp
 [Obsolete("This method has degraded performance vs. GetBuffer and should be avoided.")]
@@ -11,9 +11,9 @@ public override byte[] ToArray()
 
 | exception | condition |
 | --- | --- |
-| ObjectDisposedException | Object has been disposed |
+| ObjectDisposedException | Object has been disposed. |
 | NotSupportedException | The current [`RecyclableMemoryStreamManager`](../RecyclableMemoryStreamManager.md)object disallows `ToArray` calls. |
-| OutOfMemoryException | The length of the stream is too long for a contiguous array |
+| OutOfMemoryException | The length of the stream is too long for a contiguous array. |
 
 ## See Also
 

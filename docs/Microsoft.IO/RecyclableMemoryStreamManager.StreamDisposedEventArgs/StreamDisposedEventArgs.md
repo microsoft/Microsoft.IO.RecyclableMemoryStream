@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamDisposedEventArgs constructor
 
-Initializes a StreamDisposedEventArgs struct
+Initializes a new instance of the [`StreamDisposedEventArgs`](../RecyclableMemoryStreamManager.StreamDisposedEventArgs.md) class.
 
 ```csharp
 public StreamDisposedEventArgs(Guid guid, string tag, string allocationStack, string disposeStack)
@@ -8,10 +8,10 @@ public StreamDisposedEventArgs(Guid guid, string tag, string allocationStack, st
 
 | parameter | description |
 | --- | --- |
-| guid | Unique ID of the stream |
-| tag | Tag of the stream |
-| allocationStack | Stack of original allocation |
-| disposeStack | Dispose stack |
+| guid | Unique ID of the stream. |
+| tag | Tag of the stream. |
+| allocationStack | Stack of original allocation. |
+| disposeStack | Dispose stack. |
 
 ## See Also
 

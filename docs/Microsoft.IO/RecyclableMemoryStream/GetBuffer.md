@@ -8,18 +8,18 @@ public override byte[] GetBuffer()
 
 ## Return Value
 
-A byte[] buffer
+A byte[] buffer.
 
 ## Exceptions
 
 | exception | condition |
 | --- | --- |
-| ObjectDisposedException | Object has been disposed |
-| OutOfMemoryException | stream is too large for a contiguous buffer |
+| ObjectDisposedException | Object has been disposed. |
+| OutOfMemoryException | stream is too large for a contiguous buffer. |
 
 ## Remarks
 
-IMPORTANT: Doing a [`Write`](Write.md) after calling `GetBuffer` invalidates the buffer. The old buffer is held onto until [`Dispose`](Dispose.md) is called, but the next time `GetBuffer` is called, a new buffer from the pool will be required.
+IMPORTANT: Doing a [`Write`](./Write.md) after calling `GetBuffer` invalidates the buffer. The old buffer is held onto until [`Dispose`](./Dispose.md) is called, but the next time `GetBuffer` is called, a new buffer from the pool will be required.
 
 ## See Also
 

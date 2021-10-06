@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.BlockCreatedEventArgs.SmallPoolInUse property
 
-How many bytes are currently in use from the small pool
+How many bytes are currently in use from the small pool.
 
 ```csharp
 public long SmallPoolInUse { get; }

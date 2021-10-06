@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager constructor (1 of 6)
 
-Initializes the memory manager with the default block/buffer specifications. This pool may have unbounded growth unless you modify [`MaximumFreeSmallPoolBytes`](MaximumFreeSmallPoolBytes.md) and [`MaximumFreeLargePoolBytes`](MaximumFreeLargePoolBytes.md).
+Initializes the memory manager with the default block/buffer specifications. This pool may have unbounded growth unless you modify [`MaximumFreeSmallPoolBytes`](./MaximumFreeSmallPoolBytes.md) and [`MaximumFreeLargePoolBytes`](./MaximumFreeLargePoolBytes.md).
 
 ```csharp
 public RecyclableMemoryStreamManager()
@@ -30,7 +30,7 @@ public RecyclableMemoryStreamManager(long maximumSmallPoolFreeBytes, long maximu
 
 | exception | condition |
 | --- | --- |
-| ArgumentOutOfRangeException | maximumSmallPoolFreebytes is negative, or maximumLargePoolFreeBytes is negative. |
+| ArgumentOutOfRangeException | *maximumSmallPoolFreeBytes* is negative, or *maximumLargePoolFreeBytes* is negative. |
 
 ## See Also
 
@@ -41,7 +41,7 @@ public RecyclableMemoryStreamManager(long maximumSmallPoolFreeBytes, long maximu
 
 # RecyclableMemoryStreamManager constructor (3 of 6)
 
-Initializes the memory manager with the given block requiredSize. This pool may have unbounded growth unless you modify [`MaximumFreeSmallPoolBytes`](MaximumFreeSmallPoolBytes.md) and [`MaximumFreeLargePoolBytes`](MaximumFreeLargePoolBytes.md).
+Initializes the memory manager with the given block requiredSize. This pool may have unbounded growth unless you modify [`MaximumFreeSmallPoolBytes`](./MaximumFreeSmallPoolBytes.md) and [`MaximumFreeLargePoolBytes`](./MaximumFreeLargePoolBytes.md).
 
 ```csharp
 public RecyclableMemoryStreamManager(int blockSize, int largeBufferMultiple, int maximumBufferSize)
@@ -57,8 +57,8 @@ public RecyclableMemoryStreamManager(int blockSize, int largeBufferMultiple, int
 
 | exception | condition |
 | --- | --- |
-| ArgumentOutOfRangeException | blockSize is not a positive number, or largeBufferMultiple is not a positive number, or maximumBufferSize is less than blockSize. |
-| ArgumentException | maximumBufferSize is not a multiple of largeBufferMultiple |
+| ArgumentOutOfRangeException | *blockSize* is not a positive number, or *largeBufferMultiple* is not a positive number, or *maximumBufferSize* is less than *blockSize*. |
+| ArgumentException | *maximumBufferSize* is not a multiple of *largeBufferMultiple*. |
 
 ## See Also
 
@@ -69,7 +69,7 @@ public RecyclableMemoryStreamManager(int blockSize, int largeBufferMultiple, int
 
 # RecyclableMemoryStreamManager constructor (4 of 6)
 
-Initializes the memory manager with the given block requiredSize. This pool may have unbounded growth unless you modify [`MaximumFreeSmallPoolBytes`](MaximumFreeSmallPoolBytes.md) and [`MaximumFreeLargePoolBytes`](MaximumFreeLargePoolBytes.md).
+Initializes the memory manager with the given block requiredSize. This pool may have unbounded growth unless you modify [`MaximumFreeSmallPoolBytes`](./MaximumFreeSmallPoolBytes.md) and [`MaximumFreeLargePoolBytes`](./MaximumFreeLargePoolBytes.md).
 
 ```csharp
 public RecyclableMemoryStreamManager(int blockSize, int largeBufferMultiple, int maximumBufferSize, 
@@ -87,8 +87,8 @@ public RecyclableMemoryStreamManager(int blockSize, int largeBufferMultiple, int
 
 | exception | condition |
 | --- | --- |
-| ArgumentOutOfRangeException | blockSize is not a positive number, or largeBufferMultiple is not a positive number, or maximumBufferSize is less than blockSize. |
-| ArgumentException | maximumBufferSize is not a multiple/exponential of largeBufferMultiple |
+| ArgumentOutOfRangeException | *blockSize* is not a positive number, or *largeBufferMultiple* is not a positive number, or *maximumBufferSize* is less than *blockSize*. |
+| ArgumentException | *maximumBufferSize* is not a multiple/exponential of *largeBufferMultiple*. |
 
 ## See Also
 
@@ -118,8 +118,8 @@ public RecyclableMemoryStreamManager(int blockSize, int largeBufferMultiple, int
 
 | exception | condition |
 | --- | --- |
-| ArgumentOutOfRangeException | blockSize is not a positive number, or largeBufferMultiple is not a positive number, or maximumBufferSize is less than blockSize, or maximumSmallPoolFreebytes is negative, or maximumLargePoolFreeBytes is negative. |
-| ArgumentException | maximumBufferSize is not a multiple of largeBufferMultiple |
+| ArgumentOutOfRangeException | *blockSize* is not a positive number, or *largeBufferMultiple* is not a positive number, or *maximumBufferSize* is less than *blockSize*, or *maximumSmallPoolFreeBytes* is negative, or *maximumLargePoolFreeBytes* is negative. |
+| ArgumentException | *maximumBufferSize* is not a multiple of *largeBufferMultiple*. |
 
 ## See Also
 
@@ -141,17 +141,17 @@ public RecyclableMemoryStreamManager(int blockSize, int largeBufferMultiple, int
 | --- | --- |
 | blockSize | Size of each block that is pooled. Must be &gt; 0. |
 | largeBufferMultiple | Each large buffer will be a multiple/exponential of this value. |
-| maximumBufferSize | Buffers larger than this are not pooled |
-| useExponentialLargeBuffer | Switch to exponential large buffer allocation strategy |
-| maximumSmallPoolFreeBytes | Maximum number of bytes to keep available in the small pool before future buffers get dropped for garbage collection |
-| maximumLargePoolFreeBytes | Maximum number of bytes to keep available in the large pool before future buffers get dropped for garbage collection |
+| maximumBufferSize | Buffers larger than this are not pooled. |
+| useExponentialLargeBuffer | Switch to exponential large buffer allocation strategy. |
+| maximumSmallPoolFreeBytes | Maximum number of bytes to keep available in the small pool before future buffers get dropped for garbage collection. |
+| maximumLargePoolFreeBytes | Maximum number of bytes to keep available in the large pool before future buffers get dropped for garbage collection. |
 
 ## Exceptions
 
 | exception | condition |
 | --- | --- |
-| ArgumentOutOfRangeException | blockSize is not a positive number, or largeBufferMultiple is not a positive number, or maximumBufferSize is less than blockSize, or maximumSmallPoolFreebytes is negative, or maximumLargePoolFreeBytes is negative. |
-| ArgumentException | maximumBufferSize is not a multiple/exponential of largeBufferMultiple |
+| ArgumentOutOfRangeException | *blockSize* is not a positive number, or *largeBufferMultiple* is not a positive number, or *maximumBufferSize* is less than *blockSize*, or *maximumSmallPoolFreeBytes* is negative, or *maximumLargePoolFreeBytes* is negative. |
+| ArgumentException | *maximumBufferSize* is not a multiple/exponential of *largeBufferMultiple*. |
 
 ## See Also
 

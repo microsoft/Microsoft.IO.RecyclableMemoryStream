@@ -1,6 +1,6 @@
 # RecyclableMemoryStream.CanWrite property
 
-Whether the stream can currently write
+Whether the stream can currently write.
 
 ```csharp
 public override bool CanWrite { get; }

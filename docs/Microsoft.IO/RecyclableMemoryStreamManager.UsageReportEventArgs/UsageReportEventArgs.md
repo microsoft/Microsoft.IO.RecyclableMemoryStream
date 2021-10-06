@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.UsageReportEventArgs constructor
 
-Initializes a new UsageReportEventArgs struct
+Initializes a new instance of the [`UsageReportEventArgs`](../RecyclableMemoryStreamManager.UsageReportEventArgs.md) class.
 
 ```csharp
 public UsageReportEventArgs(long smallPoolInUseBytes, long smallPoolFreeBytes, 
@@ -9,10 +9,10 @@ public UsageReportEventArgs(long smallPoolInUseBytes, long smallPoolFreeBytes,
 
 | parameter | description |
 | --- | --- |
-| smallPoolInUseBytes | Bytes from the small pool currently in use |
-| smallPoolFreeBytes | Bytes from the small pool currently available |
-| largePoolInUseBytes | Bytes from the large pool currently in use |
-| largePoolFreeBytes | Bytes from the large pool currently available |
+| smallPoolInUseBytes | Bytes from the small pool currently in use. |
+| smallPoolFreeBytes | Bytes from the small pool currently available. |
+| largePoolInUseBytes | Bytes from the large pool currently in use. |
+| largePoolFreeBytes | Bytes from the large pool currently available. |
 
 ## See Also
 

@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamOverCapacityEventArgs.AllocationStack property
 
-Original allocation stack
+Original allocation stack.
 
 ```csharp
 public string AllocationStack { get; }

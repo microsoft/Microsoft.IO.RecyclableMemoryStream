@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamOverCapacityEventArgs.MaximumCapacity property
 
-Maximum capacity
+Maximum capacity.
 
 ```csharp
 public long MaximumCapacity { get; }

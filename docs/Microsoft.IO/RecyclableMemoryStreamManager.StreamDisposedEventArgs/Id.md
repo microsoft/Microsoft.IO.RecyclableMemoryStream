@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamDisposedEventArgs.Id property
 
-Unique ID for the stream
+Unique ID for the stream.
 
 ```csharp
 public Guid Id { get; }

@@ -1,6 +1,6 @@
 # RecyclableMemoryStream.CanRead property
 
-Whether the stream can currently read
+Whether the stream can currently read.
 
 ```csharp
 public override bool CanRead { get; }

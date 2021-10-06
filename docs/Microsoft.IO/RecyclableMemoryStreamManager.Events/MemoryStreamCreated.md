@@ -10,8 +10,8 @@ public void MemoryStreamCreated(Guid guid, string tag, long requestedSize, long 
 | --- | --- |
 | guid | A unique ID for this stream. |
 | tag | A temporary ID for this stream, usually indicates current usage. |
-| requestedSize | Requested size of the stream |
-| actualSize | Actual size given to the stream from the pool |
+| requestedSize | Requested size of the stream. |
+| actualSize | Actual size given to the stream from the pool. |
 
 ## See Also
 

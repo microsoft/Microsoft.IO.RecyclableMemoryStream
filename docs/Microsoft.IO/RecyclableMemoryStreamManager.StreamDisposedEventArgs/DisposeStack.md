@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamDisposedEventArgs.DisposeStack property
 
-Stack where stream was disposed
+Stack where stream was disposed.
 
 ```csharp
 public string DisposeStack { get; }

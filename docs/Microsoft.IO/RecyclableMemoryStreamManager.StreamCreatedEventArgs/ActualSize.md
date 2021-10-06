@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamCreatedEventArgs.ActualSize property
 
-Actual stream size
+Actual stream size.
 
 ```csharp
 public long ActualSize { get; }

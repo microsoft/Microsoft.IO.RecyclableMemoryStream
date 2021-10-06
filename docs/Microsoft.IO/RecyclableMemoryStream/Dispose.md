@@ -8,7 +8,7 @@ protected override void Dispose(bool disposing)
 
 | parameter | description |
 | --- | --- |
-| disposing | Whether we're disposing (true), or being called by the finalizer (false) |
+| disposing | Whether we're disposing (true), or being called by the finalizer (false). |
 
 ## See Also
 

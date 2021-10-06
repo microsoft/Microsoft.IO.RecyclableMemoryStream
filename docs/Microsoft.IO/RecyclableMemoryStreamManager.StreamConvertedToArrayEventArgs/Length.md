@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs.Length property
 
-Length of stack
+Length of stack.
 
 ```csharp
 public long Length { get; }

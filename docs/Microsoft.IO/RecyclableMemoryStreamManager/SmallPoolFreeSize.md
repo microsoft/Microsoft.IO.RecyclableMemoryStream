@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.SmallPoolFreeSize property
 
-Number of bytes in small pool not currently in use
+Number of bytes in small pool not currently in use.
 
 ```csharp
 public long SmallPoolFreeSize { get; }

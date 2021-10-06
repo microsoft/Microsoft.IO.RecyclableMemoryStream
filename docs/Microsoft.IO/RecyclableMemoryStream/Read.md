@@ -1,6 +1,6 @@
 # RecyclableMemoryStream.Read method (1 of 2)
 
-Reads from the current position into the provided buffer
+Reads from the current position into the provided buffer.
 
 ```csharp
 public override int Read(Span<byte> buffer)
@@ -8,17 +8,17 @@ public override int Read(Span<byte> buffer)
 
 | parameter | description |
 | --- | --- |
-| buffer | Destination buffer |
+| buffer | Destination buffer. |
 
 ## Return Value
 
-The number of bytes read
+The number of bytes read.
 
 ## Exceptions
 
 | exception | condition |
 | --- | --- |
-| ObjectDisposedException | Object has been disposed |
+| ObjectDisposedException | Object has been disposed. |
 
 ## See Also
 
@@ -29,7 +29,7 @@ The number of bytes read
 
 # RecyclableMemoryStream.Read method (2 of 2)
 
-Reads from the current position into the provided buffer
+Reads from the current position into the provided buffer.
 
 ```csharp
 public override int Read(byte[] buffer, int offset, int count)
@@ -37,22 +37,22 @@ public override int Read(byte[] buffer, int offset, int count)
 
 | parameter | description |
 | --- | --- |
-| buffer | Destination buffer |
+| buffer | Destination buffer. |
 | offset | Offset into buffer at which to start placing the read bytes. |
 | count | Number of bytes to read. |
 
 ## Return Value
 
-The number of bytes read
+The number of bytes read.
 
 ## Exceptions
 
 | exception | condition |
 | --- | --- |
-| ArgumentNullException | buffer is null |
-| ArgumentOutOfRangeException | offset or count is less than 0 |
-| ArgumentException | offset subtracted from the buffer length is less than count |
-| ObjectDisposedException | Object has been disposed |
+| ArgumentNullException | buffer is null. |
+| ArgumentOutOfRangeException | offset or count is less than 0. |
+| ArgumentException | offset subtracted from the buffer length is less than count. |
+| ObjectDisposedException | Object has been disposed. |
 
 ## See Also
 

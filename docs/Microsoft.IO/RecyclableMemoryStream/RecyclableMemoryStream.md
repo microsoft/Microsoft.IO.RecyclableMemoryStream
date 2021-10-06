@@ -1,6 +1,6 @@
 # RecyclableMemoryStream constructor (1 of 8)
 
-Allocate a new RecyclableMemoryStream object.
+Initializes a new instance of the [`RecyclableMemoryStream`](../RecyclableMemoryStream.md) class.
 
 ```csharp
 public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager)
@@ -8,7 +8,7 @@ public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager)
 
 | parameter | description |
 | --- | --- |
-| memoryManager | The memory manager |
+| memoryManager | The memory manager. |
 
 ## See Also
 
@@ -20,7 +20,7 @@ public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager)
 
 # RecyclableMemoryStream constructor (2 of 8)
 
-Allocate a new `RecyclableMemoryStream` object.
+Initializes a new instance of the [`RecyclableMemoryStream`](../RecyclableMemoryStream.md) class.
 
 ```csharp
 public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id)
@@ -28,7 +28,7 @@ public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid 
 
 | parameter | description |
 | --- | --- |
-| memoryManager | The memory manager |
+| memoryManager | The memory manager. |
 | id | A unique identifier which can be used to trace usages of the stream. |
 
 ## See Also
@@ -41,7 +41,7 @@ public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid 
 
 # RecyclableMemoryStream constructor (3 of 8)
 
-Allocate a new `RecyclableMemoryStream` object
+Initializes a new instance of the [`RecyclableMemoryStream`](../RecyclableMemoryStream.md) class.
 
 ```csharp
 public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string tag)
@@ -49,8 +49,8 @@ public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, strin
 
 | parameter | description |
 | --- | --- |
-| memoryManager | The memory manager |
-| tag | A string identifying this stream for logging and debugging purposes |
+| memoryManager | The memory manager. |
+| tag | A string identifying this stream for logging and debugging purposes. |
 
 ## See Also
 
@@ -62,7 +62,7 @@ public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, strin
 
 # RecyclableMemoryStream constructor (4 of 8)
 
-Allocate a new `RecyclableMemoryStream` object
+Initializes a new instance of the [`RecyclableMemoryStream`](../RecyclableMemoryStream.md) class.
 
 ```csharp
 public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string tag)
@@ -70,9 +70,9 @@ public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid 
 
 | parameter | description |
 | --- | --- |
-| memoryManager | The memory manager |
+| memoryManager | The memory manager. |
 | id | A unique identifier which can be used to trace usages of the stream. |
-| tag | A string identifying this stream for logging and debugging purposes |
+| tag | A string identifying this stream for logging and debugging purposes. |
 
 ## See Also
 
@@ -84,7 +84,7 @@ public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid 
 
 # RecyclableMemoryStream constructor (5 of 8)
 
-Allocate a new `RecyclableMemoryStream` object
+Initializes a new instance of the [`RecyclableMemoryStream`](../RecyclableMemoryStream.md) class.
 
 ```csharp
 public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string tag, 
@@ -94,8 +94,8 @@ public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, strin
 | parameter | description |
 | --- | --- |
 | memoryManager | The memory manager |
-| tag | A string identifying this stream for logging and debugging purposes |
-| requestedSize | The initial requested size to prevent future allocations |
+| tag | A string identifying this stream for logging and debugging purposes. |
+| requestedSize | The initial requested size to prevent future allocations. |
 
 ## See Also
 
@@ -107,7 +107,7 @@ public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, strin
 
 # RecyclableMemoryStream constructor (6 of 8)
 
-Allocate a new `RecyclableMemoryStream` object
+Initializes a new instance of the [`RecyclableMemoryStream`](../RecyclableMemoryStream.md) class.
 
 ```csharp
 public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string tag, 
@@ -116,9 +116,9 @@ public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, strin
 
 | parameter | description |
 | --- | --- |
-| memoryManager | The memory manager |
-| tag | A string identifying this stream for logging and debugging purposes |
-| requestedSize | The initial requested size to prevent future allocations |
+| memoryManager | The memory manager. |
+| tag | A string identifying this stream for logging and debugging purposes. |
+| requestedSize | The initial requested size to prevent future allocations. |
 
 ## See Also
 
@@ -130,7 +130,7 @@ public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, strin
 
 # RecyclableMemoryStream constructor (7 of 8)
 
-Allocate a new `RecyclableMemoryStream` object
+Initializes a new instance of the [`RecyclableMemoryStream`](../RecyclableMemoryStream.md) class.
 
 ```csharp
 public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string tag, 
@@ -139,10 +139,10 @@ public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid 
 
 | parameter | description |
 | --- | --- |
-| memoryManager | The memory manager |
+| memoryManager | The memory manager. |
 | id | A unique identifier which can be used to trace usages of the stream. |
-| tag | A string identifying this stream for logging and debugging purposes |
-| requestedSize | The initial requested size to prevent future allocations |
+| tag | A string identifying this stream for logging and debugging purposes. |
+| requestedSize | The initial requested size to prevent future allocations. |
 
 ## See Also
 
@@ -154,7 +154,7 @@ public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid 
 
 # RecyclableMemoryStream constructor (8 of 8)
 
-Allocate a new `RecyclableMemoryStream` object
+Initializes a new instance of the [`RecyclableMemoryStream`](../RecyclableMemoryStream.md) class.
 
 ```csharp
 public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string tag, 
@@ -165,8 +165,8 @@ public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid 
 | --- | --- |
 | memoryManager | The memory manager |
 | id | A unique identifier which can be used to trace usages of the stream. |
-| tag | A string identifying this stream for logging and debugging purposes |
-| requestedSize | The initial requested size to prevent future allocations |
+| tag | A string identifying this stream for logging and debugging purposes. |
+| requestedSize | The initial requested size to prevent future allocations. |
 
 ## See Also
 

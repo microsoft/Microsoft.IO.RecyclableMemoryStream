@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.BufferDiscardedEventArgs.BufferType property
 
-Type of the buffer
+Type of the buffer.
 
 ```csharp
 public MemoryStreamBufferType BufferType { get; }

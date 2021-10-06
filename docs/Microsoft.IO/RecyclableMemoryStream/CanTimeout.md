@@ -1,6 +1,6 @@
 # RecyclableMemoryStream.CanTimeout property
 
-Always false
+Always false.
 
 ```csharp
 public override bool CanTimeout { get; }

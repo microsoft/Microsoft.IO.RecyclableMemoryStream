@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.LargeBufferCreatedEventArgs.Pooled property
 
-Whether the buffer was satisfied from the pool or not
+Whether the buffer was satisfied from the pool or not.
 
 ```csharp
 public bool Pooled { get; }

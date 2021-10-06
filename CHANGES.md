@@ -1,3 +1,31 @@
+# Version 2.2.0
+
+API changes:
+* Add an override for `GetStream` that takes a `ReadOnlySpan<byte>`. This supercedes the versions of `GetStream` that take `Memory<byte>`, which were marked as `[Obsolete]`.
+
+Bug Fixes:
+* Fixed: `GetReadOnlySequence()` throws `ArgumentOutOfRangeException`
+
+Performance Improvements:
+* Removed enumerator allocation when returning blocks to the pool.
+* Changed default size of stream's block list to 0 because `EnsureCapacity` will always run, potentially resizing the list anyway.
+* Removed unneeded closure allocation when copying buffers.
+* Use `GC.AllocateUninitializedArray` in an additional spot, for better performance in .NET 5+.
+
+Documentation:
+* Improved documentation, standardized puncutation, fixed code formatting.
+
+# Version 2.1.3
+
+Bug Fixes:
+* Fixed another integer overflow error when returning buffers to the pool.
+
+# Version 2.1.2
+
+Bug Fixes:
+* Added `[SecurityRules(SecurityRuyleSet.Level1)]` to assembly to allow more relaxed inheritance security rules.
+* Fixed an integer overflow when calculating large buffer sizes.
+
 # Version 2.1.0
 
 * Added `RecyclableMemoryStreamManager` constructor overloads that take parameters for specifying the maximum free pool sizes. Updated IntelliSense documentation to make clear that these values need to be explciitly set to avoid unbounded pool growth.

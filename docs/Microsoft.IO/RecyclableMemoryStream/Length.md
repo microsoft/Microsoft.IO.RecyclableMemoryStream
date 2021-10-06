@@ -10,7 +10,7 @@ public override long Length { get; }
 
 | exception | condition |
 | --- | --- |
-| ObjectDisposedException | Object has been disposed |
+| ObjectDisposedException | Object has been disposed. |
 
 ## Remarks
 

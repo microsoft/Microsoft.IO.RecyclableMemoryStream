@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.SmallBlocksFree property
 
-How many blocks are in the small pool
+How many blocks are in the small pool.
 
 ```csharp
 public long SmallBlocksFree { get; }

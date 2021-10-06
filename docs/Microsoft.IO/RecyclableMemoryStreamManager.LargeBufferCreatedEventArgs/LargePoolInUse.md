@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.LargeBufferCreatedEventArgs.LargePoolInUse property
 
-How many bytes are in use from the large pool
+How many bytes are in use from the large pool.
 
 ```csharp
 public long LargePoolInUse { get; }

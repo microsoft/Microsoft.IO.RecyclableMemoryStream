@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs.Stack property
 
-Stack where ToArray was called
+Stack where ToArray was called.
 
 ```csharp
 public string Stack { get; }

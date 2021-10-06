@@ -1,6 +1,6 @@
 # RecyclableMemoryStream.SetLength method
 
-Sets the length of the stream
+Sets the length of the stream.
 
 ```csharp
 public override void SetLength(long value)
@@ -10,8 +10,8 @@ public override void SetLength(long value)
 
 | exception | condition |
 | --- | --- |
-| ArgumentOutOfRangeException | value is negative or larger than [`MaximumStreamCapacity`](../RecyclableMemoryStreamManager/MaximumStreamCapacity.md) |
-| ObjectDisposedException | Object has been disposed |
+| ArgumentOutOfRangeException | value is negative or larger than [`MaximumStreamCapacity`](../RecyclableMemoryStreamManager/MaximumStreamCapacity.md). |
+| ObjectDisposedException | Object has been disposed. |
 
 ## See Also
 

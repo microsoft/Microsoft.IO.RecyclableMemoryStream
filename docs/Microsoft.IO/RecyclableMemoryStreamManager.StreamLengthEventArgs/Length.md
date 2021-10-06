@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamLengthEventArgs.Length property
 
-Length of the stream
+Length of the stream.
 
 ```csharp
 public long Length { get; }

@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.BufferDiscardedEventArgs.Reason property
 
-The reason this buffer was discarded
+The reason this buffer was discarded.
 
 ```csharp
 public MemoryStreamDiscardReason Reason { get; }

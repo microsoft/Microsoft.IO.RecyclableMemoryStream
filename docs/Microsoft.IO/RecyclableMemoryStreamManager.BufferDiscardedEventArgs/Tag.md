@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.BufferDiscardedEventArgs.Tag property
 
-Optional Tag for the event
+Optional Tag for the event.
 
 ```csharp
 public string Tag { get; }
