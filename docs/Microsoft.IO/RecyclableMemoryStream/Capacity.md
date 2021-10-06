@@ -19,7 +19,7 @@ Capacity is always in multiples of the memory manager's block size, unless the l
 
 Writing past the current capacity will cause `Capacity` to automatically increase, until MaximumStreamCapacity is reached.
 
-If the capacity is larger than `int.MaxValue`, then `InvalidOperationException` will be thrown. If you anticipate using larger streams, use the [`Capacity64`](Capacity64.md) property instead.
+If the capacity is larger than `int.MaxValue`, then `InvalidOperationException` will be thrown. If you anticipate using larger streams, use the [`Capacity64`](./Capacity64.md) property instead.
 
 ## See Also
 

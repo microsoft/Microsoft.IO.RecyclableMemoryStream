@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager constructor (1 of 6)
 
-Initializes the memory manager with the default block/buffer specifications. This pool may have unbounded growth unless you modify [`MaximumFreeSmallPoolBytes`](MaximumFreeSmallPoolBytes.md) and [`MaximumFreeLargePoolBytes`](MaximumFreeLargePoolBytes.md).
+Initializes the memory manager with the default block/buffer specifications. This pool may have unbounded growth unless you modify [`MaximumFreeSmallPoolBytes`](./MaximumFreeSmallPoolBytes.md) and [`MaximumFreeLargePoolBytes`](./MaximumFreeLargePoolBytes.md).
 
 ```csharp
 public RecyclableMemoryStreamManager()
@@ -41,7 +41,7 @@ public RecyclableMemoryStreamManager(long maximumSmallPoolFreeBytes, long maximu
 
 # RecyclableMemoryStreamManager constructor (3 of 6)
 
-Initializes the memory manager with the given block requiredSize. This pool may have unbounded growth unless you modify [`MaximumFreeSmallPoolBytes`](MaximumFreeSmallPoolBytes.md) and [`MaximumFreeLargePoolBytes`](MaximumFreeLargePoolBytes.md).
+Initializes the memory manager with the given block requiredSize. This pool may have unbounded growth unless you modify [`MaximumFreeSmallPoolBytes`](./MaximumFreeSmallPoolBytes.md) and [`MaximumFreeLargePoolBytes`](./MaximumFreeLargePoolBytes.md).
 
 ```csharp
 public RecyclableMemoryStreamManager(int blockSize, int largeBufferMultiple, int maximumBufferSize)
@@ -69,7 +69,7 @@ public RecyclableMemoryStreamManager(int blockSize, int largeBufferMultiple, int
 
 # RecyclableMemoryStreamManager constructor (4 of 6)
 
-Initializes the memory manager with the given block requiredSize. This pool may have unbounded growth unless you modify [`MaximumFreeSmallPoolBytes`](MaximumFreeSmallPoolBytes.md) and [`MaximumFreeLargePoolBytes`](MaximumFreeLargePoolBytes.md).
+Initializes the memory manager with the given block requiredSize. This pool may have unbounded growth unless you modify [`MaximumFreeSmallPoolBytes`](./MaximumFreeSmallPoolBytes.md) and [`MaximumFreeLargePoolBytes`](./MaximumFreeLargePoolBytes.md).
 
 ```csharp
 public RecyclableMemoryStreamManager(int blockSize, int largeBufferMultiple, int maximumBufferSize, 

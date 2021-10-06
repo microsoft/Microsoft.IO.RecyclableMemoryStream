@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager class
 
-Manages pools of [`RecyclableMemoryStream`](RecyclableMemoryStream.md) objects.
+Manages pools of [`RecyclableMemoryStream`](./RecyclableMemoryStream.md) objects.
 
 ```csharp
 public sealed class RecyclableMemoryStreamManager
@@ -10,7 +10,7 @@ public sealed class RecyclableMemoryStreamManager
 
 | name | description |
 | --- | --- |
-| [RecyclableMemoryStreamManager](RecyclableMemoryStreamManager/RecyclableMemoryStreamManager.md)() | Initializes the memory manager with the default block/buffer specifications. This pool may have unbounded growth unless you modify [`MaximumFreeSmallPoolBytes`](RecyclableMemoryStreamManager/MaximumFreeSmallPoolBytes.md) and [`MaximumFreeLargePoolBytes`](RecyclableMemoryStreamManager/MaximumFreeLargePoolBytes.md). |
+| [RecyclableMemoryStreamManager](RecyclableMemoryStreamManager/RecyclableMemoryStreamManager.md)() | Initializes the memory manager with the default block/buffer specifications. This pool may have unbounded growth unless you modify [`MaximumFreeSmallPoolBytes`](./RecyclableMemoryStreamManager/MaximumFreeSmallPoolBytes.md) and [`MaximumFreeLargePoolBytes`](./RecyclableMemoryStreamManager/MaximumFreeLargePoolBytes.md). |
 | [RecyclableMemoryStreamManager](RecyclableMemoryStreamManager/RecyclableMemoryStreamManager.md)(…) | Initializes the memory manager with the default block/buffer specifications and maximum free bytes specifications. (5 constructors) |
 | [AggressiveBufferReturn](RecyclableMemoryStreamManager/AggressiveBufferReturn.md) { get; set; } | Whether dirty buffers can be immediately returned to the buffer pool. |
 | [BlockSize](RecyclableMemoryStreamManager/BlockSize.md) { get; } | The size of each block. It must be set at creation and cannot be changed. |
@@ -26,7 +26,7 @@ public sealed class RecyclableMemoryStreamManager
 | [SmallBlocksFree](RecyclableMemoryStreamManager/SmallBlocksFree.md) { get; } | How many blocks are in the small pool. |
 | [SmallPoolFreeSize](RecyclableMemoryStreamManager/SmallPoolFreeSize.md) { get; } | Number of bytes in small pool not currently in use. |
 | [SmallPoolInUseSize](RecyclableMemoryStreamManager/SmallPoolInUseSize.md) { get; } | Number of bytes currently in use by stream from the small pool. |
-| [ThrowExceptionOnToArray](RecyclableMemoryStreamManager/ThrowExceptionOnToArray.md) { get; set; } | Causes an exception to be thrown if [`ToArray`](RecyclableMemoryStream/ToArray.md) is ever called. |
+| [ThrowExceptionOnToArray](RecyclableMemoryStreamManager/ThrowExceptionOnToArray.md) { get; set; } | Causes an exception to be thrown if [`ToArray`](./RecyclableMemoryStream/ToArray.md) is ever called. |
 | [UseExponentialLargeBuffer](RecyclableMemoryStreamManager/UseExponentialLargeBuffer.md) { get; } | Use exponential large buffer allocation strategy. It must be set at creation and cannot be changed. |
 | [UseMultipleLargeBuffer](RecyclableMemoryStreamManager/UseMultipleLargeBuffer.md) { get; } | Use multiple large buffer allocation strategy. It must be set at creation and cannot be changed. |
 | event [BlockCreated](RecyclableMemoryStreamManager/BlockCreated.md) | Triggered when a new block is created. |
@@ -62,7 +62,7 @@ public sealed class RecyclableMemoryStreamManager
 
 There are two pools managed in here. The small pool contains same-sized buffers that are handed to streams as they write more data.
 
-For scenarios that need to call [`GetBuffer`](RecyclableMemoryStream/GetBuffer.md), the large pool contains buffers of various sizes, all multiples/exponentials of [`LargeBufferMultiple`](RecyclableMemoryStreamManager/LargeBufferMultiple.md) (1 MB by default). They are split by size to avoid overly-wasteful buffer usage. There should be far fewer 8 MB buffers than 1 MB buffers, for example.
+For scenarios that need to call [`GetBuffer`](./RecyclableMemoryStream/GetBuffer.md), the large pool contains buffers of various sizes, all multiples/exponentials of [`LargeBufferMultiple`](./RecyclableMemoryStreamManager/LargeBufferMultiple.md) (1 MB by default). They are split by size to avoid overly-wasteful buffer usage. There should be far fewer 8 MB buffers than 1 MB buffers, for example.
 
 ## See Also
 

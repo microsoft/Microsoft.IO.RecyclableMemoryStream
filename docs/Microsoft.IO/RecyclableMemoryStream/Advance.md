@@ -1,6 +1,6 @@
 # RecyclableMemoryStream.Advance method
 
-Notifies the stream that *count* bytes were written to the buffer returned by [`GetMemory`](GetMemory.md) or [`GetSpan`](GetSpan.md). Seeks forward by *count* bytes.
+Notifies the stream that *count* bytes were written to the buffer returned by [`GetMemory`](./GetMemory.md) or [`GetSpan`](./GetSpan.md). Seeks forward by *count* bytes.
 
 ```csharp
 public void Advance(int count)
