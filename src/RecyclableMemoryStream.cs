@@ -26,7 +26,6 @@ namespace Microsoft.IO
     using System.Buffers;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Globalization;
     using System.IO;
     using System.Runtime.CompilerServices;
     using System.Threading;
@@ -409,7 +408,7 @@ namespace Microsoft.IO
                 this.EnsureCapacity(value);
             }
         }
-        
+
         /// <summary>
         /// Returns a 64-bit version of capacity, for streams larger than <c>int.MaxValue</c> in length.
         /// </summary>
@@ -472,7 +471,7 @@ namespace Microsoft.IO
                 {
                     throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(value)} must be non-negative.");
                 }
-                
+
                 if (this.largeBuffer != null && value > RecyclableMemoryStreamManager.MaxArrayLength)
                 {
                     throw new InvalidOperationException($"Once the stream is converted to a single large buffer, position cannot be set past {RecyclableMemoryStreamManager.MaxArrayLength}.");
@@ -590,29 +589,28 @@ namespace Microsoft.IO
                     }
                     else
                     {
-                        return CopyToAsyncImpl(cancellationToken, count);
-
-                        async Task CopyToAsyncImpl(CancellationToken ct, long totalBytesToWrite)
-                        {
-                            var bytesRemaining = totalBytesToWrite;
-                            var blockAndOffset = this.GetBlockAndRelativeOffset(startPos);
-                            int currentBlock = blockAndOffset.Block;
-                            var currentOffset = blockAndOffset.Offset;
-                            while (bytesRemaining > 0)
-                            {
-                                int amountToCopy = (int)Math.Min(this.blocks[currentBlock].Length - currentOffset, bytesRemaining);
-                                await destination.WriteAsync(this.blocks[currentBlock], currentOffset, amountToCopy, ct);
-                                bytesRemaining -= amountToCopy;
-                                ++currentBlock;
-                                currentOffset = 0;
-                            }
-                        }
+                        return CopyToAsyncImpl(destination, this.GetBlockAndRelativeOffset(startPos), count, this.blocks, cancellationToken);
                     }
                 }
                 else
                 {
                     AssertLengthIsSmall();
                     return destination.WriteAsync(this.largeBuffer, (int)startPos, (int)count, cancellationToken);
+                }
+            }
+
+            static async Task CopyToAsyncImpl(Stream destination, BlockAndOffset blockAndOffset, long count, List<byte[]> blocks, CancellationToken cancellationToken)
+            {
+                var bytesRemaining = count;
+                int currentBlock = blockAndOffset.Block;
+                var currentOffset = blockAndOffset.Offset;
+                while (bytesRemaining > 0)
+                {
+                    int amountToCopy = (int)Math.Min(blocks[currentBlock].Length - currentOffset, bytesRemaining);
+                    await destination.WriteAsync(blocks[currentBlock], currentOffset, amountToCopy, cancellationToken);
+                    bytesRemaining -= amountToCopy;
+                    ++currentBlock;
+                    currentOffset = 0;
                 }
             }
         }
@@ -756,7 +754,7 @@ namespace Microsoft.IO
 
             var first = new BlockSegment(this.blocks[0]);
             var last = first;
-            
+
             for (int blockIdx = 1; last.RunningIndex + last.Memory.Length < this.length; blockIdx++)
             {
                 last = last.Append(this.blocks[blockIdx]);
@@ -1226,21 +1224,21 @@ namespace Microsoft.IO
         public override long Seek(long offset, SeekOrigin loc)
         {
             this.CheckDisposed();
-            
+
             long newPosition;
             switch (loc)
             {
-            case SeekOrigin.Begin:
-                newPosition = offset;
-                break;
-            case SeekOrigin.Current:
-                newPosition = offset + this.position;
-                break;
-            case SeekOrigin.End:
-                newPosition = offset + this.length;
-                break;
-            default:
-                throw new ArgumentException("Invalid seek origin.", nameof(loc));
+                case SeekOrigin.Begin:
+                    newPosition = offset;
+                    break;
+                case SeekOrigin.Current:
+                    newPosition = offset + this.position;
+                    break;
+                case SeekOrigin.End:
+                    newPosition = offset + this.length;
+                    break;
+                default:
+                    throw new ArgumentException("Invalid seek origin.", nameof(loc));
             }
             if (newPosition < 0)
             {
@@ -1405,7 +1403,7 @@ namespace Microsoft.IO
                 {
                     int amountToCopy = (int)Math.Min((long)this.blocks[currentBlock].Length - currentOffset, bytesRemaining);
                     Buffer.BlockCopy(this.blocks[currentBlock], currentOffset, buffer, currentTargetOffset, amountToCopy);
-                    
+
                     bytesRemaining -= amountToCopy;
 
                     ++currentBlock;
@@ -1480,7 +1478,7 @@ namespace Microsoft.IO
             {
                 return 0;
             }
-            
+
             int amountToCopy;
 
             if (this.largeBuffer == null)
@@ -1535,7 +1533,7 @@ namespace Microsoft.IO
             if (newCapacity > this.memoryManager.MaximumStreamCapacity && this.memoryManager.MaximumStreamCapacity > 0)
             {
                 this.memoryManager.ReportStreamOverCapacity(this.id, this.tag, newCapacity, this.AllocationStack);
-                
+
                 throw new OutOfMemoryException($"Requested capacity is too large: {newCapacity}. Limit is {this.memoryManager.MaximumStreamCapacity}.");
             }
 

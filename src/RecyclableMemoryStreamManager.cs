@@ -424,7 +424,7 @@ namespace Microsoft.IO
             {
                 if (!this.largePools[poolIndex].TryPop(out buffer))
                 {
-                    buffer = new byte[requiredSize];
+                    buffer = AllocateArray(requiredSize);
                     createdNew = true;
                 }
                 else
