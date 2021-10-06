@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.LargePoolInUseSize property
 
-Number of bytes currently in use by streams from the large pool
+Number of bytes currently in use by streams from the large pool.
 
 ```csharp
 public long LargePoolInUseSize { get; }

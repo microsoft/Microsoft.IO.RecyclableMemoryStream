@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs class
 
-Arguments for the StreamConvertedToArray event
+Arguments for the StreamConvertedToArray event.
 
 ```csharp
 public sealed class StreamConvertedToArrayEventArgs : EventArgs
@@ -10,11 +10,11 @@ public sealed class StreamConvertedToArrayEventArgs : EventArgs
 
 | name | description |
 | --- | --- |
-| [StreamConvertedToArrayEventArgs](RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs/StreamConvertedToArrayEventArgs.md)(…) | Initializes a StreamConvertedToArrayEventArgs struct |
-| [Id](RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs/Id.md) { get; } | Unique ID for the stream |
-| [Length](RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs/Length.md) { get; } | Length of stack |
-| [Stack](RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs/Stack.md) { get; } | Stack where ToArray was called |
-| [Tag](RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs/Tag.md) { get; } | Optional Tag for the event |
+| [StreamConvertedToArrayEventArgs](RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs/StreamConvertedToArrayEventArgs.md)(…) | Initializes a new instance of the [`StreamConvertedToArrayEventArgs`](RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs.md) class. |
+| [Id](RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs/Id.md) { get; } | Unique ID for the stream. |
+| [Length](RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs/Length.md) { get; } | Length of stack. |
+| [Stack](RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs/Stack.md) { get; } | Stack where ToArray was called. |
+| [Tag](RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs/Tag.md) { get; } | Optional Tag for the event. |
 
 ## See Also
 

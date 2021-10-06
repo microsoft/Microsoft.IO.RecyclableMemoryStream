@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamCreatedEventArgs class
 
-Arguments for the StreamCreated event
+Arguments for the StreamCreated event.
 
 ```csharp
 public sealed class StreamCreatedEventArgs : EventArgs
@@ -10,11 +10,11 @@ public sealed class StreamCreatedEventArgs : EventArgs
 
 | name | description |
 | --- | --- |
-| [StreamCreatedEventArgs](RecyclableMemoryStreamManager.StreamCreatedEventArgs/StreamCreatedEventArgs.md)(…) | Initializes a StreamCreatedEventArgs struct |
-| [ActualSize](RecyclableMemoryStreamManager.StreamCreatedEventArgs/ActualSize.md) { get; } | Actual stream size |
-| [Id](RecyclableMemoryStreamManager.StreamCreatedEventArgs/Id.md) { get; } | Unique ID for the stream |
-| [RequestedSize](RecyclableMemoryStreamManager.StreamCreatedEventArgs/RequestedSize.md) { get; } | Requested stream size |
-| [Tag](RecyclableMemoryStreamManager.StreamCreatedEventArgs/Tag.md) { get; } | Optional Tag for the event |
+| [StreamCreatedEventArgs](RecyclableMemoryStreamManager.StreamCreatedEventArgs/StreamCreatedEventArgs.md)(…) | Initializes a new instance of the [`StreamCreatedEventArgs`](RecyclableMemoryStreamManager.StreamCreatedEventArgs.md) class. |
+| [ActualSize](RecyclableMemoryStreamManager.StreamCreatedEventArgs/ActualSize.md) { get; } | Actual stream size. |
+| [Id](RecyclableMemoryStreamManager.StreamCreatedEventArgs/Id.md) { get; } | Unique ID for the stream. |
+| [RequestedSize](RecyclableMemoryStreamManager.StreamCreatedEventArgs/RequestedSize.md) { get; } | Requested stream size. |
+| [Tag](RecyclableMemoryStreamManager.StreamCreatedEventArgs/Tag.md) { get; } | Optional Tag for the event. |
 
 ## See Also
 

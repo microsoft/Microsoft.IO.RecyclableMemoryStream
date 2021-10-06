@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamLengthEventArgs class
 
-Arguments for the StreamLength event
+Arguments for the StreamLength event.
 
 ```csharp
 public sealed class StreamLengthEventArgs : EventArgs
@@ -10,8 +10,8 @@ public sealed class StreamLengthEventArgs : EventArgs
 
 | name | description |
 | --- | --- |
-| [StreamLengthEventArgs](RecyclableMemoryStreamManager.StreamLengthEventArgs/StreamLengthEventArgs.md)(…) | Initializes a StreamLengthEventArgs struct |
-| [Length](RecyclableMemoryStreamManager.StreamLengthEventArgs/Length.md) { get; } | Length of the stream |
+| [StreamLengthEventArgs](RecyclableMemoryStreamManager.StreamLengthEventArgs/StreamLengthEventArgs.md)(…) | Initializes a new instance of the [`StreamLengthEventArgs`](RecyclableMemoryStreamManager.StreamLengthEventArgs.md) class. |
+| [Length](RecyclableMemoryStreamManager.StreamLengthEventArgs/Length.md) { get; } | Length of the stream. |
 
 ## See Also
 

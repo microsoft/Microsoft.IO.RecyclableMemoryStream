@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamDoubleDisposedEventArgs.DisposeStack2 property
 
-Second dispose stack
+Second dispose stack.
 
 ```csharp
 public string DisposeStack2 { get; }

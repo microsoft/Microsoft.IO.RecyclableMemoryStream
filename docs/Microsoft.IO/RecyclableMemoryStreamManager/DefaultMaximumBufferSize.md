@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.DefaultMaximumBufferSize field
 
-Default maximum buffer size, in bytes
+Default maximum buffer size, in bytes.
 
 ```csharp
 public const int DefaultMaximumBufferSize;

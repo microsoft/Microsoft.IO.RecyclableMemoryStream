@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamCreatedEventArgs.RequestedSize property
 
-Requested stream size
+Requested stream size.
 
 ```csharp
 public long RequestedSize { get; }

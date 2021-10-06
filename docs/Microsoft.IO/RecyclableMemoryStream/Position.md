@@ -1,6 +1,6 @@
 # RecyclableMemoryStream.Position property
 
-Gets the current position in the stream
+Gets the current position in the stream.
 
 ```csharp
 public override long Position { get; set; }
@@ -10,8 +10,8 @@ public override long Position { get; set; }
 
 | exception | condition |
 | --- | --- |
-| ObjectDisposedException | Object has been disposed |
-| ArgumentOutOfRangeException | A negative value was passed |
+| ObjectDisposedException | Object has been disposed. |
+| ArgumentOutOfRangeException | A negative value was passed. |
 | InvalidOperationException | Stream is in large-buffer mode, but an attempt was made to set the position past the maximum allowed array length. |
 
 ## Remarks

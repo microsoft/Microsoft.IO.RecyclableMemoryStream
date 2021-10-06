@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamOverCapacityEventArgs class
 
-Arguments for the StreamOverCapacity event
+Arguments for the StreamOverCapacity event.
 
 ```csharp
 public sealed class StreamOverCapacityEventArgs : EventArgs
@@ -10,11 +10,11 @@ public sealed class StreamOverCapacityEventArgs : EventArgs
 
 | name | description |
 | --- | --- |
-| [AllocationStack](RecyclableMemoryStreamManager.StreamOverCapacityEventArgs/AllocationStack.md) { get; } | Original allocation stack |
-| [Id](RecyclableMemoryStreamManager.StreamOverCapacityEventArgs/Id.md) { get; } | Unique ID for the stream |
-| [MaximumCapacity](RecyclableMemoryStreamManager.StreamOverCapacityEventArgs/MaximumCapacity.md) { get; } | Maximum capacity |
-| [RequestedCapacity](RecyclableMemoryStreamManager.StreamOverCapacityEventArgs/RequestedCapacity.md) { get; } | Requested capacity |
-| [Tag](RecyclableMemoryStreamManager.StreamOverCapacityEventArgs/Tag.md) { get; } | Optional Tag for the event |
+| [AllocationStack](RecyclableMemoryStreamManager.StreamOverCapacityEventArgs/AllocationStack.md) { get; } | Original allocation stack. |
+| [Id](RecyclableMemoryStreamManager.StreamOverCapacityEventArgs/Id.md) { get; } | Unique ID for the stream. |
+| [MaximumCapacity](RecyclableMemoryStreamManager.StreamOverCapacityEventArgs/MaximumCapacity.md) { get; } | Maximum capacity. |
+| [RequestedCapacity](RecyclableMemoryStreamManager.StreamOverCapacityEventArgs/RequestedCapacity.md) { get; } | Requested capacity. |
+| [Tag](RecyclableMemoryStreamManager.StreamOverCapacityEventArgs/Tag.md) { get; } | Optional Tag for the event. |
 
 ## See Also
 

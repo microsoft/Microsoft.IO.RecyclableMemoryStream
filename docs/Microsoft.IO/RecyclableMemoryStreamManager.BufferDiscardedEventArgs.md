@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.BufferDiscardedEventArgs class
 
-Arguments for the BufferDiscarded event
+Arguments for the BufferDiscarded event.
 
 ```csharp
 public sealed class BufferDiscardedEventArgs : EventArgs
@@ -10,10 +10,10 @@ public sealed class BufferDiscardedEventArgs : EventArgs
 
 | name | description |
 | --- | --- |
-| [BufferType](RecyclableMemoryStreamManager.BufferDiscardedEventArgs/BufferType.md) { get; } | Type of the buffer |
-| [Id](RecyclableMemoryStreamManager.BufferDiscardedEventArgs/Id.md) { get; } | Unique ID for the stream |
-| [Reason](RecyclableMemoryStreamManager.BufferDiscardedEventArgs/Reason.md) { get; } | The reason this buffer was discarded |
-| [Tag](RecyclableMemoryStreamManager.BufferDiscardedEventArgs/Tag.md) { get; } | Optional Tag for the event |
+| [BufferType](RecyclableMemoryStreamManager.BufferDiscardedEventArgs/BufferType.md) { get; } | Type of the buffer. |
+| [Id](RecyclableMemoryStreamManager.BufferDiscardedEventArgs/Id.md) { get; } | Unique ID for the stream. |
+| [Reason](RecyclableMemoryStreamManager.BufferDiscardedEventArgs/Reason.md) { get; } | The reason this buffer was discarded. |
+| [Tag](RecyclableMemoryStreamManager.BufferDiscardedEventArgs/Tag.md) { get; } | Optional Tag for the event. |
 
 ## See Also
 

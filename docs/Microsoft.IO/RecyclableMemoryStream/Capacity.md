@@ -1,6 +1,6 @@
 # RecyclableMemoryStream.Capacity property
 
-Gets or sets the capacity
+Gets or sets the capacity.
 
 ```csharp
 public override int Capacity { get; set; }
@@ -10,7 +10,8 @@ public override int Capacity { get; set; }
 
 | exception | condition |
 | --- | --- |
-| ObjectDisposedException | Object has been disposed |
+| ObjectDisposedException | Object has been disposed. |
+| InvalidOperationException | Capacity is larger than int.MaxValue. |
 
 ## Remarks
 
@@ -18,7 +19,7 @@ Capacity is always in multiples of the memory manager's block size, unless the l
 
 Writing past the current capacity will cause `Capacity` to automatically increase, until MaximumStreamCapacity is reached.
 
-If the capacity is larger than `int.MaxValue`, then `int.MaxValue` will be returned. If you anticipate using larger streams, use the [`Capacity64`](Capacity64.md) property instead.
+If the capacity is larger than `int.MaxValue`, then `InvalidOperationException` will be thrown. If you anticipate using larger streams, use the [`Capacity64`](Capacity64.md) property instead.
 
 ## See Also
 

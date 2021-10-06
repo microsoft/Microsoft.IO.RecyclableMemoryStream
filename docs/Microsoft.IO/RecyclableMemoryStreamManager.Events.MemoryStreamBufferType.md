@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.Events.MemoryStreamBufferType enumeration
 
-Type of buffer
+Type of buffer.
 
 ```csharp
 public enum MemoryStreamBufferType
@@ -10,8 +10,8 @@ public enum MemoryStreamBufferType
 
 | name | value | description |
 | --- | --- | --- |
-| Small | `0` | Small block buffer |
-| Large | `1` | Large pool buffer |
+| Small | `0` | Small block buffer. |
+| Large | `1` | Large pool buffer. |
 
 ## See Also
 

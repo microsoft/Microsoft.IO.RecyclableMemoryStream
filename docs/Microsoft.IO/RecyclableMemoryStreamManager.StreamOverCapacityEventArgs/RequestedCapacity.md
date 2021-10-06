@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamOverCapacityEventArgs.RequestedCapacity property
 
-Requested capacity
+Requested capacity.
 
 ```csharp
 public long RequestedCapacity { get; }

@@ -11,7 +11,7 @@ public void MemoryStreamToArray(Guid guid, string tag, string stack, long size)
 | guid | A unique ID for this stream. |
 | tag | A temporary ID for this stream, usually indicates current usage. |
 | stack | Call stack of the ToArray call. |
-| size | Length of stream |
+| size | Length of stream. |
 
 ## Remarks
 

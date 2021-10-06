@@ -8,7 +8,7 @@ public void MemoryStreamNewLargeBufferCreated(long requiredSize, long largePoolI
 
 | parameter | description |
 | --- | --- |
-| requiredSize | Requested size |
+| requiredSize | Requested size. |
 | largePoolInUseBytes | Number of bytes in the large pool in use. |
 
 ## See Also

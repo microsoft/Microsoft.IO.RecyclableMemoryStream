@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.LargeBuffersFree property
 
-How many buffers are in the large pool
+How many buffers are in the large pool.
 
 ```csharp
 public long LargeBuffersFree { get; }

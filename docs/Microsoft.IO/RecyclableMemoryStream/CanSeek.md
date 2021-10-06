@@ -1,6 +1,6 @@
 # RecyclableMemoryStream.CanSeek property
 
-Whether the stream can currently seek
+Whether the stream can currently seek.
 
 ```csharp
 public override bool CanSeek { get; }

@@ -1,6 +1,6 @@
 # RecyclableMemoryStream.Seek method
 
-Sets the position to the offset from the seek location
+Sets the position to the offset from the seek location.
 
 ```csharp
 public override long Seek(long offset, SeekOrigin loc)
@@ -8,21 +8,21 @@ public override long Seek(long offset, SeekOrigin loc)
 
 | parameter | description |
 | --- | --- |
-| offset | How many bytes to move |
-| loc | From where |
+| offset | How many bytes to move. |
+| loc | From where. |
 
 ## Return Value
 
-The new position
+The new position.
 
 ## Exceptions
 
 | exception | condition |
 | --- | --- |
-| ObjectDisposedException | Object has been disposed |
-| ArgumentOutOfRangeException | offset is larger than [`MaximumStreamCapacity`](../RecyclableMemoryStreamManager/MaximumStreamCapacity.md) |
-| ArgumentException | Invalid seek origin |
-| IOException | Attempt to set negative position |
+| ObjectDisposedException | Object has been disposed. |
+| ArgumentOutOfRangeException | *offset* is larger than [`MaximumStreamCapacity`](../RecyclableMemoryStreamManager/MaximumStreamCapacity.md). |
+| ArgumentException | Invalid seek origin. |
+| IOException | Attempt to set negative position. |
 
 ## See Also
 

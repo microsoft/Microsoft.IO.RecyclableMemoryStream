@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.LargeBufferCreatedEventArgs.RequiredSize property
 
-Required buffer size
+Required buffer size.
 
 ```csharp
 public long RequiredSize { get; }

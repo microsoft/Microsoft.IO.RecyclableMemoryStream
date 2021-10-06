@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.UsageReportEventArgs.SmallPoolInUseBytes property
 
-Bytes from the small pool currently in use
+Bytes from the small pool currently in use.
 
 ```csharp
 public long SmallPoolInUseBytes { get; }

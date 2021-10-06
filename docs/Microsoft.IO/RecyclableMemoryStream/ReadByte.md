@@ -14,7 +14,7 @@ The byte at the current position, or -1 if the position is at the end of the str
 
 | exception | condition |
 | --- | --- |
-| ObjectDisposedException | Object has been disposed |
+| ObjectDisposedException | Object has been disposed. |
 
 ## See Also
 

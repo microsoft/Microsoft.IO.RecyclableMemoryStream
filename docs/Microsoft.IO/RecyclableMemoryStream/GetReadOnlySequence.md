@@ -8,13 +8,13 @@ public ReadOnlySequence<byte> GetReadOnlySequence()
 
 ## Return Value
 
-A ReadOnlySequence of bytes
+A ReadOnlySequence of bytes.
 
 ## Exceptions
 
 | exception | condition |
 | --- | --- |
-| ObjectDisposedException | Object has been disposed |
+| ObjectDisposedException | Object has been disposed. |
 
 ## Remarks
 

@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamFinalizedEventArgs constructor
 
-Initializes a StreamFinalizedEventArgs struct
+Initializes a new instance of the [`StreamFinalizedEventArgs`](../RecyclableMemoryStreamManager.StreamFinalizedEventArgs.md) class.
 
 ```csharp
 public StreamFinalizedEventArgs(Guid guid, string tag, string allocationStack)
@@ -8,9 +8,9 @@ public StreamFinalizedEventArgs(Guid guid, string tag, string allocationStack)
 
 | parameter | description |
 | --- | --- |
-| guid | Unique ID of the stream |
-| tag | Tag of the stream |
-| allocationStack | Stack of original allocation |
+| guid | Unique ID of the stream. |
+| tag | Tag of the stream. |
+| allocationStack | Stack of original allocation. |
 
 ## See Also
 

@@ -12,7 +12,7 @@ public override bool TryGetBuffer(out ArraySegment<byte> buffer)
 
 ## Return Value
 
-Returns true if a buffer can be returned; otherwise, false
+Returns `true` if a buffer can be returned; otherwise, `false`.
 
 ## See Also
 

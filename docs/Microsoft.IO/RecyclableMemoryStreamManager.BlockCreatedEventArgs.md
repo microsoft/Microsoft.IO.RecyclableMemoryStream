@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.BlockCreatedEventArgs class
 
-Arguments for BlockCreated event
+Arguments for the BlockCreated event.
 
 ```csharp
 public sealed class BlockCreatedEventArgs : EventArgs
@@ -10,7 +10,7 @@ public sealed class BlockCreatedEventArgs : EventArgs
 
 | name | description |
 | --- | --- |
-| [SmallPoolInUse](RecyclableMemoryStreamManager.BlockCreatedEventArgs/SmallPoolInUse.md) { get; } | How many bytes are currently in use from the small pool |
+| [SmallPoolInUse](RecyclableMemoryStreamManager.BlockCreatedEventArgs/SmallPoolInUse.md) { get; } | How many bytes are currently in use from the small pool. |
 
 ## See Also
 

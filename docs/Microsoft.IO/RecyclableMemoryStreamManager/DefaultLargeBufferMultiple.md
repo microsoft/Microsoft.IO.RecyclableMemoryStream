@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.DefaultLargeBufferMultiple field
 
-Default large buffer multiple, in bytes
+Default large buffer multiple, in bytes.
 
 ```csharp
 public const int DefaultLargeBufferMultiple;

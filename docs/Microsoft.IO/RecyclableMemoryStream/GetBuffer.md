@@ -8,14 +8,14 @@ public override byte[] GetBuffer()
 
 ## Return Value
 
-A byte[] buffer
+A byte[] buffer.
 
 ## Exceptions
 
 | exception | condition |
 | --- | --- |
-| ObjectDisposedException | Object has been disposed |
-| OutOfMemoryException | stream is too large for a contiguous buffer |
+| ObjectDisposedException | Object has been disposed. |
+| OutOfMemoryException | stream is too large for a contiguous buffer. |
 
 ## Remarks
 

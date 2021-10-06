@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.Events.MemoryStreamDiscardReason enumeration
 
-The possible reasons for discarding a buffer
+The possible reasons for discarding a buffer.
 
 ```csharp
 public enum MemoryStreamDiscardReason
@@ -10,8 +10,8 @@ public enum MemoryStreamDiscardReason
 
 | name | value | description |
 | --- | --- | --- |
-| TooLarge | `0` | Buffer was too large to be re-pooled |
-| EnoughFree | `1` | There are enough free bytes in the pool |
+| TooLarge | `0` | Buffer was too large to be re-pooled. |
+| EnoughFree | `1` | There are enough free bytes in the pool. |
 
 ## See Also
 

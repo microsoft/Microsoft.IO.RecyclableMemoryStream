@@ -1,6 +1,6 @@
 # RecyclableMemoryStream.Write method (1 of 2)
 
-Writes the buffer to the stream
+Writes the buffer to the stream.
 
 ```csharp
 public override void Write(ReadOnlySpan<byte> source)
@@ -8,14 +8,14 @@ public override void Write(ReadOnlySpan<byte> source)
 
 | parameter | description |
 | --- | --- |
-| source | Source buffer |
+| source | Source buffer. |
 
 ## Exceptions
 
 | exception | condition |
 | --- | --- |
-| ArgumentNullException | buffer is null |
-| ObjectDisposedException | Object has been disposed |
+| ArgumentNullException | buffer is null. |
+| ObjectDisposedException | Object has been disposed. |
 
 ## See Also
 
@@ -26,7 +26,7 @@ public override void Write(ReadOnlySpan<byte> source)
 
 # RecyclableMemoryStream.Write method (2 of 2)
 
-Writes the buffer to the stream
+Writes the buffer to the stream.
 
 ```csharp
 public override void Write(byte[] buffer, int offset, int count)
@@ -34,18 +34,18 @@ public override void Write(byte[] buffer, int offset, int count)
 
 | parameter | description |
 | --- | --- |
-| buffer | Source buffer |
-| offset | Start position |
-| count | Number of bytes to write |
+| buffer | Source buffer. |
+| offset | Start position. |
+| count | Number of bytes to write. |
 
 ## Exceptions
 
 | exception | condition |
 | --- | --- |
-| ArgumentNullException | buffer is null |
-| ArgumentOutOfRangeException | offset or count is negative |
-| ArgumentException | buffer.Length - offset is not less than count |
-| ObjectDisposedException | Object has been disposed |
+| ArgumentNullException | buffer is null. |
+| ArgumentOutOfRangeException | offset or count is negative. |
+| ArgumentException | buffer.Length - offset is not less than count. |
+| ObjectDisposedException | Object has been disposed. |
 
 ## See Also
 

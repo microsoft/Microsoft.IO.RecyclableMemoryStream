@@ -8,15 +8,15 @@ public void Advance(int count)
 
 | parameter | description |
 | --- | --- |
-| count | How many bytes to advance |
+| count | How many bytes to advance. |
 
 ## Exceptions
 
 | exception | condition |
 | --- | --- |
-| ObjectDisposedException | Object has been disposed |
-| ArgumentOutOfRangeException | *count* is negative |
-| InvalidOperationException | *count* is larger than the size of the previously requested buffer |
+| ObjectDisposedException | Object has been disposed. |
+| ArgumentOutOfRangeException | *count* is negative. |
+| InvalidOperationException | *count* is larger than the size of the previously requested buffer. |
 
 ## Remarks
 

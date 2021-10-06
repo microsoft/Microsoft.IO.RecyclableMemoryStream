@@ -9,9 +9,9 @@ public void MemoryStreamNonPooledLargeBufferCreated(Guid guid, string tag, long 
 
 | parameter | description |
 | --- | --- |
-| guid | Unique stream ID |
+| guid | Unique stream ID. |
 | tag | A temporary ID for this stream, usually indicates current usage. |
-| requiredSize | Size requested by the caller |
+| requiredSize | Size requested by the caller. |
 | allocationStack | Call stack of the requested stream. |
 
 ## Remarks

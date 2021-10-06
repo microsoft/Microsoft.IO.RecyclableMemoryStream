@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.Events.MemoryStreamDisposed method
 
-Logged when the stream is disposed
+Logged when the stream is disposed.
 
 ```csharp
 public void MemoryStreamDisposed(Guid guid, string tag, string allocationStack, string disposeStack)

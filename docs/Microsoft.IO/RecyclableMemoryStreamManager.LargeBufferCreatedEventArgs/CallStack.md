@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.LargeBufferCreatedEventArgs.CallStack property
 
-If the buffer was not satisfied from the pool, and GenerateCallstacks is turned on, then this will contain the callstack of the allocation request.
+If the buffer was not satisfied from the pool, and GenerateCallstacks is turned on, then. this will contain the callstack of the allocation request.
 
 ```csharp
 public string CallStack { get; }

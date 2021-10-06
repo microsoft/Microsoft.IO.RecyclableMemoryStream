@@ -1,6 +1,6 @@
 # RecyclableMemoryStream.WriteTo method (1 of 6)
 
-Writes bytes from the current stream to a destination `byte` array
+Writes bytes from the current stream to a destination `byte` array.
 
 ```csharp
 public void WriteTo(byte[] buffer)
@@ -8,14 +8,14 @@ public void WriteTo(byte[] buffer)
 
 | parameter | description |
 | --- | --- |
-| buffer | Target buffer |
+| buffer | Target buffer. |
 
 ## Exceptions
 
 | exception | condition |
 | --- | --- |
-| ArgumentNullException | `buffer` is null |
-| ObjectDisposedException | Object has been disposed |
+| ArgumentNullException | *buffer*&gt; is null. |
+| ObjectDisposedException | Object has been disposed. |
 
 ## Remarks
 
@@ -38,18 +38,18 @@ public override void WriteTo(Stream stream)
 
 | parameter | description |
 | --- | --- |
-| stream | Destination stream |
+| stream | Destination stream. |
 
 ## Exceptions
 
 | exception | condition |
 | --- | --- |
-| ArgumentNullException | stream is null |
-| ObjectDisposedException | Object has been disposed |
+| ArgumentNullException | *stream* is null. |
+| ObjectDisposedException | Object has been disposed. |
 
 ## Remarks
 
-Important: This does a synchronous write, which may not be desired in some situations
+Important: This does a synchronous write, which may not be desired in some situations.
 
 ## See Also
 
@@ -60,7 +60,7 @@ Important: This does a synchronous write, which may not be desired in some situa
 
 # RecyclableMemoryStream.WriteTo method (3 of 6)
 
-Writes bytes from the current stream to a destination `byte` array
+Writes bytes from the current stream to a destination `byte` array.
 
 ```csharp
 public void WriteTo(byte[] buffer, long offset, long count)
@@ -68,17 +68,17 @@ public void WriteTo(byte[] buffer, long offset, long count)
 
 | parameter | description |
 | --- | --- |
-| buffer | Target buffer |
-| offset | Offset in the source stream, from which to start |
-| count | Number of bytes to write |
+| buffer | Target buffer. |
+| offset | Offset in the source stream, from which to start. |
+| count | Number of bytes to write. |
 
 ## Exceptions
 
 | exception | condition |
 | --- | --- |
-| ArgumentNullException | `buffer` is null |
-| ArgumentOutOfRangeException | Offset is less than 0, or offset + count is beyond this stream's length. |
-| ObjectDisposedException | Object has been disposed |
+| ArgumentNullException | *buffer*&gt; is null. |
+| ArgumentOutOfRangeException | *offset* is less than 0, or *offset* + *count* is beyond this stream's length. |
+| ObjectDisposedException | Object has been disposed. |
 
 ## See Also
 
@@ -97,17 +97,17 @@ public void WriteTo(Stream stream, int offset, int count)
 
 | parameter | description |
 | --- | --- |
-| stream | Destination stream |
-| offset | Offset in source |
-| count | Number of bytes to write |
+| stream | Destination stream. |
+| offset | Offset in source. |
+| count | Number of bytes to write. |
 
 ## Exceptions
 
 | exception | condition |
 | --- | --- |
-| ArgumentNullException | stream is null |
-| ArgumentOutOfRangeException | Offset is less than 0, or offset + count is beyond this stream's length. |
-| ObjectDisposedException | Object has been disposed |
+| ArgumentNullException | *stream* is null. |
+| ArgumentOutOfRangeException | *offset* is less than 0, or *offset* + *count* is beyond this *stream*'s length. |
+| ObjectDisposedException | Object has been disposed. |
 
 ## See Also
 
@@ -126,17 +126,17 @@ public void WriteTo(Stream stream, long offset, long count)
 
 | parameter | description |
 | --- | --- |
-| stream | Destination stream |
-| offset | Offset in source |
-| count | Number of bytes to write |
+| stream | Destination stream. |
+| offset | Offset in source. |
+| count | Number of bytes to write. |
 
 ## Exceptions
 
 | exception | condition |
 | --- | --- |
-| ArgumentNullException | stream is null |
-| ArgumentOutOfRangeException | Offset is less than 0, or offset + count is beyond this stream's length. |
-| ObjectDisposedException | Object has been disposed |
+| ArgumentNullException | *stream* is null. |
+| ArgumentOutOfRangeException | *offset* is less than 0, or *offset* + *count* is beyond this *stream*'s length. |
+| ObjectDisposedException | Object has been disposed. |
 
 ## See Also
 
@@ -147,7 +147,7 @@ public void WriteTo(Stream stream, long offset, long count)
 
 # RecyclableMemoryStream.WriteTo method (6 of 6)
 
-Writes bytes from the current stream to a destination `byte` array
+Writes bytes from the current stream to a destination `byte` array.
 
 ```csharp
 public void WriteTo(byte[] buffer, long offset, long count, int targetOffset)
@@ -155,9 +155,9 @@ public void WriteTo(byte[] buffer, long offset, long count, int targetOffset)
 
 | parameter | description |
 | --- | --- |
-| buffer | Target buffer |
-| offset | Offset in the source stream, from which to start |
-| count | Number of bytes to write |
+| buffer | Target buffer. |
+| offset | Offset in the source stream, from which to start. |
+| count | Number of bytes to write. |
 | targetOffset | Offset in the target byte array to start writing |
 
 ## Exceptions
@@ -165,9 +165,9 @@ public void WriteTo(byte[] buffer, long offset, long count, int targetOffset)
 | exception | condition |
 | --- | --- |
 | ArgumentNullException | `buffer` is null |
-| ArgumentOutOfRangeException | Offset is less than 0, or offset + count is beyond this stream's length. |
-| ArgumentOutOfRangeException | targetOffset is less than 0, or targetOffset + count is beyond the target buffer's length. |
-| ObjectDisposedException | Object has been disposed |
+| ArgumentOutOfRangeException | *offset* is less than 0, or *offset* + *count* is beyond this stream's length. |
+| ArgumentOutOfRangeException | *targetOffset* is less than 0, or *targetOffset* + *count* is beyond the target *buffer*'s length. |
+| ObjectDisposedException | Object has been disposed. |
 
 ## See Also
 

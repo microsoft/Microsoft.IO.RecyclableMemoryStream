@@ -6,7 +6,7 @@ public Span<byte> GetSpan(int sizeHint = 0)
 
 ## Remarks
 
-IMPORTANT: Calling Write(), GetBuffer(), TryGetBuffer(), Seek(), GetLength(), Advance(), or setting Position after calling GetMemory() invalidates the memory.
+IMPORTANT: Calling Write(), GetBuffer(), TryGetBuffer(), Seek(), GetLength(), Advance(), or setting Position after calling GetSpan() invalidates the span.
 
 ## See Also
 

@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamFinalizedEventArgs.AllocationStack property
 
-Stack where the stream was allocated
+Stack where the stream was allocated.
 
 ```csharp
 public string AllocationStack { get; }

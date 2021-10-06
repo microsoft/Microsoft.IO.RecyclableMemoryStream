@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamCreatedEventArgs constructor
 
-Initializes a StreamCreatedEventArgs struct
+Initializes a new instance of the [`StreamCreatedEventArgs`](../RecyclableMemoryStreamManager.StreamCreatedEventArgs.md) class.
 
 ```csharp
 public StreamCreatedEventArgs(Guid guid, string tag, long requestedSize, long actualSize)
@@ -8,10 +8,10 @@ public StreamCreatedEventArgs(Guid guid, string tag, long requestedSize, long ac
 
 | parameter | description |
 | --- | --- |
-| guid | Unique ID of the stream |
-| tag | Tag of the stream |
-| requestedSize | The requested stream size |
-| actualSize | The actual stream size |
+| guid | Unique ID of the stream. |
+| tag | Tag of the stream. |
+| requestedSize | The requested stream size. |
+| actualSize | The actual stream size. |
 
 ## See Also
 

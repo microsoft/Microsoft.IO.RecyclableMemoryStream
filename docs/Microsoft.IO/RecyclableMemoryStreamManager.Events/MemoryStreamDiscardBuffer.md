@@ -9,7 +9,7 @@ public void MemoryStreamDiscardBuffer(Guid guid, string tag, MemoryStreamBufferT
 
 | parameter | description |
 | --- | --- |
-| guid | Unique stream ID |
+| guid | Unique stream ID. |
 | tag | A temporary ID for this stream, usually indicates current usage. |
 | bufferType | Type of the buffer being discarded. |
 | reason | Reason for the discard. |

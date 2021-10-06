@@ -11,9 +11,9 @@ public override byte[] ToArray()
 
 | exception | condition |
 | --- | --- |
-| ObjectDisposedException | Object has been disposed |
+| ObjectDisposedException | Object has been disposed. |
 | NotSupportedException | The current [`RecyclableMemoryStreamManager`](../RecyclableMemoryStreamManager.md)object disallows `ToArray` calls. |
-| OutOfMemoryException | The length of the stream is too long for a contiguous array |
+| OutOfMemoryException | The length of the stream is too long for a contiguous array. |
 
 ## See Also
 
