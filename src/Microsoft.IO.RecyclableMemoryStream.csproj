@@ -14,8 +14,6 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageTags>MemoryStream;Memory;performance;GC;garbage collection;stream;scalable;buffer</PackageTags>
     <RepositoryUrl>https://github.com/Microsoft/Microsoft.IO.RecyclableMemoryStream</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
