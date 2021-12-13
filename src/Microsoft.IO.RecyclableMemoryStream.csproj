@@ -13,7 +13,7 @@
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReleaseNotes>Additional framework targets, better .Net Core support, simplified build.</PackageReleaseNotes>
+    <PackageReadmeFile>..\README.md<PackageReadmeFile>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageTags>MemoryStream;Memory;performance;GC;garbage collection;stream;scalable;buffer</PackageTags>
@@ -51,6 +51,10 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
     <PackageReference Include="System.Memory" Version="4.5.4" Condition="'$(TargetFramework)' == 'net462' Or '$(TargetFramework)' == 'netstandard2.0'" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
   
   <!-- Workaround for https://github.com/dotnet/sdk/issues/11105 -->
