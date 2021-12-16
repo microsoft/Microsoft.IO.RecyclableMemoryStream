@@ -49,6 +49,19 @@ namespace Microsoft.IO.UnitTests
 
         private readonly Random random = new Random();
 
+        private RecyclableMemoryStreamEventListener eventListener = new RecyclableMemoryStreamEventListener();
+
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            // Make sure we saw ETW events for each event -- just a rough test to ensure they're being sent.
+            for (int i = 1; i < eventListener.EventCounts.Length; i++)
+            {
+                Assert.That(eventListener.EventCounts[i], Is.GreaterThan(0), $"No events recorded for eventId {i}");
+            }
+            this.eventListener.Dispose();
+        }
+
         #region RecyclableMemoryManager Tests
         [Test]
         public virtual void RecyclableMemoryManagerUsingMultipleOrExponentialLargeBuffer()
@@ -56,6 +69,24 @@ namespace Microsoft.IO.UnitTests
             var memMgr = this.GetMemoryManager();
             Assert.That(memMgr.UseMultipleLargeBuffer, Is.True);
             Assert.That(memMgr.UseExponentialLargeBuffer, Is.False);
+        }
+
+        [Test]
+        public void RecyclableMemoryManagerSetsMaxPoolFreeBytes()
+        {
+            var memMgr = new RecyclableMemoryStreamManager(1000, 2000);
+            Assert.That(memMgr.MaximumFreeSmallPoolBytes, Is.EqualTo(1000));
+            Assert.That(memMgr.MaximumFreeLargePoolBytes, Is.EqualTo(2000));
+            Assert.That(memMgr.BlockSize, Is.EqualTo(RecyclableMemoryStreamManager.DefaultBlockSize));
+        }
+
+        [Test]
+        public void RecyclableMemoryManagerSetsBlockSizeLargeBufferMultipleAndMaximumBufferSize()
+        {
+            var memMgr = new RecyclableMemoryStreamManager(10, 1000, 8000);
+            Assert.That(memMgr.BlockSize, Is.EqualTo(10));
+            Assert.That(memMgr.LargeBufferMultiple, Is.EqualTo(1000));
+            Assert.That(memMgr.MaximumBufferSize, Is.EqualTo(8000));
         }
 
         [Test]
@@ -180,7 +211,22 @@ namespace Microsoft.IO.UnitTests
         public void ReturnNullBlockThrowsException()
         {
             var memMgr = this.GetMemoryManager();
+            Assert.Throws<ArgumentNullException>(() => memMgr.ReturnBlock(null, Guid.Empty, string.Empty));
+        }
+
+        [Test]
+        public void ReturnNullBlocksThrowsException()
+        {
+            var memMgr = this.GetMemoryManager();
             Assert.Throws<ArgumentNullException>(() => memMgr.ReturnBlocks(null, Guid.Empty, string.Empty));
+        }
+
+        [Test]
+        public void ReturnBlockWithInvalidBufferThrowsException()
+        {
+            var memMgr = this.GetMemoryManager();            
+            var buffer = new byte[memMgr.BlockSize + 1];
+            Assert.Throws<ArgumentException>(() => memMgr.ReturnBlock(buffer, Guid.Empty, string.Empty));
         }
 
         [Test]
@@ -190,6 +236,17 @@ namespace Microsoft.IO.UnitTests
             var memMgr = this.GetMemoryManager();
             buffers.Add(memMgr.GetBlock());
             buffers.Add(new byte[memMgr.BlockSize + 1]);
+            buffers.Add(memMgr.GetBlock());
+            Assert.Throws<ArgumentException>(() => memMgr.ReturnBlocks(buffers, Guid.Empty, string.Empty));
+        }
+
+        [Test]
+        public void ReturnBlocksWithNullBufferThrowsException()
+        {
+            var buffers = new List<byte[]>(3);
+            var memMgr = this.GetMemoryManager();
+            buffers.Add(memMgr.GetBlock());
+            buffers.Add(null);
             buffers.Add(memMgr.GetBlock());
             Assert.Throws<ArgumentException>(() => memMgr.ReturnBlocks(buffers, Guid.Empty, string.Empty));
         }
@@ -220,6 +277,33 @@ namespace Microsoft.IO.UnitTests
             var memMgr = this.GetMemoryManager();
             var emptyBuffer = new byte[0];
             Assert.Throws<ArgumentException>(() => memMgr.ReturnLargeBuffer(emptyBuffer, DefaultId, DefaultTag));
+        }
+
+        [Test]
+        public void ReturningBlockIsDroppedIfEnoughFree()
+        {
+            var memMgr = this.GetMemoryManager();
+            const int MaxFreeBuffersAllowed = 2;
+            const int BuffersToTest = MaxFreeBuffersAllowed + 1;
+
+            // Only allow 2 blocks in the free pool at a time
+            memMgr.MaximumFreeSmallPoolBytes = MaxFreeBuffersAllowed * memMgr.BlockSize;
+            var buffers = new List<byte[]>(BuffersToTest);
+            for (var i = buffers.Capacity; i > 0; --i)
+            {
+                buffers.Add(memMgr.GetBlock());
+            }
+
+            Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(0));
+            Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(BuffersToTest * memMgr.BlockSize));
+
+            // All but one buffer should be returned to pool
+            for (int i = 0; i < buffers.Count; i++)
+            {
+                memMgr.ReturnBlock(buffers[i], Guid.Empty, string.Empty);
+            }
+            Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(memMgr.MaximumFreeSmallPoolBytes));
+            Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(0));
         }
 
         [Test]
@@ -426,6 +510,24 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        public void TryGetBufferFailsOnLargeStream()
+        {
+            var stream = GetMultiGBStream();
+            ArraySegment<byte> seg;
+            // Exception path -- no content, but GetBuffer will throw
+            Assert.That(stream.TryGetBuffer(out seg), Is.False);
+            Assert.That(seg.Offset, Is.Zero);
+            Assert.That(seg.Count, Is.Zero);
+            Assert.That(seg.Array, Is.Empty);
+
+            //Non-exception path. Length is too long. No exception.
+            var buffer = GetRandomBuffer(RecyclableMemoryStreamManager.MaxArrayLength);
+            stream.Write(buffer);
+            stream.Write(buffer);
+            Assert.That(stream.TryGetBuffer(out seg), Is.False);
+        }
+
+        [Test]
         public void CallingWriteAfterLargeGetBufferDoesNotLoseData()
         {
             var stream = this.GetDefaultStream();
@@ -479,6 +581,7 @@ namespace Microsoft.IO.UnitTests
             var maxStream = mgr.GetStream(null, int.MaxValue) as RecyclableMemoryStream;
             Assert.That(maxStream.Capacity64, Is.GreaterThanOrEqualTo(int.MaxValue));
         }
+
         #endregion
 
         #region GetSpan/Memory Tests
@@ -532,6 +635,8 @@ namespace Microsoft.IO.UnitTests
             MemoryMarshal.TryGetArray(memory, out ArraySegment<byte> arraySegment);
             Assert.AreEqual(buffer, arraySegment.Array);
             Assert.IsTrue(buffer.AsSpan() == span);
+            stream.Advance(1);
+            Assert.That(stream.Length, Is.EqualTo(1));
         }
 
         [Test]
@@ -697,13 +802,39 @@ namespace Microsoft.IO.UnitTests
 
         #region Constructor tests
         [Test]
-        public void StreamHasTagAndGuid()
+        public void StreamHasGuid()
+        {
+            var expectedGuid = Guid.NewGuid();
+            var stream1 = new RecyclableMemoryStream(this.GetMemoryManager(), expectedGuid);
+            var stream2 = (RecyclableMemoryStream)(this.GetMemoryManager().GetStream(expectedGuid));
+            Assert.That(stream1.Id, Is.EqualTo(expectedGuid));
+            Assert.That(stream2.Id, Is.EqualTo(expectedGuid));
+        }
+
+        [Test]
+        public void StreamHasTag()
         {
             const string expectedTag = "Nunit Test";
 
-            var stream = new RecyclableMemoryStream(this.GetMemoryManager(), expectedTag);
-            Assert.That(stream.Id, Is.Not.EqualTo(Guid.Empty));
-            Assert.That(stream.Tag, Is.EqualTo(expectedTag));
+            var stream1 = new RecyclableMemoryStream(this.GetMemoryManager(), expectedTag);
+            var stream2 = (RecyclableMemoryStream)(this.GetMemoryManager().GetStream(expectedTag));
+            Assert.That(stream1.Id, Is.Not.EqualTo(Guid.Empty));
+            Assert.That(stream1.Tag, Is.EqualTo(expectedTag));
+            Assert.That(stream2.Id, Is.Not.EqualTo(Guid.Empty));
+            Assert.That(stream2.Tag, Is.EqualTo(expectedTag));
+        }
+
+        [Test]
+        public void StreamHasGuidandTag()
+        {
+            const string expectedTag = "Nunit Test";
+            Guid expectedGuid = Guid.NewGuid();
+            var stream1 = new RecyclableMemoryStream(this.GetMemoryManager(), expectedGuid, expectedTag);
+            var stream2 = (RecyclableMemoryStream)(this.GetMemoryManager().GetStream(expectedGuid, expectedTag));
+            Assert.That(stream1.Id, Is.EqualTo(expectedGuid));
+            Assert.That(stream1.Tag, Is.EqualTo(expectedTag));
+            Assert.That(stream2.Id, Is.EqualTo(expectedGuid));
+            Assert.That(stream2.Tag, Is.EqualTo(expectedTag));
         }
 
         [Test]
@@ -723,6 +854,19 @@ namespace Microsoft.IO.UnitTests
             Assert.That(stream.Capacity, Is.GreaterThanOrEqualTo(requestedSize));
             Assert.That(stream.Capacity % memoryManager.BlockSize == 0, Is.True,
                         "stream capacity is not a multiple of the block size");
+        }
+
+        [Test]
+        public void IdTagAndRequestedSizeSet()
+        {
+            var memoryManager = this.GetMemoryManager();
+            var requestedSize = memoryManager.BlockSize + 1;
+            var expectedGuid = Guid.NewGuid();
+            var stream = new RecyclableMemoryStream(memoryManager, expectedGuid, "Tag", requestedSize);
+            Assert.That(stream.Id, Is.EqualTo(expectedGuid));
+            Assert.That(stream.Tag, Is.EqualTo("Tag"));
+            Assert.That(stream.Capacity, Is.GreaterThanOrEqualTo(requestedSize));
+            
         }
 
         [Test]
@@ -1150,6 +1294,21 @@ namespace Microsoft.IO.UnitTests
             stream.WriteByte(255);
             Assert.That(stream.Length, Is.EqualTo(14));
         }
+
+        [Test]
+        public void WriteByteAtEndOfLargeBufferIncreasesCapacity()
+        {
+            var stream = this.GetDefaultStream();
+            stream.Capacity = stream.MemoryManager.BlockSize * 2;
+            var bufferLength = stream.Capacity;
+            var buffer = this.GetRandomBuffer(bufferLength);
+            stream.Write(buffer, 0, bufferLength);
+            stream.GetBuffer();
+            Assert.That(stream.Capacity, Is.EqualTo(stream.MemoryManager.LargeBufferMultiple));
+            stream.Position = stream.MemoryManager.LargeBufferMultiple;
+            stream.WriteByte(255);
+            Assert.That(stream.Capacity, Is.GreaterThan(stream.MemoryManager.LargeBufferMultiple));
+        }
         #endregion
 
         #region SafeReadByte Tests
@@ -1203,6 +1362,41 @@ namespace Microsoft.IO.UnitTests
             }
 
             Parallel.For(0, 100, i => read());
+        }
+
+        [Test]
+        public void SafeReadByte_BlocksAndLargeBufferSame()
+        {
+            var buffer = this.GetRandomBuffer(this.GetMemoryManager().BlockSize * 2);
+            var stream1 = this.GetDefaultStream();
+            var stream2 = this.GetDefaultStream();
+            stream1.Write(buffer);
+            stream2.Write(buffer);
+            stream2.GetBuffer();
+            Assert.That(stream1.Capacity, Is.EqualTo(stream1.MemoryManager.BlockSize * 2));
+            Assert.That(stream2.Capacity, Is.EqualTo(stream2.MemoryManager.LargeBufferMultiple));
+            
+            for (var i = 0L; i < stream1.Length; i++)
+            {
+                var position = i;
+                int a = stream1.SafeReadByte(ref position);
+                position = i;
+                int b = stream2.SafeReadByte(ref position);
+                Assert.That(a, Is.EqualTo(b));
+                
+            }
+        }
+
+        [Test]
+        public void SafeReadByte_Int_ThrowsOnLargeStreamPositionOverflow()
+        {
+            var stream = this.GetDefaultStream();
+            var buffer = this.GetRandomBuffer(RecyclableMemoryStreamManager.MaxArrayLength);
+            stream.Write(buffer);
+            stream.Position = Int32.MaxValue;
+            stream.WriteByte(255);
+            int pos = Int32.MaxValue;
+            Assert.Throws<InvalidOperationException>(() => stream.SafeReadByte(ref pos));
         }
         #endregion
 
@@ -1368,6 +1562,48 @@ namespace Microsoft.IO.UnitTests
             }
 
             Parallel.For(0, 5, i => read());
+        }
+
+        [Test]
+        public void SafeRead_Int_DoesNotUpdateStreamPosition()
+        {
+            var stream = this.GetRandomStream();
+
+            var step = stream.MemoryManager.BlockSize / 2;
+            var destBuffer = new byte[step];
+            var bytesRead = 0;
+            var position = 0;
+
+            while (position < stream.Length)
+            {
+                bytesRead += stream.SafeRead(destBuffer, 0, Math.Min(step, (int)stream.Length - bytesRead), ref position);
+                Assert.That(position, Is.EqualTo(bytesRead));
+                Assert.That(stream.Position, Is.EqualTo(0));
+            }
+        }
+
+        [Test]
+        public void SafeRead_Int_ByteArray_PositionOverflow()
+        {
+            var stream = this.GetDefaultStream();
+            stream.SetLength((long)Int32.MaxValue + 1);
+            
+            var destBuffer = new byte[1];
+            var position = Int32.MaxValue;
+ 
+            Assert.Throws<InvalidOperationException>(() => stream.SafeRead(destBuffer, 0, 1, ref position)); 
+        }
+
+        [Test]
+        public void SafeRead_Int_Span_PositionOverflow()
+        {
+            var stream = this.GetDefaultStream();
+            stream.SetLength((long)Int32.MaxValue + 1);
+
+            var destBuffer = new byte[1];
+            var position = Int32.MaxValue;
+
+            Assert.Throws<InvalidOperationException>(() => stream.SafeRead((Span<byte>)destBuffer, ref position));
         }
         #endregion
 
@@ -1852,6 +2088,7 @@ namespace Microsoft.IO.UnitTests
             stream.Write(buffer, 0, buffer.Length);
             stream.GetBuffer();
             Assert.That(stream.Capacity, Is.EqualTo(stream.MemoryManager.LargeBufferMultiple));
+            Assert.That(stream.Capacity64, Is.EqualTo(stream.MemoryManager.LargeBufferMultiple));
         }
 
         [Test]
@@ -1870,6 +2107,15 @@ namespace Microsoft.IO.UnitTests
             stream.Capacity = stream.MemoryManager.LargeBufferMultiple + 1;
 
             Assert.That(stream.Capacity, Is.EqualTo(stream.MemoryManager.LargeBufferMultiple * 2));
+        }
+
+        [Test]
+        public void CapacityThrowsOnTooLargeStream()
+        {
+            var stream = GetDefaultStream();
+            stream.Capacity64 = (long)Int32.MaxValue + 1;
+            Assert.That(stream.Capacity64, Is.EqualTo((long)Int32.MaxValue + 1));
+            Assert.Throws<InvalidOperationException>(() => { var cap = stream.Capacity; });
         }
         #endregion
 
@@ -2379,6 +2625,55 @@ namespace Microsoft.IO.UnitTests
             Assert.Throws<ObjectDisposedException>(() => { stream.Seek(0, SeekOrigin.Begin); });
             Assert.Throws<ObjectDisposedException>(() => { var x = stream.ToArray(); });
             Assert.Throws<ObjectDisposedException>(() => { var x = stream.GetBuffer(); });
+        }
+
+        [Test]
+        public void DisposeReportsStreamLength()
+        {
+            var stream = GetDefaultStream();
+            stream.WriteByte(255);
+            bool handlerTriggered = false;
+            stream.MemoryManager.StreamLength += (obj, args) =>
+            {
+                Assert.That(args.Length, Is.EqualTo(1));
+                handlerTriggered = true;
+            };
+            stream.Dispose();
+            Assert.That(handlerTriggered, Is.True);
+        }
+
+        [Test]
+        public void FinalizedStreamTriggersEvent()
+        {
+            bool handlerTriggered = false;
+            var expectedGuid = Guid.NewGuid();
+
+            var mgr = this.GetMemoryManager();
+
+            mgr.StreamFinalized += (obj, args) =>
+            {
+                Assert.That(args.Tag, Is.EqualTo("Tag"));
+                Assert.That(args.Id, Is.EqualTo(expectedGuid));
+                Assert.That(args.AllocationStack, Is.Not.Empty);
+                handlerTriggered = true;
+            };
+
+            CreateDeadStream(mgr, expectedGuid, "Tag");
+
+            GC.Collect(2, GCCollectionMode.Forced, true);
+            GC.WaitForPendingFinalizers();
+
+            Assert.That(handlerTriggered, Is.True);
+
+            static void CreateDeadStream(RecyclableMemoryStreamManager mgr, Guid expectedGuid, string tag)
+            {
+                new RecyclableMemoryStream(mgr, expectedGuid, tag);
+            }
+        }
+
+        private void MemoryManager_StreamLength(object sender, RecyclableMemoryStreamManager.StreamLengthEventArgs e)
+        {
+            throw new NotImplementedException();
         }
         #endregion
 
