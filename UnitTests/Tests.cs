@@ -521,7 +521,7 @@ namespace Microsoft.IO.UnitTests
             Assert.That(seg.Array, Is.Empty);
 
             //Non-exception path. Length is too long. No exception.
-            var buffer = GetRandomBuffer(RecyclableMemoryStreamManager.MaxArrayLength);
+            var buffer = new byte[RecyclableMemoryStreamManager.MaxArrayLength];
             stream.Write(buffer);
             stream.Write(buffer);
             Assert.That(stream.TryGetBuffer(out seg), Is.False);
@@ -1391,7 +1391,7 @@ namespace Microsoft.IO.UnitTests
         public void SafeReadByte_Int_ThrowsOnLargeStreamPositionOverflow()
         {
             var stream = this.GetDefaultStream();
-            var buffer = this.GetRandomBuffer(RecyclableMemoryStreamManager.MaxArrayLength);
+            var buffer = new byte[RecyclableMemoryStreamManager.MaxArrayLength];
             stream.Write(buffer);
             stream.Position = Int32.MaxValue;
             stream.WriteByte(255);
@@ -3376,7 +3376,7 @@ namespace Microsoft.IO.UnitTests
         public void VeryLargeStream_WriteByte()
         {
             var stream = GetMultiGBStream();
-            var buffer = GetRandomBuffer(100 << 20);
+            var buffer = new byte[100 << 20];
             while (stream.Length < DefaultVeryLargeStreamSize)
             {
                 stream.Write(buffer);
@@ -3392,7 +3392,7 @@ namespace Microsoft.IO.UnitTests
         public void VeryLargeStream_GetReadOnlySequence()
         {
             var stream = GetMultiGBStream();
-            var buffer = GetRandomBuffer(100 << 20);
+            var buffer = new byte[100 << 20];
             while (stream.Length < DefaultVeryLargeStreamSize)
             {
                 stream.Write(buffer);
