@@ -29,6 +29,10 @@ namespace Microsoft.IO.UnitTests
     {
         private const int MemoryStreamDisposed = 2;
         private const int MemoryStreamDoubleDispose = 3;
+        
+        private const int NumEvents = 12;
+
+        public int[] EventCounts { get; } = new int[NumEvents];
 
         public RecyclableMemoryStreamEventListener()
         {
@@ -39,12 +43,13 @@ namespace Microsoft.IO.UnitTests
 
         protected override void OnEventWritten(EventWrittenEventArgs eventData)
         {
-            const int TagIndex = 1;
-            this.EventWritten(eventData.EventId, (string)eventData.Payload[TagIndex]);
+            this.EventWritten(eventData.EventId);
         }
 
-        public new virtual void EventWritten(int eventId, string tag)
+        public new virtual void EventWritten(int eventId)
         {
+            this.EventCounts[eventId]++;
+
             switch (eventId)
             {
             case MemoryStreamDisposed:

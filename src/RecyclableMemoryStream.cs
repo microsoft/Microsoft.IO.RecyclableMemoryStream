@@ -230,7 +230,7 @@ namespace Microsoft.IO
         /// <param name="tag">A string identifying this stream for logging and debugging purposes.</param>
         /// <param name="requestedSize">The initial requested size to prevent future allocations.</param>
         public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string tag, int requestedSize)
-            : this(memoryManager, id, tag, requestedSize, null) { }
+            : this(memoryManager, id, tag, (long)requestedSize) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RecyclableMemoryStream"/> class.
@@ -404,8 +404,7 @@ namespace Microsoft.IO
             }
             set
             {
-                this.CheckDisposed();
-                this.EnsureCapacity(value);
+                this.Capacity64 = value;
             }
         }
 
