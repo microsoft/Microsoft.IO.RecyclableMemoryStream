@@ -1006,7 +1006,7 @@ namespace Microsoft.IO
         public event EventHandler<StreamFinalizedEventArgs> StreamFinalized;
 
         /// <summary>
-        /// Triggered when a stream is finalized.
+        /// Triggered when a stream is disposed to report the stream's length.
         /// </summary>
         public event EventHandler<StreamLengthEventArgs> StreamLength;
 
