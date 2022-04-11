@@ -44,7 +44,7 @@ jobs:
           --no-build
 
       - name: Upload test results as pipeline artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Test results
           path: 'Test results/'
@@ -71,7 +71,7 @@ jobs:
           }
 
       - name: Upload publish output as pipeline artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Publish outputs
           path: 'Publish outputs/'
