@@ -61,7 +61,7 @@ The `RecyclableMemoryStreamManager` class maintains two separate pools of object
 1. **Small Pool** - Holds small buffers (of configurable size). Used by default for all normal read/write operations. Multiple small buffers are chained together in the `RecyclableMemoryStream` class and abstracted into a single stream.
 2. **Large Pool** - Holds large buffers, which are only used when you must have a single, contiguous buffer, such as when you plan to call `GetBuffer()`. It is possible to create streams larger than is possible to be represented by a single buffer because of .NET's array size limits.
 
-A `RecyclableMemoryStream` starts out by using a small buffer, chaining additional ones as the stream capacity grows. Should you ever call `GetBuffer()` and the length is greater than a single small buffer's capacity, then the small buffers are converted to a single large buffer. You can also request a stream with an initial capacity; if that capacity is larger than the small pool block size, multiple blocks will be chained unless you call an overload with `asContiguousBuffer` set to true, in which case a single large buffer will be assigned from the start. If you request a capacity larger than the maximum poolable size, you will still get a stream back, but the buffers will not be pooled. (Note: This is not referring to the the maximum array size. You can limit the poolable buffer sizes in `RecyclableMemoryStreamManager`)
+A `RecyclableMemoryStream` starts out by using a small buffer, chaining additional ones as the stream capacity grows. Should you ever call `GetBuffer()` and the length is greater than a single small buffer's capacity, then the small buffers are converted to a single large buffer. You can also request a stream with an initial capacity; if that capacity is larger than the small pool block size, multiple blocks will be chained unless you call an overload with `asContiguousBuffer` set to true, in which case a single large buffer will be assigned from the start. If you request a capacity larger than the maximum poolable size, you will still get a stream back, but the buffers will not be pooled. (Note: This is not referring to the maximum array size. You can limit the poolable buffer sizes in `RecyclableMemoryStreamManager`)
 
 There are two versions of the large pool:
 
@@ -226,7 +226,7 @@ In addition to the logged ETW events, there are a number of .NET event hooks on 
 | `StreamCreated` | A new stream has been created. |
 | `StreamDisposed` | A stream has been disposed. |
 | `StreamDoubleDisposed` | A stream has been disposed twice, indicating an error. |
-| `StreamFinalized` | A stream has been finalized, which means it was never disposed before it went ouf of scope. |
+| `StreamFinalized` | A stream has been finalized, which means it was never disposed before it went out of scope. |
 | `StreamLength` | Reports the stream's length upon disposal. Can allow you to track stream metrics. |
 | `StreamConvertedToArray` | Someone called `ToArray` on a stream. |
 | `StreamOverCapacity` | An attempt was made to expand beyond the maximum capacity allowed by the pool manager. |
@@ -242,7 +242,7 @@ There are a number of features that will help you debug usage of these streams.
 
 Each stream is assigned a unique GUID and, optionally, a `tag`.
 
-The GUID is unique for each stream object and serves to identity that stream throughout its lifetime.
+The GUID is unique for each stream object and serves to identify that stream throughout its lifetime.
 
 A `tag` is an optional, arbitrary string assigned by the caller when a stream is requested. This can be a class name, function name, or some other meaningful string that can help you identify the source of the stream's usage. Note that multiple streams will contain the same tag. They identify where in your code the stream originated; they are not unique stream identifiers.
 
@@ -262,7 +262,7 @@ If `Dispose` is never called for a stream, the finalizer will eventually be call
 
 ### Concurrency
 
-Concurent use of `RecyclableMemoryStream` objects is not supported under any circumstances. However, `RecyclableMemoryStreamManager` is thread-safe and can be used to retrieve streams in a multi-threading scenario.
+Concurrent use of `RecyclableMemoryStream` objects is not supported under any circumstances. However, `RecyclableMemoryStreamManager` is thread-safe and can be used to retrieve streams in a multi-threading scenario.
 
 ### ETW Events ###
 
