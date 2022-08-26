@@ -1094,7 +1094,7 @@ namespace Microsoft.IO
             else
             {
                 // Avoid properties because of the dispose check, but the fields themselves are not cleared.
-                return $"Disposed: Id = {this.id}, Tag = {this.tag}";
+                return $"Disposed: Id = {this.id}, Tag = {this.tag}, Final Length: {this.length:N0} bytes";
             }
         }
 
