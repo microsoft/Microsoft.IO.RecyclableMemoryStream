@@ -1087,7 +1087,15 @@ namespace Microsoft.IO
         /// </summary>
         public override string ToString()
         {
-            return $"Id = {this.Id}, Tag = {this.Tag}, Length = {this.Length:N0} bytes";
+            if (!this.disposed)
+            {
+                return $"Id = {this.Id}, Tag = {this.Tag}, Length = {this.Length:N0} bytes";
+            }
+            else
+            {
+                // Avoid properties because of the dispose check, but the fields themselves are not cleared.
+                return $"Disposed: Id = {this.id}, Tag = {this.tag}";
+            }
         }
 
         /// <summary>
