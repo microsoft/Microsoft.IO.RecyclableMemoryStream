@@ -760,17 +760,6 @@ namespace Microsoft.IO
         /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(string tag, int requiredSize)
         {
-            return this.GetStream(tag, (long)requiredSize);
-        }
-
-        /// <summary>
-        /// Retrieve a new <c>MemoryStream</c> object with the given tag and at least the given capacity.
-        /// </summary>
-        /// <param name="tag">A tag which can be used to track the source of the stream.</param>
-        /// <param name="requiredSize">The minimum desired capacity for the stream.</param>
-        /// <returns>A <c>MemoryStream</c>.</returns>
-        public MemoryStream GetStream(string tag, long requiredSize)
-        {
             return new RecyclableMemoryStream(this, tag, requiredSize);
         }
 
@@ -783,7 +772,7 @@ namespace Microsoft.IO
         /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(Guid id, string tag, int requiredSize)
         {
-            return this.GetStream(id, tag, (long)requiredSize);
+            return new RecyclableMemoryStream(this, id, tag, requiredSize);
         }
 
         /// <summary>
