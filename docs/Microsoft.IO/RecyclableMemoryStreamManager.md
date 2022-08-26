@@ -37,11 +37,11 @@ public sealed class RecyclableMemoryStreamManager
 | event [StreamDisposed](RecyclableMemoryStreamManager/StreamDisposed.md) | Triggered when a stream is disposed. |
 | event [StreamDoubleDisposed](RecyclableMemoryStreamManager/StreamDoubleDisposed.md) | Triggered when a stream is disposed of twice (an error). |
 | event [StreamFinalized](RecyclableMemoryStreamManager/StreamFinalized.md) | Triggered when a stream is finalized. |
-| event [StreamLength](RecyclableMemoryStreamManager/StreamLength.md) | Triggered when a stream is finalized. |
+| event [StreamLength](RecyclableMemoryStreamManager/StreamLength.md) | Triggered when a stream is disposed to report the stream's length. |
 | event [StreamOverCapacity](RecyclableMemoryStreamManager/StreamOverCapacity.md) | Triggered when a stream is requested to expand beyond the maximum length specified by the responsible RecyclableMemoryStreamManager. |
 | event [UsageReport](RecyclableMemoryStreamManager/UsageReport.md) | Periodically triggered to report usage statistics. |
 | [GetStream](RecyclableMemoryStreamManager/GetStream.md)() | Retrieve a new `MemoryStream` object with no tag and a default initial capacity. |
-| [GetStream](RecyclableMemoryStreamManager/GetStream.md)(…) | Retrieve a new `MemoryStream` object with no tag and a default initial capacity. (16 methods) |
+| [GetStream](RecyclableMemoryStreamManager/GetStream.md)(…) | Retrieve a new `MemoryStream` object with no tag and a default initial capacity. (19 methods) |
 | const [DefaultBlockSize](RecyclableMemoryStreamManager/DefaultBlockSize.md) | Default block size, in bytes. |
 | const [DefaultLargeBufferMultiple](RecyclableMemoryStreamManager/DefaultLargeBufferMultiple.md) | Default large buffer multiple, in bytes. |
 | const [DefaultMaximumBufferSize](RecyclableMemoryStreamManager/DefaultMaximumBufferSize.md) | Default maximum buffer size, in bytes. |

@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamLength event
 
-Triggered when a stream is finalized.
+Triggered when a stream is disposed to report the stream's length.
 
 ```csharp
 public event EventHandler<StreamLengthEventArgs> StreamLength;
