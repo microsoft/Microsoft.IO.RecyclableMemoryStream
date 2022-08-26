@@ -1,3 +1,12 @@
+# Version 2.2.1
+
+API change:
+* There are now overloads that take a type `long` parameter for requestedSize.
+
+Bug Fix:
+* `ToString` will no longer throw an exception if the stream is disposed.
+
+
 # Version 2.2.0
 
 API changes:
