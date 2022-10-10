@@ -24,8 +24,11 @@ jobs:
         with:
           queries: security-and-quality
 
-      - name: Perform CodeQL Autobuild
-        uses: github/codeql-action/autobuild@v2
+      # - name: Perform CodeQL Autobuild
+      #  uses: github/codeql-action/autobuild@v2
+      
+      - run: |
+         dotnet build /p:UseSharedCompilation=false src
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
