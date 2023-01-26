@@ -94,7 +94,7 @@ namespace Microsoft.IO
         /// <summary>
         /// All of these blocks must be the same size.
         /// </summary>
-        private readonly List<byte[]> blocks = new List<byte[]>();
+        private readonly List<byte[]> blocks;
 
         private readonly Guid id;
 
@@ -256,6 +256,7 @@ namespace Microsoft.IO
             this.memoryManager = memoryManager;
             this.id = id;
             this.tag = tag;
+            this.blocks = new List<byte[]>();
 
             var actualRequestedSize = Math.Max(requestedSize, this.memoryManager.BlockSize);
 
