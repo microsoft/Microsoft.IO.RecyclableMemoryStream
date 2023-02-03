@@ -662,7 +662,9 @@ namespace Microsoft.IO
 
         internal void ReportBufferDiscarded(Guid id, string tag, Events.MemoryStreamBufferType bufferType, Events.MemoryStreamDiscardReason reason)
         {
-            Events.Writer.MemoryStreamDiscardBuffer(id, tag, bufferType, reason);
+            Events.Writer.MemoryStreamDiscardBuffer(id, tag, bufferType, reason,
+                this.SmallBlocksFree, this.smallPoolFreeSize, this.smallPoolInUseSize,
+                this.LargeBuffersFree, this.LargePoolFreeSize, this.LargePoolInUseSize);
             this.BufferDiscarded?.Invoke(this, new BufferDiscardedEventArgs(id, tag, bufferType, reason));
         }
 
