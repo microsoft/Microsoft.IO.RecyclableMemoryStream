@@ -3665,8 +3665,8 @@ namespace Microsoft.IO.UnitTests
             long requestedSize = mgr.BlockSize;
             mgr.UsageReport += (obj, args) =>
             {
-                Assert.That(args.SmallPoolFreeBytes, Is.EqualTo(mgr.BlockSize));
-                Assert.That(args.SmallPoolInUseBytes, Is.EqualTo(0));
+                Assert.That(args.SmallPoolFreeBytes, Is.EqualTo(raisedCount == 0 ? 0 : mgr.BlockSize));
+                Assert.That(args.SmallPoolInUseBytes, Is.EqualTo(raisedCount == 0 ? mgr.BlockSize : 0));
                 Assert.That(args.LargePoolFreeBytes, Is.EqualTo(0));
                 Assert.That(args.LargePoolInUseBytes, Is.EqualTo(0));
 
@@ -3679,7 +3679,7 @@ namespace Microsoft.IO.UnitTests
             stream.GetBuffer();
             stream.Dispose();
 
-            Assert.That(raisedCount, Is.EqualTo(1));
+            Assert.That(raisedCount, Is.EqualTo(2));
         }
 
         #endregion
