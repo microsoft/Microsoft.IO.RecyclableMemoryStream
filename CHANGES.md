@@ -10,7 +10,7 @@ Bug Fix:
 # Version 2.2.0
 
 API changes:
-* Add an override for `GetStream` that takes a `ReadOnlySpan<byte>`. This supercedes the versions of `GetStream` that take `Memory<byte>`, which were marked as `[Obsolete]`.
+* Add an override for `GetStream` that takes a `ReadOnlySpan<byte>`. This supersedes the versions of `GetStream` that take `Memory<byte>`, which were marked as `[Obsolete]`.
 
 Bug Fixes:
 * Fixed: `GetReadOnlySequence()` throws `ArgumentOutOfRangeException`
@@ -22,7 +22,7 @@ Performance Improvements:
 * Use `GC.AllocateUninitializedArray` in an additional spot, for better performance in .NET 5+.
 
 Documentation:
-* Improved documentation, standardized puncutation, fixed code formatting.
+* Improved documentation, standardized punctuation, fixed code formatting.
 
 # Version 2.1.3
 
@@ -37,7 +37,7 @@ Bug Fixes:
 
 # Version 2.1.0
 
-* Added `RecyclableMemoryStreamManager` constructor overloads that take parameters for specifying the maximum free pool sizes. Updated IntelliSense documentation to make clear that these values need to be explciitly set to avoid unbounded pool growth.
+* Added `RecyclableMemoryStreamManager` constructor overloads that take parameters for specifying the maximum free pool sizes. Updated IntelliSense documentation to make clear that these values need to be explicitly set to avoid unbounded pool growth.
 * Buffers are now allocated using `GC.AllocateUninitializedArray` in .NET 5.
 * net462 and netstandard2.0 targets can now support the `Span`-related APIs via a dependency on System.Memory.
 * Updated documentation to fix typos and clarify language in some parts.

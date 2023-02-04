@@ -5,7 +5,7 @@
     public sealed partial class RecyclableMemoryStreamManager
     {
         /// <summary>
-        /// Arguments for the StreamCreated event.
+        /// Arguments for the <see cref="StreamCreated"/> event.
         /// </summary>
         public sealed class StreamCreatedEventArgs : EventArgs
         {
@@ -46,7 +46,7 @@
         }
 
         /// <summary>
-        /// Arguments for the StreamDisposed event.
+        /// Arguments for the <see cref="StreamDisposed"/> event.
         /// </summary>
         public sealed class StreamDisposedEventArgs : EventArgs
         {
@@ -87,7 +87,7 @@
         }
 
         /// <summary>
-        /// Arguments for the StreamDoubleDisposed event.
+        /// Arguments for the <see cref="StreamDoubleDisposed"/> event.
         /// </summary>
         public sealed class StreamDoubleDisposedEventArgs : EventArgs
         {
@@ -135,7 +135,7 @@
         }
 
         /// <summary>
-        /// Arguments for the StreamFinalized event.
+        /// Arguments for the <see cref="StreamFinalized"/> event.
         /// </summary>
         public sealed class StreamFinalizedEventArgs : EventArgs
         {
@@ -169,7 +169,7 @@
         }
 
         /// <summary>
-        /// Arguments for the StreamConvertedToArray event.
+        /// Arguments for the <see cref="StreamConvertedToArray"/> event.
         /// </summary>
         public sealed class StreamConvertedToArrayEventArgs : EventArgs
         {
@@ -210,7 +210,7 @@
         }
 
         /// <summary>
-        /// Arguments for the StreamOverCapacity event.
+        /// Arguments for the <see cref="StreamOverCapacity"/> event.
         /// </summary>
         public sealed class StreamOverCapacityEventArgs : EventArgs
         {
@@ -258,7 +258,7 @@
         }
 
         /// <summary>
-        /// Arguments for the BlockCreated event.
+        /// Arguments for the <see cref="BlockCreated"/> event.
         /// </summary>
         public sealed class BlockCreatedEventArgs : EventArgs
         {
@@ -278,7 +278,7 @@
         }
 
         /// <summary>
-        /// Arguments for the LargeBufferCreated events.
+        /// Arguments for the <see cref="LargeBufferCreated"/> events.
         /// </summary>
         public sealed class LargeBufferCreatedEventArgs : EventArgs
         {
@@ -308,7 +308,7 @@
             public long LargePoolInUse { get; }
 
             /// <summary>
-            /// If the buffer was not satisfied from the pool, and GenerateCallstacks is turned on, then.
+            /// If the buffer was not satisfied from the pool, and <see cref="GenerateCallStacks"/> is turned on, then.
             /// this will contain the callstack of the allocation request.
             /// </summary>
             public string CallStack { get; }
@@ -334,7 +334,7 @@
         }
 
         /// <summary>
-        /// Arguments for the BufferDiscarded event.
+        /// Arguments for the <see cref="BufferDiscarded"/> event.
         /// </summary>
         public sealed class BufferDiscardedEventArgs : EventArgs
         {
@@ -375,7 +375,7 @@
         }
 
         /// <summary>
-        /// Arguments for the StreamLength event.
+        /// Arguments for the <see cref="StreamLength"/> event.
         /// </summary>
         public sealed class StreamLengthEventArgs : EventArgs
         {
@@ -395,7 +395,7 @@
         }
 
         /// <summary>
-        /// Arguments for the UsageReport event.
+        /// Arguments for the <see cref="UsageReport"/> event.
         /// </summary>
         public sealed class UsageReportEventArgs : EventArgs
         {
@@ -427,9 +427,9 @@
             /// <param name="largePoolInUseBytes">Bytes from the large pool currently in use.</param>
             /// <param name="largePoolFreeBytes">Bytes from the large pool currently available.</param>
             public UsageReportEventArgs(
-                long smallPoolInUseBytes, 
-                long smallPoolFreeBytes, 
-                long largePoolInUseBytes, 
+                long smallPoolInUseBytes,
+                long smallPoolFreeBytes,
+                long largePoolInUseBytes,
                 long largePoolFreeBytes)
             {
                 this.SmallPoolInUseBytes = smallPoolInUseBytes;

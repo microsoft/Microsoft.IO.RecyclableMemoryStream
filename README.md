@@ -45,7 +45,7 @@ Supported build targets in v2.0 are: net462, netstandard2.0, netstandard2.1, and
 ## Testing
 
 A minimum of .NET 5.0 is required for executing the unit tests. Requirements:
-- NUnit test adaptor (VS Extension)
+- NUnit test adapter (VS Extension)
 - Be sure to set the default processor architecture for tests to x64 (or the giant allocation test will fail)
 
 ## Change Log

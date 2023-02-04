@@ -36,7 +36,7 @@ namespace Microsoft.IO
             /// <summary>
             /// Static log object, through which all events are written.
             /// </summary>
-            public static Events Writer = new Events();
+            public static Events Writer = new();
 
             /// <summary>
             /// Type of buffer.
