@@ -71,16 +71,23 @@
             public string DisposeStack { get; }
 
             /// <summary>
+            /// Lifetime of the stream
+            /// </summary>
+            public TimeSpan Lifetime { get; }
+
+            /// <summary>
             /// Initializes a new instance of the <see cref="StreamDisposedEventArgs"/> class.
             /// </summary>
             /// <param name="guid">Unique ID of the stream.</param>
             /// <param name="tag">Tag of the stream.</param>
+            /// <param name="lifetime">Lifetime of the stream</param>
             /// <param name="allocationStack">Stack of original allocation.</param>
             /// <param name="disposeStack">Dispose stack.</param>
-            public StreamDisposedEventArgs(Guid guid, string tag, string allocationStack, string disposeStack)
+            public StreamDisposedEventArgs(Guid guid, string tag, TimeSpan lifetime, string allocationStack, string disposeStack)
             {
                 this.Id = guid;
                 this.Tag = tag;
+                this.Lifetime= lifetime;
                 this.AllocationStack = allocationStack;
                 this.DisposeStack = disposeStack;
             }

@@ -665,10 +665,10 @@ namespace Microsoft.IO
             this.StreamCreated?.Invoke(this, new StreamCreatedEventArgs(id, tag, requestedSize, actualSize));
         }
 
-        internal void ReportStreamDisposed(Guid id, string tag, string allocationStack, string disposeStack)
+        internal void ReportStreamDisposed(Guid id, string tag, TimeSpan lifetime, string allocationStack, string disposeStack)
         {
-            Events.Writer.MemoryStreamDisposed(id, tag, allocationStack, disposeStack);
-            this.StreamDisposed?.Invoke(this, new StreamDisposedEventArgs(id, tag, allocationStack, disposeStack));
+            Events.Writer.MemoryStreamDisposed(id, tag, lifetime, allocationStack, disposeStack);
+            this.StreamDisposed?.Invoke(this, new StreamDisposedEventArgs(id, tag, lifetime, allocationStack, disposeStack));
         }
 
         internal void ReportStreamDoubleDisposed(Guid id, string tag, string allocationStack, string disposeStack1, string disposeStack2)
