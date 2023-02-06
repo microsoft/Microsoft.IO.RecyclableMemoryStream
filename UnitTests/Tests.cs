@@ -25,6 +25,7 @@ namespace Microsoft.IO.UnitTests
     using System;
     using System.Buffers;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Runtime.InteropServices;
     using System.Threading;
@@ -3447,7 +3448,7 @@ namespace Microsoft.IO.UnitTests
             {
                 Assert.That(args.Id, Is.Not.EqualTo(Guid.Empty));
                 Assert.That(args.Tag, Is.EqualTo("UnitTest"));
-                Assert.That(args.Lifetime, Is.GreaterThan(TimeSpan.Zero));
+                Assert.That(args.Lifetime, Is.GreaterThan(TimeSpan.Zero), $"TicksPerSecond: {TimeSpan.TicksPerSecond}, Freq: {Stopwatch.Frequency} Div:{TimeSpan.TicksPerSecond / Stopwatch.Frequency}");
                 Assert.That(args.Lifetime, Is.LessThan(TimeSpan.FromSeconds(2)));
                 Assert.That(args.AllocationStack, Contains.Substring("Microsoft.IO.RecyclableMemoryStream..ctor"));
                 Assert.That(args.DisposeStack, Contains.Substring("Microsoft.IO.RecyclableMemoryStream.Dispose"));
