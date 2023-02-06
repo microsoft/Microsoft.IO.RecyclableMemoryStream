@@ -172,10 +172,10 @@ namespace Microsoft.IO
             /// Logged when a new block is created.
             /// </summary>
             /// <param name="smallPoolInUseBytes">Number of bytes in the small pool currently in use.</param>
-            [Event(7, Level = EventLevel.Verbose)]
+            [Event(7, Level = EventLevel.Warning, Version = 2)]
             public void MemoryStreamNewBlockCreated(long smallPoolInUseBytes)
             {
-                if (this.IsEnabled(EventLevel.Verbose, EventKeywords.None))
+                if (this.IsEnabled(EventLevel.Warning, EventKeywords.None))
                 {
                     WriteEvent(7, smallPoolInUseBytes);
                 }
@@ -186,10 +186,10 @@ namespace Microsoft.IO
             /// </summary>
             /// <param name="requiredSize">Requested size.</param>
             /// <param name="largePoolInUseBytes">Number of bytes in the large pool in use.</param>
-            [Event(8, Level = EventLevel.Verbose, Version = 2)]
+            [Event(8, Level = EventLevel.Warning, Version = 3)]
             public void MemoryStreamNewLargeBufferCreated(long requiredSize, long largePoolInUseBytes)
             {
-                if (this.IsEnabled(EventLevel.Verbose, EventKeywords.None))
+                if (this.IsEnabled(EventLevel.Warning, EventKeywords.None))
                 {
                     WriteEvent(8, requiredSize, largePoolInUseBytes);
                 }
@@ -219,13 +219,19 @@ namespace Microsoft.IO
             /// <param name="tag">A temporary ID for this stream, usually indicates current usage.</param>
             /// <param name="bufferType">Type of the buffer being discarded.</param>
             /// <param name="reason">Reason for the discard.</param>
+            /// <param name="smallBlocksFree">Number of free small pool blocks.</param>
+            /// <param name="smallPoolBytesFree">Bytes free in the small pool.</param>
+            /// <param name="smallPoolBytesInUse">Bytes in use from the small pool.</param>
+            /// <param name="largeBlocksFree">Number of free large pool blocks.</param>
+            /// <param name="largePoolBytesFree">Bytes free in the large pool.</param>
+            /// <param name="largePoolBytesInUse">Bytes in use from the large pool.</param>
             [Event(10, Level = EventLevel.Warning, Version = 2)]
             public void MemoryStreamDiscardBuffer(Guid guid, string tag, MemoryStreamBufferType bufferType,
-                                                  MemoryStreamDiscardReason reason)
+                                                  MemoryStreamDiscardReason reason, long smallBlocksFree, long smallPoolBytesFree, long smallPoolBytesInUse, long largeBlocksFree, long largePoolBytesFree, long largePoolBytesInUse)
             {
-                if (this.IsEnabled())
+                if (this.IsEnabled(EventLevel.Warning, EventKeywords.None))
                 {
-                    WriteEvent(10, guid, tag ?? string.Empty, bufferType, reason);
+                    WriteEvent(10, guid, tag ?? string.Empty, bufferType, reason, smallBlocksFree, smallPoolBytesFree, smallPoolBytesInUse, largeBlocksFree, largePoolBytesFree, largePoolBytesInUse);
                 }
             }
 
