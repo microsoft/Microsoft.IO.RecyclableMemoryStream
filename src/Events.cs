@@ -229,7 +229,7 @@ namespace Microsoft.IO
             public void MemoryStreamDiscardBuffer(Guid guid, string tag, MemoryStreamBufferType bufferType,
                                                   MemoryStreamDiscardReason reason, long smallBlocksFree, long smallPoolBytesFree, long smallPoolBytesInUse, long largeBlocksFree, long largePoolBytesFree, long largePoolBytesInUse)
             {
-                if (this.IsEnabled())
+                if (this.IsEnabled(EventLevel.Warning, EventKeywords.None))
                 {
                     WriteEvent(10, guid, tag ?? string.Empty, bufferType, reason, smallBlocksFree, smallPoolBytesFree, smallPoolBytesInUse, largeBlocksFree, largePoolBytesFree, largePoolBytesInUse);
                 }
