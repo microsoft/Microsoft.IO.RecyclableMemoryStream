@@ -175,7 +175,7 @@ namespace Microsoft.IO
             [Event(7, Level = EventLevel.Warning, Version = 2)]
             public void MemoryStreamNewBlockCreated(long smallPoolInUseBytes)
             {
-                if (this.IsEnabled(EventLevel.Verbose, EventKeywords.None))
+                if (this.IsEnabled(EventLevel.Warning, EventKeywords.None))
                 {
                     WriteEvent(7, smallPoolInUseBytes);
                 }
