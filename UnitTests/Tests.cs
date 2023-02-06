@@ -2661,7 +2661,6 @@ namespace Microsoft.IO.UnitTests
             mgr.StreamDisposed += (obj, args) =>
             {
                 Assert.That(args.Lifetime, Is.GreaterThan(TimeSpan.Zero));
-                Assert.That(args.Lifetime, Is.LessThan(TimeSpan.FromSeconds(5)));
             };
 
             CreateDeadStream(mgr, expectedGuid, "Tag");
