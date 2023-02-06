@@ -189,7 +189,7 @@ namespace Microsoft.IO
             [Event(8, Level = EventLevel.Warning, Version = 3)]
             public void MemoryStreamNewLargeBufferCreated(long requiredSize, long largePoolInUseBytes)
             {
-                if (this.IsEnabled(EventLevel.Verbose, EventKeywords.None))
+                if (this.IsEnabled(EventLevel.Warning, EventKeywords.None))
                 {
                     WriteEvent(8, requiredSize, largePoolInUseBytes);
                 }
