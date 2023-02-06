@@ -311,7 +311,7 @@ namespace Microsoft.IO
             }
 
             this.disposed = true;
-            var lifetime = TimeSpan.FromTicks(Stopwatch.GetTimestamp() - this.creationTimestamp);
+            var lifetime = TimeSpan.FromTicks((long)((Stopwatch.GetTimestamp() - this.creationTimestamp) * (TimeSpan.TicksPerSecond / Stopwatch.Frequency)));
 
             if (this.memoryManager.GenerateCallStacks)
             {
