@@ -275,6 +275,7 @@ namespace Microsoft.IO
             }
 
             this.memoryManager.ReportStreamCreated(this.id, this.tag, requestedSize, actualRequestedSize);
+            this.memoryManager.ReportUsageReport();
         }
         #endregion
 
@@ -350,6 +351,7 @@ namespace Microsoft.IO
             }
 
             this.memoryManager.ReturnBlocks(this.blocks, this.id, this.tag);
+            this.memoryManager.ReportUsageReport();
             this.blocks.Clear();
 
             base.Dispose(disposing);
