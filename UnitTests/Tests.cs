@@ -2664,6 +2664,7 @@ namespace Microsoft.IO.UnitTests
             };
 
             CreateDeadStream(mgr, expectedGuid, "Tag");
+            Thread.Sleep(10);
 
             GC.Collect(2, GCCollectionMode.Forced, true);
             GC.WaitForPendingFinalizers();
@@ -3453,6 +3454,7 @@ namespace Microsoft.IO.UnitTests
                 raised = true;
             };
             var stream = mgr.GetStream("UnitTest", 13);
+            Thread.Sleep(10);
             stream.Dispose();
             Assert.That(raised, Is.True);
         }
