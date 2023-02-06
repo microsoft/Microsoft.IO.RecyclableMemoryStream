@@ -102,7 +102,7 @@ namespace Microsoft.IO
 
         private readonly string tag;
 
-        private long creationTimestamp;
+        private readonly long creationTimestamp;
 
         /// <summary>
         /// This list is used to store buffers once they're replaced by something larger.
