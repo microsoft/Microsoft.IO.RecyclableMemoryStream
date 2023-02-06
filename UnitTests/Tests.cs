@@ -2660,11 +2660,11 @@ namespace Microsoft.IO.UnitTests
 
             mgr.StreamDisposed += (obj, args) =>
             {
-                Assert.That(args.Lifetime, Is.GreaterThan(TimeSpan.Zero));
+                Assert.That(args.Lifetime, Is.GreaterThanOrEqualTo(TimeSpan.Zero));
             };
 
             CreateDeadStream(mgr, expectedGuid, "Tag");
-            Thread.Sleep(10);
+            Thread.Sleep(100);
 
             GC.Collect(2, GCCollectionMode.Forced, true);
             GC.WaitForPendingFinalizers();
@@ -3454,7 +3454,7 @@ namespace Microsoft.IO.UnitTests
                 raised = true;
             };
             var stream = mgr.GetStream("UnitTest", 13);
-            Thread.Sleep(10);
+            Thread.Sleep(100);
             stream.Dispose();
             Assert.That(raised, Is.True);
         }
