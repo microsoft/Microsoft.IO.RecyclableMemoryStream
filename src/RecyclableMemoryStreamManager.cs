@@ -369,6 +369,12 @@ namespace Microsoft.IO
         public bool ThrowExceptionOnToArray { get; set; }
 
         /// <summary>
+        /// Zero out buffers before returning them to the pool.
+        /// </summary>
+        /// <remarks>Setting this to true causes a performance hit and should only be set if one wants to avoid accidental data leaks.</remarks>
+        public bool ZeroOutBuffer { get; set; }
+
+        /// <summary>
         /// Removes and returns a single block from the pool.
         /// </summary>
         /// <returns>A <c>byte[]</c> array.</returns>
@@ -530,8 +536,8 @@ namespace Microsoft.IO
                                             $"{(this.UseExponentialLargeBuffer ? "an exponential" : "a multiple")} of {this.LargeBufferMultiple}.");
             }
 
+            this.ZeroOutMemoryIfEnabled(buffer);
             var poolIndex = this.GetPoolIndex(buffer.Length);
-
             if (poolIndex < this.largePools.Length)
             {
                 if ((this.largePools[poolIndex].Count + 1) * buffer.Length <= this.MaximumFreeLargePoolBytes ||
@@ -585,6 +591,7 @@ namespace Microsoft.IO
 
             foreach (var block in blocks)
             {
+                this.ZeroOutMemoryIfEnabled(block);
                 if (this.MaximumFreeSmallPoolBytes == 0 || this.SmallPoolFreeSize < this.MaximumFreeSmallPoolBytes)
                 {
                     Interlocked.Add(ref this.smallPoolFreeSize, this.BlockSize);
@@ -620,7 +627,7 @@ namespace Microsoft.IO
             {
                 throw new ArgumentException($"{nameof(block)} is not not {nameof(BlockSize)} in length.");
             }
-
+            this.ZeroOutMemoryIfEnabled(block);
             if (this.MaximumFreeSmallPoolBytes == 0 || this.SmallPoolFreeSize < this.MaximumFreeSmallPoolBytes)
             {
                 Interlocked.Add(ref this.smallPoolFreeSize, this.BlockSize);
@@ -629,6 +636,12 @@ namespace Microsoft.IO
             else
             {
                 ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Small, Events.MemoryStreamDiscardReason.EnoughFree);
+            }
+        }
+
+        private void ZeroOutMemoryIfEnabled(Span<byte> buffer) {
+            if (this.ZeroOutBuffer) {
+                buffer.Clear();
             }
         }
 
