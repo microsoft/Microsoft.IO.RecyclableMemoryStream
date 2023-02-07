@@ -3,7 +3,7 @@
 Logged when the stream is disposed.
 
 ```csharp
-public void MemoryStreamDisposed(Guid guid, string tag, TimeSpan lifetime, string allocationStack, 
+public void MemoryStreamDisposed(Guid guid, string tag, long lifetimeMs, string allocationStack, 
     string disposeStack)
 ```
 
@@ -11,7 +11,7 @@ public void MemoryStreamDisposed(Guid guid, string tag, TimeSpan lifetime, strin
 | --- | --- |
 | guid | A unique ID for this stream. |
 | tag | A temporary ID for this stream, usually indicates current usage. |
-| lifetime | Lifetime of the stream |
+| lifetimeMs | Lifetime in milliseconds of the stream |
 | allocationStack | Call stack of initial allocation. |
 | disposeStack | Call stack of the dispose. |
 
