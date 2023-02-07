@@ -15,21 +15,15 @@ jobs:
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 5.0.403
+          dotnet-version: 7.0.102
 
       # Build and test validation
 
       - name: Restore solution
-        shell: pwsh
-        run: |
-          dotnet restore Microsoft.IO.RecyclableMemoryStream.sln
+        run: dotnet restore
 
       - name: Build solution
-        shell: pwsh
-        run: |
-          dotnet build Microsoft.IO.RecyclableMemoryStream.sln `
-          --configuration Debug `
-          --no-restore
+        run: dotnet build --configuration Debug --no-restore
 
       - name: Run unit tests
         shell: pwsh

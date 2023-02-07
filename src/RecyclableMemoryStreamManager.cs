@@ -403,7 +403,7 @@ namespace Microsoft.IO
         /// <param name="id">Unique ID for the stream.</param>
         /// <param name="tag">The tag of the stream returning this buffer, for logging if necessary.</param>
         /// <returns>A buffer of at least the required size.</returns>
-        /// <exception cref="System.OutOfMemoryException">Requested array size is larger than the maximum allowed.</exception>
+        /// <exception cref="OutOfMemoryException">Requested array size is larger than the maximum allowed.</exception>
         internal byte[] GetLargeBuffer(long requiredSize, Guid id, string tag)
         {
             if (requiredSize > MaxArrayLength)
@@ -786,7 +786,7 @@ namespace Microsoft.IO
         /// </summary>
         /// <remarks>Retrieving a <c>MemoryStream</c> which provides a single contiguous buffer can be useful in situations
         /// where the initial size is known and it is desirable to avoid copying data between the smaller underlying
-        /// buffers to a single large one. This is most helpful when you know that you will always call <see cref="RecyclableMemoryStream.GetBuffer"/> 
+        /// buffers to a single large one. This is most helpful when you know that you will always call <see cref="RecyclableMemoryStream.GetBuffer"/>
         /// on the underlying stream.</remarks>
         /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
@@ -804,7 +804,7 @@ namespace Microsoft.IO
         /// </summary>
         /// <remarks>Retrieving a <c>MemoryStream</c> which provides a single contiguous buffer can be useful in situations
         /// where the initial size is known and it is desirable to avoid copying data between the smaller underlying
-        /// buffers to a single large one. This is most helpful when you know that you will always call <see cref="RecyclableMemoryStream.GetBuffer"/> 
+        /// buffers to a single large one. This is most helpful when you know that you will always call <see cref="RecyclableMemoryStream.GetBuffer"/>
         /// on the underlying stream.</remarks>
         /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>

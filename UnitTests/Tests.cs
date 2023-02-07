@@ -30,10 +30,10 @@ namespace Microsoft.IO.UnitTests
     using System.Runtime.InteropServices;
     using System.Threading;
     using System.Threading.Tasks;
-    
+
     using Microsoft.IO;
     using NUnit.Framework;
-    
+
     /// <summary>
     /// Full test suite. It is abstract to allow parameters of the memory manager to be modified and tested in different
     /// combinations.
@@ -48,9 +48,9 @@ namespace Microsoft.IO.UnitTests
         protected const string DefaultTag = "NUnit";
         protected static readonly Guid DefaultId = Guid.NewGuid();
 
-        private readonly Random random = new Random();
+        private readonly Random random = new();
 
-        private RecyclableMemoryStreamEventListener eventListener = new RecyclableMemoryStreamEventListener();
+        private readonly RecyclableMemoryStreamEventListener eventListener = new();
 
         [OneTimeTearDown]
         public void OneTimeTearDown()
@@ -225,7 +225,7 @@ namespace Microsoft.IO.UnitTests
         [Test]
         public void ReturnBlockWithInvalidBufferThrowsException()
         {
-            var memMgr = this.GetMemoryManager();            
+            var memMgr = this.GetMemoryManager();
             var buffer = new byte[memMgr.BlockSize + 1];
             Assert.Throws<ArgumentException>(() => memMgr.ReturnBlock(buffer, Guid.Empty, string.Empty));
         }
@@ -867,7 +867,7 @@ namespace Microsoft.IO.UnitTests
             Assert.That(stream.Id, Is.EqualTo(expectedGuid));
             Assert.That(stream.Tag, Is.EqualTo("Tag"));
             Assert.That(stream.Capacity, Is.GreaterThanOrEqualTo(requestedSize));
-            
+
         }
 
         [Test]
@@ -1376,7 +1376,7 @@ namespace Microsoft.IO.UnitTests
             stream2.GetBuffer();
             Assert.That(stream1.Capacity, Is.EqualTo(stream1.MemoryManager.BlockSize * 2));
             Assert.That(stream2.Capacity, Is.EqualTo(stream2.MemoryManager.LargeBufferMultiple));
-            
+
             for (var i = 0L; i < stream1.Length; i++)
             {
                 var position = i;
@@ -1384,7 +1384,7 @@ namespace Microsoft.IO.UnitTests
                 position = i;
                 int b = stream2.SafeReadByte(ref position);
                 Assert.That(a, Is.EqualTo(b));
-                
+
             }
         }
 
@@ -1588,11 +1588,11 @@ namespace Microsoft.IO.UnitTests
         {
             var stream = this.GetDefaultStream();
             stream.SetLength((long)Int32.MaxValue + 1);
-            
+
             var destBuffer = new byte[1];
             var position = Int32.MaxValue;
- 
-            Assert.Throws<InvalidOperationException>(() => stream.SafeRead(destBuffer, 0, 1, ref position)); 
+
+            Assert.Throws<InvalidOperationException>(() => stream.SafeRead(destBuffer, 0, 1, ref position));
         }
 
         [Test]
@@ -2249,7 +2249,7 @@ namespace Microsoft.IO.UnitTests
             var buffer = this.GetRandomBuffer(bufferLength);
 
             stream.Write(buffer, 0, bufferLength);
-            
+
             // Ensure default is false
             Assert.DoesNotThrow(() => stream.ToArray());
 
@@ -2900,137 +2900,115 @@ namespace Microsoft.IO.UnitTests
         [Test]
         public void WriteToByteArray_NullTarget()
         {
-            using (var stream = GetDefaultStream())
-            {
-                Assert.Throws<ArgumentNullException>(() => stream.WriteTo((byte[])null));
-            }
+            using var stream = GetDefaultStream();
+            Assert.Throws<ArgumentNullException>(() => stream.WriteTo((byte[])null));
         }
 
         [Test]
         public void WriteToByteArray_FullArray_Small()
         {
             byte[] sourceBuffer = GetRandomBuffer(100);
-            using (var stream = GetDefaultStream())
-            {
-                stream.Write(sourceBuffer);
-                byte[] targetBuffer = new byte[sourceBuffer.Length];
-                stream.WriteTo(targetBuffer);
-                RMSAssert.BuffersAreEqual(sourceBuffer, targetBuffer);
-            }
+            using var stream = GetDefaultStream();
+            stream.Write(sourceBuffer);
+            byte[] targetBuffer = new byte[sourceBuffer.Length];
+            stream.WriteTo(targetBuffer);
+            RMSAssert.BuffersAreEqual(sourceBuffer, targetBuffer);
         }
 
         [Test]
         public void WriteToByteArrayDoesNotChangePosition()
         {
             byte[] sourceBuffer = GetRandomBuffer(100);
-            using (var stream = GetDefaultStream())
-            {
-                stream.Write(sourceBuffer);
-                stream.Position = sourceBuffer.Length / 2;
-                byte[] targetBuffer = new byte[sourceBuffer.Length];
-                stream.WriteTo(targetBuffer);
-                Assert.That(stream.Position, Is.EqualTo(sourceBuffer.Length / 2));
-                RMSAssert.BuffersAreEqual(sourceBuffer, targetBuffer);
-            }
+            using var stream = GetDefaultStream();
+            stream.Write(sourceBuffer);
+            stream.Position = sourceBuffer.Length / 2;
+            byte[] targetBuffer = new byte[sourceBuffer.Length];
+            stream.WriteTo(targetBuffer);
+            Assert.That(stream.Position, Is.EqualTo(sourceBuffer.Length / 2));
+            RMSAssert.BuffersAreEqual(sourceBuffer, targetBuffer);
         }
 
         [Test]
         public void WriteToByteArray_Full_Array_Large()
         {
             byte[] sourceBuffer = GetRandomBuffer(25 * DefaultBlockSize);
-            using (var stream = GetDefaultStream())
-            {
-                stream.Write(sourceBuffer);
-                stream.GetBuffer();
-                byte[] targetBuffer = new byte[sourceBuffer.Length];
-                stream.WriteTo(targetBuffer);
-                RMSAssert.BuffersAreEqual(sourceBuffer, targetBuffer);
-            }
+            using var stream = GetDefaultStream();
+            stream.Write(sourceBuffer);
+            stream.GetBuffer();
+            byte[] targetBuffer = new byte[sourceBuffer.Length];
+            stream.WriteTo(targetBuffer);
+            RMSAssert.BuffersAreEqual(sourceBuffer, targetBuffer);
         }
 
         [Test]
         public void WriteToByteArray_OffsetCount()
         {
             byte[] sourceBuffer = GetRandomBuffer(100);
-            using (var stream = GetDefaultStream())
-            {
-                stream.Write(sourceBuffer);
-                byte[] targetBuffer = new byte[sourceBuffer.Length];
-                stream.WriteTo(targetBuffer, sourceBuffer.Length / 2, sourceBuffer.Length / 2);
-                RMSAssert.BuffersAreEqual(sourceBuffer, sourceBuffer.Length / 2, targetBuffer, 0, sourceBuffer.Length / 2);
-            }
+            using var stream = GetDefaultStream();
+            stream.Write(sourceBuffer);
+            byte[] targetBuffer = new byte[sourceBuffer.Length];
+            stream.WriteTo(targetBuffer, sourceBuffer.Length / 2, sourceBuffer.Length / 2);
+            RMSAssert.BuffersAreEqual(sourceBuffer, sourceBuffer.Length / 2, targetBuffer, 0, sourceBuffer.Length / 2);
         }
 
         [Test]
         public void WriteToByteArray_CountLargerThanSourceWithZeroOffset()
         {
             byte[] sourceBuffer = GetRandomBuffer(100);
-            using (var stream = GetDefaultStream())
-            {
-                stream.Write(sourceBuffer);
-                byte[] targetBuffer = new byte[sourceBuffer.Length];
-                Assert.Throws<ArgumentOutOfRangeException>(()=>stream.WriteTo(targetBuffer, 0, sourceBuffer.Length + 1));                
-            }
+            using var stream = GetDefaultStream();
+            stream.Write(sourceBuffer);
+            byte[] targetBuffer = new byte[sourceBuffer.Length];
+            Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, 0, sourceBuffer.Length + 1));
         }
 
         [Test]
         public void WriteToByteArray_CountLargerThanSourceWithNonZeroOffset()
         {
             byte[] sourceBuffer = GetRandomBuffer(100);
-            using (var stream = GetDefaultStream())
-            {
-                stream.Write(sourceBuffer);
-                byte[] targetBuffer = new byte[sourceBuffer.Length];
-                Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, 1, sourceBuffer.Length));
-            }
+            using var stream = GetDefaultStream();
+            stream.Write(sourceBuffer);
+            byte[] targetBuffer = new byte[sourceBuffer.Length];
+            Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, 1, sourceBuffer.Length));
         }
 
         [Test]
         public void WriteToByteArray_CountLargerThanTargetZeroOffset()
         {
             byte[] sourceBuffer = GetRandomBuffer(100);
-            using (var stream = GetDefaultStream())
-            {
-                stream.Write(sourceBuffer);
-                byte[] targetBuffer = new byte[sourceBuffer.Length];
-                Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, 0, sourceBuffer.Length, 1));
-            }
+            using var stream = GetDefaultStream();
+            stream.Write(sourceBuffer);
+            byte[] targetBuffer = new byte[sourceBuffer.Length];
+            Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, 0, sourceBuffer.Length, 1));
         }
 
         [Test]
         public void WriteToByteArray_CountLargerThanTargetNonZeroOffset()
         {
             byte[] sourceBuffer = GetRandomBuffer(100);
-            using (var stream = GetDefaultStream())
-            {
-                stream.Write(sourceBuffer);
-                byte[] targetBuffer = new byte[sourceBuffer.Length];
-                Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, 1, sourceBuffer.Length - 1, 2));
-            }
+            using var stream = GetDefaultStream();
+            stream.Write(sourceBuffer);
+            byte[] targetBuffer = new byte[sourceBuffer.Length];
+            Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, 1, sourceBuffer.Length - 1, 2));
         }
 
         [Test]
         public void WriteToByteArray_TargetOffsetLargerThanTarget()
         {
             byte[] sourceBuffer = GetRandomBuffer(100);
-            using (var stream = GetDefaultStream())
-            {
-                stream.Write(sourceBuffer);
-                byte[] targetBuffer = new byte[sourceBuffer.Length];
-                Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, 0, 1, sourceBuffer.Length));
-            }
+            using var stream = GetDefaultStream();
+            stream.Write(sourceBuffer);
+            byte[] targetBuffer = new byte[sourceBuffer.Length];
+            Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, 0, 1, sourceBuffer.Length));
         }
 
         [Test]
         public void WriteToByteArray_NegativeOffsetThrowsException()
         {
             byte[] sourceBuffer = GetRandomBuffer(100);
-            using (var stream = GetDefaultStream())
-            {
-                stream.Write(sourceBuffer);
-                byte[] targetBuffer = new byte[sourceBuffer.Length];
-                Assert.Throws<ArgumentOutOfRangeException>(()=>stream.WriteTo(targetBuffer, -1, sourceBuffer.Length));
-            }
+            using var stream = GetDefaultStream();
+            stream.Write(sourceBuffer);
+            byte[] targetBuffer = new byte[sourceBuffer.Length];
+            Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, -1, sourceBuffer.Length));
         }
 
 
@@ -3038,12 +3016,10 @@ namespace Microsoft.IO.UnitTests
         public void WriteToByteArray_NegativeTargetOffsetThrowsException()
         {
             byte[] sourceBuffer = GetRandomBuffer(100);
-            using (var stream = GetDefaultStream())
-            {
-                stream.Write(sourceBuffer);
-                byte[] targetBuffer = new byte[sourceBuffer.Length];
-                Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, 0, sourceBuffer.Length, -1));
-            }
+            using var stream = GetDefaultStream();
+            stream.Write(sourceBuffer);
+            byte[] targetBuffer = new byte[sourceBuffer.Length];
+            Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, 0, sourceBuffer.Length, -1));
         }
 
 
@@ -3104,173 +3080,151 @@ namespace Microsoft.IO.UnitTests
         [Test]
         public void CopyToAsyncThrowsOnNullDestination()
         {
-            using (var stream = GetDefaultStream())
-            {
-                Assert.Throws<ArgumentNullException>(()=>stream.CopyToAsync(null, DefaultBlockSize, CancellationToken.None));
-            }
+            using var stream = GetDefaultStream();
+            Assert.Throws<ArgumentNullException>(() => stream.CopyToAsync(null, DefaultBlockSize, CancellationToken.None));
         }
 
         [Test]
         public void CopyToAsyncThrowsIfDisposed()
         {
             var stream = GetDefaultStream();
-            using (var otherStream = GetDefaultStream())
-            {
-                stream.Dispose();
-                Assert.Throws<ObjectDisposedException>(() => stream.CopyToAsync(otherStream, DefaultBlockSize, CancellationToken.None));
-            }            
+            using var otherStream = GetDefaultStream();
+            stream.Dispose();
+            Assert.Throws<ObjectDisposedException>(() => stream.CopyToAsync(otherStream, DefaultBlockSize, CancellationToken.None));
         }
 
         [TestCase(0)]
         [TestCase(100)]
         public void CopyToAsyncSmallerThanBlock(int offset)
         {
-            using (var stream = GetDefaultStream())
-            {
-                var buffer = GetRandomBuffer(DefaultBlockSize / 2);
-                stream.Write(buffer, 0, buffer.Length);
-                stream.Position = offset;
-                var otherStream = GetDefaultStream();
-                stream.CopyToAsync(otherStream);
-                Assert.That(otherStream.Length, Is.EqualTo(stream.Length - offset));
-                RMSAssert.BuffersAreEqual(new ReadOnlySpan<byte>(stream.GetBuffer(), offset, buffer.Length - offset), otherStream.GetBuffer(), buffer.Length - offset);
-            }
+            using var stream = GetDefaultStream();
+            var buffer = GetRandomBuffer(DefaultBlockSize / 2);
+            stream.Write(buffer, 0, buffer.Length);
+            stream.Position = offset;
+            var otherStream = GetDefaultStream();
+            stream.CopyToAsync(otherStream);
+            Assert.That(otherStream.Length, Is.EqualTo(stream.Length - offset));
+            RMSAssert.BuffersAreEqual(new ReadOnlySpan<byte>(stream.GetBuffer(), offset, buffer.Length - offset), otherStream.GetBuffer(), buffer.Length - offset);
         }
 
         [Test]
         public void CopyToAsyncZeroBlocks()
         {
-            using (var stream = GetDefaultStream())
-            {
-                var otherStream = GetDefaultStream();
-                stream.CopyToAsync(otherStream);
-                Assert.That(otherStream.Length, Is.EqualTo(0));
-            }
+            using var stream = GetDefaultStream();
+            var otherStream = GetDefaultStream();
+            stream.CopyToAsync(otherStream);
+            Assert.That(otherStream.Length, Is.EqualTo(0));
         }
 
         [Test]
         public void CopyToAsyncZeroBlocksNonMemoryStream()
         {
-            using (var stream = GetDefaultStream())
+            using var stream = GetDefaultStream();
+            var filename = Path.GetRandomFileName();
+            using (var fileStream = new FileStream(filename, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, DefaultBlockSize, FileOptions.Asynchronous))
             {
-                var filename = Path.GetRandomFileName();
-                using (var fileStream = new FileStream(filename, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, DefaultBlockSize, FileOptions.Asynchronous))
-                {
-                    stream.CopyToAsync(fileStream).Wait();
-                }
-                var otherBuffer = File.ReadAllBytes(filename);
-                Assert.That(otherBuffer.Length, Is.EqualTo(0));
+                stream.CopyToAsync(fileStream).Wait();
             }
+            var otherBuffer = File.ReadAllBytes(filename);
+            Assert.That(otherBuffer.Length, Is.EqualTo(0));
         }
 
         [TestCase(0)]
         [TestCase(100)]
         public void CopyToAsyncOneBlock(int offset)
         {
-            using (var stream = GetDefaultStream())
-            {
-                var buffer = GetRandomBuffer(DefaultBlockSize);
-                stream.Write(buffer, 0, buffer.Length);
-                stream.Position = offset;
-                var otherStream = GetDefaultStream();
-                stream.CopyToAsync(otherStream);
-                Assert.That(otherStream.Length, Is.EqualTo(stream.Length - offset));
-                RMSAssert.BuffersAreEqual(new ReadOnlySpan<byte>(stream.GetBuffer(), offset, buffer.Length - offset), otherStream.GetBuffer(), buffer.Length - offset);
-            }
+            using var stream = GetDefaultStream();
+            var buffer = GetRandomBuffer(DefaultBlockSize);
+            stream.Write(buffer, 0, buffer.Length);
+            stream.Position = offset;
+            var otherStream = GetDefaultStream();
+            stream.CopyToAsync(otherStream);
+            Assert.That(otherStream.Length, Is.EqualTo(stream.Length - offset));
+            RMSAssert.BuffersAreEqual(new ReadOnlySpan<byte>(stream.GetBuffer(), offset, buffer.Length - offset), otherStream.GetBuffer(), buffer.Length - offset);
         }
 
         [TestCase(0)]
         [TestCase(100)]
         public void CopyToAsyncOneBlockNonMemoryStream(int offset)
         {
-            using (var stream = GetDefaultStream())
+            using var stream = GetDefaultStream();
+            var buffer = GetRandomBuffer(DefaultBlockSize);
+            stream.Write(buffer, 0, buffer.Length);
+            stream.Position = offset;
+            var filename = Path.GetRandomFileName();
+            using (var fileStream = new FileStream(filename, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, DefaultBlockSize, FileOptions.Asynchronous))
             {
-                var buffer = GetRandomBuffer(DefaultBlockSize);
-                stream.Write(buffer, 0, buffer.Length);
-                stream.Position = offset;
-                var filename = Path.GetRandomFileName();
-                using (var fileStream = new FileStream(filename, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, DefaultBlockSize, FileOptions.Asynchronous))
-                {
-                    stream.CopyToAsync(fileStream).Wait();
-                }
-                var otherBuffer = File.ReadAllBytes(filename);
-                Assert.That(otherBuffer.Length, Is.EqualTo(stream.Length - offset));
-                RMSAssert.BuffersAreEqual(new ReadOnlySpan<byte>(stream.GetBuffer(), offset, buffer.Length - offset), otherBuffer, buffer.Length - offset);
+                stream.CopyToAsync(fileStream).Wait();
             }
+            var otherBuffer = File.ReadAllBytes(filename);
+            Assert.That(otherBuffer.Length, Is.EqualTo(stream.Length - offset));
+            RMSAssert.BuffersAreEqual(new ReadOnlySpan<byte>(stream.GetBuffer(), offset, buffer.Length - offset), otherBuffer, buffer.Length - offset);
         }
 
         [TestCase(0)]
         [TestCase(100)]
         public void CopyToAsyncMultipleBlocks(int offset)
         {
-            using (var stream = GetDefaultStream())
-            {
-                var buffer = GetRandomBuffer(DefaultBlockSize * 25);
-                stream.Write(buffer, 0, buffer.Length);
-                stream.Position = offset;
-                var otherStream = GetDefaultStream();
-                stream.CopyToAsync(otherStream);
-                Assert.That(otherStream.Length, Is.EqualTo(stream.Length - offset));
-                RMSAssert.BuffersAreEqual(new ReadOnlySpan<byte>(stream.GetBuffer(), offset, buffer.Length - offset), otherStream.GetBuffer(), buffer.Length - offset);
-            }
+            using var stream = GetDefaultStream();
+            var buffer = GetRandomBuffer(DefaultBlockSize * 25);
+            stream.Write(buffer, 0, buffer.Length);
+            stream.Position = offset;
+            var otherStream = GetDefaultStream();
+            stream.CopyToAsync(otherStream);
+            Assert.That(otherStream.Length, Is.EqualTo(stream.Length - offset));
+            RMSAssert.BuffersAreEqual(new ReadOnlySpan<byte>(stream.GetBuffer(), offset, buffer.Length - offset), otherStream.GetBuffer(), buffer.Length - offset);
         }
 
         [TestCase(0)]
         [TestCase(100)]
         public void CopyToAsyncMultipleBlocksNonMemoryStream(int offset)
         {
-            using (var stream = GetDefaultStream())
+            using var stream = GetDefaultStream();
+            var buffer = GetRandomBuffer(DefaultBlockSize * 25);
+            stream.Write(buffer, 0, buffer.Length);
+            stream.Position = offset;
+            var filename = Path.GetRandomFileName();
+            using (var fileStream = new FileStream(filename, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, DefaultBlockSize, FileOptions.Asynchronous))
             {
-                var buffer = GetRandomBuffer(DefaultBlockSize * 25);
-                stream.Write(buffer, 0, buffer.Length);
-                stream.Position = offset;
-                var filename = Path.GetRandomFileName();
-                using (var fileStream = new FileStream(filename, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, DefaultBlockSize, FileOptions.Asynchronous))
-                {
-                    stream.CopyToAsync(fileStream).Wait();
-                }
-                var otherBuffer = File.ReadAllBytes(filename);
-                Assert.That(otherBuffer.Length, Is.EqualTo(stream.Length - offset));
-                RMSAssert.BuffersAreEqual(new ReadOnlySpan<byte>(stream.GetBuffer(), offset, buffer.Length - offset), otherBuffer, buffer.Length - offset);
+                stream.CopyToAsync(fileStream).Wait();
             }
+            var otherBuffer = File.ReadAllBytes(filename);
+            Assert.That(otherBuffer.Length, Is.EqualTo(stream.Length - offset));
+            RMSAssert.BuffersAreEqual(new ReadOnlySpan<byte>(stream.GetBuffer(), offset, buffer.Length - offset), otherBuffer, buffer.Length - offset);
         }
 
         [TestCase(0)]
         [TestCase(100)]
         public void CopyToAsyncLargeBuffer(int offset)
         {
-            using (var stream = GetDefaultStream())
-            {
-                var buffer = GetRandomBuffer(DefaultBlockSize * 25);
-                stream.Write(buffer, 0, buffer.Length);
-                var otherStream = GetDefaultStream();
-                stream.Position = offset;
-                stream.GetBuffer();
-                stream.CopyToAsync(otherStream);
-                Assert.That(otherStream.Length, Is.EqualTo(stream.Length - offset));
-                RMSAssert.BuffersAreEqual(new ReadOnlySpan<byte>(stream.GetBuffer(), offset, buffer.Length - offset), otherStream.GetBuffer(), buffer.Length - offset);
-            }
+            using var stream = GetDefaultStream();
+            var buffer = GetRandomBuffer(DefaultBlockSize * 25);
+            stream.Write(buffer, 0, buffer.Length);
+            var otherStream = GetDefaultStream();
+            stream.Position = offset;
+            stream.GetBuffer();
+            stream.CopyToAsync(otherStream);
+            Assert.That(otherStream.Length, Is.EqualTo(stream.Length - offset));
+            RMSAssert.BuffersAreEqual(new ReadOnlySpan<byte>(stream.GetBuffer(), offset, buffer.Length - offset), otherStream.GetBuffer(), buffer.Length - offset);
         }
 
         [TestCase(0)]
         [TestCase(100)]
         public void CopyToAsyncLargeBufferNonMemoryStream(int offset)
         {
-            using (var stream = GetDefaultStream())
+            using var stream = GetDefaultStream();
+            var buffer = GetRandomBuffer(DefaultBlockSize * 25);
+            stream.Write(buffer, 0, buffer.Length);
+            stream.GetBuffer();
+            stream.Position = offset;
+            var filename = Path.GetRandomFileName();
+            using (var fileStream = new FileStream(filename, FileMode.Create, FileAccess.Write))
             {
-                var buffer = GetRandomBuffer(DefaultBlockSize * 25);
-                stream.Write(buffer, 0, buffer.Length);
-                stream.GetBuffer();
-                stream.Position = offset;
-                var filename = Path.GetRandomFileName();
-                using (var fileStream = new FileStream(filename, FileMode.Create, FileAccess.Write))
-                {
-                    stream.CopyToAsync(fileStream).Wait();
-                }
-                var otherBuffer = File.ReadAllBytes(filename);
-                Assert.That(otherBuffer.Length, Is.EqualTo(stream.Length - offset));
-                RMSAssert.BuffersAreEqual(new ReadOnlySpan<byte>(stream.GetBuffer(), offset, buffer.Length - offset), otherBuffer, buffer.Length - offset);
+                stream.CopyToAsync(fileStream).Wait();
             }
+            var otherBuffer = File.ReadAllBytes(filename);
+            Assert.That(otherBuffer.Length, Is.EqualTo(stream.Length - offset));
+            RMSAssert.BuffersAreEqual(new ReadOnlySpan<byte>(stream.GetBuffer(), offset, buffer.Length - offset), otherBuffer, buffer.Length - offset);
         }
 
         [TestCase(true, false)]
@@ -3279,19 +3233,15 @@ namespace Microsoft.IO.UnitTests
         [TestCase(false, true)]
         public void CopyToAsyncChangesSourcePosition(bool filestreamTarget, bool largeBuffer)
         {
-            using (var targetStream = filestreamTarget ? (Stream)File.OpenWrite(Path.GetRandomFileName()) : (Stream)new MemoryStream())
-            {
-                using (var stream = GetDefaultStream())
-                {
-                    var buffer = GetRandomBuffer(largeBuffer ? DefaultBlockSize * 25 : 100);
-                    stream.Write(buffer);
-                    Assert.That(stream.Position, Is.EqualTo(buffer.Length));
-                    stream.Position = buffer.Length / 2;
-                    stream.CopyToAsync(targetStream).Wait();
-                    Assert.That(targetStream.Length, Is.EqualTo(buffer.Length / 2));
-                    Assert.That(stream.Position, Is.EqualTo(buffer.Length));
-                }
-            }
+            using var targetStream = filestreamTarget ? (Stream)File.OpenWrite(Path.GetRandomFileName()) : (Stream)new MemoryStream();
+            using var stream = GetDefaultStream();
+            var buffer = GetRandomBuffer(largeBuffer ? DefaultBlockSize * 25 : 100);
+            stream.Write(buffer);
+            Assert.That(stream.Position, Is.EqualTo(buffer.Length));
+            stream.Position = buffer.Length / 2;
+            stream.CopyToAsync(targetStream).Wait();
+            Assert.That(targetStream.Length, Is.EqualTo(buffer.Length / 2));
+            Assert.That(stream.Position, Is.EqualTo(buffer.Length));
         }
 
         #endregion
@@ -3316,7 +3266,7 @@ namespace Microsoft.IO.UnitTests
             stream.Seek(-checkBuffer.Length, SeekOrigin.End);
             stream.Read(checkBuffer, 0, checkBuffer.Length);
 
-            RMSAssert.BuffersAreEqual(buffer, checkBuffer, buffer.Length);            
+            RMSAssert.BuffersAreEqual(buffer, checkBuffer, buffer.Length);
         }
 
         [Test]
@@ -3404,7 +3354,7 @@ namespace Microsoft.IO.UnitTests
             {
                 stream.Write(buffer);
             }
-            
+
             var sequence = new SequenceReader<byte>(stream.GetReadOnlySequence());
             Assert.That(sequence.Length, Is.EqualTo(stream.Length));
 
@@ -3427,7 +3377,7 @@ namespace Microsoft.IO.UnitTests
         {
             var mgr = GetMemoryManager();
             bool raised = false;
-            mgr.StreamCreated += (obj, args) => 
+            mgr.StreamCreated += (obj, args) =>
             {
                 Assert.That(args.Id, Is.Not.EqualTo(Guid.Empty));
                 Assert.That(args.Tag, Is.EqualTo("UnitTest"));
@@ -3518,7 +3468,7 @@ namespace Microsoft.IO.UnitTests
                 raised = true;
             };
             var stream = mgr.GetStream("UnitTest", 13);
-            
+
             Assert.Throws<OutOfMemoryException>(()=>stream.Capacity = mgr.BlockSize * 2);
             Assert.That(raised, Is.True);
         }
@@ -3625,7 +3575,7 @@ namespace Microsoft.IO.UnitTests
                 Assert.That(args.Tag, Is.EqualTo("UnitTest"));
                 Assert.That(args.BufferType, Is.EqualTo(RecyclableMemoryStreamManager.Events.MemoryStreamBufferType.Large));
                 Assert.That(args.Reason, Is.EqualTo(RecyclableMemoryStreamManager.Events.MemoryStreamDiscardReason.EnoughFree));
-                
+
                 raisedCount++;
             };
             var stream1 = mgr.GetStream("UnitTest", 13);
@@ -3644,7 +3594,7 @@ namespace Microsoft.IO.UnitTests
         public void EventLargeBufferDiscardedTooLarge()
         {
             var mgr = GetMemoryManager();
-            
+
             int raisedCount = 0;
             long requestedSize = mgr.MaximumBufferSize + 1;
             mgr.BufferDiscarded += (obj, args) =>
@@ -3657,12 +3607,12 @@ namespace Microsoft.IO.UnitTests
                 raisedCount++;
             };
             var stream = mgr.GetStream("UnitTest", 13);
-            
+
             var buffer = GetRandomBuffer((int)requestedSize);
             stream.Write(buffer);
             stream.GetBuffer();
             stream.Dispose();
-            
+
             Assert.That(raisedCount, Is.EqualTo(1));
         }
 
@@ -3774,7 +3724,7 @@ namespace Microsoft.IO.UnitTests
             }
 
             /// <summary>
-            /// Asserts that two buffers are euqual, up to the given count
+            /// Asserts that two buffers are equal, up to the given count
             /// </summary>
             internal static void BuffersAreEqual(ReadOnlySpan<byte> buffer1, ReadOnlySpan<byte> buffer2, int count)
             {
@@ -3789,7 +3739,7 @@ namespace Microsoft.IO.UnitTests
             {
                 if (buffer1 == null && buffer2 == null)
                 {
-                    //If both null, it's ok
+                    //If both null, it's OK
                     return;
                 }
 
@@ -3827,7 +3777,7 @@ namespace Microsoft.IO.UnitTests
             internal static void TryGetBufferEqualToGetBuffer(RecyclableMemoryStream stream)
             {
                 var buffer = stream.GetBuffer();
-                
+
                 Assert.That(stream.TryGetBuffer(out ArraySegment<Byte> segment), Is.True);
                 Assert.That(segment.Offset, Is.Zero);
                 Assert.That(segment.Count, Is.EqualTo(stream.Length));

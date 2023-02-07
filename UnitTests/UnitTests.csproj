@@ -2,8 +2,7 @@
   <PropertyGroup>
     <AssemblyName>Microsoft.IO.RecyclableMemoryStream.UnitTests</AssemblyName>
     <RootNamespace>Microsoft.IO.UnitTests</RootNamespace>
-    <TargetFramework>net5.0</TargetFramework>
-    <DebugType>Full</DebugType> <!-- NUnit in VS2017 needs this instead of the new slimmer PDBs -->
+    <TargetFramework>net7.0</TargetFramework>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
   </PropertyGroup>
   <ItemGroup>
