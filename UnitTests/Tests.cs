@@ -25,6 +25,7 @@ namespace Microsoft.IO.UnitTests
     using System;
     using System.Buffers;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Runtime.InteropServices;
     using System.Threading;
@@ -2658,7 +2659,13 @@ namespace Microsoft.IO.UnitTests
                 handlerTriggered = true;
             };
 
+            mgr.StreamDisposed += (obj, args) =>
+            {
+                Assert.That(args.Lifetime, Is.GreaterThanOrEqualTo(TimeSpan.Zero));
+            };
+
             CreateDeadStream(mgr, expectedGuid, "Tag");
+            Thread.Sleep(100);
 
             GC.Collect(2, GCCollectionMode.Forced, true);
             GC.WaitForPendingFinalizers();
@@ -3441,11 +3448,14 @@ namespace Microsoft.IO.UnitTests
             {
                 Assert.That(args.Id, Is.Not.EqualTo(Guid.Empty));
                 Assert.That(args.Tag, Is.EqualTo("UnitTest"));
+                Assert.That(args.Lifetime, Is.GreaterThan(TimeSpan.Zero), $"TicksPerSecond: {TimeSpan.TicksPerSecond}, Freq: {Stopwatch.Frequency} Div:{TimeSpan.TicksPerSecond / Stopwatch.Frequency}");
+                Assert.That(args.Lifetime, Is.LessThan(TimeSpan.FromSeconds(2)));
                 Assert.That(args.AllocationStack, Contains.Substring("Microsoft.IO.RecyclableMemoryStream..ctor"));
                 Assert.That(args.DisposeStack, Contains.Substring("Microsoft.IO.RecyclableMemoryStream.Dispose"));
                 raised = true;
             };
             var stream = mgr.GetStream("UnitTest", 13);
+            Thread.Sleep(100);
             stream.Dispose();
             Assert.That(raised, Is.True);
         }

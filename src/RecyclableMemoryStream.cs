@@ -102,6 +102,8 @@ namespace Microsoft.IO
 
         private readonly string tag;
 
+        private readonly long creationTimestamp;
+
         /// <summary>
         /// This list is used to store buffers once they're replaced by something larger.
         /// This is for the cases where you have users of this class that may hold onto the buffers longer
@@ -257,6 +259,7 @@ namespace Microsoft.IO
             this.id = id;
             this.tag = tag;
             this.blocks = new List<byte[]>();
+            this.creationTimestamp = Stopwatch.GetTimestamp();
 
             var actualRequestedSize = Math.Max(requestedSize, this.memoryManager.BlockSize);
 
@@ -308,13 +311,14 @@ namespace Microsoft.IO
             }
 
             this.disposed = true;
+            var lifetime = TimeSpan.FromTicks((Stopwatch.GetTimestamp() - this.creationTimestamp) * TimeSpan.TicksPerSecond / Stopwatch.Frequency);
 
             if (this.memoryManager.GenerateCallStacks)
             {
                 this.DisposeStack = Environment.StackTrace;
             }
 
-            this.memoryManager.ReportStreamDisposed(this.id, this.tag, this.AllocationStack, this.DisposeStack);
+            this.memoryManager.ReportStreamDisposed(this.id, this.tag, lifetime, this.AllocationStack, this.DisposeStack);
 
             if (disposing)
             {
