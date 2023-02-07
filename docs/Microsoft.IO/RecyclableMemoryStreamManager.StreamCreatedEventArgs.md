@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamCreatedEventArgs class
 
-Arguments for the StreamCreated event.
+Arguments for the [`StreamCreated`](./RecyclableMemoryStreamManager/StreamCreated.md) event.
 
 ```csharp
 public sealed class StreamCreatedEventArgs : EventArgs

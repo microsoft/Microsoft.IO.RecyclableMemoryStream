@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.UsageReportEventArgs class
 
-Arguments for the UsageReport event.
+Arguments for the [`UsageReport`](./RecyclableMemoryStreamManager/UsageReport.md) event.
 
 ```csharp
 public sealed class UsageReportEventArgs : EventArgs

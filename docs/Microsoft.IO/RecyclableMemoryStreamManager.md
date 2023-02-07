@@ -45,18 +45,18 @@ public sealed class RecyclableMemoryStreamManager
 | const [DefaultBlockSize](RecyclableMemoryStreamManager/DefaultBlockSize.md) | Default block size, in bytes. |
 | const [DefaultLargeBufferMultiple](RecyclableMemoryStreamManager/DefaultLargeBufferMultiple.md) | Default large buffer multiple, in bytes. |
 | const [DefaultMaximumBufferSize](RecyclableMemoryStreamManager/DefaultMaximumBufferSize.md) | Default maximum buffer size, in bytes. |
-| class [BlockCreatedEventArgs](RecyclableMemoryStreamManager.BlockCreatedEventArgs.md) | Arguments for the BlockCreated event. |
-| class [BufferDiscardedEventArgs](RecyclableMemoryStreamManager.BufferDiscardedEventArgs.md) | Arguments for the BufferDiscarded event. |
+| class [BlockCreatedEventArgs](RecyclableMemoryStreamManager.BlockCreatedEventArgs.md) | Arguments for the [`BlockCreated`](./RecyclableMemoryStreamManager/BlockCreated.md) event. |
+| class [BufferDiscardedEventArgs](RecyclableMemoryStreamManager.BufferDiscardedEventArgs.md) | Arguments for the [`BufferDiscarded`](./RecyclableMemoryStreamManager/BufferDiscarded.md) event. |
 | class [Events](RecyclableMemoryStreamManager.Events.md) | ETW events for RecyclableMemoryStream. |
-| class [LargeBufferCreatedEventArgs](RecyclableMemoryStreamManager.LargeBufferCreatedEventArgs.md) | Arguments for the LargeBufferCreated events. |
-| class [StreamConvertedToArrayEventArgs](RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs.md) | Arguments for the StreamConvertedToArray event. |
-| class [StreamCreatedEventArgs](RecyclableMemoryStreamManager.StreamCreatedEventArgs.md) | Arguments for the StreamCreated event. |
-| class [StreamDisposedEventArgs](RecyclableMemoryStreamManager.StreamDisposedEventArgs.md) | Arguments for the StreamDisposed event. |
-| class [StreamDoubleDisposedEventArgs](RecyclableMemoryStreamManager.StreamDoubleDisposedEventArgs.md) | Arguments for the StreamDoubleDisposed event. |
-| class [StreamFinalizedEventArgs](RecyclableMemoryStreamManager.StreamFinalizedEventArgs.md) | Arguments for the StreamFinalized event. |
-| class [StreamLengthEventArgs](RecyclableMemoryStreamManager.StreamLengthEventArgs.md) | Arguments for the StreamLength event. |
-| class [StreamOverCapacityEventArgs](RecyclableMemoryStreamManager.StreamOverCapacityEventArgs.md) | Arguments for the StreamOverCapacity event. |
-| class [UsageReportEventArgs](RecyclableMemoryStreamManager.UsageReportEventArgs.md) | Arguments for the UsageReport event. |
+| class [LargeBufferCreatedEventArgs](RecyclableMemoryStreamManager.LargeBufferCreatedEventArgs.md) | Arguments for the [`LargeBufferCreated`](./RecyclableMemoryStreamManager/LargeBufferCreated.md) events. |
+| class [StreamConvertedToArrayEventArgs](RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs.md) | Arguments for the [`StreamConvertedToArray`](./RecyclableMemoryStreamManager/StreamConvertedToArray.md) event. |
+| class [StreamCreatedEventArgs](RecyclableMemoryStreamManager.StreamCreatedEventArgs.md) | Arguments for the [`StreamCreated`](./RecyclableMemoryStreamManager/StreamCreated.md) event. |
+| class [StreamDisposedEventArgs](RecyclableMemoryStreamManager.StreamDisposedEventArgs.md) | Arguments for the [`StreamDisposed`](./RecyclableMemoryStreamManager/StreamDisposed.md) event. |
+| class [StreamDoubleDisposedEventArgs](RecyclableMemoryStreamManager.StreamDoubleDisposedEventArgs.md) | Arguments for the [`StreamDoubleDisposed`](./RecyclableMemoryStreamManager/StreamDoubleDisposed.md) event. |
+| class [StreamFinalizedEventArgs](RecyclableMemoryStreamManager.StreamFinalizedEventArgs.md) | Arguments for the [`StreamFinalized`](./RecyclableMemoryStreamManager/StreamFinalized.md) event. |
+| class [StreamLengthEventArgs](RecyclableMemoryStreamManager.StreamLengthEventArgs.md) | Arguments for the [`StreamLength`](./RecyclableMemoryStreamManager/StreamLength.md) event. |
+| class [StreamOverCapacityEventArgs](RecyclableMemoryStreamManager.StreamOverCapacityEventArgs.md) | Arguments for the [`StreamOverCapacity`](./RecyclableMemoryStreamManager/StreamOverCapacity.md) event. |
+| class [UsageReportEventArgs](RecyclableMemoryStreamManager.UsageReportEventArgs.md) | Arguments for the [`UsageReport`](./RecyclableMemoryStreamManager/UsageReport.md) event. |
 
 ## Remarks
 

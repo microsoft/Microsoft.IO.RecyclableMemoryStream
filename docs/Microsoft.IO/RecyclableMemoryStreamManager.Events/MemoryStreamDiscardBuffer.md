@@ -4,7 +4,9 @@ Logged when a buffer is discarded (not put back in the pool, but given to GC to 
 
 ```csharp
 public void MemoryStreamDiscardBuffer(Guid guid, string tag, MemoryStreamBufferType bufferType, 
-    MemoryStreamDiscardReason reason)
+    MemoryStreamDiscardReason reason, long smallBlocksFree, long smallPoolBytesFree, 
+    long smallPoolBytesInUse, long largeBlocksFree, long largePoolBytesFree, 
+    long largePoolBytesInUse)
 ```
 
 | parameter | description |
@@ -13,6 +15,12 @@ public void MemoryStreamDiscardBuffer(Guid guid, string tag, MemoryStreamBufferT
 | tag | A temporary ID for this stream, usually indicates current usage. |
 | bufferType | Type of the buffer being discarded. |
 | reason | Reason for the discard. |
+| smallBlocksFree | Number of free small pool blocks. |
+| smallPoolBytesFree | Bytes free in the small pool. |
+| smallPoolBytesInUse | Bytes in use from the small pool. |
+| largeBlocksFree | Number of free large pool blocks. |
+| largePoolBytesFree | Bytes free in the large pool. |
+| largePoolBytesInUse | Bytes in use from the large pool. |
 
 ## See Also
 

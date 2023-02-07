@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.LargeBufferCreatedEventArgs class
 
-Arguments for the LargeBufferCreated events.
+Arguments for the [`LargeBufferCreated`](./RecyclableMemoryStreamManager/LargeBufferCreated.md) events.
 
 ```csharp
 public sealed class LargeBufferCreatedEventArgs : EventArgs
@@ -10,7 +10,7 @@ public sealed class LargeBufferCreatedEventArgs : EventArgs
 
 | name | description |
 | --- | --- |
-| [CallStack](RecyclableMemoryStreamManager.LargeBufferCreatedEventArgs/CallStack.md) { get; } | If the buffer was not satisfied from the pool, and GenerateCallstacks is turned on, then. this will contain the callstack of the allocation request. |
+| [CallStack](RecyclableMemoryStreamManager.LargeBufferCreatedEventArgs/CallStack.md) { get; } | If the buffer was not satisfied from the pool, and [`GenerateCallStacks`](./RecyclableMemoryStreamManager/GenerateCallStacks.md) is turned on, then. this will contain the callstack of the allocation request. |
 | [Id](RecyclableMemoryStreamManager.LargeBufferCreatedEventArgs/Id.md) { get; } | Unique ID for the stream. |
 | [LargePoolInUse](RecyclableMemoryStreamManager.LargeBufferCreatedEventArgs/LargePoolInUse.md) { get; } | How many bytes are in use from the large pool. |
 | [Pooled](RecyclableMemoryStreamManager.LargeBufferCreatedEventArgs/Pooled.md) { get; } | Whether the buffer was satisfied from the pool or not. |

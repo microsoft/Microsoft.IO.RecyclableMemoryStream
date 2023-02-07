@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamOverCapacityEventArgs class
 
-Arguments for the StreamOverCapacity event.
+Arguments for the [`StreamOverCapacity`](./RecyclableMemoryStreamManager/StreamOverCapacity.md) event.
 
 ```csharp
 public sealed class StreamOverCapacityEventArgs : EventArgs
