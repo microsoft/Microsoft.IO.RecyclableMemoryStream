@@ -71,7 +71,7 @@
             public string DisposeStack { get; }
 
             /// <summary>
-            /// Lifetime of the stream
+            /// Lifetime of the stream.
             /// </summary>
             public TimeSpan Lifetime { get; }
 
