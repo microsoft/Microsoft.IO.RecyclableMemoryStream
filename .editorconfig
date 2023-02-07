@@ -1,0 +1,36 @@
+# EditorConfig is awesome: http://EditorConfig.org
+
+# Create portable, custom editor settings with EditorConfig
+# https://docs.microsoft.com/en-us/visualstudio/ide/create-portable-custom-editor-options
+
+# .NET coding convention settings for EditorConfig
+# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference
+
+# Language conventions
+# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-language-conventions
+
+# Formatting conventions
+# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-formatting-conventions
+
+# .NET naming conventions for EditorConfig
+# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-naming-conventions
+
+# Top-most EditorConfig file
+root = true
+
+# Editor default newlines with a newline ending every file
+[*]
+insert_final_newline = true
+charset = utf-8
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+
+[*.cs]
+indent_size = 4
+
+# Code files
+[*.{cs,vb}]
+
+csharp_prefer_simple_using_statement = true:warning
+csharp_style_prefer_switch_expression = true:warning
