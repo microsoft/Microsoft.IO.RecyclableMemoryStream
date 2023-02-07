@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamDisposedEventArgs class
 
-Arguments for the StreamDisposed event.
+Arguments for the [`StreamDisposed`](./RecyclableMemoryStreamManager/StreamDisposed.md) event.
 
 ```csharp
 public sealed class StreamDisposedEventArgs : EventArgs
@@ -10,10 +10,11 @@ public sealed class StreamDisposedEventArgs : EventArgs
 
 | name | description |
 | --- | --- |
-| [StreamDisposedEventArgs](RecyclableMemoryStreamManager.StreamDisposedEventArgs/StreamDisposedEventArgs.md)(…) | Initializes a new instance of the [`StreamDisposedEventArgs`](./RecyclableMemoryStreamManager.StreamDisposedEventArgs.md) class. |
+| [StreamDisposedEventArgs](RecyclableMemoryStreamManager.StreamDisposedEventArgs/StreamDisposedEventArgs.md)(…) | Initializes a new instance of the [`StreamDisposedEventArgs`](./RecyclableMemoryStreamManager.StreamDisposedEventArgs.md) class. (2 constructors) |
 | [AllocationStack](RecyclableMemoryStreamManager.StreamDisposedEventArgs/AllocationStack.md) { get; } | Stack where the stream was allocated. |
 | [DisposeStack](RecyclableMemoryStreamManager.StreamDisposedEventArgs/DisposeStack.md) { get; } | Stack where stream was disposed. |
 | [Id](RecyclableMemoryStreamManager.StreamDisposedEventArgs/Id.md) { get; } | Unique ID for the stream. |
+| [Lifetime](RecyclableMemoryStreamManager.StreamDisposedEventArgs/Lifetime.md) { get; } | Lifetime of the stream. |
 | [Tag](RecyclableMemoryStreamManager.StreamDisposedEventArgs/Tag.md) { get; } | Optional Tag for the event. |
 
 ## See Also

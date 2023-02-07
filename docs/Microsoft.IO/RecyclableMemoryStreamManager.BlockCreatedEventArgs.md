@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.BlockCreatedEventArgs class
 
-Arguments for the BlockCreated event.
+Arguments for the [`BlockCreated`](./RecyclableMemoryStreamManager/BlockCreated.md) event.
 
 ```csharp
 public sealed class BlockCreatedEventArgs : EventArgs

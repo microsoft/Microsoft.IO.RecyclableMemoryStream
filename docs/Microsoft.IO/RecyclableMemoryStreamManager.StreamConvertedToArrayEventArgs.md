@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs class
 
-Arguments for the StreamConvertedToArray event.
+Arguments for the [`StreamConvertedToArray`](./RecyclableMemoryStreamManager/StreamConvertedToArray.md) event.
 
 ```csharp
 public sealed class StreamConvertedToArrayEventArgs : EventArgs

@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.BufferDiscardedEventArgs class
 
-Arguments for the BufferDiscarded event.
+Arguments for the [`BufferDiscarded`](./RecyclableMemoryStreamManager/BufferDiscarded.md) event.
 
 ```csharp
 public sealed class BufferDiscardedEventArgs : EventArgs

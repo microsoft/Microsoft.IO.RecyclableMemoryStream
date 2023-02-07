@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamLengthEventArgs class
 
-Arguments for the StreamLength event.
+Arguments for the [`StreamLength`](./RecyclableMemoryStreamManager/StreamLength.md) event.
 
 ```csharp
 public sealed class StreamLengthEventArgs : EventArgs

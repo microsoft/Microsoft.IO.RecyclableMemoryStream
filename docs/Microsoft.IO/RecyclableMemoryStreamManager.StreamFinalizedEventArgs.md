@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamFinalizedEventArgs class
 
-Arguments for the StreamFinalized event.
+Arguments for the [`StreamFinalized`](./RecyclableMemoryStreamManager/StreamFinalized.md) event.
 
 ```csharp
 public sealed class StreamFinalizedEventArgs : EventArgs

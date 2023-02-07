@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamDoubleDisposedEventArgs class
 
-Arguments for the StreamDoubleDisposed event.
+Arguments for the [`StreamDoubleDisposed`](./RecyclableMemoryStreamManager/StreamDoubleDisposed.md) event.
 
 ```csharp
 public sealed class StreamDoubleDisposedEventArgs : EventArgs
