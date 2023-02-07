@@ -555,9 +555,6 @@ namespace Microsoft.IO
             }
 
             Interlocked.Add(ref this.largeBufferInUseSize[poolIndex], -buffer.Length);
-
-            ReportUsageReport(this.smallPoolInUseSize, this.smallPoolFreeSize, this.LargePoolInUseSize,
-                              this.LargePoolFreeSize);
         }
 
         /// <summary>
@@ -599,9 +596,6 @@ namespace Microsoft.IO
                     break;
                 }
             }
-
-            ReportUsageReport(this.smallPoolInUseSize, this.smallPoolFreeSize, this.LargePoolInUseSize,
-                              this.LargePoolFreeSize);
         }
 
         /// <summary>
@@ -636,9 +630,6 @@ namespace Microsoft.IO
             {
                 ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Small, Events.MemoryStreamDiscardReason.EnoughFree);
             }
-
-            ReportUsageReport(this.smallPoolInUseSize, this.smallPoolFreeSize, this.LargePoolInUseSize,
-                              this.LargePoolFreeSize);
         }
 
         internal void ReportBlockCreated()
@@ -662,7 +653,9 @@ namespace Microsoft.IO
 
         internal void ReportBufferDiscarded(Guid id, string tag, Events.MemoryStreamBufferType bufferType, Events.MemoryStreamDiscardReason reason)
         {
-            Events.Writer.MemoryStreamDiscardBuffer(id, tag, bufferType, reason);
+            Events.Writer.MemoryStreamDiscardBuffer(id, tag, bufferType, reason,
+                this.SmallBlocksFree, this.smallPoolFreeSize, this.smallPoolInUseSize,
+                this.LargeBuffersFree, this.LargePoolFreeSize, this.LargePoolInUseSize);
             this.BufferDiscarded?.Invoke(this, new BufferDiscardedEventArgs(id, tag, bufferType, reason));
         }
 
@@ -707,9 +700,9 @@ namespace Microsoft.IO
             this.StreamOverCapacity?.Invoke(this, new StreamOverCapacityEventArgs(id, tag, requestedCapacity, this.MaximumStreamCapacity, allocationStack));
         }
 
-        internal void ReportUsageReport(long smallPoolInUseBytes, long smallPoolFreeBytes, long largePoolInUseBytes, long largePoolFreeBytes)
+        internal void ReportUsageReport()
         {
-            this.UsageReport?.Invoke(this, new UsageReportEventArgs(smallPoolInUseBytes, smallPoolFreeBytes, largePoolInUseBytes, largePoolFreeBytes));
+            this.UsageReport?.Invoke(this, new UsageReportEventArgs(this.smallPoolInUseSize, this.smallPoolFreeSize, this.LargePoolInUseSize, this.LargePoolFreeSize));
         }
 
         /// <summary>
