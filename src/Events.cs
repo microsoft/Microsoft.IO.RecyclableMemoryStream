@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------
+// ---------------------------------------------------------------------
 // Copyright (c) 2015 Microsoft
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -89,15 +89,15 @@ namespace Microsoft.IO
             /// </summary>
             /// <param name="guid">A unique ID for this stream.</param>
             /// <param name="tag">A temporary ID for this stream, usually indicates current usage.</param>
-            /// <param name="lifetime">Lifetime of the stream</param>
+            /// <param name="lifetimeMs">Lifetime in milliseconds of the stream</param>
             /// <param name="allocationStack">Call stack of initial allocation.</param>
             /// <param name="disposeStack">Call stack of the dispose.</param>
             [Event(2, Level = EventLevel.Verbose, Version = 3)]
-            public void MemoryStreamDisposed(Guid guid, string tag, TimeSpan lifetime, string allocationStack, string disposeStack)
+            public void MemoryStreamDisposed(Guid guid, string tag, long lifetimeMs, string allocationStack, string disposeStack)
             {
                 if (this.IsEnabled(EventLevel.Verbose, EventKeywords.None))
                 {
-                    WriteEvent(2, guid, tag ?? string.Empty, lifetime, allocationStack ?? string.Empty, disposeStack ?? string.Empty);
+                    WriteEvent(2, guid, tag ?? string.Empty, lifetimeMs, allocationStack ?? string.Empty, disposeStack ?? string.Empty);
                 }
             }
 
