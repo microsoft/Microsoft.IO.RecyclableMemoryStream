@@ -1120,14 +1120,14 @@ namespace Microsoft.IO
             {
                 var blockSize = this.memoryManager.BlockSize;
 
-                var block = (int)(this.position / blockSize);
+                var block = (int)Math.DivRem(this.position, blockSize, out var index);
 
                 if (block >= this.blocks.Count)
                 {
                     this.EnsureCapacity(end);
                 }
 
-                this.blocks[block][this.position % blockSize] = value;
+                this.blocks[block][index] = value;
             }
             else
             {
@@ -1528,9 +1528,8 @@ namespace Microsoft.IO
         private BlockAndOffset GetBlockAndRelativeOffset(long offset)
         {
             var blockSize = this.memoryManager.BlockSize;
-            int blockIndex = (int)(offset / blockSize);
-            int offsetIndex = (int)(offset % blockSize);
-            return new BlockAndOffset(blockIndex, offsetIndex);
+            int blockIndex = (int)Math.DivRem(offset, blockSize, out long offsetIndex);
+            return new BlockAndOffset(blockIndex, (int)offsetIndex);
         }
 
         private void EnsureCapacity(long newCapacity)
