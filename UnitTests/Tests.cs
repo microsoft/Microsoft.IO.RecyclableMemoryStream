@@ -803,6 +803,16 @@ namespace Microsoft.IO.UnitTests
 
         #region Constructor tests
         [Test]
+        public void NullMemoryManagerThrowsArgumentNullException()
+        {
+            Assert.Throws<ArgumentNullException>(() => new RecyclableMemoryStream(null));
+            Assert.Throws<ArgumentNullException>(() => new RecyclableMemoryStream(null, Guid.NewGuid()));
+            Assert.Throws<ArgumentNullException>(() => new RecyclableMemoryStream(null, Guid.NewGuid(), "tag"));
+            Assert.Throws<ArgumentNullException>(() => new RecyclableMemoryStream(null, Guid.NewGuid(), "tag", 100));
+            Assert.Throws<ArgumentNullException>(() => new RecyclableMemoryStream(null, Guid.NewGuid(), "tag", 100, new byte[0]));
+        }
+
+        [Test]
         public void StreamHasGuid()
         {
             var expectedGuid = Guid.NewGuid();

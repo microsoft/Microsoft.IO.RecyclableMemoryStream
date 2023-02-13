@@ -255,6 +255,11 @@ namespace Microsoft.IO
         internal RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string tag, long requestedSize, byte[] initialLargeBuffer)
             : base(emptyArray)
         {
+            if (memoryManager == null)
+            {
+                throw new ArgumentNullException(nameof(memoryManager));
+            }
+
             this.memoryManager = memoryManager;
             this.id = id;
             this.tag = tag;
