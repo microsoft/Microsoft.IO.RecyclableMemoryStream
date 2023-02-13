@@ -729,7 +729,7 @@ namespace Microsoft.IO
         /// </summary>
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
         /// <returns>A <c>MemoryStream</c>.</returns>
-        public MemoryStream GetStream(string tag)
+        public MemoryStream GetStream(string? tag)
         {
             return new RecyclableMemoryStream(this, tag);
         }
@@ -740,7 +740,7 @@ namespace Microsoft.IO
         /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
         /// <returns>A <c>MemoryStream</c>.</returns>
-        public MemoryStream GetStream(Guid id, string tag)
+        public MemoryStream GetStream(Guid id, string? tag)
         {
             return new RecyclableMemoryStream(this, id, tag);
         }
@@ -751,7 +751,7 @@ namespace Microsoft.IO
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
         /// <param name="requiredSize">The minimum desired capacity for the stream.</param>
         /// <returns>A <c>MemoryStream</c>.</returns>
-        public MemoryStream GetStream(string tag, long requiredSize)
+        public MemoryStream GetStream(string? tag, long requiredSize)
         {
             return new RecyclableMemoryStream(this, tag, requiredSize);
         }
@@ -763,7 +763,7 @@ namespace Microsoft.IO
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
         /// <param name="requiredSize">The minimum desired capacity for the stream.</param>
         /// <returns>A <c>MemoryStream</c>.</returns>
-        public MemoryStream GetStream(Guid id, string tag, long requiredSize)
+        public MemoryStream GetStream(Guid id, string? tag, long requiredSize)
         {
             return new RecyclableMemoryStream(this, id, tag, requiredSize);
         }
@@ -781,7 +781,7 @@ namespace Microsoft.IO
         /// <param name="requiredSize">The minimum desired capacity for the stream.</param>
         /// <param name="asContiguousBuffer">Whether to attempt to use a single contiguous buffer.</param>
         /// <returns>A <c>MemoryStream</c>.</returns>
-        public MemoryStream GetStream(Guid id, string tag, long requiredSize, bool asContiguousBuffer)
+        public MemoryStream GetStream(Guid id, string? tag, long requiredSize, bool asContiguousBuffer)
         {
             if (!asContiguousBuffer || requiredSize <= this.BlockSize)
             {
@@ -803,7 +803,7 @@ namespace Microsoft.IO
         /// <param name="requiredSize">The minimum desired capacity for the stream.</param>
         /// <param name="asContiguousBuffer">Whether to attempt to use a single contiguous buffer.</param>
         /// <returns>A <c>MemoryStream</c>.</returns>
-        public MemoryStream GetStream(string tag, long requiredSize, bool asContiguousBuffer)
+        public MemoryStream GetStream(string? tag, long requiredSize, bool asContiguousBuffer)
         {
             return GetStream(Guid.NewGuid(), tag, requiredSize, asContiguousBuffer);
         }

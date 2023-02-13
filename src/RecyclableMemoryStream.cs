@@ -194,7 +194,7 @@ namespace Microsoft.IO
         /// </summary>
         /// <param name="memoryManager">The memory manager.</param>
         /// <param name="tag">A string identifying this stream for logging and debugging purposes.</param>
-        public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string tag)
+        public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string? tag)
             : this(memoryManager, Guid.NewGuid(), tag, 0, null) { }
 
         /// <summary>
@@ -203,7 +203,7 @@ namespace Microsoft.IO
         /// <param name="memoryManager">The memory manager.</param>
         /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
         /// <param name="tag">A string identifying this stream for logging and debugging purposes.</param>
-        public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string tag)
+        public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string? tag)
             : this(memoryManager, id, tag, 0, null) { }
 
         /// <summary>
@@ -212,7 +212,7 @@ namespace Microsoft.IO
         /// <param name="memoryManager">The memory manager.</param>
         /// <param name="tag">A string identifying this stream for logging and debugging purposes.</param>
         /// <param name="requestedSize">The initial requested size to prevent future allocations.</param>
-        public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string tag, long requestedSize)
+        public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string? tag, long requestedSize)
             : this(memoryManager, Guid.NewGuid(), tag, requestedSize, null) { }
 
         /// <summary>
