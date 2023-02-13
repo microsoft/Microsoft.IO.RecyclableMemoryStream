@@ -21,6 +21,7 @@
     <PackageProjectUrl>https://github.com/Microsoft/Microsoft.IO.RecyclableMemoryStream</PackageProjectUrl>
     <IncludeBuildOutput>true</IncludeBuildOutput>
     <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
     <CheckForOverflowUnderflow Condition="'$(Configuration)' == 'Debug'">true</CheckForOverflowUnderflow>
   </PropertyGroup>
 

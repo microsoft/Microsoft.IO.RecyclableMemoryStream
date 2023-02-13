@@ -76,7 +76,7 @@ namespace Microsoft.IO
             /// <param name="requestedSize">Requested size of the stream.</param>
             /// <param name="actualSize">Actual size given to the stream from the pool.</param>
             [Event(1, Level = EventLevel.Verbose, Version = 2)]
-            public void MemoryStreamCreated(Guid guid, string tag, long requestedSize, long actualSize)
+            public void MemoryStreamCreated(Guid guid, string? tag, long requestedSize, long actualSize)
             {
                 if (this.IsEnabled(EventLevel.Verbose, EventKeywords.None))
                 {
@@ -93,7 +93,7 @@ namespace Microsoft.IO
             /// <param name="allocationStack">Call stack of initial allocation.</param>
             /// <param name="disposeStack">Call stack of the dispose.</param>
             [Event(2, Level = EventLevel.Verbose, Version = 3)]
-            public void MemoryStreamDisposed(Guid guid, string tag, long lifetimeMs, string allocationStack, string disposeStack)
+            public void MemoryStreamDisposed(Guid guid, string? tag, long lifetimeMs, string? allocationStack, string? disposeStack)
             {
                 if (this.IsEnabled(EventLevel.Verbose, EventKeywords.None))
                 {
@@ -111,8 +111,8 @@ namespace Microsoft.IO
             /// <param name="disposeStack2">Call stack of the second dispose.</param>
             /// <remarks>Note: Stacks will only be populated if RecyclableMemoryStreamManager.GenerateCallStacks is true.</remarks>
             [Event(3, Level = EventLevel.Critical)]
-            public void MemoryStreamDoubleDispose(Guid guid, string tag, string allocationStack, string disposeStack1,
-                                                  string disposeStack2)
+            public void MemoryStreamDoubleDispose(Guid guid, string? tag, string? allocationStack, string? disposeStack1,
+                                                  string? disposeStack2)
             {
                 if (this.IsEnabled())
                 {
@@ -129,7 +129,7 @@ namespace Microsoft.IO
             /// <param name="allocationStack">Call stack of initial allocation.</param>
             /// <remarks>Note: Stacks will only be populated if RecyclableMemoryStreamManager.GenerateCallStacks is true.</remarks>
             [Event(4, Level = EventLevel.Error)]
-            public void MemoryStreamFinalized(Guid guid, string tag, string allocationStack)
+            public void MemoryStreamFinalized(Guid guid, string? tag, string? allocationStack)
             {
                 if (this.IsEnabled())
                 {
@@ -146,7 +146,7 @@ namespace Microsoft.IO
             /// <param name="size">Length of stream.</param>
             /// <remarks>Note: Stacks will only be populated if RecyclableMemoryStreamManager.GenerateCallStacks is true.</remarks>
             [Event(5, Level = EventLevel.Verbose, Version = 2)]
-            public void MemoryStreamToArray(Guid guid, string tag, string stack, long size)
+            public void MemoryStreamToArray(Guid guid, string? tag, string? stack, long size)
             {
                 if (this.IsEnabled(EventLevel.Verbose, EventKeywords.None))
                 {
@@ -205,7 +205,7 @@ namespace Microsoft.IO
             /// <param name="allocationStack">Call stack of the requested stream.</param>
             /// <remarks>Note: Stacks will only be populated if RecyclableMemoryStreamManager.GenerateCallStacks is true.</remarks>
             [Event(9, Level = EventLevel.Verbose, Version = 3)]
-            public void MemoryStreamNonPooledLargeBufferCreated(Guid guid, string tag, long requiredSize, string allocationStack)
+            public void MemoryStreamNonPooledLargeBufferCreated(Guid guid, string? tag, long requiredSize, string? allocationStack)
             {
                 if (this.IsEnabled(EventLevel.Verbose, EventKeywords.None))
                 {
@@ -227,7 +227,7 @@ namespace Microsoft.IO
             /// <param name="largePoolBytesFree">Bytes free in the large pool.</param>
             /// <param name="largePoolBytesInUse">Bytes in use from the large pool.</param>
             [Event(10, Level = EventLevel.Warning, Version = 2)]
-            public void MemoryStreamDiscardBuffer(Guid guid, string tag, MemoryStreamBufferType bufferType,
+            public void MemoryStreamDiscardBuffer(Guid guid, string? tag, MemoryStreamBufferType bufferType,
                                                   MemoryStreamDiscardReason reason, long smallBlocksFree, long smallPoolBytesFree, long smallPoolBytesInUse, long largeBlocksFree, long largePoolBytesFree, long largePoolBytesInUse)
             {
                 if (this.IsEnabled(EventLevel.Warning, EventKeywords.None))
@@ -246,7 +246,7 @@ namespace Microsoft.IO
             /// <param name="allocationStack">Call stack for the capacity request.</param>
             /// <remarks>Note: Stacks will only be populated if RecyclableMemoryStreamManager.GenerateCallStacks is true.</remarks>
             [Event(11, Level = EventLevel.Error, Version = 3)]
-            public void MemoryStreamOverCapacity(Guid guid, string tag, long requestedCapacity, long maxCapacity, string allocationStack)
+            public void MemoryStreamOverCapacity(Guid guid, string? tag, long requestedCapacity, long maxCapacity, string? allocationStack)
             {
                 if (this.IsEnabled())
                 {

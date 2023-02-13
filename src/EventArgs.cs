@@ -17,7 +17,7 @@
             /// <summary>
             /// Optional Tag for the event.
             /// </summary>
-            public string Tag { get; }
+            public string? Tag { get; }
 
             /// <summary>
             /// Requested stream size.
@@ -36,7 +36,7 @@
             /// <param name="tag">Tag of the stream.</param>
             /// <param name="requestedSize">The requested stream size.</param>
             /// <param name="actualSize">The actual stream size.</param>
-            public StreamCreatedEventArgs(Guid guid, string tag, long requestedSize, long actualSize)
+            public StreamCreatedEventArgs(Guid guid, string? tag, long requestedSize, long actualSize)
             {
                 this.Id = guid;
                 this.Tag = tag;
@@ -58,17 +58,17 @@
             /// <summary>
             /// Optional Tag for the event.
             /// </summary>
-            public string Tag { get; }
+            public string? Tag { get; }
 
             /// <summary>
             /// Stack where the stream was allocated.
             /// </summary>
-            public string AllocationStack { get; }
+            public string? AllocationStack { get; }
 
             /// <summary>
             /// Stack where stream was disposed.
             /// </summary>
-            public string DisposeStack { get; }
+            public string? DisposeStack { get; }
 
             /// <summary>
             /// Lifetime of the stream.
@@ -83,7 +83,7 @@
             /// <param name="lifetime">Lifetime of the stream</param>
             /// <param name="allocationStack">Stack of original allocation.</param>
             /// <param name="disposeStack">Dispose stack.</param>
-            public StreamDisposedEventArgs(Guid guid, string tag, TimeSpan lifetime, string allocationStack, string disposeStack)
+            public StreamDisposedEventArgs(Guid guid, string? tag, TimeSpan lifetime, string? allocationStack, string? disposeStack)
             {
                 this.Id = guid;
                 this.Tag = tag;
@@ -106,22 +106,22 @@
             /// <summary>
             /// Optional Tag for the event.
             /// </summary>
-            public string Tag { get; }
+            public string? Tag { get; }
 
             /// <summary>
             /// Stack where the stream was allocated.
             /// </summary>
-            public string AllocationStack { get; }
+            public string? AllocationStack { get; }
 
             /// <summary>
             /// First dispose stack.
             /// </summary>
-            public string DisposeStack1 { get; }
+            public string? DisposeStack1 { get; }
 
             /// <summary>
             /// Second dispose stack.
             /// </summary>
-            public string DisposeStack2 { get; }
+            public string? DisposeStack2 { get; }
 
             /// <summary>
             /// Initializes a new instance of the <see cref="StreamDoubleDisposedEventArgs"/> class.
@@ -131,7 +131,7 @@
             /// <param name="allocationStack">Stack of original allocation.</param>
             /// <param name="disposeStack1">First dispose stack.</param>
             /// <param name="disposeStack2">Second dispose stack.</param>
-            public StreamDoubleDisposedEventArgs(Guid guid, string tag, string allocationStack, string disposeStack1, string disposeStack2)
+            public StreamDoubleDisposedEventArgs(Guid guid, string? tag, string? allocationStack, string? disposeStack1, string? disposeStack2)
             {
                 this.Id = guid;
                 this.Tag = tag;
@@ -154,12 +154,12 @@
             /// <summary>
             /// Optional Tag for the event.
             /// </summary>
-            public string Tag { get; }
+            public string? Tag { get; }
 
             /// <summary>
             /// Stack where the stream was allocated.
             /// </summary>
-            public string AllocationStack { get; }
+            public string? AllocationStack { get; }
 
             /// <summary>
             /// Initializes a new instance of the <see cref="StreamFinalizedEventArgs"/> class.
@@ -167,7 +167,7 @@
             /// <param name="guid">Unique ID of the stream.</param>
             /// <param name="tag">Tag of the stream.</param>
             /// <param name="allocationStack">Stack of original allocation.</param>
-            public StreamFinalizedEventArgs(Guid guid, string tag, string allocationStack)
+            public StreamFinalizedEventArgs(Guid guid, string? tag, string? allocationStack)
             {
                 this.Id = guid;
                 this.Tag = tag;
@@ -188,12 +188,12 @@
             /// <summary>
             /// Optional Tag for the event.
             /// </summary>
-            public string Tag { get; }
+            public string? Tag { get; }
 
             /// <summary>
             /// Stack where ToArray was called.
             /// </summary>
-            public string Stack { get; }
+            public string? Stack { get; }
 
             /// <summary>
             /// Length of stack.
@@ -207,7 +207,7 @@
             /// <param name="tag">Tag of the stream.</param>
             /// <param name="stack">Stack of ToArray call.</param>
             /// <param name="length">Length of stream.</param>
-            public StreamConvertedToArrayEventArgs(Guid guid, string tag, string stack, long length)
+            public StreamConvertedToArrayEventArgs(Guid guid, string? tag, string? stack, long length)
             {
                 this.Id = guid;
                 this.Tag = tag;
@@ -229,12 +229,12 @@
             /// <summary>
             /// Optional Tag for the event.
             /// </summary>
-            public string Tag { get; }
+            public string? Tag { get; }
 
             /// <summary>
             /// Original allocation stack.
             /// </summary>
-            public string AllocationStack { get; }
+            public string? AllocationStack { get; }
 
             /// <summary>
             /// Requested capacity.
@@ -254,7 +254,7 @@
             /// <param name="requestedCapacity">Requested capacity.</param>
             /// <param name="maximumCapacity">Maximum stream capacity of the manager.</param>
             /// <param name="allocationStack">Original allocation stack.</param>
-            internal StreamOverCapacityEventArgs(Guid guid, string tag, long requestedCapacity, long maximumCapacity, string allocationStack)
+            internal StreamOverCapacityEventArgs(Guid guid, string? tag, long requestedCapacity, long maximumCapacity, string? allocationStack)
             {
                 this.Id = guid;
                 this.Tag = tag;
@@ -297,7 +297,7 @@
             /// <summary>
             /// Optional Tag for the event.
             /// </summary>
-            public string Tag { get; }
+            public string? Tag { get; }
 
             /// <summary>
             /// Whether the buffer was satisfied from the pool or not.
@@ -318,7 +318,7 @@
             /// If the buffer was not satisfied from the pool, and <see cref="GenerateCallStacks"/> is turned on, then.
             /// this will contain the callstack of the allocation request.
             /// </summary>
-            public string CallStack { get; }
+            public string? CallStack { get; }
 
             /// <summary>
             /// Initializes a new instance of the <see cref="LargeBufferCreatedEventArgs"/> class.
@@ -329,7 +329,7 @@
             /// <param name="largePoolInUse">How many bytes from the large pool are currently in use.</param>
             /// <param name="pooled">Whether the buffer was satisfied from the pool or not.</param>
             /// <param name="callStack">Callstack of the allocation, if it wasn't pooled.</param>
-            internal LargeBufferCreatedEventArgs(Guid guid, string tag, long requiredSize, long largePoolInUse, bool pooled, string callStack)
+            internal LargeBufferCreatedEventArgs(Guid guid, string? tag, long requiredSize, long largePoolInUse, bool pooled, string? callStack)
             {
                 this.RequiredSize = requiredSize;
                 this.LargePoolInUse = largePoolInUse;
@@ -353,7 +353,7 @@
             /// <summary>
             /// Optional Tag for the event.
             /// </summary>
-            public string Tag { get; }
+            public string? Tag { get; }
 
             /// <summary>
             /// Type of the buffer.
@@ -372,7 +372,7 @@
             /// <param name="tag">Tag of the stream.</param>
             /// <param name="bufferType">Type of buffer being discarded.</param>
             /// <param name="reason">The reason for the discard.</param>
-            internal BufferDiscardedEventArgs(Guid guid, string tag, Events.MemoryStreamBufferType bufferType, Events.MemoryStreamDiscardReason reason)
+            internal BufferDiscardedEventArgs(Guid guid, string? tag, Events.MemoryStreamBufferType bufferType, Events.MemoryStreamDiscardReason reason)
             {
                 this.Id = guid;
                 this.Tag = tag;
