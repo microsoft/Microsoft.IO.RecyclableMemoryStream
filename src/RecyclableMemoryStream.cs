@@ -612,8 +612,9 @@ namespace Microsoft.IO
                 var currentOffset = blockAndOffset.Offset;
                 while (bytesRemaining > 0)
                 {
-                    int amountToCopy = (int)Math.Min(blocks[currentBlock].Length - currentOffset, bytesRemaining);
-                    await destination.WriteAsync(blocks[currentBlock], currentOffset, amountToCopy, cancellationToken);
+                    byte[] block = blocks[currentBlock];
+                    int amountToCopy = (int)Math.Min(block.Length - currentOffset, bytesRemaining);
+                    await destination.WriteAsync(block, currentOffset, amountToCopy, cancellationToken);
                     bytesRemaining -= amountToCopy;
                     ++currentBlock;
                     currentOffset = 0;
@@ -1316,8 +1317,9 @@ namespace Microsoft.IO
 
                 while (bytesRemaining > 0)
                 {
-                    int amountToCopy = (int)Math.Min((long)this.blocks[currentBlock].Length - currentOffset, bytesRemaining);
-                    stream.Write(this.blocks[currentBlock], currentOffset, amountToCopy);
+                    byte[] block = this.blocks[currentBlock];
+                    int amountToCopy = (int)Math.Min((long)block.Length - currentOffset, bytesRemaining);
+                    stream.Write(block, currentOffset, amountToCopy);
 
                     bytesRemaining -= amountToCopy;
 
@@ -1406,8 +1408,9 @@ namespace Microsoft.IO
 
                 while (bytesRemaining > 0)
                 {
-                    int amountToCopy = (int)Math.Min((long)this.blocks[currentBlock].Length - currentOffset, bytesRemaining);
-                    Buffer.BlockCopy(this.blocks[currentBlock], currentOffset, buffer, currentTargetOffset, amountToCopy);
+                    byte[] block = this.blocks[currentBlock];
+                    int amountToCopy = (int)Math.Min((long)block.Length - currentOffset, bytesRemaining);
+                    Buffer.BlockCopy(block, currentOffset, buffer, currentTargetOffset, amountToCopy);
 
                     bytesRemaining -= amountToCopy;
 
@@ -1459,9 +1462,10 @@ namespace Microsoft.IO
 
                 while (bytesRemaining > 0)
                 {
-                    amountToCopy = Math.Min(this.blocks[blockAndOffset.Block].Length - blockAndOffset.Offset,
+                    byte[] block = this.blocks[blockAndOffset.Block];
+                    amountToCopy = Math.Min(block.Length - blockAndOffset.Offset,
                                                 bytesRemaining);
-                    Buffer.BlockCopy(this.blocks[blockAndOffset.Block], blockAndOffset.Offset, buffer,
+                    Buffer.BlockCopy(block, blockAndOffset.Offset, buffer,
                                      bytesWritten + offset, amountToCopy);
 
                     bytesWritten += amountToCopy;
@@ -1494,9 +1498,10 @@ namespace Microsoft.IO
 
                 while (bytesRemaining > 0)
                 {
-                    amountToCopy = Math.Min(this.blocks[blockAndOffset.Block].Length - blockAndOffset.Offset,
+                    byte[] block = this.blocks[blockAndOffset.Block];
+                    amountToCopy = Math.Min(block.Length - blockAndOffset.Offset,
                                             bytesRemaining);
-                    this.blocks[blockAndOffset.Block].AsSpan(blockAndOffset.Offset, amountToCopy)
+                    block.AsSpan(blockAndOffset.Offset, amountToCopy)
                         .CopyTo(buffer.Slice(bytesWritten));
 
                     bytesWritten += amountToCopy;
