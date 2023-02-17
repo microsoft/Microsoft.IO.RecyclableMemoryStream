@@ -551,6 +551,14 @@ namespace Microsoft.IO
             return this.largeBuffer;
         }
 
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
+        /// <inheritdoc/>
+        public override void CopyTo(Stream destination, int bufferSize)
+        {
+            WriteTo(destination, this.position, this.length - this.position);
+        }
+#endif
+
         /// <summary>Asynchronously reads all the bytes from the current position in this stream and writes them to another stream.</summary>
         /// <param name="destination">The stream to which the contents of the current stream will be copied.</param>
         /// <param name="bufferSize">This parameter is ignored.</param>
