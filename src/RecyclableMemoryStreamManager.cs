@@ -751,21 +751,9 @@ namespace Microsoft.IO
         /// <param name="tag">A tag which can be used to track the source of the stream.</param>
         /// <param name="requiredSize">The minimum desired capacity for the stream.</param>
         /// <returns>A <c>MemoryStream</c>.</returns>
-        public MemoryStream GetStream(string tag, int requiredSize)
+        public MemoryStream GetStream(string tag, long requiredSize)
         {
             return new RecyclableMemoryStream(this, tag, requiredSize);
-        }
-
-        /// <summary>
-        /// Retrieve a new <c>MemoryStream</c> object with the given tag and at least the given capacity.
-        /// </summary>
-        /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
-        /// <param name="tag">A tag which can be used to track the source of the stream.</param>
-        /// <param name="requiredSize">The minimum desired capacity for the stream.</param>
-        /// <returns>A <c>MemoryStream</c>.</returns>
-        public MemoryStream GetStream(Guid id, string tag, int requiredSize)
-        {
-            return new RecyclableMemoryStream(this, id, tag, requiredSize);
         }
 
         /// <summary>
@@ -793,24 +781,6 @@ namespace Microsoft.IO
         /// <param name="requiredSize">The minimum desired capacity for the stream.</param>
         /// <param name="asContiguousBuffer">Whether to attempt to use a single contiguous buffer.</param>
         /// <returns>A <c>MemoryStream</c>.</returns>
-        public MemoryStream GetStream(Guid id, string tag, int requiredSize, bool asContiguousBuffer)
-        {
-            return this.GetStream(id, tag, (long)requiredSize, asContiguousBuffer);
-        }
-
-        /// <summary>
-        /// Retrieve a new <c>MemoryStream</c> object with the given tag and at least the given capacity, possibly using
-        /// a single contiguous underlying buffer.
-        /// </summary>
-        /// <remarks>Retrieving a <c>MemoryStream</c> which provides a single contiguous buffer can be useful in situations
-        /// where the initial size is known and it is desirable to avoid copying data between the smaller underlying
-        /// buffers to a single large one. This is most helpful when you know that you will always call <see cref="RecyclableMemoryStream.GetBuffer"/>
-        /// on the underlying stream.</remarks>
-        /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
-        /// <param name="tag">A tag which can be used to track the source of the stream.</param>
-        /// <param name="requiredSize">The minimum desired capacity for the stream.</param>
-        /// <param name="asContiguousBuffer">Whether to attempt to use a single contiguous buffer.</param>
-        /// <returns>A <c>MemoryStream</c>.</returns>
         public MemoryStream GetStream(Guid id, string tag, long requiredSize, bool asContiguousBuffer)
         {
             if (!asContiguousBuffer || requiredSize <= this.BlockSize)
@@ -819,23 +789,6 @@ namespace Microsoft.IO
             }
 
             return new RecyclableMemoryStream(this, id, tag, requiredSize, this.GetLargeBuffer(requiredSize, id, tag));
-        }
-
-        /// <summary>
-        /// Retrieve a new <c>MemoryStream</c> object with the given tag and at least the given capacity, possibly using
-        /// a single contiguous underlying buffer.
-        /// </summary>
-        /// <remarks>Retrieving a MemoryStream which provides a single contiguous buffer can be useful in situations
-        /// where the initial size is known and it is desirable to avoid copying data between the smaller underlying
-        /// buffers to a single large one. This is most helpful when you know that you will always call <see cref="RecyclableMemoryStream.GetBuffer"/>
-        /// on the underlying stream.</remarks>
-        /// <param name="tag">A tag which can be used to track the source of the stream.</param>
-        /// <param name="requiredSize">The minimum desired capacity for the stream.</param>
-        /// <param name="asContiguousBuffer">Whether to attempt to use a single contiguous buffer.</param>
-        /// <returns>A <c>MemoryStream</c>.</returns>
-        public MemoryStream GetStream(string tag, int requiredSize, bool asContiguousBuffer)
-        {
-            return GetStream(tag, (long)requiredSize, asContiguousBuffer);
         }
 
         /// <summary>

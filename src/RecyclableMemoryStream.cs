@@ -209,30 +209,11 @@ namespace Microsoft.IO
         /// <summary>
         /// Initializes a new instance of the <see cref="RecyclableMemoryStream"/> class.
         /// </summary>
-        /// <param name="memoryManager">The memory manager</param>
-        /// <param name="tag">A string identifying this stream for logging and debugging purposes.</param>
-        /// <param name="requestedSize">The initial requested size to prevent future allocations.</param>
-        public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string tag, int requestedSize)
-            : this(memoryManager, Guid.NewGuid(), tag, requestedSize, null) { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RecyclableMemoryStream"/> class.
-        /// </summary>
         /// <param name="memoryManager">The memory manager.</param>
         /// <param name="tag">A string identifying this stream for logging and debugging purposes.</param>
         /// <param name="requestedSize">The initial requested size to prevent future allocations.</param>
         public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string tag, long requestedSize)
             : this(memoryManager, Guid.NewGuid(), tag, requestedSize, null) { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RecyclableMemoryStream"/> class.
-        /// </summary>
-        /// <param name="memoryManager">The memory manager.</param>
-        /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
-        /// <param name="tag">A string identifying this stream for logging and debugging purposes.</param>
-        /// <param name="requestedSize">The initial requested size to prevent future allocations.</param>
-        public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string tag, int requestedSize)
-            : this(memoryManager, id, tag, (long)requestedSize) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RecyclableMemoryStream"/> class.
@@ -869,31 +850,6 @@ namespace Microsoft.IO
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is less than 0.</exception>
         /// <exception cref="ArgumentException"><paramref name="offset"/> subtracted from the buffer length is less than <paramref name="count"/>.</exception>
         /// <exception cref="ObjectDisposedException">Object has been disposed.</exception>
-        /// <exception cref="InvalidOperationException">Stream position is beyond <c>int.MaxValue</c>.</exception>
-        public int SafeRead(byte[] buffer, int offset, int count, ref int streamPosition)
-        {
-            long longPosition = streamPosition;
-            var retVal = this.SafeRead(buffer, offset, count, ref longPosition);
-            if (longPosition > int.MaxValue)
-            {
-                throw new InvalidOperationException("Stream position is beyond int.MaxValue. Use SafeRead(byte[], int, int, ref long) override.");
-            }
-            streamPosition = (int)longPosition;
-            return retVal;
-        }
-
-        /// <summary>
-        /// Reads from the specified position into the provided buffer.
-        /// </summary>
-        /// <param name="buffer">Destination buffer.</param>
-        /// <param name="offset">Offset into buffer at which to start placing the read bytes.</param>
-        /// <param name="count">Number of bytes to read.</param>
-        /// <param name="streamPosition">Position in the stream to start reading from.</param>
-        /// <returns>The number of bytes read.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is null.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is less than 0.</exception>
-        /// <exception cref="ArgumentException"><paramref name="offset"/> subtracted from the buffer length is less than <paramref name="count"/>.</exception>
-        /// <exception cref="ObjectDisposedException">Object has been disposed.</exception>
         public int SafeRead(byte[] buffer, int offset, int count, ref long streamPosition)
         {
             this.CheckDisposed();
@@ -935,26 +891,6 @@ namespace Microsoft.IO
 #endif
         {
             return this.SafeRead(buffer, ref this.position);
-        }
-
-        /// <summary>
-        /// Reads from the specified position into the provided buffer.
-        /// </summary>
-        /// <param name="buffer">Destination buffer.</param>
-        /// <param name="streamPosition">Position in the stream to start reading from.</param>
-        /// <returns>The number of bytes read.</returns>
-        /// <exception cref="ObjectDisposedException">Object has been disposed.</exception>
-        /// <exception cref="InvalidOperationException">Stream position is beyond <c>int.MaxValue</c>.</exception>
-        public int SafeRead(Span<byte> buffer, ref int streamPosition)
-        {
-            long longPosition = streamPosition;
-            int retVal = this.SafeRead(buffer, ref longPosition);
-            if (longPosition > int.MaxValue)
-            {
-                throw new InvalidOperationException("Stream position is beyond int.MaxValue. Use SafeRead(Span<byte>, ref long) override.");
-            }
-            streamPosition = (int)longPosition;
-            return retVal;
         }
 
         /// <summary>
@@ -1163,25 +1099,6 @@ namespace Microsoft.IO
         /// <param name="streamPosition">The position in the stream to read from.</param>
         /// <returns>The byte at the current position, or -1 if the position is at the end of the stream.</returns>
         /// <exception cref="ObjectDisposedException">Object has been disposed.</exception>
-        /// <exception cref="InvalidOperationException">Stream position is beyond <c>int.MaxValue</c>.</exception>
-        public int SafeReadByte(ref int streamPosition)
-        {
-            long longPosition = streamPosition;
-            int retVal = this.SafeReadByte(ref longPosition);
-            if (longPosition > int.MaxValue)
-            {
-                throw new InvalidOperationException("Stream position is beyond int.MaxValue. Use SafeReadByte(ref long) override.");
-            }
-            streamPosition = (int)longPosition;
-            return retVal;
-        }
-
-        /// <summary>
-        /// Reads a single byte from the specified position in the stream.
-        /// </summary>
-        /// <param name="streamPosition">The position in the stream to read from.</param>
-        /// <returns>The byte at the current position, or -1 if the position is at the end of the stream.</returns>
-        /// <exception cref="ObjectDisposedException">Object has been disposed.</exception>
         public int SafeReadByte(ref long streamPosition)
         {
             this.CheckDisposed();
@@ -1263,22 +1180,6 @@ namespace Microsoft.IO
         public override void WriteTo(Stream stream)
         {
             this.WriteTo(stream, 0, this.length);
-        }
-
-        /// <summary>
-        /// Synchronously writes this stream's bytes, starting at offset, for count bytes, to the argument stream.
-        /// </summary>
-        /// <param name="stream">Destination stream.</param>
-        /// <param name="offset">Offset in source.</param>
-        /// <param name="count">Number of bytes to write.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="stream"/> is null.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// <paramref name="offset"/> is less than 0, or <paramref name="offset"/> + <paramref name="count"/> is beyond  this <paramref name="stream"/>'s length.
-        /// </exception>
-        /// <exception cref="ObjectDisposedException">Object has been disposed.</exception>
-        public void WriteTo(Stream stream, int offset, int count)
-        {
-            this.WriteTo(stream, (long)offset, (long)count);
         }
 
         /// <summary>
