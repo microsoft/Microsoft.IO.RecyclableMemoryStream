@@ -555,7 +555,7 @@ namespace Microsoft.IO
         /// <inheritdoc/>
         public override void CopyTo(Stream destination, int bufferSize)
         {
-            CopyToAsync(destination, bufferSize, CancellationToken.None).GetAwaiter().GetResult();
+            WriteTo(destination, this.position, this.length - this.position);
         }
 #endif
 
