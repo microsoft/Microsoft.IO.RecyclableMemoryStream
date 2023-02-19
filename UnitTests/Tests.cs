@@ -575,11 +575,11 @@ namespace Microsoft.IO.UnitTests
             for (var i = -1; i < 2; ++i)
             {
                 int requestedSize = int.MaxValue - (mgr.BlockSize + i);
-                var stream = mgr.GetStream(null, requestedSize) as RecyclableMemoryStream;
+                var stream = mgr.GetStream(null, requestedSize);
                 Assert.That(stream.Capacity64, Is.GreaterThanOrEqualTo(requestedSize));
             }
 
-            var maxStream = mgr.GetStream(null, int.MaxValue) as RecyclableMemoryStream;
+            var maxStream = mgr.GetStream(null, int.MaxValue);
             Assert.That(maxStream.Capacity64, Is.GreaterThanOrEqualTo(int.MaxValue));
         }
 
@@ -807,7 +807,7 @@ namespace Microsoft.IO.UnitTests
         {
             var expectedGuid = Guid.NewGuid();
             var stream1 = new RecyclableMemoryStream(this.GetMemoryManager(), expectedGuid);
-            var stream2 = (RecyclableMemoryStream)(this.GetMemoryManager().GetStream(expectedGuid));
+            var stream2 = this.GetMemoryManager().GetStream(expectedGuid);
             Assert.That(stream1.Id, Is.EqualTo(expectedGuid));
             Assert.That(stream2.Id, Is.EqualTo(expectedGuid));
         }
@@ -818,7 +818,7 @@ namespace Microsoft.IO.UnitTests
             const string expectedTag = "Nunit Test";
 
             var stream1 = new RecyclableMemoryStream(this.GetMemoryManager(), expectedTag);
-            var stream2 = (RecyclableMemoryStream)(this.GetMemoryManager().GetStream(expectedTag));
+            var stream2 = this.GetMemoryManager().GetStream(expectedTag);
             Assert.That(stream1.Id, Is.Not.EqualTo(Guid.Empty));
             Assert.That(stream1.Tag, Is.EqualTo(expectedTag));
             Assert.That(stream2.Id, Is.Not.EqualTo(Guid.Empty));
@@ -831,7 +831,7 @@ namespace Microsoft.IO.UnitTests
             const string expectedTag = "Nunit Test";
             Guid expectedGuid = Guid.NewGuid();
             var stream1 = new RecyclableMemoryStream(this.GetMemoryManager(), expectedGuid, expectedTag);
-            var stream2 = (RecyclableMemoryStream)(this.GetMemoryManager().GetStream(expectedGuid, expectedTag));
+            var stream2 = this.GetMemoryManager().GetStream(expectedGuid, expectedTag);
             Assert.That(stream1.Id, Is.EqualTo(expectedGuid));
             Assert.That(stream1.Tag, Is.EqualTo(expectedTag));
             Assert.That(stream2.Id, Is.EqualTo(expectedGuid));
@@ -2662,7 +2662,7 @@ namespace Microsoft.IO.UnitTests
         {
             var memMgr = this.GetMemoryManager();
             var tag = "MyTag";
-            var stream = memMgr.GetStream(tag) as RecyclableMemoryStream;
+            var stream = memMgr.GetStream(tag);
             Assert.That(stream.Capacity, Is.EqualTo(memMgr.BlockSize));
             Assert.That(stream.Tag, Is.EqualTo(tag));
         }
@@ -2673,7 +2673,7 @@ namespace Microsoft.IO.UnitTests
             var memMgr = this.GetMemoryManager();
             var tag = "MyTag";
             var requiredSize = 13131313;
-            var stream = memMgr.GetStream(tag, requiredSize) as RecyclableMemoryStream;
+            var stream = memMgr.GetStream(tag, requiredSize);
             Assert.That(stream.Capacity, Is.AtLeast(requiredSize));
             Assert.That(stream.Tag, Is.EqualTo(tag));
         }
@@ -2685,11 +2685,11 @@ namespace Microsoft.IO.UnitTests
             var tag = "MyTag";
             var requiredSize = 13131313;
 
-            var stream = memMgr.GetStream(tag, requiredSize, false) as RecyclableMemoryStream;
+            var stream = memMgr.GetStream(tag, requiredSize, false);
             Assert.That(stream.Capacity, Is.AtLeast(requiredSize));
             Assert.That(stream.Tag, Is.EqualTo(tag));
 
-            stream = memMgr.GetStream(tag, requiredSize, true) as RecyclableMemoryStream;
+            stream = memMgr.GetStream(tag, requiredSize, true);
             Assert.That(stream.Capacity, Is.AtLeast(requiredSize));
             Assert.That(stream.Tag, Is.EqualTo(tag));
         }
@@ -2701,7 +2701,7 @@ namespace Microsoft.IO.UnitTests
             var buffer = this.GetRandomBuffer(1000);
             var tag = "MyTag";
 
-            var stream = memMgr.GetStream(tag, buffer, 1, buffer.Length - 1) as RecyclableMemoryStream;
+            var stream = memMgr.GetStream(tag, buffer, 1, buffer.Length - 1);
             RMSAssert.BuffersAreEqual(buffer, 1, stream.GetBuffer(), 0, buffer.Length - 1);
             Assert.That(buffer, Is.Not.SameAs(stream.GetBuffer()));
             Assert.That(stream.Tag, Is.EqualTo(tag));
@@ -2713,7 +2713,7 @@ namespace Microsoft.IO.UnitTests
             var memMgr = this.GetMemoryManager();
             var buffer = this.GetRandomBuffer(1000);
 
-            var stream = memMgr.GetStream(buffer) as RecyclableMemoryStream;
+            var stream = memMgr.GetStream(buffer);
             RMSAssert.BuffersAreEqual(buffer, 0, stream.GetBuffer(), 0, buffer.Length);
             Assert.That(buffer, Is.Not.SameAs(stream.GetBuffer()));
         }
@@ -2726,7 +2726,7 @@ namespace Microsoft.IO.UnitTests
             var bufferSlice = buffer.Slice(1);
             var tag = "MyTag";
 
-            var stream = memMgr.GetStream(tag, bufferSlice.Span) as RecyclableMemoryStream;
+            var stream = memMgr.GetStream(tag, bufferSlice.Span);
             RMSAssert.BuffersAreEqual(bufferSlice.Span, stream.GetBuffer(), bufferSlice.Length);
             Assert.That(bufferSlice, Is.Not.SameAs(stream.GetBuffer()));
             Assert.That(stream.Tag, Is.EqualTo(tag));
@@ -2738,7 +2738,7 @@ namespace Microsoft.IO.UnitTests
             var memMgr = this.GetMemoryManager();
             var buffer = new ReadOnlyMemory<byte>(this.GetRandomBuffer(1000));
 
-            var stream = memMgr.GetStream(buffer.Span) as RecyclableMemoryStream;
+            var stream = memMgr.GetStream(buffer.Span);
             RMSAssert.BuffersAreEqual(buffer.Span, stream.GetBuffer(), buffer.Length);
             Assert.That(buffer, Is.Not.SameAs(stream.GetBuffer()));
         }
