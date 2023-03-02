@@ -21,6 +21,7 @@ public sealed class RecyclableMemoryStream : MemoryStream, IBufferWriter<byte>
 | override [Position](RecyclableMemoryStream/Position.md) { get; set; } | Gets the current position in the stream. |
 | [Advance](RecyclableMemoryStream/Advance.md)(…) | Notifies the stream that *count* bytes were written to the buffer returned by [`GetMemory`](./RecyclableMemoryStream/GetMemory.md) or [`GetSpan`](./RecyclableMemoryStream/GetSpan.md). Seeks forward by *count* bytes. |
 | override [Close](RecyclableMemoryStream/Close.md)() | Equivalent to `Dispose`. |
+| override [CopyTo](RecyclableMemoryStream/CopyTo.md)(…) |  |
 | override [CopyToAsync](RecyclableMemoryStream/CopyToAsync.md)(…) | Asynchronously reads all the bytes from the current position in this stream and writes them to another stream. |
 | override [GetBuffer](RecyclableMemoryStream/GetBuffer.md)() | Returns a single buffer containing the contents of the stream. The buffer may be longer than the stream length. |
 | [GetMemory](RecyclableMemoryStream/GetMemory.md)(…) |  |
