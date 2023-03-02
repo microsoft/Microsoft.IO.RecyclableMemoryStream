@@ -1,3 +1,28 @@
+# Version 2.3.2
+
+Optimizations:
+* Caculating blocks and offsets was made more efficient by using `Math.DivRem`.
+* Reading and writing to the stream was made more efficient with fewer array accesses.
+* `CopyTo` was overriden to avoid using the slower default implementation.
+
+# Version 2.3.1
+
+New Feature:
+* Stream lifetime (creation through dispose) is now tracked and reported through the `MemoryStreamDispose` `EventSource` event, as well as through the `StreamDisposed` .NET event.
+
+Changes:
+* The pool statistics used to be reported only when blocks/buffers were returned to the pool. This could lead to lopsided reporting patterns in some cases. Now, pool statistics are reported on stream creation and disposal.
+* Added pool stats information to the `MemoryStreamDiscardBuffer` event. 
+* Changed events relating to buffer creation to be at the warning level instead of verbose. These are signals that the pool might not be large enough to handle the load.
+
+Bug Fixes:
+* Fixed allocation/finalization bug that could cause a `NullReferenceException` in some low-memory scenarios.
+
+Internal:
+* .NET 7 SDK used to build
+* Changed coding style to match some newer patterns (and added .editorconfig file to enforce in the future)
+* Fixed punctuation and spelling in API documentation.
+
 # Version 2.2.1
 
 API change:
