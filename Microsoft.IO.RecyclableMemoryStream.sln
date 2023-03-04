@@ -27,6 +27,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 		.github\workflows\codeql-analysis.yml = .github\workflows\codeql-analysis.yml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BenchmarkTests", "BenchmarkTests\BenchmarkTests.csproj", "{731CCC6D-2583-4CB0-A439-8173E9722E4D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,10 @@ Global
 		{419C9F3D-71CC-4F95-8324-E15CD0D1E754}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{419C9F3D-71CC-4F95-8324-E15CD0D1E754}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{419C9F3D-71CC-4F95-8324-E15CD0D1E754}.Release|Any CPU.Build.0 = Release|Any CPU
+		{731CCC6D-2583-4CB0-A439-8173E9722E4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{731CCC6D-2583-4CB0-A439-8173E9722E4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{731CCC6D-2583-4CB0-A439-8173E9722E4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{731CCC6D-2583-4CB0-A439-8173E9722E4D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
