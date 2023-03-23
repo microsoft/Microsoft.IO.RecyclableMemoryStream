@@ -48,6 +48,10 @@ A minimum of .NET 5.0 is required for executing the unit tests. Requirements:
 - NUnit test adapter (VS Extension)
 - Be sure to set the default processor architecture for tests to x64 (or the giant allocation test will fail)
 
+## Benchmark tests
+
+The results are available [here](https://microsoft.github.io/Microsoft.IO.RecyclableMemoryStream/dev/bench/)
+
 ## Change Log
 
 Read the change log [here](https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/blob/master/CHANGES.md).
