@@ -1355,7 +1355,7 @@ namespace Microsoft.IO.UnitTests
             {
                 for (var i = 0; i < 1000; i++)
                 {
-                    var position = this.random.Next(0, bufferLength);
+                    long position = this.random.Next(0, bufferLength);
                     var byteRead = stream.SafeReadByte(ref position);
 
                     Assert.That(byteRead, Is.EqualTo(buffer[position - 1]));
@@ -1386,18 +1386,6 @@ namespace Microsoft.IO.UnitTests
                 Assert.That(a, Is.EqualTo(b));
 
             }
-        }
-
-        [Test]
-        public void SafeReadByte_Int_ThrowsOnLargeStreamPositionOverflow()
-        {
-            var stream = this.GetDefaultStream();
-            var buffer = new byte[RecyclableMemoryStreamManager.MaxArrayLength];
-            stream.Write(buffer);
-            stream.Position = Int32.MaxValue;
-            stream.WriteByte(255);
-            int pos = Int32.MaxValue;
-            Assert.Throws<InvalidOperationException>(() => stream.SafeReadByte(ref pos));
         }
         #endregion
 
@@ -1566,14 +1554,14 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
-        public void SafeRead_Int_DoesNotUpdateStreamPosition()
+        public void SafeRead_DoesNotUpdateStreamPosition()
         {
             var stream = this.GetRandomStream();
 
             var step = stream.MemoryManager.BlockSize / 2;
             var destBuffer = new byte[step];
             var bytesRead = 0;
-            var position = 0;
+            long position = 0;
 
             while (position < stream.Length)
             {
@@ -1581,30 +1569,6 @@ namespace Microsoft.IO.UnitTests
                 Assert.That(position, Is.EqualTo(bytesRead));
                 Assert.That(stream.Position, Is.EqualTo(0));
             }
-        }
-
-        [Test]
-        public void SafeRead_Int_ByteArray_PositionOverflow()
-        {
-            var stream = this.GetDefaultStream();
-            stream.SetLength((long)Int32.MaxValue + 1);
-
-            var destBuffer = new byte[1];
-            var position = Int32.MaxValue;
-
-            Assert.Throws<InvalidOperationException>(() => stream.SafeRead(destBuffer, 0, 1, ref position));
-        }
-
-        [Test]
-        public void SafeRead_Int_Span_PositionOverflow()
-        {
-            var stream = this.GetDefaultStream();
-            stream.SetLength((long)Int32.MaxValue + 1);
-
-            var destBuffer = new byte[1];
-            var position = Int32.MaxValue;
-
-            Assert.Throws<InvalidOperationException>(() => stream.SafeRead((Span<byte>)destBuffer, ref position));
         }
         #endregion
 
@@ -1701,7 +1665,7 @@ namespace Microsoft.IO.UnitTests
             {
                 for (var i = 0; i < 5; i++)
                 {
-                    var position = this.random.Next(0, bufferLength);
+                    long position = this.random.Next(0, bufferLength);
                     var startPosition = position;
                     var length = this.random.Next(0, (int)(bufferLength - position));
                     var readBuffer = new byte[length];
@@ -2891,7 +2855,7 @@ namespace Microsoft.IO.UnitTests
         public void WriteToOtherStreamOffsetCountThrowException()
         {
             var stream = this.GetDefaultStream();
-            Assert.Throws<ArgumentNullException>(() => stream.WriteTo(null, 0, (int)stream.Length));
+            Assert.Throws<ArgumentNullException>(() => stream.WriteTo((Stream)null, 0, (int)stream.Length));
             Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(stream, -1, (int)stream.Length));
             Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(stream, 1, (int)stream.Length));
             Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(stream, 0, (int)stream.Length + 1));
