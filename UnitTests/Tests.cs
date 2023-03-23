@@ -2719,33 +2719,6 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
-        [Obsolete("GetStream(Memory<byte>) is obsolete.")]
-        public void GetStreamWithMemoryBuffer()
-        {
-            var memMgr = this.GetMemoryManager();
-            var buffer = this.GetRandomBuffer(1000).AsMemory();
-            var bufferSlice = buffer.Slice(1);
-            var tag = "MyTag";
-
-            var stream = memMgr.GetStream(tag, bufferSlice) as RecyclableMemoryStream;
-            RMSAssert.BuffersAreEqual(bufferSlice.Span, stream.GetBuffer(), bufferSlice.Length);
-            Assert.That(bufferSlice, Is.Not.SameAs(stream.GetBuffer()));
-            Assert.That(stream.Tag, Is.EqualTo(tag));
-        }
-
-        [Test]
-        [Obsolete("GetStream(Memory<byte>) is obsolete.")]
-        public void GetStreamWithOnlyMemoryBuffer()
-        {
-            var memMgr = this.GetMemoryManager();
-            var buffer = this.GetRandomBuffer(1000).AsMemory();
-
-            var stream = memMgr.GetStream(buffer) as RecyclableMemoryStream;
-            RMSAssert.BuffersAreEqual(buffer.Span, stream.GetBuffer(), buffer.Length);
-            Assert.That(buffer, Is.Not.SameAs(stream.GetBuffer()));
-        }
-
-        [Test]
         public void GetStreamWithReadOnlySpan()
         {
             var memMgr = this.GetMemoryManager();
