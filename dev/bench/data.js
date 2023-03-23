@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1679593416131,
+  "lastUpdate": 1679593484448,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -72,6 +72,42 @@ window.BENCHMARK_DATA = {
             "value": 383381971.3,
             "unit": "ns",
             "range": "± 8580804.680891052"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "lechu445@users.noreply.github.com",
+            "name": "Leszek B",
+            "username": "lechu445"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "897a510c3d5d6811bd8bd7b5393bea5104c669c5",
+          "message": "Remove obsolete overloads (#279)\n\nContributes to #256\r\n\r\nCo-authored-by: lechu445 <xxx@example.com>",
+          "timestamp": "2023-03-23T10:43:44-07:00",
+          "tree_id": "6a74b6ab3f490043f980cb97965f21cbd986334a",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/897a510c3d5d6811bd8bd7b5393bea5104c669c5"
+        },
+        "date": 1679593482951,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 73230355.64285715,
+            "unit": "ns",
+            "range": "± 318733.9086384434"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 194573799.08333334,
+            "unit": "ns",
+            "range": "± 6443395.211303274"
           }
         ]
       }
