@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1680023886383,
+  "lastUpdate": 1680193871418,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -180,6 +180,42 @@ window.BENCHMARK_DATA = {
             "value": 379102217.90909094,
             "unit": "ns",
             "range": "± 9107940.451201143"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "lechu445@users.noreply.github.com",
+            "name": "Leszek B",
+            "username": "lechu445"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0f1d8590b987a69101e5c74785b5c62f1eb81f4a",
+          "message": "Enable nullable annotations and warnings (#274)\n\n* Enable nullable annotations and warnings\r\n\r\nResolves #254\r\n\r\n* Annotate remaining tag parameters\r\n\r\n---------\r\n\r\nCo-authored-by: lechu445 <xxx@example.com>",
+          "timestamp": "2023-03-30T09:29:48-07:00",
+          "tree_id": "aa670708f31c78ad8a6581b774e8eaeaccb7c685",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/0f1d8590b987a69101e5c74785b5c62f1eb81f4a"
+        },
+        "date": 1680193869828,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 156811725.1860465,
+            "unit": "ns",
+            "range": "± 5788981.723887204"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 428776469.05128205,
+            "unit": "ns",
+            "range": "± 15008337.188845173"
           }
         ]
       }
