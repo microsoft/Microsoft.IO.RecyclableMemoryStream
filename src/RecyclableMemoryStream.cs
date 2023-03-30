@@ -100,7 +100,7 @@ namespace Microsoft.IO
 
         private readonly RecyclableMemoryStreamManager memoryManager;
 
-        private readonly string tag;
+        private readonly string? tag;
 
         private readonly long creationTimestamp;
 
@@ -109,7 +109,7 @@ namespace Microsoft.IO
         /// This is for the cases where you have users of this class that may hold onto the buffers longer
         /// than they should and you want to prevent race conditions which could corrupt the data.
         /// </summary>
-        private List<byte[]> dirtyBuffers;
+        private List<byte[]>? dirtyBuffers;
 
         private bool disposed;
 
@@ -120,7 +120,7 @@ namespace Microsoft.IO
         /// <remarks>If this field is non-null, it contains the concatenation of the bytes found in the individual
         /// blocks. Once it is created, this (or a larger) largeBuffer will be used for the life of the stream.
         /// </remarks>
-        private byte[] largeBuffer;
+        private byte[]? largeBuffer;
 
         /// <summary>
         /// Unique identifier for this stream across its entire lifetime.
@@ -139,7 +139,7 @@ namespace Microsoft.IO
         /// A temporary identifier for the current usage of this stream.
         /// </summary>
         /// <exception cref="ObjectDisposedException">Object has been disposed.</exception>
-        internal string Tag
+        internal string? Tag
         {
             get
             {
@@ -165,13 +165,13 @@ namespace Microsoft.IO
         /// Callstack of the constructor. It is only set if <see cref="RecyclableMemoryStreamManager.GenerateCallStacks"/> is true,
         /// which should only be in debugging situations.
         /// </summary>
-        internal string AllocationStack { get; }
+        internal string? AllocationStack { get; }
 
         /// <summary>
         /// Callstack of the <see cref="Dispose(bool)"/> call. It is only set if <see cref="RecyclableMemoryStreamManager.GenerateCallStacks"/> is true,
         /// which should only be in debugging situations.
         /// </summary>
-        internal string DisposeStack { get; private set; }
+        internal string? DisposeStack { get; private set; }
 
         #region Constructors
         /// <summary>
@@ -194,7 +194,7 @@ namespace Microsoft.IO
         /// </summary>
         /// <param name="memoryManager">The memory manager.</param>
         /// <param name="tag">A string identifying this stream for logging and debugging purposes.</param>
-        public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string tag)
+        public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string? tag)
             : this(memoryManager, Guid.NewGuid(), tag, 0, null) { }
 
         /// <summary>
@@ -203,7 +203,7 @@ namespace Microsoft.IO
         /// <param name="memoryManager">The memory manager.</param>
         /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
         /// <param name="tag">A string identifying this stream for logging and debugging purposes.</param>
-        public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string tag)
+        public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string? tag)
             : this(memoryManager, id, tag, 0, null) { }
 
         /// <summary>
@@ -212,7 +212,7 @@ namespace Microsoft.IO
         /// <param name="memoryManager">The memory manager.</param>
         /// <param name="tag">A string identifying this stream for logging and debugging purposes.</param>
         /// <param name="requestedSize">The initial requested size to prevent future allocations.</param>
-        public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string tag, long requestedSize)
+        public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, string? tag, long requestedSize)
             : this(memoryManager, Guid.NewGuid(), tag, requestedSize, null) { }
 
         /// <summary>
@@ -222,7 +222,7 @@ namespace Microsoft.IO
         /// <param name="id">A unique identifier which can be used to trace usages of the stream.</param>
         /// <param name="tag">A string identifying this stream for logging and debugging purposes.</param>
         /// <param name="requestedSize">The initial requested size to prevent future allocations.</param>
-        public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string tag, long requestedSize)
+        public RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string? tag, long requestedSize)
             : this(memoryManager, id, tag, requestedSize, null) { }
 
         /// <summary>
@@ -233,7 +233,7 @@ namespace Microsoft.IO
         /// <param name="tag">A string identifying this stream for logging and debugging purposes.</param>
         /// <param name="requestedSize">The initial requested size to prevent future allocations.</param>
         /// <param name="initialLargeBuffer">An initial buffer to use. This buffer will be owned by the stream and returned to the memory manager upon Dispose.</param>
-        internal RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string tag, long requestedSize, byte[] initialLargeBuffer)
+        internal RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string? tag, long requestedSize, byte[]? initialLargeBuffer)
             : base(emptyArray)
         {
             this.memoryManager = memoryManager;
@@ -281,7 +281,7 @@ namespace Microsoft.IO
         {
             if (this.disposed)
             {
-                string doubleDisposeStack = null;
+                string? doubleDisposeStack = null;
                 if (this.memoryManager.GenerateCallStacks)
                 {
                     doubleDisposeStack = Environment.StackTrace;
@@ -611,7 +611,7 @@ namespace Microsoft.IO
             }
         }
 
-        private byte[] bufferWriterTempBuffer;
+        private byte[]? bufferWriterTempBuffer;
 
         /// <summary>
         /// Notifies the stream that <paramref name="count"/> bytes were written to the buffer returned by <see cref="GetMemory(int)"/> or <see cref="GetSpan(int)"/>.
@@ -632,7 +632,7 @@ namespace Microsoft.IO
                 throw new ArgumentOutOfRangeException(nameof(count), $"{nameof(count)} must be non-negative.");
             }
 
-            byte[] buffer = this.bufferWriterTempBuffer;
+            byte[]? buffer = this.bufferWriterTempBuffer;
             if (buffer != null)
             {
                 if (count > buffer.Length)
@@ -814,7 +814,7 @@ namespace Microsoft.IO
         {
             this.CheckDisposed();
 
-            string stack = this.memoryManager.GenerateCallStacks ? Environment.StackTrace : null;
+            string? stack = this.memoryManager.GenerateCallStacks ? Environment.StackTrace : null;
             this.memoryManager.ReportStreamToArray(this.id, this.tag, stack, this.length);
 
             if (this.memoryManager.ThrowExceptionOnToArray)
@@ -1486,15 +1486,17 @@ namespace Microsoft.IO
         /// </summary>
         private void ReleaseLargeBuffer()
         {
+            Debug.Assert(this.largeBuffer != null);
+
             if (this.memoryManager.AggressiveBufferReturn)
             {
-                this.memoryManager.ReturnLargeBuffer(this.largeBuffer, this.id, this.tag);
+                this.memoryManager.ReturnLargeBuffer(this.largeBuffer!, this.id, this.tag);
             }
             else
             {
                 // We most likely will only ever need space for one
                 this.dirtyBuffers ??= new List<byte[]>(1);
-                this.dirtyBuffers.Add(this.largeBuffer);
+                this.dirtyBuffers.Add(this.largeBuffer!);
             }
 
             this.largeBuffer = null;
