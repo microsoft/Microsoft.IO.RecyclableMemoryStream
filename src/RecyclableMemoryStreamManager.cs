@@ -387,7 +387,7 @@ namespace Microsoft.IO
                 // We'll add this back to the pool when the stream is disposed
                 // (unless our free pool is too large)
 #if NET5_0_OR_GREATER
-                block = GC.AllocateUninitializedArray<byte>(this.BlockSize);
+                block = this.ZeroOutBuffer ? GC.AllocateArray<byte>(BlockSize) : GC.AllocateUninitializedArray<byte>(this.BlockSize);
 #else
                 block = new byte[this.BlockSize];
 #endif
@@ -430,7 +430,7 @@ namespace Microsoft.IO
             {
                 if (!this.largePools[poolIndex].TryPop(out buffer))
                 {
-                    buffer = AllocateArray(requiredSize);
+                    buffer = AllocateArray(requiredSize, this.ZeroOutBuffer);
                     createdNew = true;
                 }
                 else
@@ -447,7 +447,7 @@ namespace Microsoft.IO
                 poolIndex = this.largeBufferInUseSize.Length - 1;
 
                 // We still want to round up to reduce heap fragmentation.
-                buffer = AllocateArray(requiredSize);
+                buffer = AllocateArray(requiredSize, this.ZeroOutBuffer);
                 if (this.GenerateCallStacks)
                 {
                     // Grab the stack -- we want to know who requires such large buffers
@@ -466,9 +466,9 @@ namespace Microsoft.IO
             return buffer;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            static byte[] AllocateArray(long requiredSize) =>
+            static byte[] AllocateArray(long requiredSize, bool zeroInitializeArray) =>
 #if NET5_0_OR_GREATER
-                GC.AllocateUninitializedArray<byte>((int)requiredSize);
+                zeroInitializeArray ? GC.AllocateArray<byte>((int)requiredSize) : GC.AllocateUninitializedArray<byte>((int)requiredSize);
 #else
                 new byte[requiredSize];
 #endif
