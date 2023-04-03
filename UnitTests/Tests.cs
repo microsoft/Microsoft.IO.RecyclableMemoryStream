@@ -3600,6 +3600,7 @@ namespace Microsoft.IO.UnitTests
                                                      DefaultMaximumBufferSize, this.UseExponentialLargeBuffer)
                    {
                        AggressiveBufferReturn = this.AggressiveBufferRelease,
+                       ZeroOutBuffer = this.ZeroOutBuffer,
                    };
         }
 
@@ -3642,7 +3643,46 @@ namespace Microsoft.IO.UnitTests
         }
         #endregion
 
+        #region ZeroOutBuffer
+
+        [Test]
+        public void BlockZeroedBeforeReturn() {
+            var memMgr = this.GetMemoryManager();
+            memMgr.ReturnBlock(this.GetRandomBuffer(memMgr.BlockSize), DefaultId, DefaultTag);
+            Assert.That(memMgr.SmallBlocksFree, Is.EqualTo(1));
+            var block = memMgr.GetBlock();
+            Assert.That(block, this.ZeroOutBuffer ? Is.All.EqualTo(0) : Is.Not.All.EqualTo(0));
+        }
+
+        [Test]
+        public void BlocksZeroedBeforeReturn() {
+            const int numBlocks = 5;
+            var memMgr = this.GetMemoryManager();
+            var blocks = new List<byte[]>(numBlocks);
+            for (var blockId = 0; blockId < numBlocks; ++blockId) {
+                blocks.Add(this.GetRandomBuffer(memMgr.BlockSize));
+            }
+            memMgr.ReturnBlocks(blocks, DefaultId, DefaultTag);
+            Assert.That(memMgr.SmallBlocksFree, Is.EqualTo(blocks.Count));
+            for (var blockId = 0; blockId < blocks.Count; ++blockId) {
+                var block = memMgr.GetBlock();
+                Assert.That(block, this.ZeroOutBuffer ? Is.All.EqualTo(0) : Is.Not.All.EqualTo(0));
+            }
+        }
+
+        [Test]
+        public void LargeBufferZeroedBeforeReturn() {
+            var memMgr = this.GetMemoryManager();
+            memMgr.ReturnLargeBuffer(this.GetRandomBuffer(memMgr.LargeBufferMultiple), DefaultId, DefaultTag);
+            Assert.That(memMgr.LargeBuffersFree, Is.EqualTo(1));
+            var buffer = memMgr.GetLargeBuffer(memMgr.LargeBufferMultiple, DefaultId, DefaultTag);
+            Assert.That(buffer, this.ZeroOutBuffer ? Is.All.EqualTo(0) : Is.Not.All.EqualTo(0));
+        }
+
+        #endregion
+
         protected abstract bool AggressiveBufferRelease { get; }
+        protected virtual bool ZeroOutBuffer => false;
 
         protected virtual bool UseExponentialLargeBuffer
         {
@@ -3969,5 +4009,16 @@ namespace Microsoft.IO.UnitTests
         {
             get { return true; }
         }
+    }
+
+    [TestFixture]
+    public sealed class RecyclableMemoryStreamTestsWithZeroOutBuffer : BaseRecyclableMemoryStreamTests {
+        protected override bool AggressiveBufferRelease => false;
+
+        protected override bool ZeroOutBuffer
+        {
+            get { return true; }
+        }
+
     }
 }
