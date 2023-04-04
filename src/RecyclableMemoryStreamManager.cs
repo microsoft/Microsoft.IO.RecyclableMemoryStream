@@ -369,7 +369,7 @@ namespace Microsoft.IO
         public bool ThrowExceptionOnToArray { get; set; }
 
         /// <summary>
-        /// Zero out buffers before returning them to the pool.
+        /// Zero out buffers on allocation and before returning them to the pool.
         /// </summary>
         /// <remarks>Setting this to true causes a performance hit and should only be set if one wants to avoid accidental data leaks.</remarks>
         public bool ZeroOutBuffer { get; set; }
@@ -639,9 +639,14 @@ namespace Microsoft.IO
             }
         }
 
-        private void ZeroOutMemoryIfEnabled(Span<byte> buffer) {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ZeroOutMemoryIfEnabled(byte[] buffer) {
             if (this.ZeroOutBuffer) {
-                buffer.Clear();
+#if NET6_0_OR_GREATER
+                Array.Clear(buffer);
+#else
+                Array.Clear(buffer, 0, buffer.Length);
+#endif
             }
         }
 
