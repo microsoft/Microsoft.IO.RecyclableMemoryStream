@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1680800283307,
+  "lastUpdate": 1680811277271,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -252,6 +252,42 @@ window.BENCHMARK_DATA = {
             "value": 198001904.7647059,
             "unit": "ns",
             "range": "± 5840282.047850196"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "lechu445@users.noreply.github.com",
+            "name": "Leszek B",
+            "username": "lechu445"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "df68bd349c97bb7bc20c02d99b2139aa09b04687",
+          "message": "Change RecylableMemoryStreamManager.GetStream to return RecylableMemoryStream (#281)\n\nresolves #165\r\n\r\nCo-authored-by: lechu445 <xxx@example.com>",
+          "timestamp": "2023-04-06T13:00:15-07:00",
+          "tree_id": "0202b1954da4fce1f99ed1cc6927db328b01cdf9",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/df68bd349c97bb7bc20c02d99b2139aa09b04687"
+        },
+        "date": 1680811276188,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 74103445.8,
+            "unit": "ns",
+            "range": "± 593373.7072652805"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 202109189.83333334,
+            "unit": "ns",
+            "range": "± 5151257.251376706"
           }
         ]
       }
