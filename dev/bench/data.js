@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1680193871418,
+  "lastUpdate": 1680800283307,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -216,6 +216,42 @@ window.BENCHMARK_DATA = {
             "value": 428776469.05128205,
             "unit": "ns",
             "range": "± 15008337.188845173"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "470455+paulomorgado@users.noreply.github.com",
+            "name": "Paulo Morgado",
+            "username": "paulomorgado"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "482acea112007d6d6bf3a96a3e693c64bb4541bd",
+          "message": "Add suport policy (#291)",
+          "timestamp": "2023-04-06T09:57:00-07:00",
+          "tree_id": "34f765025ddc80742ec9626afd738f87f233f21f",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/482acea112007d6d6bf3a96a3e693c64bb4541bd"
+        },
+        "date": 1680800281904,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 73451506.28571428,
+            "unit": "ns",
+            "range": "± 396571.54321963695"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 198001904.7647059,
+            "unit": "ns",
+            "range": "± 5840282.047850196"
           }
         ]
       }
