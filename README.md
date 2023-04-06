@@ -281,3 +281,7 @@ Read the API documentation [here](https://github.com/microsoft/Microsoft.IO.Recy
 ## License
 
 This library is released under the [MIT license](https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/blob/master/LICENSE).
+
+## Support
+
+Check the support policy [here](SUPPORT.md)
