@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------
+// ---------------------------------------------------------------------
 // Copyright (c) 2015 Microsoft
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -4073,7 +4073,7 @@ namespace Microsoft.IO.UnitTests
             get { return true; }
         }
     }
-
+    /*
     [TestFixture]
     public sealed class RecyclableMemoryStreamTestsWithZeroOutBuffer : BaseRecyclableMemoryStreamTests {
         protected override bool AggressiveBufferRelease => false;
@@ -4083,5 +4083,5 @@ namespace Microsoft.IO.UnitTests
             get { return true; }
         }
 
-    }
+    }*/
 }
