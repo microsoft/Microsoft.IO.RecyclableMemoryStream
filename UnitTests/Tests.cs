@@ -3247,7 +3247,7 @@ namespace Microsoft.IO.UnitTests
         #endregion
 
         #region Very Large Buffer Tests (> 2 GB)
-        [Test]
+        [Test, Ignore("TooBigForGitHub")]
         public void VeryLargeStream_Write()
         {
             var stream = GetMultiGBStream();
@@ -3269,7 +3269,7 @@ namespace Microsoft.IO.UnitTests
             RMSAssert.BuffersAreEqual(buffer, checkBuffer, buffer.Length);
         }
 
-        [Test]
+        [Test, Ignore("TooBigForGitHub")]
         public void VeryLargeStream_WriteOffsetCount()
         {
             var stream = GetMultiGBStream();
@@ -3291,7 +3291,7 @@ namespace Microsoft.IO.UnitTests
             RMSAssert.BuffersAreEqual(buffer, checkBuffer, buffer.Length);
         }
 
-        [Test]
+        [Test, Ignore("TooBigForGitHub")]
         public void VeryLargeStream_SetLength()
         {
             var stream = GetMultiGBStream();
@@ -3303,7 +3303,7 @@ namespace Microsoft.IO.UnitTests
             Assert.That(stream.Capacity64, Is.AtLeast(2 * DefaultVeryLargeStreamSize));
         }
 
-        [Test]
+        [Test, Ignore("TooBigForGitHub")]
         public void VeryLargeStream_ExistingLargeBufferThrowsOnMultiGBLength()
         {
             var stream = GetDefaultStream();
@@ -3313,14 +3313,14 @@ namespace Microsoft.IO.UnitTests
             Assert.Throws<OutOfMemoryException>(() => stream.SetLength(DefaultVeryLargeStreamSize));
         }
 
-        [Test]
+        [Test, Ignore("TooBigForGitHub")]
         public void VeryLargeStream_GetBufferThrows()
         {
             var stream = GetMultiGBStream();
             Assert.Throws<OutOfMemoryException>(() => stream.GetBuffer());
         }
 
-        [Test]
+        [Test, Ignore("TooBigForGitHub")]
         public void VeryLargeStream_SetPositionThrowsIfLargeBuffer()
         {
             var stream = GetDefaultStream();
@@ -3329,7 +3329,7 @@ namespace Microsoft.IO.UnitTests
             Assert.Throws<InvalidOperationException>(() => stream.Position = DefaultVeryLargeStreamSize);
         }
 
-        [Test]
+        [Test, Ignore("TooBigForGitHub")]
         public void VeryLargeStream_WriteByte()
         {
             var stream = GetMultiGBStream();
@@ -3345,7 +3345,7 @@ namespace Microsoft.IO.UnitTests
             Assert.That(stream.Length, Is.EqualTo(startingLength + 1));
         }
 
-        [Test]
+        [Test, Ignore("TooBigForGitHub")]
         public void VeryLargeStream_GetReadOnlySequence()
         {
             var stream = GetMultiGBStream();
@@ -4073,7 +4073,7 @@ namespace Microsoft.IO.UnitTests
             get { return true; }
         }
     }
-    /*
+    
     [TestFixture]
     public sealed class RecyclableMemoryStreamTestsWithZeroOutBuffer : BaseRecyclableMemoryStreamTests {
         protected override bool AggressiveBufferRelease => false;
@@ -4083,5 +4083,5 @@ namespace Microsoft.IO.UnitTests
             get { return true; }
         }
 
-    }*/
+    }
 }
