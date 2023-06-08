@@ -369,6 +369,12 @@ namespace Microsoft.IO
         public bool ThrowExceptionOnToArray { get; set; }
 
         /// <summary>
+        /// Zero out buffers on allocation and before returning them to the pool.
+        /// </summary>
+        /// <remarks>Setting this to true causes a performance hit and should only be set if one wants to avoid accidental data leaks.</remarks>
+        public bool ZeroOutBuffer { get; set; }
+
+        /// <summary>
         /// Removes and returns a single block from the pool.
         /// </summary>
         /// <returns>A <c>byte[]</c> array.</returns>
@@ -381,7 +387,7 @@ namespace Microsoft.IO
                 // We'll add this back to the pool when the stream is disposed
                 // (unless our free pool is too large)
 #if NET5_0_OR_GREATER
-                block = GC.AllocateUninitializedArray<byte>(this.BlockSize);
+                block = this.ZeroOutBuffer ? GC.AllocateArray<byte>(BlockSize) : GC.AllocateUninitializedArray<byte>(this.BlockSize);
 #else
                 block = new byte[this.BlockSize];
 #endif
@@ -424,7 +430,7 @@ namespace Microsoft.IO
             {
                 if (!this.largePools[poolIndex].TryPop(out buffer))
                 {
-                    buffer = AllocateArray(requiredSize);
+                    buffer = AllocateArray(requiredSize, this.ZeroOutBuffer);
                     createdNew = true;
                 }
                 else
@@ -441,7 +447,7 @@ namespace Microsoft.IO
                 poolIndex = this.largeBufferInUseSize.Length - 1;
 
                 // We still want to round up to reduce heap fragmentation.
-                buffer = AllocateArray(requiredSize);
+                buffer = AllocateArray(requiredSize, this.ZeroOutBuffer);
                 if (this.GenerateCallStacks)
                 {
                     // Grab the stack -- we want to know who requires such large buffers
@@ -460,9 +466,9 @@ namespace Microsoft.IO
             return buffer;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            static byte[] AllocateArray(long requiredSize) =>
+            static byte[] AllocateArray(long requiredSize, bool zeroInitializeArray) =>
 #if NET5_0_OR_GREATER
-                GC.AllocateUninitializedArray<byte>((int)requiredSize);
+                zeroInitializeArray ? GC.AllocateArray<byte>((int)requiredSize) : GC.AllocateUninitializedArray<byte>((int)requiredSize);
 #else
                 new byte[requiredSize];
 #endif
@@ -530,8 +536,8 @@ namespace Microsoft.IO
                                             $"{(this.UseExponentialLargeBuffer ? "an exponential" : "a multiple")} of {this.LargeBufferMultiple}.");
             }
 
+            this.ZeroOutMemoryIfEnabled(buffer);
             var poolIndex = this.GetPoolIndex(buffer.Length);
-
             if (poolIndex < this.largePools.Length)
             {
                 if ((this.largePools[poolIndex].Count + 1) * buffer.Length <= this.MaximumFreeLargePoolBytes ||
@@ -585,6 +591,7 @@ namespace Microsoft.IO
 
             foreach (var block in blocks)
             {
+                this.ZeroOutMemoryIfEnabled(block);
                 if (this.MaximumFreeSmallPoolBytes == 0 || this.SmallPoolFreeSize < this.MaximumFreeSmallPoolBytes)
                 {
                     Interlocked.Add(ref this.smallPoolFreeSize, this.BlockSize);
@@ -620,7 +627,7 @@ namespace Microsoft.IO
             {
                 throw new ArgumentException($"{nameof(block)} is not not {nameof(BlockSize)} in length.");
             }
-
+            this.ZeroOutMemoryIfEnabled(block);
             if (this.MaximumFreeSmallPoolBytes == 0 || this.SmallPoolFreeSize < this.MaximumFreeSmallPoolBytes)
             {
                 Interlocked.Add(ref this.smallPoolFreeSize, this.BlockSize);
@@ -629,6 +636,17 @@ namespace Microsoft.IO
             else
             {
                 ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Small, Events.MemoryStreamDiscardReason.EnoughFree);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ZeroOutMemoryIfEnabled(byte[] buffer) {
+            if (this.ZeroOutBuffer) {
+#if NET6_0_OR_GREATER
+                Array.Clear(buffer);
+#else
+                Array.Clear(buffer, 0, buffer.Length);
+#endif
             }
         }
 
