@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1684445207296,
+  "lastUpdate": 1686244325295,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -324,6 +324,42 @@ window.BENCHMARK_DATA = {
             "value": 468530251.4583333,
             "unit": "ns",
             "range": "± 11581530.366066061"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "48418168+lklein53@users.noreply.github.com",
+            "name": "lklein53",
+            "username": "lklein53"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "841e73dbc34d3e0bd6beea15393275e06cb88a74",
+          "message": "Add possibility to zero out memory before returning it to the pool (#270)\n\n* Add possibility to zero out memory before returning it to the pool\r\n\r\n* Zero initialize buffers if ZeroOutBuffer is set\r\n\r\n* Update README\r\n\r\n* Add test cases for ZeroOutBuffer functionality\r\n\r\n* fixup! Add possibility to zero out memory before returning it to the pool\r\n\r\n* Skip VeryLarge stream tests if ZeroOutBuffer is on\r\n\r\nIncreased memory requirement made the tests fail on the current Gitlab\r\nrunner hardware.",
+          "timestamp": "2023-06-08T10:10:54-07:00",
+          "tree_id": "034c07fe66ce41e175141f86045443f884643a9e",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/841e73dbc34d3e0bd6beea15393275e06cb88a74"
+        },
+        "date": 1686244323717,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 199847711.52941176,
+            "unit": "ns",
+            "range": "± 3913156.1159513257"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 511024145.75,
+            "unit": "ns",
+            "range": "± 9311723.011227258"
           }
         ]
       }
