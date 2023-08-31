@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1692292649212,
+  "lastUpdate": 1693499454191,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -468,6 +468,42 @@ window.BENCHMARK_DATA = {
             "value": 385223786.6666667,
             "unit": "ns",
             "range": "± 9876098.592965437"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3b3562171c13679fad5c64c74eccd3be89f34ef6",
+          "message": "Bump Microsoft.NET.Test.Sdk from 17.7.1 to 17.7.2 in /UnitTests (#304)\n\nBumps [Microsoft.NET.Test.Sdk](https://github.com/microsoft/vstest) from 17.7.1 to 17.7.2.\r\n- [Release notes](https://github.com/microsoft/vstest/releases)\r\n- [Changelog](https://github.com/microsoft/vstest/blob/main/docs/releases.md)\r\n- [Commits](https://github.com/microsoft/vstest/compare/v17.7.1...v17.7.2)\r\n\r\n---\r\nupdated-dependencies:\r\n- dependency-name: Microsoft.NET.Test.Sdk\r\n  dependency-type: direct:production\r\n  update-type: version-update:semver-patch\r\n...\r\n\r\nSigned-off-by: dependabot[bot] <support@github.com>\r\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2023-08-31T09:29:53-07:00",
+          "tree_id": "ae76ae9e2e0ef5297fc7558553744b580253c826",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/3b3562171c13679fad5c64c74eccd3be89f34ef6"
+        },
+        "date": 1693499453265,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 72537906.8,
+            "unit": "ns",
+            "range": "± 300622.45720343076"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 204489533.12121212,
+            "unit": "ns",
+            "range": "± 9617752.32509825"
           }
         ]
       }
