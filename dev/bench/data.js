@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1695315332172,
+  "lastUpdate": 1695315884183,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -540,6 +540,42 @@ window.BENCHMARK_DATA = {
             "value": 388904478.88,
             "unit": "ns",
             "range": "± 10249763.52730999"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "kerams@users.noreply.github.com",
+            "name": "kerams",
+            "username": "kerams"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8356bf5bfb79c91a4ddd3c3f3afc51b952e5fff2",
+          "message": "Remove empty array instance (#306)",
+          "timestamp": "2023-09-21T10:03:38-07:00",
+          "tree_id": "953067bce216ef4ed808aeac0675b97b8d362747",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/8356bf5bfb79c91a4ddd3c3f3afc51b952e5fff2"
+        },
+        "date": 1695315883142,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 71114464,
+            "unit": "ns",
+            "range": "± 437420.23376741825"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 196296434.1395349,
+            "unit": "ns",
+            "range": "± 7217182.69733879"
           }
         ]
       }
