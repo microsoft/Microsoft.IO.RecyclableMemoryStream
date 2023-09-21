@@ -89,8 +89,6 @@ namespace Microsoft.IO
     /// </remarks>
     public sealed class RecyclableMemoryStream : MemoryStream, IBufferWriter<byte>
     {
-        private static readonly byte[] emptyArray = new byte[0];
-
         /// <summary>
         /// All of these blocks must be the same size.
         /// </summary>
@@ -234,7 +232,7 @@ namespace Microsoft.IO
         /// <param name="requestedSize">The initial requested size to prevent future allocations.</param>
         /// <param name="initialLargeBuffer">An initial buffer to use. This buffer will be owned by the stream and returned to the memory manager upon Dispose.</param>
         internal RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string? tag, long requestedSize, byte[]? initialLargeBuffer)
-            : base(emptyArray)
+            : base(Array.Empty<byte>())
         {
             this.memoryManager = memoryManager;
             this.id = id;
