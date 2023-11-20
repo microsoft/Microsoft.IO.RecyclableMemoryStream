@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1699996486476,
+  "lastUpdate": 1700506824186,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -648,6 +648,42 @@ window.BENCHMARK_DATA = {
             "value": 146509206.74626866,
             "unit": "ns",
             "range": "± 6930144.992772065"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "benmwatson@users.noreply.github.com",
+            "name": "Ben",
+            "username": "benmwatson"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ebc9cdac3bf22fa63895e9349c06656082ba5850",
+          "message": "Update RMS to version 3.0.0, remove obsolete .NET targets, update package dependency versions (#310)\n\n* Update RMS to version 3.0.0, remove obsolete .NET versions, update package dependencies\r\n\r\n* Update assembly version info to 3.0.0.0\r\n\r\n---------\r\n\r\nCo-authored-by: Ben Watson <bewatson@microsoft.com>",
+          "timestamp": "2023-11-20T10:59:15-08:00",
+          "tree_id": "0f1e3ee00a2a56ae5c6af6d5d689c0a45a7db97e",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/ebc9cdac3bf22fa63895e9349c06656082ba5850"
+        },
+        "date": 1700506822776,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 71706760.6923077,
+            "unit": "ns",
+            "range": "± 278143.9047116272"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 150578739.66393444,
+            "unit": "ns",
+            "range": "± 6783087.694592712"
           }
         ]
       }
