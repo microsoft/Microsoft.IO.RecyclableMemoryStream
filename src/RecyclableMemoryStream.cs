@@ -1,4 +1,4 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 //
 // Copyright (c) 2015-2016 Microsoft
 //
@@ -530,7 +530,7 @@ namespace Microsoft.IO
             return this.largeBuffer;
         }
 
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         /// <inheritdoc/>
         public override void CopyTo(Stream destination, int bufferSize)
         {
@@ -790,7 +790,7 @@ namespace Microsoft.IO
             {
             }
 
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             buffer = ArraySegment<byte>.Empty;
 #else
             buffer = new ArraySegment<byte>();
@@ -891,7 +891,7 @@ namespace Microsoft.IO
         /// <param name="buffer">Destination buffer.</param>
         /// <returns>The number of bytes read.</returns>
         /// <exception cref="ObjectDisposedException">Object has been disposed.</exception>
-#if NETSTANDARD2_0 || NET462
+#if NETSTANDARD2_0
         public int Read(Span<byte> buffer)
 #else
         public override int Read(Span<byte> buffer)
@@ -991,7 +991,7 @@ namespace Microsoft.IO
         /// <param name="source">Source buffer.</param>
         /// <exception cref="ArgumentNullException">buffer is null.</exception>
         /// <exception cref="ObjectDisposedException">Object has been disposed.</exception>
-#if NETSTANDARD2_0 || NET462
+#if NETSTANDARD2_0
         public void Write(ReadOnlySpan<byte> source)
 #else
         public override void Write(ReadOnlySpan<byte> source)
