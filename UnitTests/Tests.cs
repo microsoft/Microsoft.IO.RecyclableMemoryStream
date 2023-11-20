@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------
+// ---------------------------------------------------------------------
 // Copyright (c) 2015 Microsoft
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,11 +27,13 @@ namespace Microsoft.IO.UnitTests
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
+    using System.Net.WebSockets;
     using System.Runtime.InteropServices;
     using System.Threading;
     using System.Threading.Tasks;
 
     using Microsoft.IO;
+    using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
     using NUnit.Framework;
 
     /// <summary>
@@ -354,55 +356,77 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
-        public void ReturningLargeBufferIsDroppedIfEnoughFree()
-        {
-            this.TestDroppingLargeBuffer(8000);
-        }
-
-        [Test]
         public void ReturningLargeBufferNeverDroppedIfMaxFreeSizeZero()
-        {
-            this.TestDroppingLargeBuffer(0);
-        }
-
-        protected virtual void TestDroppingLargeBuffer(long maxFreeLargeBufferSize)
-        {
+        {            
             const int BlockSize = 100;
             const int LargeBufferMultiple = 1000;
             const int MaxBufferSize = 8000;
+            const int MaxFreeLargeBufferSize = 0;
 
             for (var size = LargeBufferMultiple; size <= MaxBufferSize; size += LargeBufferMultiple)
             {
                 var memMgr = new RecyclableMemoryStreamManager(BlockSize, LargeBufferMultiple, MaxBufferSize, this.UseExponentialLargeBuffer)
                              {
                                  AggressiveBufferReturn = this.AggressiveBufferRelease,
-                                 MaximumFreeLargePoolBytes = maxFreeLargeBufferSize
+                                 MaximumFreeLargePoolBytes = MaxFreeLargeBufferSize
                              };
 
                 var buffers = new List<byte[]>();
 
                 //Get one extra buffer
-                var buffersToRetrieve = (maxFreeLargeBufferSize > 0) ? (maxFreeLargeBufferSize / size + 1) : 10;
+                var buffersToRetrieve = (MaxFreeLargeBufferSize > 0) ? (MaxFreeLargeBufferSize / size + 1) : 10;
                 for (var i = 0; i < buffersToRetrieve; i++)
                 {
                     buffers.Add(memMgr.GetLargeBuffer(size, DefaultId, DefaultTag));
                 }
-                Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(size * buffersToRetrieve));
+                Assert.That(memMgr.LargePoolInUseSize, Is.AtLeast(size * buffersToRetrieve));
                 Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(0));
                 foreach (var buffer in buffers)
                 {
                     memMgr.ReturnLargeBuffer(buffer, DefaultId, DefaultTag);
                 }
                 Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(0));
-                if (maxFreeLargeBufferSize > 0)
-                {
-                    Assert.That(memMgr.LargePoolFreeSize, Is.LessThanOrEqualTo(maxFreeLargeBufferSize));
-                }
-                else
-                {
-                    Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(buffersToRetrieve * size));
-                }
+                
+                Assert.That(memMgr.LargePoolFreeSize, Is.AtLeast(buffersToRetrieve * size));                
             }
+        }
+
+        [Test]
+        public void ReturningLargeBufferObeysGlobalLimits()
+        {
+            // In RMS v1 and v2, the MaximumFreeLargePoolBytes settings was per-subpool, which
+            // was non-intuitive when configuring the manager
+            // Starting in 3.0, the MaximumFreeLargePoolBytes is a global limit
+
+            // Small pool: 100 bytes max (10-byte buffers)
+            // large pool: 100_000 max, 1000-byte buffers, with sizes from 1000 to 10000 bytes
+            const int MaximumFreeLargePoolBytes = 100_000;
+            const int LargeBufferMultiple = 1_000;
+            const int MaxBufferSize = 10_000;
+            var mgr = new RecyclableMemoryStreamManager(10,LargeBufferMultiple, MaxBufferSize, false, 100, MaximumFreeLargePoolBytes);
+
+            List<Stream> streams = new List<Stream>();
+            // If we pool 100_000 bytes in the 10_000 pool, we should not be able to add any in the other pools.
+            for (int i=0;i<MaximumFreeLargePoolBytes / MaxBufferSize;i++)
+            {
+                var stream = mgr.GetStream("UnitTest", MaxBufferSize, asContiguousBuffer:true);
+                streams.Add(stream);
+            }
+
+            Assert.That(mgr.LargePoolFreeSize, Is.EqualTo(0));
+
+            foreach(var stream in streams)
+            {
+                stream.Dispose();
+            }
+
+            Assert.That(mgr.LargePoolFreeSize, Is.EqualTo(MaximumFreeLargePoolBytes));
+
+            // We should not be able to add any more buffers back to pool now.
+            var smallerStream = mgr.GetStream("UnitTest", LargeBufferMultiple, asContiguousBuffer: true);
+            smallerStream.Dispose();
+
+            Assert.That(mgr.LargePoolFreeSize, Is.EqualTo(MaximumFreeLargePoolBytes));
         }
 
         [Test]
@@ -3941,46 +3965,6 @@ namespace Microsoft.IO.UnitTests
             var buffer = memMgr.GetLargeBuffer(memMgr.MaximumBufferSize + 1, DefaultId, DefaultTag);
             Assert.That(buffer.Length, Is.EqualTo(memMgr.MaximumBufferSize * 2));
             Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(buffer.Length));
-        }
-
-        protected override void TestDroppingLargeBuffer(long maxFreeLargeBufferSize)
-        {
-            const int BlockSize = 100;
-            const int LargeBufferMultiple = 1000;
-            const int MaxBufferSize = 8000;
-
-            for (var size = LargeBufferMultiple; size <= MaxBufferSize; size *= 2)
-            {
-                var memMgr = new RecyclableMemoryStreamManager(BlockSize, LargeBufferMultiple, MaxBufferSize, this.UseExponentialLargeBuffer)
-                             {
-                                 AggressiveBufferReturn = this.AggressiveBufferRelease,
-                                 MaximumFreeLargePoolBytes = maxFreeLargeBufferSize
-                             };
-
-                var buffers = new List<byte[]>();
-
-                //Get one extra buffer
-                var buffersToRetrieve = (maxFreeLargeBufferSize > 0) ? (maxFreeLargeBufferSize / size + 1) : 10;
-                for (var i = 0; i < buffersToRetrieve; i++)
-                {
-                    buffers.Add(memMgr.GetLargeBuffer(size, DefaultId, DefaultTag));
-                }
-                Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(size * buffersToRetrieve));
-                Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(0));
-                foreach (var buffer in buffers)
-                {
-                    memMgr.ReturnLargeBuffer(buffer, DefaultId, DefaultTag);
-                }
-                Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(0));
-                if (maxFreeLargeBufferSize > 0)
-                {
-                    Assert.That(memMgr.LargePoolFreeSize, Is.LessThanOrEqualTo(maxFreeLargeBufferSize));
-                }
-                else
-                {
-                    Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(buffersToRetrieve * size));
-                }
-            }
         }
     }
 

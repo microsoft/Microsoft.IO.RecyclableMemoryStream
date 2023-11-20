@@ -25,7 +25,6 @@ namespace Microsoft.IO
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.IO;
     using System.Runtime.CompilerServices;
     using System.Threading;
 
@@ -71,15 +70,14 @@ namespace Microsoft.IO
         private const long DefaultMaxSmallPoolFreeBytes = 0L;
         private const long DefaultMaxLargePoolFreeBytes = 0L;
 
-        private readonly long[] largeBufferFreeSize;
-        private readonly long[] largeBufferInUseSize;
-
-        private readonly ConcurrentStack<byte[]>[] largePools;
-
         private readonly ConcurrentStack<byte[]> smallPool;
+        private readonly ConcurrentStack<byte[]>[] largePools;        
 
         private long smallPoolFreeSize;
         private long smallPoolInUseSize;
+
+        private long largeBufferFreeSize;
+        private long largeBufferInUseSize;
 
         /// <summary>
         /// Initializes the memory manager with the default block/buffer specifications. This pool may have unbounded growth unless you modify <see cref="MaximumFreeSmallPoolBytes"/> and <see cref="MaximumFreeLargePoolBytes"/>.
@@ -212,10 +210,6 @@ namespace Microsoft.IO
                                     ? ((int)Math.Log(maximumBufferSize / largeBufferMultiple, 2) + 1)
                                     : (maximumBufferSize / largeBufferMultiple);
 
-            // +1 to store size of bytes in use that are too large to be pooled
-            this.largeBufferInUseSize = new long[numLargePools + 1];
-            this.largeBufferFreeSize = new long[numLargePools];
-
             this.largePools = new ConcurrentStack<byte[]>[numLargePools];
 
             for (var i = 0; i < this.largePools.Length; ++i)
@@ -270,13 +264,7 @@ namespace Microsoft.IO
         {
             get
             {
-                long sum = 0;
-                foreach (long freeSize in this.largeBufferFreeSize)
-                {
-                    sum += freeSize;
-                }
-
-                return sum;
+                return this.largeBufferFreeSize;
             }
         }
 
@@ -287,13 +275,7 @@ namespace Microsoft.IO
         {
             get
             {
-                long sum = 0;
-                foreach (long inUseSize in this.largeBufferInUseSize)
-                {
-                    sum += inUseSize;
-                }
-
-                return sum;
+                return this.largeBufferInUseSize;
             }
         }
 
@@ -435,16 +417,13 @@ namespace Microsoft.IO
                 }
                 else
                 {
-                    Interlocked.Add(ref this.largeBufferFreeSize[poolIndex], -buffer.Length);
+                    Interlocked.Add(ref this.largeBufferFreeSize, -buffer.Length);
                 }
             }
             else
             {
                 // Buffer is too large to pool. They get a new buffer.
-
-                // We still want to track the size, though, and we've reserved a slot
-                // in the end of the inuse array for nonpooled bytes in use.
-                poolIndex = this.largeBufferInUseSize.Length - 1;
+                // We still want to track the size.
 
                 // We still want to round up to reduce heap fragmentation.
                 buffer = AllocateArray(requiredSize, this.ZeroOutBuffer);
@@ -457,7 +436,7 @@ namespace Microsoft.IO
                 pooled = false;
             }
 
-            Interlocked.Add(ref this.largeBufferInUseSize[poolIndex], buffer.Length);
+            Interlocked.Add(ref this.largeBufferInUseSize, buffer.Length);
             if (createdNew)
             {
                 ReportLargeBufferCreated(id, tag, requiredSize, pooled: pooled, callStack);
@@ -540,11 +519,11 @@ namespace Microsoft.IO
             var poolIndex = this.GetPoolIndex(buffer.Length);
             if (poolIndex < this.largePools.Length)
             {
-                if ((this.largePools[poolIndex].Count + 1) * buffer.Length <= this.MaximumFreeLargePoolBytes ||
+                if (this.largeBufferFreeSize < this.MaximumFreeLargePoolBytes ||
                     this.MaximumFreeLargePoolBytes == 0)
                 {
                     this.largePools[poolIndex].Push(buffer);
-                    Interlocked.Add(ref this.largeBufferFreeSize[poolIndex], buffer.Length);
+                    Interlocked.Add(ref this.largeBufferFreeSize, buffer.Length);
                 }
                 else
                 {
@@ -553,14 +532,10 @@ namespace Microsoft.IO
             }
             else
             {
-                // This is a non-poolable buffer, but we still want to track its size for inuse
-                // analysis. We have space in the inuse array for this.
-                poolIndex = this.largeBufferInUseSize.Length - 1;
-
                 ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Large, Events.MemoryStreamDiscardReason.TooLarge);
             }
 
-            Interlocked.Add(ref this.largeBufferInUseSize[poolIndex], -buffer.Length);
+            Interlocked.Add(ref this.largeBufferInUseSize, -buffer.Length);
         }
 
         /// <summary>
