@@ -80,7 +80,7 @@ namespace Microsoft.IO
         private long smallPoolFreeSize;
         private long smallPoolInUseSize;
 
-        internal Options options;
+        internal readonly Options options;
 
         /// <summary>
         /// Settings for controlling the behavior of RecyclableMemoryStream
