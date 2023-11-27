@@ -155,7 +155,7 @@ namespace Microsoft.IO
         /// <summary>
         /// Parameters for customizing the behavior of <see cref="RecyclableMemoryStreamManager"/>
         /// </summary>
-        public struct Options
+        public class Options
         {
             /// <summary>
             /// Gets or sets the size of the pooled blocks. This must be greater than 0.
