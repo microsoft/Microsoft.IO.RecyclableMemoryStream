@@ -1,0 +1,2 @@
+[*.{cs,vb}]
+dotnet_diagnostic.IDE0057.severity = none

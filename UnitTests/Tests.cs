@@ -148,9 +148,8 @@ namespace Microsoft.IO.UnitTests
             for (var i = start; i <= end; i += step)
             {
                 var buffer = memMgr.GetLargeBuffer(i, DefaultId, DefaultTag);
-                Assert.That(buffer.Length >= i, Is.True);
-                Assert.That((buffer.Length % memMgr.options.LargeBufferMultiple) == 0, Is.True,
-                            "buffer length of {0} is not a multiple of {1}", buffer.Length, memMgr.options.LargeBufferMultiple);
+                Assert.That(buffer, Has.Length.GreaterThanOrEqualTo(i));
+                Assert.That((buffer.Length % memMgr.options.LargeBufferMultiple), Is.EqualTo(0), $"buffer length of {buffer.Length} is not a multiple of {memMgr.options.LargeBufferMultiple}");
             }
         }
 
@@ -270,7 +269,7 @@ namespace Microsoft.IO.UnitTests
         {
             var memMgr = this.GetMemoryManager();
             var buffer = memMgr.GetLargeBuffer(memMgr.options.MaximumBufferSize + 1, DefaultId, DefaultTag);
-            Assert.That(buffer.Length, Is.EqualTo(memMgr.options.MaximumBufferSize + memMgr.options.LargeBufferMultiple));
+            Assert.That(buffer, Has.Length.EqualTo(memMgr.options.MaximumBufferSize + memMgr.options.LargeBufferMultiple));
             Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(buffer.Length));
         }
 
@@ -289,7 +288,7 @@ namespace Microsoft.IO.UnitTests
         public void ReturnZeroLengthBufferThrowsException()
         {
             var memMgr = this.GetMemoryManager();
-            var emptyBuffer = new byte[0];
+            var emptyBuffer = Array.Empty<byte>();
             Assert.Throws<ArgumentException>(() => memMgr.ReturnLargeBuffer(emptyBuffer, DefaultId, DefaultTag));
         }
 
@@ -463,7 +462,7 @@ namespace Microsoft.IO.UnitTests
             var buffer = this.GetRandomBuffer(size);
             stream.Write(buffer, 0, buffer.Length);
             var returnedBuffer = stream.GetBuffer();
-            Assert.That(returnedBuffer.Length, Is.EqualTo(stream.MemoryManager.options.BlockSize));
+            Assert.That(returnedBuffer, Has.Length.EqualTo(stream.MemoryManager.options.BlockSize));
             RMSAssert.TryGetBufferEqualToGetBuffer(stream);
         }
 
@@ -475,7 +474,7 @@ namespace Microsoft.IO.UnitTests
             var buffer = this.GetRandomBuffer(size);
             stream.Write(buffer, 0, buffer.Length);
             var returnedBuffer = stream.GetBuffer();
-            Assert.That(returnedBuffer.Length, Is.EqualTo(stream.MemoryManager.options.BlockSize));
+            Assert.That(returnedBuffer, Has.Length.EqualTo(stream.MemoryManager.options.BlockSize));
             RMSAssert.TryGetBufferEqualToGetBuffer(stream);
         }
 
@@ -487,7 +486,7 @@ namespace Microsoft.IO.UnitTests
             var buffer = this.GetRandomBuffer(size);
             stream.Write(buffer, 0, buffer.Length);
             var returnedBuffer = stream.GetBuffer();
-            Assert.That(returnedBuffer.Length, Is.EqualTo(stream.MemoryManager.options.LargeBufferMultiple));
+            Assert.That(returnedBuffer, Has.Length.EqualTo(stream.MemoryManager.options.LargeBufferMultiple));
             RMSAssert.TryGetBufferEqualToGetBuffer(stream);
         }
 
@@ -523,7 +522,7 @@ namespace Microsoft.IO.UnitTests
             newStream.Write(buffer, 0, buffer.Length);
 
             var newBuffer2 = newStream.GetBuffer();
-            Assert.That(newBuffer2.Length, Is.EqualTo(newBuffer.Length));
+            Assert.That(newBuffer2, Has.Length.EqualTo(newBuffer.Length));
             Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(0));
             RMSAssert.TryGetBufferEqualToGetBuffer(newStream);
         }
@@ -532,18 +531,17 @@ namespace Microsoft.IO.UnitTests
         public void TryGetBufferFailsOnLargeStream()
         {
             var stream = GetMultiGBStream();
-            ArraySegment<byte> seg;
             // Exception path -- no content, but GetBuffer will throw
-            Assert.That(stream.TryGetBuffer(out seg), Is.False);
+            Assert.That(stream.TryGetBuffer(out ArraySegment<byte> seg), Is.False);
             Assert.That(seg.Offset, Is.Zero);
-            Assert.That(seg.Count, Is.Zero);
+            Assert.That(seg, Is.Empty);
             Assert.That(seg.Array, Is.Empty);
 
             //Non-exception path. Length is too long. No exception.
             var buffer = new byte[RecyclableMemoryStreamManager.MaxArrayLength];
             stream.Write(buffer);
             stream.Write(buffer);
-            Assert.That(stream.TryGetBuffer(out seg), Is.False);
+            Assert.That(stream.TryGetBuffer(out _), Is.False);
         }
 
         [Test]
@@ -639,8 +637,8 @@ namespace Microsoft.IO.UnitTests
             var span = stream.GetSpan();
             var memory = stream.GetMemory();
             MemoryMarshal.TryGetArray(memory, out ArraySegment<byte> arraySegment);
-            Assert.AreEqual(buffer, arraySegment.Array);
-            Assert.IsTrue(buffer.AsSpan() == span);
+            Assert.That(arraySegment.Array, Is.EqualTo(buffer));
+            Assert.That(buffer.AsSpan() == span, Is.True);
         }
 
         [Test]
@@ -652,8 +650,8 @@ namespace Microsoft.IO.UnitTests
             var span = stream.GetSpan();
             var memory = stream.GetMemory();
             MemoryMarshal.TryGetArray(memory, out ArraySegment<byte> arraySegment);
-            Assert.AreEqual(buffer, arraySegment.Array);
-            Assert.IsTrue(buffer.AsSpan() == span);
+            Assert.That(arraySegment.Array, Is.EqualTo(buffer));
+            Assert.That(buffer.AsSpan() == span, Is.True);
             stream.Advance(1);
             Assert.That(stream.Length, Is.EqualTo(1));
         }
@@ -667,9 +665,9 @@ namespace Microsoft.IO.UnitTests
             var span = stream.GetSpan();
             var memory = stream.GetMemory();
             MemoryMarshal.TryGetArray(memory, out ArraySegment<byte> arraySegment);
-            Assert.AreEqual(buffer, arraySegment.Array);
-            Assert.AreEqual(buffer.Length - 1, memory.Length);
-            Assert.IsTrue(buffer.AsSpan(1) == span);
+            Assert.That(arraySegment.Array, Is.EqualTo(buffer));
+            Assert.That(memory.Length, Is.EqualTo(buffer.Length - 1));
+            Assert.That(buffer.AsSpan(1) == span, Is.True);
         }
 
         [Test]
@@ -686,12 +684,12 @@ namespace Microsoft.IO.UnitTests
             MemoryMarshal.TryGetArray(memory, out ArraySegment<byte> arraySegment);
             var memoryArray = arraySegment.Array;
 
-            Assert.IsTrue(span == memory.Span);
-            Assert.AreEqual(size, span.Length);
-            Assert.AreEqual(size, memoryArray.Length);
+            Assert.That(span == memory.Span, Is.True);
+            Assert.That(span.Length, Is.EqualTo(size));
+            Assert.That(memoryArray, Has.Length.EqualTo(size));
             Span<byte> bufferSpan = stream.GetBuffer().AsSpan(size, size);
-            Assert.IsTrue(bufferSpan.SequenceEqual(span));
-            Assert.IsFalse(bufferSpan == span);
+            Assert.That(bufferSpan.SequenceEqual(span), Is.True);
+            Assert.That(bufferSpan == span, Is.False);
         }
 
         [Test]
@@ -706,9 +704,9 @@ namespace Microsoft.IO.UnitTests
             stream.Advance(size);
 
             Span<byte> bufferSpan = stream.GetBuffer().AsSpan(0, size);
-            Assert.IsTrue(bufferSpan.SequenceEqual(randomBuffer));
-            Assert.IsFalse(bufferSpan == span);
-            Assert.AreEqual(stream.MemoryManager.options.LargeBufferMultiple, span.Length);
+            Assert.That(bufferSpan.SequenceEqual(randomBuffer), Is.True);
+            Assert.That(bufferSpan == span, Is.False);
+            Assert.That(span.Length, Is.EqualTo(stream.MemoryManager.options.LargeBufferMultiple));
         }
 
         [Test]
@@ -724,9 +722,9 @@ namespace Microsoft.IO.UnitTests
             stream.Advance(size);
 
             Span<byte> bufferSpan = stream.GetBuffer().AsSpan(size + 1, size);
-            Assert.IsTrue(bufferSpan.SequenceEqual(randomBuffer));
-            Assert.IsFalse(bufferSpan == span);
-            Assert.AreEqual(stream.MemoryManager.options.BlockSize, span.Length);
+            Assert.That(bufferSpan.SequenceEqual(randomBuffer), Is.True);
+            Assert.That(bufferSpan == span, Is.False);
+            Assert.That(span.Length, Is.EqualTo(stream.MemoryManager.options.BlockSize));
         }
         #endregion
 
@@ -789,7 +787,7 @@ namespace Microsoft.IO.UnitTests
             Assert.That(returnedSequence.IsSingleSegment);
             Assert.That(returnedSequence.Length, Is.EqualTo(stream.MemoryManager.options.LargeBufferMultiple));
             Assert.That(returnedSequence.First.Length, Is.EqualTo(stream.MemoryManager.options.LargeBufferMultiple));
-            Assert.That(MemoryMarshal.TryGetArray(returnedSequence.First, out ArraySegment<byte> sequenceArraySegment));
+            Assert.That(MemoryMarshal.TryGetArray(returnedSequence.First, out _));
             RMSAssert.BuffersAreEqual(returnedSequence.ToArray(), getBufferArraySegment, (int)returnedSequence.Length);
         }
 
@@ -815,7 +813,7 @@ namespace Microsoft.IO.UnitTests
             stream.Position = DefaultBlockSize;
             stream.WriteByte(0);
             stream.SetLength(DefaultBlockSize - 1);
-            Assert.AreEqual(stream.Length, stream.GetReadOnlySequence().Length);
+            Assert.That(stream.GetReadOnlySequence().Length, Is.EqualTo(stream.Length));
         }
         #endregion
 
@@ -844,7 +842,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
-        public void StreamHasGuidandTag()
+        public void StreamHasGuidAndTag()
         {
             const string expectedTag = "Nunit Test";
             Guid expectedGuid = Guid.NewGuid();
@@ -871,7 +869,7 @@ namespace Microsoft.IO.UnitTests
             var requestedSize = memoryManager.options.BlockSize + 1;
             var stream = new RecyclableMemoryStream(memoryManager, string.Empty, requestedSize);
             Assert.That(stream.Capacity, Is.GreaterThanOrEqualTo(requestedSize));
-            Assert.That(stream.Capacity % memoryManager.options.BlockSize == 0, Is.True,
+            Assert.That(stream.Capacity % memoryManager.options.BlockSize, Is.EqualTo(0),
                         "stream capacity is not a multiple of the block size");
         }
 
@@ -975,11 +973,11 @@ namespace Microsoft.IO.UnitTests
             var buffer = this.GetRandomBuffer(stream.MemoryManager.options.LargeBufferMultiple);
             stream.Write(buffer, 0, buffer.Length);
             var get1 = stream.GetBuffer();
-            Assert.That(get1.Length, Is.EqualTo(stream.MemoryManager.options.LargeBufferMultiple));
+            Assert.That(get1, Has.Length.EqualTo(stream.MemoryManager.options.LargeBufferMultiple));
             stream.Write(buffer, 0, 1);
             var get2 = stream.GetBuffer();
             Assert.That(stream.Length, Is.EqualTo(stream.MemoryManager.options.LargeBufferMultiple + 1));
-            Assert.That(get2.Length, Is.EqualTo(stream.MemoryManager.options.LargeBufferMultiple * 2));
+            Assert.That(get2, Has.Length.EqualTo(stream.MemoryManager.options.LargeBufferMultiple * 2));
             RMSAssert.BuffersAreEqual(get1, get2, (int)stream.Length - 1);
             Assert.That(get2[stream.MemoryManager.options.LargeBufferMultiple], Is.EqualTo(buffer[0]));
         }
@@ -1146,11 +1144,11 @@ namespace Microsoft.IO.UnitTests
             var buffer = this.GetRandomBuffer(stream.MemoryManager.options.LargeBufferMultiple);
             stream.Write(buffer.AsSpan());
             var get1 = stream.GetBuffer();
-            Assert.That(get1.Length, Is.EqualTo(stream.MemoryManager.options.LargeBufferMultiple));
+            Assert.That(get1, Has.Length.EqualTo(stream.MemoryManager.options.LargeBufferMultiple));
             stream.Write(buffer.AsSpan(0, 1));
             var get2 = stream.GetBuffer();
             Assert.That(stream.Length, Is.EqualTo(stream.MemoryManager.options.LargeBufferMultiple + 1));
-            Assert.That(get2.Length, Is.EqualTo(stream.MemoryManager.options.LargeBufferMultiple * 2));
+            Assert.That(get2, Has.Length.EqualTo(stream.MemoryManager.options.LargeBufferMultiple * 2));
             RMSAssert.BuffersAreEqual(get1, get2, (int)stream.Length - 1);
             Assert.That(get2[stream.MemoryManager.options.LargeBufferMultiple], Is.EqualTo(buffer[0]));
         }
@@ -1472,13 +1470,13 @@ namespace Microsoft.IO.UnitTests
             var stream = this.GetRandomStream();
 
             var step = stream.MemoryManager.options.BlockSize / 2;
-            var destBuffer = new byte[step];
+            var destinationBuffer = new byte[step];
             var bytesRead = 0;
             var position = 0L;
 
             while (position < stream.Length)
             {
-                bytesRead += stream.SafeRead(destBuffer, 0, Math.Min(step, (int)stream.Length - bytesRead), ref position);
+                bytesRead += stream.SafeRead(destinationBuffer, 0, Math.Min(step, (int)stream.Length - bytesRead), ref position);
                 Assert.That(position, Is.EqualTo(bytesRead));
                 Assert.That(stream.Position, Is.EqualTo(0));
             }
@@ -1493,7 +1491,7 @@ namespace Microsoft.IO.UnitTests
             stream.Write(buffer, 0, bufferLength);
 
             var step = stream.MemoryManager.options.BlockSize / 2;
-            var destBuffer = new byte[step];
+            var destinationBuffer = new byte[step];
             var expected = new byte[step];
             var bytesRead = 0;
             var position = 0L;
@@ -1502,18 +1500,18 @@ namespace Microsoft.IO.UnitTests
             {
                 stream.Position = this.random.Next(0, bufferLength);
                 var lastPosition = position;
-                var lastRead = stream.SafeRead(destBuffer, 0, Math.Min(step, (int)stream.Length - bytesRead), ref position);
+                var lastRead = stream.SafeRead(destinationBuffer, 0, Math.Min(step, (int)stream.Length - bytesRead), ref position);
                 bytesRead += lastRead;
 
                 Array.Copy(buffer, lastPosition, expected, 0, lastRead);
 
                 Assert.That(position, Is.EqualTo(bytesRead));
-                RMSAssert.BuffersAreEqual(destBuffer, expected, lastRead);
+                RMSAssert.BuffersAreEqual(destinationBuffer, expected, lastRead);
             }
         }
 
         [Test]
-        public void SafeReadCallsDontAffectOtherSafeReadCalls()
+        public void SafeReadCallsDoNotAffectOtherSafeReadCalls()
         {
             var stream = this.GetDefaultStream();
             var bufferLength = 1000000;
@@ -1577,13 +1575,13 @@ namespace Microsoft.IO.UnitTests
             var stream = this.GetRandomStream();
 
             var step = stream.MemoryManager.options.BlockSize / 2;
-            var destBuffer = new byte[step];
+            var destinationBuffer = new byte[step];
             var bytesRead = 0;
             long position = 0;
 
             while (position < stream.Length)
             {
-                bytesRead += stream.SafeRead(destBuffer, 0, Math.Min(step, (int)stream.Length - bytesRead), ref position);
+                bytesRead += stream.SafeRead(destinationBuffer, 0, Math.Min(step, (int)stream.Length - bytesRead), ref position);
                 Assert.That(position, Is.EqualTo(bytesRead));
                 Assert.That(stream.Position, Is.EqualTo(0));
             }
@@ -1597,13 +1595,13 @@ namespace Microsoft.IO.UnitTests
             var stream = this.GetRandomStream();
 
             var step = stream.MemoryManager.options.BlockSize / 2;
-            var destBuffer = new byte[step];
+            var destinationBuffer = new byte[step];
             var bytesRead = 0;
             var position = 0L;
 
             while (position < stream.Length)
             {
-                bytesRead += stream.SafeRead(destBuffer.AsSpan(0, Math.Min(step, (int)stream.Length - bytesRead)), ref position);
+                bytesRead += stream.SafeRead(destinationBuffer.AsSpan(0, Math.Min(step, (int)stream.Length - bytesRead)), ref position);
                 Assert.That(position, Is.EqualTo(bytesRead));
                 Assert.That(stream.Position, Is.EqualTo(0));
             }
@@ -1618,7 +1616,7 @@ namespace Microsoft.IO.UnitTests
             stream.Write(buffer, 0, bufferLength);
 
             var step = stream.MemoryManager.options.BlockSize / 2;
-            var destBuffer = new byte[step];
+            var destinationBuffer = new byte[step];
             var expected = new byte[step];
             var bytesRead = 0;
             var position = 0L;
@@ -1627,18 +1625,18 @@ namespace Microsoft.IO.UnitTests
             {
                 stream.Position = this.random.Next(0, bufferLength);
                 var lastPosition = position;
-                var lastRead = stream.SafeRead(destBuffer.AsSpan(0, Math.Min(step, (int)stream.Length - bytesRead)), ref position);
+                var lastRead = stream.SafeRead(destinationBuffer.AsSpan(0, Math.Min(step, (int)stream.Length - bytesRead)), ref position);
                 bytesRead += lastRead;
 
                 Array.Copy(buffer, lastPosition, expected, 0, lastRead);
 
                 Assert.That(position, Is.EqualTo(bytesRead));
-                RMSAssert.BuffersAreEqual(destBuffer, expected, lastRead);
+                RMSAssert.BuffersAreEqual(destinationBuffer, expected, lastRead);
             }
         }
 
         [Test]
-        public void SafeReadSpanCallsDontAffectOtherSafeReadCalls()
+        public void SafeReadSpanCallsDoNotAffectOtherSafeReadCalls()
         {
             var stream = this.GetDefaultStream();
             var bufferLength = 1000000;
@@ -1838,11 +1836,11 @@ namespace Microsoft.IO.UnitTests
             stream.Position = 0;
 
             var step = stream.MemoryManager.options.BlockSize / 2;
-            var destBuffer = new byte[step];
+            var destinationBuffer = new byte[step];
             var bytesRead = 0;
             while (stream.Position < stream.Length)
             {
-                bytesRead += stream.Read(destBuffer, 0, Math.Min(step, (int)stream.Length - bytesRead));
+                bytesRead += stream.Read(destinationBuffer, 0, Math.Min(step, (int)stream.Length - bytesRead));
                 Assert.That(stream.Position, Is.EqualTo(bytesRead));
             }
         }
@@ -1873,8 +1871,8 @@ namespace Microsoft.IO.UnitTests
             stream.GetBuffer();
 
             stream.Position = stream.Length / 2;
-            var destBuffer = new byte[bufferLength];
-            var amountRead = stream.Read(destBuffer, 0, destBuffer.Length);
+            var destinationBuffer = new byte[bufferLength];
+            var amountRead = stream.Read(destinationBuffer, 0, destinationBuffer.Length);
             Assert.That(amountRead, Is.EqualTo(stream.Length / 2));
         }
 
@@ -1983,11 +1981,11 @@ namespace Microsoft.IO.UnitTests
             stream.Position = 0;
 
             var step = stream.MemoryManager.options.BlockSize / 2;
-            var destBuffer = new byte[step];
+            var destinationBuffer = new byte[step];
             var bytesRead = 0;
             while (stream.Position < stream.Length)
             {
-                bytesRead += stream.Read(destBuffer.AsSpan(0, Math.Min(step, (int)stream.Length - bytesRead)));
+                bytesRead += stream.Read(destinationBuffer.AsSpan(0, Math.Min(step, (int)stream.Length - bytesRead)));
                 Assert.That(stream.Position, Is.EqualTo(bytesRead));
             }
         }
@@ -2018,8 +2016,8 @@ namespace Microsoft.IO.UnitTests
             stream.GetBuffer();
 
             stream.Position = stream.Length / 2;
-            var destBuffer = new byte[bufferLength];
-            var amountRead = stream.Read(destBuffer.AsSpan());
+            var destinationBuffer = new byte[bufferLength];
+            var amountRead = stream.Read(destinationBuffer.AsSpan());
             Assert.That(amountRead, Is.EqualTo(stream.Length / 2));
         }
 
@@ -2274,7 +2272,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
-        public void CanTimeutIsFalse()
+        public void CanTimeoutIsFalse()
         {
             Assert.That(this.GetDefaultStream().CanTimeout, Is.False);
         }
@@ -2557,7 +2555,7 @@ namespace Microsoft.IO.UnitTests
             var buffer = this.GetRandomBuffer(bufferLength);
             stream.Write(buffer, 0, buffer.Length);
             var newBuffer = stream.GetBuffer();
-            Assert.That(newBuffer.Length, Is.EqualTo(stream.MemoryManager.options.LargeBufferMultiple));
+            Assert.That(newBuffer, Has.Length.EqualTo(stream.MemoryManager.options.LargeBufferMultiple));
 
             Assert.That(stream.MemoryManager.LargeBuffersFree, Is.EqualTo(0));
             Assert.That(stream.MemoryManager.LargePoolFreeSize, Is.EqualTo(0));
@@ -2667,7 +2665,9 @@ namespace Microsoft.IO.UnitTests
 
             static void CreateDeadStream(RecyclableMemoryStreamManager mgr, Guid expectedGuid, string tag)
             {
+#pragma warning disable CA1806 // Do not ignore method results -- deliberate result here for testing
                 new RecyclableMemoryStream(mgr, expectedGuid, tag);
+#pragma warning restore CA1806 // Do not ignore method results
             }
         }
 
@@ -2752,12 +2752,11 @@ namespace Microsoft.IO.UnitTests
         {
             var memMgr = this.GetMemoryManager();
             var buffer = new ReadOnlyMemory<byte>(this.GetRandomBuffer(1000));
-            var bufferSlice = buffer.Slice(1);
+            var bufferSlice = buffer[1..];
             var tag = "MyTag";
 
             var stream = memMgr.GetStream(tag, bufferSlice.Span);
             RMSAssert.BuffersAreEqual(bufferSlice.Span, stream.GetBuffer(), bufferSlice.Length);
-            Assert.That(bufferSlice, Is.Not.SameAs(stream.GetBuffer()));
             Assert.That(stream.Tag, Is.EqualTo(tag));
         }
 
@@ -2769,7 +2768,6 @@ namespace Microsoft.IO.UnitTests
 
             var stream = memMgr.GetStream(buffer.Span);
             RMSAssert.BuffersAreEqual(buffer.Span, stream.GetBuffer(), buffer.Length);
-            Assert.That(buffer, Is.Not.SameAs(stream.GetBuffer()));
         }
         #endregion
 
@@ -3055,9 +3053,9 @@ namespace Microsoft.IO.UnitTests
             stream.Position = 0;
             stream.CopyTo(memoryStream, 100);
 
-            var destBuffer = memoryStream.GetBuffer();
+            var destinationBuffer = memoryStream.GetBuffer();
 
-            RMSAssert.BuffersAreEqual(destBuffer, buffer, 100);            
+            RMSAssert.BuffersAreEqual(destinationBuffer, buffer, 100);            
         }
 
         #endregion
@@ -3112,7 +3110,7 @@ namespace Microsoft.IO.UnitTests
                 stream.CopyToAsync(fileStream).Wait();
             }
             var otherBuffer = File.ReadAllBytes(filename);
-            Assert.That(otherBuffer.Length, Is.EqualTo(0));
+            Assert.That(otherBuffer, Is.Empty);
         }
 
         [TestCase(0)]
@@ -3143,7 +3141,7 @@ namespace Microsoft.IO.UnitTests
                 stream.CopyToAsync(fileStream).Wait();
             }
             var otherBuffer = File.ReadAllBytes(filename);
-            Assert.That(otherBuffer.Length, Is.EqualTo(stream.Length - offset));
+            Assert.That(otherBuffer, Has.Length.EqualTo(stream.Length - offset));
             RMSAssert.BuffersAreEqual(new ReadOnlySpan<byte>(stream.GetBuffer(), offset, buffer.Length - offset), otherBuffer, buffer.Length - offset);
         }
 
@@ -3175,7 +3173,7 @@ namespace Microsoft.IO.UnitTests
                 stream.CopyToAsync(fileStream).Wait();
             }
             var otherBuffer = File.ReadAllBytes(filename);
-            Assert.That(otherBuffer.Length, Is.EqualTo(stream.Length - offset));
+            Assert.That(otherBuffer, Has.Length.EqualTo(stream.Length - offset));
             RMSAssert.BuffersAreEqual(new ReadOnlySpan<byte>(stream.GetBuffer(), offset, buffer.Length - offset), otherBuffer, buffer.Length - offset);
         }
 
@@ -3209,7 +3207,7 @@ namespace Microsoft.IO.UnitTests
                 stream.CopyToAsync(fileStream).Wait();
             }
             var otherBuffer = File.ReadAllBytes(filename);
-            Assert.That(otherBuffer.Length, Is.EqualTo(stream.Length - offset));
+            Assert.That(otherBuffer, Has.Length.EqualTo(stream.Length - offset));
             RMSAssert.BuffersAreEqual(new ReadOnlySpan<byte>(stream.GetBuffer(), offset, buffer.Length - offset), otherBuffer, buffer.Length - offset);
         }
 
@@ -3217,9 +3215,9 @@ namespace Microsoft.IO.UnitTests
         [TestCase(false, false)]
         [TestCase(true, true)]
         [TestCase(false, true)]
-        public void CopyToAsyncChangesSourcePosition(bool filestreamTarget, bool largeBuffer)
+        public void CopyToAsyncChangesSourcePosition(bool fileStreamTarget, bool largeBuffer)
         {
-            using var targetStream = filestreamTarget ? (Stream)File.OpenWrite(Path.GetRandomFileName()) : (Stream)new MemoryStream();
+            using var targetStream = fileStreamTarget ? (Stream)File.OpenWrite(Path.GetRandomFileName()) : (Stream)new MemoryStream();
             using var stream = GetDefaultStream();
             var buffer = GetRandomBuffer(largeBuffer ? DefaultBlockSize * 25 : 100);
             stream.Write(buffer);
@@ -3781,7 +3779,7 @@ namespace Microsoft.IO.UnitTests
             /// </summary>
             internal static void BuffersAreEqual(ArraySegment<byte> seg1, ArraySegment<byte> seg2)
             {
-                Assert.That(seg1.Count, Is.EqualTo(seg2.Count));
+                Assert.That(seg1, Has.Count.EqualTo(seg2.Count));
                 BuffersAreEqual(seg1, seg2, seg1.Count);
             }
 
@@ -3808,9 +3806,9 @@ namespace Microsoft.IO.UnitTests
                 // If either one is null, we fail
                 Assert.That((buffer1 != null) && (buffer2 != null), Is.True);
 
-                Assert.That(buffer1.Length - offset1 >= count);
+                Assert.That(buffer1.Length - offset1, Is.GreaterThanOrEqualTo(count));
 
-                Assert.That(buffer2.Length - offset2 >= count);
+                Assert.That(buffer2.Length - offset2, Is.GreaterThanOrEqualTo(count));
 
                 var errors = 0;
                 for (int i1 = offset1, i2 = offset2; i1 < offset1 + count; ++i1, ++i2)
@@ -3832,8 +3830,7 @@ namespace Microsoft.IO.UnitTests
                     }
                 }
                 var rate = (double)errors / count;
-                Assert.That(rate, Is.AtMost(tolerance), "Too many errors. Buffers can differ to a tolerance of {0:F4}",
-                            tolerance);
+                Assert.That(rate, Is.AtMost(tolerance), $"Too many errors. Buffers can differ to a tolerance of {tolerance:F4}");
             }
 
             internal static void TryGetBufferEqualToGetBuffer(RecyclableMemoryStream stream)
@@ -3842,7 +3839,7 @@ namespace Microsoft.IO.UnitTests
 
                 Assert.That(stream.TryGetBuffer(out ArraySegment<Byte> segment), Is.True);
                 Assert.That(segment.Offset, Is.Zero);
-                Assert.That(segment.Count, Is.EqualTo(stream.Length));
+                Assert.That(segment, Has.Count.EqualTo(stream.Length));
                 RMSAssert.BuffersAreEqual(segment.Array, buffer, buffer.Length);
             }
 
@@ -3950,9 +3947,8 @@ namespace Microsoft.IO.UnitTests
             for (var i = start; i <= end; i += step)
             {
                 var buffer = memMgr.GetLargeBuffer(i, DefaultId, DefaultTag);
-                Assert.That(buffer.Length >= i, Is.True);
-                Assert.That(memMgr.options.LargeBufferMultiple * (int)Math.Pow(2, Math.Floor(Math.Log(buffer.Length / memMgr.options.LargeBufferMultiple, 2))) == buffer.Length, Is.True,
-                            "buffer length of {0} is not a exponential of {1}", buffer.Length, memMgr.options.LargeBufferMultiple);
+                Assert.That(buffer, Has.Length.GreaterThanOrEqualTo(i));
+                Assert.That(memMgr.options.LargeBufferMultiple * (int)Math.Pow(2, Math.Floor(Math.Log(buffer.Length / memMgr.options.LargeBufferMultiple, 2))), Is.EqualTo(buffer.Length), $"buffer length of {buffer.Length} is not a exponential of {memMgr.options.LargeBufferMultiple}");
             }
         }
 
@@ -3988,7 +3984,7 @@ namespace Microsoft.IO.UnitTests
         // Issue #171 - Infinite Loop when particular values are chosen causing an int overflow during
         // validation of buffer sizes.
         // https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/issues/171
-        [Test, Timeout(10000)]
+        [Test, CancelAfter(10000)]
         public void InvalidLargeBufferSizeDoesNotCauseOverflow()
         {
             const int BlockSize = 128;
@@ -4011,7 +4007,7 @@ namespace Microsoft.IO.UnitTests
         {
             var memMgr = this.GetMemoryManager();
             var buffer = memMgr.GetLargeBuffer(memMgr.options.MaximumBufferSize + 1, DefaultId, DefaultTag);
-            Assert.That(buffer.Length, Is.EqualTo(memMgr.options.MaximumBufferSize * 2));
+            Assert.That(buffer, Has.Length.EqualTo(memMgr.options.MaximumBufferSize * 2));
             Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(buffer.Length));
         }
 

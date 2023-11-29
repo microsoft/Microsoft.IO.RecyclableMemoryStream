@@ -232,12 +232,12 @@ namespace Microsoft.IO
         /// <param name="requestedSize">The initial requested size to prevent future allocations.</param>
         /// <param name="initialLargeBuffer">An initial buffer to use. This buffer will be owned by the stream and returned to the memory manager upon Dispose.</param>
         internal RecyclableMemoryStream(RecyclableMemoryStreamManager memoryManager, Guid id, string? tag, long requestedSize, byte[]? initialLargeBuffer)
-            : base(Array.Empty<byte>())
+            : base([])
         {
             this.memoryManager = memoryManager;
             this.id = id;
             this.tag = tag;
-            this.blocks = new List<byte[]>();
+            this.blocks = [];
             this.creationTimestamp = Stopwatch.GetTimestamp();
 
             var actualRequestedSize = Math.Max(requestedSize, this.memoryManager.options.BlockSize);
@@ -1424,16 +1424,10 @@ namespace Microsoft.IO
             return amountToCopy;
         }
 
-        private struct BlockAndOffset
+        private struct BlockAndOffset(int block, int offset)
         {
-            public int Block;
-            public int Offset;
-
-            public BlockAndOffset(int block, int offset)
-            {
-                this.Block = block;
-                this.Offset = offset;
-            }
+            public int Block = block;
+            public int Offset = offset;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1466,7 +1460,7 @@ namespace Microsoft.IO
             }
             else
             {
-                // Let's save some re-allocs of the blocks list
+                // Let's save some re-allocation of the blocks list
                 var blocksRequired = (newCapacity / this.memoryManager.options.BlockSize) + 1;
                 if (this.blocks.Capacity < blocksRequired)
                 {
