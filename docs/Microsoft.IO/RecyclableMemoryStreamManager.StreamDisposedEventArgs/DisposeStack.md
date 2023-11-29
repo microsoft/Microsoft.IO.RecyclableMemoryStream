@@ -3,7 +3,7 @@
 Stack where stream was disposed.
 
 ```csharp
-public string DisposeStack { get; }
+public string? DisposeStack { get; }
 ```
 
 ## See Also

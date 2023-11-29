@@ -1,33 +1,10 @@
-# RecyclableMemoryStreamManager.StreamDisposedEventArgs constructor (1 of 2)
+# RecyclableMemoryStreamManager.StreamDisposedEventArgs constructor
 
-Initializes a new instance of the [`StreamDisposedEventArgs`](../RecyclableMemoryStreamManager.StreamDisposedEventArgs.md) class.
-
-```csharp
-[Obsolete("Use another constructor override")]
-public StreamDisposedEventArgs(Guid guid, string tag, string allocationStack, string disposeStack)
-```
-
-| parameter | description |
-| --- | --- |
-| guid | Unique ID of the stream. |
-| tag | Tag of the stream. |
-| allocationStack | Stack of original allocation. |
-| disposeStack | Dispose stack. |
-
-## See Also
-
-* class [StreamDisposedEventArgs](../RecyclableMemoryStreamManager.StreamDisposedEventArgs.md)
-* namespace [Microsoft.IO](../../Microsoft.IO.RecyclableMemoryStream.md)
-
----
-
-# RecyclableMemoryStreamManager.StreamDisposedEventArgs constructor (2 of 2)
-
-Initializes a new instance of the [`StreamDisposedEventArgs`](../RecyclableMemoryStreamManager.StreamDisposedEventArgs.md) class.
+Arguments for the [`StreamDisposed`](../RecyclableMemoryStreamManager/StreamDisposed.md) event.
 
 ```csharp
-public StreamDisposedEventArgs(Guid guid, string tag, TimeSpan lifetime, string allocationStack, 
-    string disposeStack)
+public StreamDisposedEventArgs(Guid guid, string? tag, TimeSpan lifetime, string? allocationStack, 
+    string? disposeStack)
 ```
 
 | parameter | description |
@@ -37,6 +14,10 @@ public StreamDisposedEventArgs(Guid guid, string tag, TimeSpan lifetime, string 
 | lifetime | Lifetime of the stream |
 | allocationStack | Stack of original allocation. |
 | disposeStack | Dispose stack. |
+
+## Remarks
+
+Initializes a new instance of the [`StreamDisposedEventArgs`](../RecyclableMemoryStreamManager.StreamDisposedEventArgs.md) class.
 
 ## See Also
 

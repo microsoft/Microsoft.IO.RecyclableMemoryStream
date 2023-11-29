@@ -1,14 +1,14 @@
-# RecyclableMemoryStreamManager.StreamDisposed event
+# RecyclableMemoryStreamManager.Settings property
 
-Triggered when a stream is disposed.
+Settings for controlling the behavior of RecyclableMemoryStream
 
 ```csharp
-public event EventHandler<StreamDisposedEventArgs>? StreamDisposed;
+public Options Settings { get; }
 ```
 
 ## See Also
 
-* class [StreamDisposedEventArgs](../RecyclableMemoryStreamManager.StreamDisposedEventArgs.md)
+* class [Options](../RecyclableMemoryStreamManager.Options.md)
 * class [RecyclableMemoryStreamManager](../RecyclableMemoryStreamManager.md)
 * namespace [Microsoft.IO](../../Microsoft.IO.RecyclableMemoryStream.md)
 

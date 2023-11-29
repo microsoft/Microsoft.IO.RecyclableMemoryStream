@@ -20,7 +20,7 @@ The new position.
 | exception | condition |
 | --- | --- |
 | ObjectDisposedException | Object has been disposed. |
-| ArgumentOutOfRangeException | *offset* is larger than [`MaximumStreamCapacity`](../RecyclableMemoryStreamManager/MaximumStreamCapacity.md). |
+| ArgumentOutOfRangeException | *offset* is larger than [`MaximumStreamCapacity`](../RecyclableMemoryStreamManager.Options/MaximumStreamCapacity.md). |
 | ArgumentException | Invalid seek origin. |
 | IOException | Attempt to set negative position. |
 

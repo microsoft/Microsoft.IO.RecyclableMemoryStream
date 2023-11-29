@@ -3,7 +3,7 @@
 Triggered when a stream is finalized.
 
 ```csharp
-public event EventHandler<StreamFinalizedEventArgs> StreamFinalized;
+public event EventHandler<StreamFinalizedEventArgs>? StreamFinalized;
 ```
 
 ## See Also

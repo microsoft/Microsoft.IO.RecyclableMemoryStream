@@ -6,16 +6,28 @@ Arguments for the [`StreamDoubleDisposed`](./RecyclableMemoryStreamManager/Strea
 public sealed class StreamDoubleDisposedEventArgs : EventArgs
 ```
 
+| parameter | description |
+| --- | --- |
+| guid | Unique ID of the stream. |
+| tag | Tag of the stream. |
+| allocationStack | Stack of original allocation. |
+| disposeStack1 | First dispose stack. |
+| disposeStack2 | Second dispose stack. |
+
 ## Public Members
 
 | name | description |
 | --- | --- |
-| [StreamDoubleDisposedEventArgs](RecyclableMemoryStreamManager.StreamDoubleDisposedEventArgs/StreamDoubleDisposedEventArgs.md)(…) | Initializes a new instance of the [`StreamDoubleDisposedEventArgs`](./RecyclableMemoryStreamManager.StreamDoubleDisposedEventArgs.md) class. |
+| [StreamDoubleDisposedEventArgs](RecyclableMemoryStreamManager.StreamDoubleDisposedEventArgs/StreamDoubleDisposedEventArgs.md)(…) | Arguments for the [`StreamDoubleDisposed`](./RecyclableMemoryStreamManager/StreamDoubleDisposed.md) event. |
 | [AllocationStack](RecyclableMemoryStreamManager.StreamDoubleDisposedEventArgs/AllocationStack.md) { get; } | Stack where the stream was allocated. |
 | [DisposeStack1](RecyclableMemoryStreamManager.StreamDoubleDisposedEventArgs/DisposeStack1.md) { get; } | First dispose stack. |
 | [DisposeStack2](RecyclableMemoryStreamManager.StreamDoubleDisposedEventArgs/DisposeStack2.md) { get; } | Second dispose stack. |
 | [Id](RecyclableMemoryStreamManager.StreamDoubleDisposedEventArgs/Id.md) { get; } | Unique ID for the stream. |
 | [Tag](RecyclableMemoryStreamManager.StreamDoubleDisposedEventArgs/Tag.md) { get; } | Optional Tag for the event. |
+
+## Remarks
+
+Initializes a new instance of the [`StreamDoubleDisposedEventArgs`](./RecyclableMemoryStreamManager.StreamDoubleDisposedEventArgs.md) class.
 
 ## See Also
 

@@ -3,7 +3,7 @@
 Triggered when a stream is disposed to report the stream's length.
 
 ```csharp
-public event EventHandler<StreamLengthEventArgs> StreamLength;
+public event EventHandler<StreamLengthEventArgs>? StreamLength;
 ```
 
 ## See Also

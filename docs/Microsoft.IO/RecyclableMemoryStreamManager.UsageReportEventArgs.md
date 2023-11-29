@@ -6,15 +6,26 @@ Arguments for the [`UsageReport`](./RecyclableMemoryStreamManager/UsageReport.md
 public sealed class UsageReportEventArgs : EventArgs
 ```
 
+| parameter | description |
+| --- | --- |
+| smallPoolInUseBytes | Bytes from the small pool currently in use. |
+| smallPoolFreeBytes | Bytes from the small pool currently available. |
+| largePoolInUseBytes | Bytes from the large pool currently in use. |
+| largePoolFreeBytes | Bytes from the large pool currently available. |
+
 ## Public Members
 
 | name | description |
 | --- | --- |
-| [UsageReportEventArgs](RecyclableMemoryStreamManager.UsageReportEventArgs/UsageReportEventArgs.md)(…) | Initializes a new instance of the [`UsageReportEventArgs`](./RecyclableMemoryStreamManager.UsageReportEventArgs.md) class. |
+| [UsageReportEventArgs](RecyclableMemoryStreamManager.UsageReportEventArgs/UsageReportEventArgs.md)(…) | Arguments for the [`UsageReport`](./RecyclableMemoryStreamManager/UsageReport.md) event. |
 | [LargePoolFreeBytes](RecyclableMemoryStreamManager.UsageReportEventArgs/LargePoolFreeBytes.md) { get; } | Bytes from the large pool currently available. |
 | [LargePoolInUseBytes](RecyclableMemoryStreamManager.UsageReportEventArgs/LargePoolInUseBytes.md) { get; } | Bytes from the large pool currently in use. |
 | [SmallPoolFreeBytes](RecyclableMemoryStreamManager.UsageReportEventArgs/SmallPoolFreeBytes.md) { get; } | Bytes from the small pool currently available. |
 | [SmallPoolInUseBytes](RecyclableMemoryStreamManager.UsageReportEventArgs/SmallPoolInUseBytes.md) { get; } | Bytes from the small pool currently in use. |
+
+## Remarks
+
+Initializes a new instance of the [`UsageReportEventArgs`](./RecyclableMemoryStreamManager.UsageReportEventArgs.md) class.
 
 ## See Also
 

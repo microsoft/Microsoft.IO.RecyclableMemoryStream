@@ -1,9 +1,9 @@
 # RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs constructor
 
-Initializes a new instance of the [`StreamConvertedToArrayEventArgs`](../RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs.md) class.
+Arguments for the [`StreamConvertedToArray`](../RecyclableMemoryStreamManager/StreamConvertedToArray.md) event.
 
 ```csharp
-public StreamConvertedToArrayEventArgs(Guid guid, string tag, string stack, long length)
+public StreamConvertedToArrayEventArgs(Guid guid, string? tag, string? stack, long length)
 ```
 
 | parameter | description |
@@ -12,6 +12,10 @@ public StreamConvertedToArrayEventArgs(Guid guid, string tag, string stack, long
 | tag | Tag of the stream. |
 | stack | Stack of ToArray call. |
 | length | Length of stream. |
+
+## Remarks
+
+Initializes a new instance of the [`StreamConvertedToArrayEventArgs`](../RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs.md) class.
 
 ## See Also
 

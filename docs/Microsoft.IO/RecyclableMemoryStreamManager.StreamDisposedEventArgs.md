@@ -6,16 +6,28 @@ Arguments for the [`StreamDisposed`](./RecyclableMemoryStreamManager/StreamDispo
 public sealed class StreamDisposedEventArgs : EventArgs
 ```
 
+| parameter | description |
+| --- | --- |
+| guid | Unique ID of the stream. |
+| tag | Tag of the stream. |
+| lifetime | Lifetime of the stream |
+| allocationStack | Stack of original allocation. |
+| disposeStack | Dispose stack. |
+
 ## Public Members
 
 | name | description |
 | --- | --- |
-| [StreamDisposedEventArgs](RecyclableMemoryStreamManager.StreamDisposedEventArgs/StreamDisposedEventArgs.md)(…) | Initializes a new instance of the [`StreamDisposedEventArgs`](./RecyclableMemoryStreamManager.StreamDisposedEventArgs.md) class. (2 constructors) |
+| [StreamDisposedEventArgs](RecyclableMemoryStreamManager.StreamDisposedEventArgs/StreamDisposedEventArgs.md)(…) | Arguments for the [`StreamDisposed`](./RecyclableMemoryStreamManager/StreamDisposed.md) event. |
 | [AllocationStack](RecyclableMemoryStreamManager.StreamDisposedEventArgs/AllocationStack.md) { get; } | Stack where the stream was allocated. |
 | [DisposeStack](RecyclableMemoryStreamManager.StreamDisposedEventArgs/DisposeStack.md) { get; } | Stack where stream was disposed. |
 | [Id](RecyclableMemoryStreamManager.StreamDisposedEventArgs/Id.md) { get; } | Unique ID for the stream. |
 | [Lifetime](RecyclableMemoryStreamManager.StreamDisposedEventArgs/Lifetime.md) { get; } | Lifetime of the stream. |
 | [Tag](RecyclableMemoryStreamManager.StreamDisposedEventArgs/Tag.md) { get; } | Optional Tag for the event. |
+
+## Remarks
+
+Initializes a new instance of the [`StreamDisposedEventArgs`](./RecyclableMemoryStreamManager.StreamDisposedEventArgs.md) class.
 
 ## See Also
 

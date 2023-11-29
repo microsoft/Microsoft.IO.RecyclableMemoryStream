@@ -6,15 +6,26 @@ Arguments for the [`StreamCreated`](./RecyclableMemoryStreamManager/StreamCreate
 public sealed class StreamCreatedEventArgs : EventArgs
 ```
 
+| parameter | description |
+| --- | --- |
+| guid | Unique ID of the stream. |
+| tag | Tag of the stream. |
+| requestedSize | The requested stream size. |
+| actualSize | The actual stream size. |
+
 ## Public Members
 
 | name | description |
 | --- | --- |
-| [StreamCreatedEventArgs](RecyclableMemoryStreamManager.StreamCreatedEventArgs/StreamCreatedEventArgs.md)(…) | Initializes a new instance of the [`StreamCreatedEventArgs`](./RecyclableMemoryStreamManager.StreamCreatedEventArgs.md) class. |
+| [StreamCreatedEventArgs](RecyclableMemoryStreamManager.StreamCreatedEventArgs/StreamCreatedEventArgs.md)(…) | Arguments for the [`StreamCreated`](./RecyclableMemoryStreamManager/StreamCreated.md) event. |
 | [ActualSize](RecyclableMemoryStreamManager.StreamCreatedEventArgs/ActualSize.md) { get; } | Actual stream size. |
 | [Id](RecyclableMemoryStreamManager.StreamCreatedEventArgs/Id.md) { get; } | Unique ID for the stream. |
 | [RequestedSize](RecyclableMemoryStreamManager.StreamCreatedEventArgs/RequestedSize.md) { get; } | Requested stream size. |
 | [Tag](RecyclableMemoryStreamManager.StreamCreatedEventArgs/Tag.md) { get; } | Optional Tag for the event. |
+
+## Remarks
+
+Initializes a new instance of the [`StreamCreatedEventArgs`](./RecyclableMemoryStreamManager.StreamCreatedEventArgs.md) class.
 
 ## See Also
 

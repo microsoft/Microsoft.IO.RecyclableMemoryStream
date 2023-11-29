@@ -3,7 +3,7 @@
 Triggered when a buffer of either type is discarded, along with the reason for the discard.
 
 ```csharp
-public event EventHandler<BufferDiscardedEventArgs> BufferDiscarded;
+public event EventHandler<BufferDiscardedEventArgs>? BufferDiscarded;
 ```
 
 ## See Also

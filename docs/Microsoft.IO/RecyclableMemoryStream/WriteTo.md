@@ -1,4 +1,4 @@
-# RecyclableMemoryStream.WriteTo method (1 of 6)
+# RecyclableMemoryStream.WriteTo method (1 of 5)
 
 Writes bytes from the current stream to a destination `byte` array.
 
@@ -28,7 +28,7 @@ The entire stream is written to the target array.
 
 ---
 
-# RecyclableMemoryStream.WriteTo method (2 of 6)
+# RecyclableMemoryStream.WriteTo method (2 of 5)
 
 Synchronously writes this stream's bytes to the argument stream.
 
@@ -58,7 +58,7 @@ Important: This does a synchronous write, which may not be desired in some situa
 
 ---
 
-# RecyclableMemoryStream.WriteTo method (3 of 6)
+# RecyclableMemoryStream.WriteTo method (3 of 5)
 
 Writes bytes from the current stream to a destination `byte` array.
 
@@ -87,36 +87,7 @@ public void WriteTo(byte[] buffer, long offset, long count)
 
 ---
 
-# RecyclableMemoryStream.WriteTo method (4 of 6)
-
-Synchronously writes this stream's bytes, starting at offset, for count bytes, to the argument stream.
-
-```csharp
-public void WriteTo(Stream stream, int offset, int count)
-```
-
-| parameter | description |
-| --- | --- |
-| stream | Destination stream. |
-| offset | Offset in source. |
-| count | Number of bytes to write. |
-
-## Exceptions
-
-| exception | condition |
-| --- | --- |
-| ArgumentNullException | *stream* is null. |
-| ArgumentOutOfRangeException | *offset* is less than 0, or *offset* + *count* is beyond this *stream*'s length. |
-| ObjectDisposedException | Object has been disposed. |
-
-## See Also
-
-* class [RecyclableMemoryStream](../RecyclableMemoryStream.md)
-* namespace [Microsoft.IO](../../Microsoft.IO.RecyclableMemoryStream.md)
-
----
-
-# RecyclableMemoryStream.WriteTo method (5 of 6)
+# RecyclableMemoryStream.WriteTo method (4 of 5)
 
 Synchronously writes this stream's bytes, starting at offset, for count bytes, to the argument stream.
 
@@ -145,7 +116,7 @@ public void WriteTo(Stream stream, long offset, long count)
 
 ---
 
-# RecyclableMemoryStream.WriteTo method (6 of 6)
+# RecyclableMemoryStream.WriteTo method (5 of 5)
 
 Writes bytes from the current stream to a destination `byte` array.
 

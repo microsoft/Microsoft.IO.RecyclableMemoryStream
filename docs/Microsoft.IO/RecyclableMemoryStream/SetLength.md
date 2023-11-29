@@ -10,7 +10,7 @@ public override void SetLength(long value)
 
 | exception | condition |
 | --- | --- |
-| ArgumentOutOfRangeException | value is negative or larger than [`MaximumStreamCapacity`](../RecyclableMemoryStreamManager/MaximumStreamCapacity.md). |
+| ArgumentOutOfRangeException | value is negative or larger than [`MaximumStreamCapacity`](../RecyclableMemoryStreamManager.Options/MaximumStreamCapacity.md). |
 | ObjectDisposedException | Object has been disposed. |
 
 ## See Also

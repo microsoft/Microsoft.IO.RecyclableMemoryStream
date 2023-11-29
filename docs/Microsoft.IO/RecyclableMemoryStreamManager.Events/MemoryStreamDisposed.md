@@ -3,8 +3,8 @@
 Logged when the stream is disposed.
 
 ```csharp
-public void MemoryStreamDisposed(Guid guid, string tag, long lifetimeMs, string allocationStack, 
-    string disposeStack)
+public void MemoryStreamDisposed(Guid guid, string? tag, long lifetimeMs, string? allocationStack, 
+    string? disposeStack)
 ```
 
 | parameter | description |

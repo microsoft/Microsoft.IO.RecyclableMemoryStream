@@ -6,12 +6,20 @@ Arguments for the [`StreamLength`](./RecyclableMemoryStreamManager/StreamLength.
 public sealed class StreamLengthEventArgs : EventArgs
 ```
 
+| parameter | description |
+| --- | --- |
+| length | Length of the strength. |
+
 ## Public Members
 
 | name | description |
 | --- | --- |
-| [StreamLengthEventArgs](RecyclableMemoryStreamManager.StreamLengthEventArgs/StreamLengthEventArgs.md)(…) | Initializes a new instance of the [`StreamLengthEventArgs`](./RecyclableMemoryStreamManager.StreamLengthEventArgs.md) class. |
+| [StreamLengthEventArgs](RecyclableMemoryStreamManager.StreamLengthEventArgs/StreamLengthEventArgs.md)(…) | Arguments for the [`StreamLength`](./RecyclableMemoryStreamManager/StreamLength.md) event. |
 | [Length](RecyclableMemoryStreamManager.StreamLengthEventArgs/Length.md) { get; } | Length of the stream. |
+
+## Remarks
+
+Initializes a new instance of the [`StreamLengthEventArgs`](./RecyclableMemoryStreamManager.StreamLengthEventArgs.md) class.
 
 ## See Also
 

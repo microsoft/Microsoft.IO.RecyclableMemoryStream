@@ -3,8 +3,8 @@
 Logged when the stream is disposed for the second time.
 
 ```csharp
-public void MemoryStreamDoubleDispose(Guid guid, string tag, string allocationStack, 
-    string disposeStack1, string disposeStack2)
+public void MemoryStreamDoubleDispose(Guid guid, string? tag, string? allocationStack, 
+    string? disposeStack1, string? disposeStack2)
 ```
 
 | parameter | description |
