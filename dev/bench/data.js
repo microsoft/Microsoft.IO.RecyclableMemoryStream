@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1700509563118,
+  "lastUpdate": 1701277175611,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -756,6 +756,42 @@ window.BENCHMARK_DATA = {
             "value": 151259715.6451613,
             "unit": "ns",
             "range": "± 6817090.601026656"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "benmwatson@users.noreply.github.com",
+            "name": "Ben",
+            "username": "benmwatson"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "9995e7d983ea55b2fd19f6ec19b4d97fb82001f5",
+          "message": "Introduce an Options class for managing RMSManager settings (#315)\n\n* Introduce an Options struct for managing RMSManager settings. Mostly just refactoring existing code. Improve code coverage for some areas.\r\n\r\n* Make options readonly\r\n\r\n* Change Options to a class\r\n\r\n---------\r\n\r\nCo-authored-by: Ben Watson <bewatson@microsoft.com>",
+          "timestamp": "2023-11-29T08:58:27-08:00",
+          "tree_id": "553fbb2ce8b176efab806b55cce02b9af64fbbff",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/9995e7d983ea55b2fd19f6ec19b4d97fb82001f5"
+        },
+        "date": 1701277174844,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 86450517.71428572,
+            "unit": "ns",
+            "range": "± 129898.08150722721"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 156615635.3559322,
+            "unit": "ns",
+            "range": "± 6924344.554362256"
           }
         ]
       }
