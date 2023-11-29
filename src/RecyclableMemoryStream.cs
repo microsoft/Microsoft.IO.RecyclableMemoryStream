@@ -160,13 +160,13 @@ namespace Microsoft.IO
         }
 
         /// <summary>
-        /// Callstack of the constructor. It is only set if <see cref="RecyclableMemoryStreamManager.GenerateCallStacks"/> is true,
+        /// Call stack of the constructor. It is only set if <see cref="RecyclableMemoryStreamManager.Options.GenerateCallStacks"/> is true,
         /// which should only be in debugging situations.
         /// </summary>
         internal string? AllocationStack { get; }
 
         /// <summary>
-        /// Callstack of the <see cref="Dispose(bool)"/> call. It is only set if <see cref="RecyclableMemoryStreamManager.GenerateCallStacks"/> is true,
+        /// Call stack of the <see cref="Dispose(bool)"/> call. It is only set if <see cref="RecyclableMemoryStreamManager.Options.GenerateCallStacks"/> is true,
         /// which should only be in debugging situations.
         /// </summary>
         internal string? DisposeStack { get; private set; }
@@ -240,7 +240,7 @@ namespace Microsoft.IO
             this.blocks = new List<byte[]>();
             this.creationTimestamp = Stopwatch.GetTimestamp();
 
-            var actualRequestedSize = Math.Max(requestedSize, this.memoryManager.BlockSize);
+            var actualRequestedSize = Math.Max(requestedSize, this.memoryManager.options.BlockSize);
 
             if (initialLargeBuffer == null)
             {
@@ -251,7 +251,7 @@ namespace Microsoft.IO
                 this.largeBuffer = initialLargeBuffer;
             }
 
-            if (this.memoryManager.GenerateCallStacks)
+            if (this.memoryManager.options.GenerateCallStacks)
             {
                 this.AllocationStack = Environment.StackTrace;
             }
@@ -280,7 +280,7 @@ namespace Microsoft.IO
             if (this.disposed)
             {
                 string? doubleDisposeStack = null;
-                if (this.memoryManager.GenerateCallStacks)
+                if (this.memoryManager.options.GenerateCallStacks)
                 {
                     doubleDisposeStack = Environment.StackTrace;
                 }
@@ -291,8 +291,8 @@ namespace Microsoft.IO
 
             this.disposed = true;
             var lifetime = TimeSpan.FromTicks((Stopwatch.GetTimestamp() - this.creationTimestamp) * TimeSpan.TicksPerSecond / Stopwatch.Frequency);
-
-            if (this.memoryManager.GenerateCallStacks)
+            
+            if (this.memoryManager.options.GenerateCallStacks)
             {
                 this.DisposeStack = Environment.StackTrace;
             }
@@ -381,7 +381,7 @@ namespace Microsoft.IO
                     return this.largeBuffer.Length;
                 }
 
-                long size = (long)this.blocks.Count * this.memoryManager.BlockSize;
+                long size = (long)this.blocks.Count * this.memoryManager.options.BlockSize;
                 if (size > int.MaxValue)
                 {
                     throw new InvalidOperationException($"{nameof(Capacity)} is larger than int.MaxValue. Use {nameof(Capacity64)} instead.");
@@ -407,7 +407,7 @@ namespace Microsoft.IO
                     return this.largeBuffer.Length;
                 }
 
-                long size = (long)this.blocks.Count * this.memoryManager.BlockSize;
+                long size = (long)this.blocks.Count * this.memoryManager.options.BlockSize;
                 return size;
             }
             set
@@ -521,7 +521,7 @@ namespace Microsoft.IO
             this.InternalRead(newBuffer, 0, (int)this.length, 0);
             this.largeBuffer = newBuffer;
 
-            if (this.blocks.Count > 0 && this.memoryManager.AggressiveBufferReturn)
+            if (this.blocks.Count > 0 && this.memoryManager.options.AggressiveBufferReturn)
             {
                 this.memoryManager.ReturnBlocks(this.blocks, this.id, this.tag);
                 this.blocks.Clear();
@@ -645,7 +645,7 @@ namespace Microsoft.IO
             else
             {
                 long bufferSize = this.largeBuffer == null
-                    ? this.memoryManager.BlockSize - this.GetBlockAndRelativeOffset(this.position).Offset
+                    ? this.memoryManager.options.BlockSize - this.GetBlockAndRelativeOffset(this.position).Offset
                     : this.largeBuffer.Length - this.position;
 
                 if (count > bufferSize)
@@ -660,7 +660,7 @@ namespace Microsoft.IO
 
         private void ReturnTempBuffer(byte[] buffer)
         {
-            if (buffer.Length == this.memoryManager.BlockSize)
+            if (buffer.Length == this.memoryManager.options.BlockSize)
             {
                 this.memoryManager.ReturnBlock(buffer, this.id, this.tag);
             }
@@ -711,13 +711,13 @@ namespace Microsoft.IO
             }
 
             BlockAndOffset blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
-            int remainingBytesInBlock = this.MemoryManager.BlockSize - blockAndOffset.Offset;
+            int remainingBytesInBlock = this.MemoryManager.options.BlockSize - blockAndOffset.Offset;
             if (remainingBytesInBlock >= minimumBufferSize)
             {
-                return new ArraySegment<byte>(this.blocks[blockAndOffset.Block], blockAndOffset.Offset, this.MemoryManager.BlockSize - blockAndOffset.Offset);
+                return new ArraySegment<byte>(this.blocks[blockAndOffset.Block], blockAndOffset.Offset, this.MemoryManager.options.BlockSize - blockAndOffset.Offset);
             }
 
-            this.bufferWriterTempBuffer = minimumBufferSize > this.memoryManager.BlockSize ?
+            this.bufferWriterTempBuffer = minimumBufferSize > this.memoryManager.options.BlockSize ?
                 this.memoryManager.GetLargeBuffer(minimumBufferSize, this.id, this.tag) :
                 this.memoryManager.GetBlock();
 
@@ -812,10 +812,10 @@ namespace Microsoft.IO
         {
             this.CheckDisposed();
 
-            string? stack = this.memoryManager.GenerateCallStacks ? Environment.StackTrace : null;
+            string? stack = this.memoryManager.options.GenerateCallStacks ? Environment.StackTrace : null;
             this.memoryManager.ReportStreamToArray(this.id, this.tag, stack, this.length);
 
-            if (this.memoryManager.ThrowExceptionOnToArray)
+            if (this.memoryManager.options.ThrowExceptionOnToArray)
             {
                 throw new NotSupportedException("The underlying RecyclableMemoryStreamManager is configured to not allow calls to ToArray.");
             }
@@ -950,7 +950,7 @@ namespace Microsoft.IO
                 throw new ArgumentException($"{nameof(count)} must be greater than {nameof(buffer)}.{nameof(buffer.Length)} - {nameof(offset)}.");
             }
 
-            int blockSize = this.memoryManager.BlockSize;
+            int blockSize = this.memoryManager.options.BlockSize;
             long end = (long)this.position + count;
 
             this.EnsureCapacity(end);
@@ -1000,7 +1000,7 @@ namespace Microsoft.IO
         {
             this.CheckDisposed();
 
-            int blockSize = this.memoryManager.BlockSize;
+            int blockSize = this.memoryManager.options.BlockSize;
             long end = (long)this.position + source.Length;
 
             this.EnsureCapacity(end);
@@ -1061,7 +1061,7 @@ namespace Microsoft.IO
 
             if (this.largeBuffer == null)
             {
-                var blockSize = this.memoryManager.BlockSize;
+                var blockSize = this.memoryManager.options.BlockSize;
 
                 var block = (int)Math.DivRem(this.position, blockSize, out var index);
 
@@ -1130,7 +1130,7 @@ namespace Microsoft.IO
         /// <summary>
         /// Sets the length of the stream.
         /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">value is negative or larger than <see cref="RecyclableMemoryStreamManager.MaximumStreamCapacity"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">value is negative or larger than <see cref="RecyclableMemoryStreamManager.Options.MaximumStreamCapacity"/>.</exception>
         /// <exception cref="ObjectDisposedException">Object has been disposed.</exception>
         public override void SetLength(long value)
         {
@@ -1156,7 +1156,7 @@ namespace Microsoft.IO
         /// <param name="loc">From where.</param>
         /// <returns>The new position.</returns>
         /// <exception cref="ObjectDisposedException">Object has been disposed.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is larger than <see cref="RecyclableMemoryStreamManager.MaximumStreamCapacity"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is larger than <see cref="RecyclableMemoryStreamManager.Options.MaximumStreamCapacity"/>.</exception>
         /// <exception cref="ArgumentException">Invalid seek origin.</exception>
         /// <exception cref="IOException">Attempt to set negative position.</exception>
         public override long Seek(long offset, SeekOrigin loc)
@@ -1439,18 +1439,18 @@ namespace Microsoft.IO
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private BlockAndOffset GetBlockAndRelativeOffset(long offset)
         {
-            var blockSize = this.memoryManager.BlockSize;
+            var blockSize = this.memoryManager.options.BlockSize;
             int blockIndex = (int)Math.DivRem(offset, blockSize, out long offsetIndex);
             return new BlockAndOffset(blockIndex, (int)offsetIndex);
         }
 
         private void EnsureCapacity(long newCapacity)
         {
-            if (newCapacity > this.memoryManager.MaximumStreamCapacity && this.memoryManager.MaximumStreamCapacity > 0)
+            if (newCapacity > this.memoryManager.options.MaximumStreamCapacity && this.memoryManager.options.MaximumStreamCapacity > 0)
             {
                 this.memoryManager.ReportStreamOverCapacity(this.id, this.tag, newCapacity, this.AllocationStack);
 
-                throw new OutOfMemoryException($"Requested capacity is too large: {newCapacity}. Limit is {this.memoryManager.MaximumStreamCapacity}.");
+                throw new OutOfMemoryException($"Requested capacity is too large: {newCapacity}. Limit is {this.memoryManager.options.MaximumStreamCapacity}.");
             }
 
             if (this.largeBuffer != null)
@@ -1467,7 +1467,7 @@ namespace Microsoft.IO
             else
             {
                 // Let's save some re-allocs of the blocks list
-                var blocksRequired = (newCapacity / this.memoryManager.BlockSize) + 1;
+                var blocksRequired = (newCapacity / this.memoryManager.options.BlockSize) + 1;
                 if (this.blocks.Capacity < blocksRequired)
                 {
                     this.blocks.Capacity = (int)blocksRequired;
@@ -1486,7 +1486,7 @@ namespace Microsoft.IO
         {
             Debug.Assert(this.largeBuffer != null);
 
-            if (this.memoryManager.AggressiveBufferReturn)
+            if (this.memoryManager.options.AggressiveBufferReturn)
             {
                 this.memoryManager.ReturnLargeBuffer(this.largeBuffer!, this.id, this.tag);
             }

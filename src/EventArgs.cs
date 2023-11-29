@@ -1,4 +1,4 @@
-﻿namespace Microsoft.IO
+namespace Microsoft.IO
 {
     using System;
 
@@ -315,8 +315,8 @@
             public long LargePoolInUse { get; }
 
             /// <summary>
-            /// If the buffer was not satisfied from the pool, and <see cref="GenerateCallStacks"/> is turned on, then.
-            /// this will contain the callstack of the allocation request.
+            /// If the buffer was not satisfied from the pool, and <see cref="Options.GenerateCallStacks"/> is turned on, then.
+            /// this will contain the call stack of the allocation request.
             /// </summary>
             public string? CallStack { get; }
 
@@ -328,7 +328,7 @@
             /// <param name="requiredSize">Required size of the new buffer.</param>
             /// <param name="largePoolInUse">How many bytes from the large pool are currently in use.</param>
             /// <param name="pooled">Whether the buffer was satisfied from the pool or not.</param>
-            /// <param name="callStack">Callstack of the allocation, if it wasn't pooled.</param>
+            /// <param name="callStack">Call stack of the allocation, if it wasn't pooled.</param>
             internal LargeBufferCreatedEventArgs(Guid guid, string? tag, long requiredSize, long largePoolInUse, bool pooled, string? callStack)
             {
                 this.RequiredSize = requiredSize;
