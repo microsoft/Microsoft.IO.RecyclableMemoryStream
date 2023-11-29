@@ -951,7 +951,7 @@ namespace Microsoft.IO
             }
 
             int blockSize = this.memoryManager.options.BlockSize;
-            long end = (long)this.position + count;
+            long end = position + count;
 
             this.EnsureCapacity(end);
 
@@ -1001,7 +1001,7 @@ namespace Microsoft.IO
             this.CheckDisposed();
 
             int blockSize = this.memoryManager.options.BlockSize;
-            long end = (long)this.position + source.Length;
+            long end = position + source.Length;
 
             this.EnsureCapacity(end);
 
@@ -1057,7 +1057,7 @@ namespace Microsoft.IO
         {
             this.CheckDisposed();
 
-            long end = (long)this.position + 1;
+            long end = position + 1;
 
             if (this.largeBuffer == null)
             {
@@ -1365,7 +1365,7 @@ namespace Microsoft.IO
             {
                 var blockAndOffset = this.GetBlockAndRelativeOffset(fromPosition);
                 int bytesWritten = 0;
-                int bytesRemaining = (int)Math.Min((long)count, this.length - fromPosition);
+                int bytesRemaining = (int)Math.Min(count, this.length - fromPosition);
 
                 while (bytesRemaining > 0)
                 {
@@ -1383,7 +1383,7 @@ namespace Microsoft.IO
                 }
                 return bytesWritten;
             }
-            amountToCopy = (int)Math.Min((long)count, this.length - fromPosition);
+            amountToCopy = (int)Math.Min(count, this.length - fromPosition);
             Buffer.BlockCopy(this.largeBuffer, (int)fromPosition, buffer, offset, amountToCopy);
             return amountToCopy;
         }
@@ -1419,7 +1419,7 @@ namespace Microsoft.IO
                 }
                 return bytesWritten;
             }
-            amountToCopy = (int)Math.Min((long)buffer.Length, this.length - fromPosition);
+            amountToCopy = (int)Math.Min(buffer.Length, this.length - fromPosition);
             this.largeBuffer.AsSpan((int)fromPosition, amountToCopy).CopyTo(buffer);
             return amountToCopy;
         }

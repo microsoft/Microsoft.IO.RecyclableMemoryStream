@@ -2821,8 +2821,8 @@ namespace Microsoft.IO.UnitTests
             stream.GetBuffer();
 
             var stream2 = this.GetDefaultStream();
-            int offset = (int)(bufferSize / 2);
-            int length = (int)(bufferSize / 4);
+            int offset = bufferSize / 2;
+            int length = bufferSize / 4;
 
             stream.WriteTo(stream2, offset, length);
 
@@ -2865,7 +2865,7 @@ namespace Microsoft.IO.UnitTests
         public void WriteToByteArray_NullTarget()
         {
             using var stream = GetDefaultStream();
-            Assert.Throws<ArgumentNullException>(() => stream.WriteTo((byte[])null));
+            Assert.Throws<ArgumentNullException>(() => stream.WriteTo(null));
         }
 
         [Test]
@@ -3217,7 +3217,7 @@ namespace Microsoft.IO.UnitTests
         [TestCase(false, true)]
         public void CopyToAsyncChangesSourcePosition(bool fileStreamTarget, bool largeBuffer)
         {
-            using var targetStream = fileStreamTarget ? (Stream)File.OpenWrite(Path.GetRandomFileName()) : (Stream)new MemoryStream();
+            using var targetStream = fileStreamTarget ? File.OpenWrite(Path.GetRandomFileName()) : (Stream)new MemoryStream();
             using var stream = GetDefaultStream();
             var buffer = GetRandomBuffer(largeBuffer ? DefaultBlockSize * 25 : 100);
             stream.Write(buffer);
