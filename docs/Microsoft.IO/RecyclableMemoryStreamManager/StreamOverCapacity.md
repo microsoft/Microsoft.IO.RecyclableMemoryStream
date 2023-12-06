@@ -3,7 +3,7 @@
 Triggered when a stream is requested to expand beyond the maximum length specified by the responsible RecyclableMemoryStreamManager.
 
 ```csharp
-public event EventHandler<StreamOverCapacityEventArgs> StreamOverCapacity;
+public event EventHandler<StreamOverCapacityEventArgs>? StreamOverCapacity;
 ```
 
 ## See Also

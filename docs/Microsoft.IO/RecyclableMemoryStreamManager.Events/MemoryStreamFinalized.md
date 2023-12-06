@@ -3,7 +3,7 @@
 Logged when a stream is finalized.
 
 ```csharp
-public void MemoryStreamFinalized(Guid guid, string tag, string allocationStack)
+public void MemoryStreamFinalized(Guid guid, string? tag, string? allocationStack)
 ```
 
 | parameter | description |

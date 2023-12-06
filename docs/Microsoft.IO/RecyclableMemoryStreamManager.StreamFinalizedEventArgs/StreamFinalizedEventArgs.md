@@ -1,9 +1,9 @@
 # RecyclableMemoryStreamManager.StreamFinalizedEventArgs constructor
 
-Initializes a new instance of the [`StreamFinalizedEventArgs`](../RecyclableMemoryStreamManager.StreamFinalizedEventArgs.md) class.
+Arguments for the [`StreamFinalized`](../RecyclableMemoryStreamManager/StreamFinalized.md) event.
 
 ```csharp
-public StreamFinalizedEventArgs(Guid guid, string tag, string allocationStack)
+public StreamFinalizedEventArgs(Guid guid, string? tag, string? allocationStack)
 ```
 
 | parameter | description |
@@ -11,6 +11,10 @@ public StreamFinalizedEventArgs(Guid guid, string tag, string allocationStack)
 | guid | Unique ID of the stream. |
 | tag | Tag of the stream. |
 | allocationStack | Stack of original allocation. |
+
+## Remarks
+
+Initializes a new instance of the [`StreamFinalizedEventArgs`](../RecyclableMemoryStreamManager.StreamFinalizedEventArgs.md) class.
 
 ## See Also
 

@@ -3,7 +3,7 @@
 Triggered when a new stream is created.
 
 ```csharp
-public event EventHandler<StreamCreatedEventArgs> StreamCreated;
+public event EventHandler<StreamCreatedEventArgs>? StreamCreated;
 ```
 
 ## See Also

@@ -3,7 +3,7 @@
 Triggered when a new large buffer is created.
 
 ```csharp
-public event EventHandler<LargeBufferCreatedEventArgs> LargeBufferCreated;
+public event EventHandler<LargeBufferCreatedEventArgs>? LargeBufferCreated;
 ```
 
 ## See Also

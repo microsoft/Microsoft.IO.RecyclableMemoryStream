@@ -3,7 +3,7 @@
 Triggered when a stream is disposed of twice (an error).
 
 ```csharp
-public event EventHandler<StreamDoubleDisposedEventArgs> StreamDoubleDisposed;
+public event EventHandler<StreamDoubleDisposedEventArgs>? StreamDoubleDisposed;
 ```
 
 ## See Also

@@ -6,15 +6,26 @@ Arguments for the [`StreamConvertedToArray`](./RecyclableMemoryStreamManager/Str
 public sealed class StreamConvertedToArrayEventArgs : EventArgs
 ```
 
+| parameter | description |
+| --- | --- |
+| guid | Unique ID of the stream. |
+| tag | Tag of the stream. |
+| stack | Stack of ToArray call. |
+| length | Length of stream. |
+
 ## Public Members
 
 | name | description |
 | --- | --- |
-| [StreamConvertedToArrayEventArgs](RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs/StreamConvertedToArrayEventArgs.md)(…) | Initializes a new instance of the [`StreamConvertedToArrayEventArgs`](./RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs.md) class. |
+| [StreamConvertedToArrayEventArgs](RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs/StreamConvertedToArrayEventArgs.md)(…) | Arguments for the [`StreamConvertedToArray`](./RecyclableMemoryStreamManager/StreamConvertedToArray.md) event. |
 | [Id](RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs/Id.md) { get; } | Unique ID for the stream. |
 | [Length](RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs/Length.md) { get; } | Length of stack. |
 | [Stack](RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs/Stack.md) { get; } | Stack where ToArray was called. |
 | [Tag](RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs/Tag.md) { get; } | Optional Tag for the event. |
+
+## Remarks
+
+Initializes a new instance of the [`StreamConvertedToArrayEventArgs`](./RecyclableMemoryStreamManager.StreamConvertedToArrayEventArgs.md) class.
 
 ## See Also
 

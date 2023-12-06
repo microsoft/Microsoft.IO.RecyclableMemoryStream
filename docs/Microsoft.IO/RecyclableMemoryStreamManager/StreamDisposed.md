@@ -3,7 +3,7 @@
 Triggered when a stream is disposed.
 
 ```csharp
-public event EventHandler<StreamDisposedEventArgs> StreamDisposed;
+public event EventHandler<StreamDisposedEventArgs>? StreamDisposed;
 ```
 
 ## See Also

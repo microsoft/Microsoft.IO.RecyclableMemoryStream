@@ -1,35 +1,4 @@
-# RecyclableMemoryStream.SafeRead method (1 of 4)
-
-Reads from the specified position into the provided buffer.
-
-```csharp
-public int SafeRead(Span<byte> buffer, ref int streamPosition)
-```
-
-| parameter | description |
-| --- | --- |
-| buffer | Destination buffer. |
-| streamPosition | Position in the stream to start reading from. |
-
-## Return Value
-
-The number of bytes read.
-
-## Exceptions
-
-| exception | condition |
-| --- | --- |
-| ObjectDisposedException | Object has been disposed. |
-| InvalidOperationException | Stream position is beyond `int.MaxValue`. |
-
-## See Also
-
-* class [RecyclableMemoryStream](../RecyclableMemoryStream.md)
-* namespace [Microsoft.IO](../../Microsoft.IO.RecyclableMemoryStream.md)
-
----
-
-# RecyclableMemoryStream.SafeRead method (2 of 4)
+# RecyclableMemoryStream.SafeRead method (1 of 2)
 
 Reads from the specified position into the provided buffer.
 
@@ -59,43 +28,7 @@ The number of bytes read.
 
 ---
 
-# RecyclableMemoryStream.SafeRead method (3 of 4)
-
-Reads from the specified position into the provided buffer.
-
-```csharp
-public int SafeRead(byte[] buffer, int offset, int count, ref int streamPosition)
-```
-
-| parameter | description |
-| --- | --- |
-| buffer | Destination buffer. |
-| offset | Offset into buffer at which to start placing the read bytes. |
-| count | Number of bytes to read. |
-| streamPosition | Position in the stream to start reading from. |
-
-## Return Value
-
-The number of bytes read.
-
-## Exceptions
-
-| exception | condition |
-| --- | --- |
-| ArgumentNullException | *buffer* is null. |
-| ArgumentOutOfRangeException | *offset* or *count* is less than 0. |
-| ArgumentException | *offset* subtracted from the buffer length is less than *count*. |
-| ObjectDisposedException | Object has been disposed. |
-| InvalidOperationException | Stream position is beyond `int.MaxValue`. |
-
-## See Also
-
-* class [RecyclableMemoryStream](../RecyclableMemoryStream.md)
-* namespace [Microsoft.IO](../../Microsoft.IO.RecyclableMemoryStream.md)
-
----
-
-# RecyclableMemoryStream.SafeRead method (4 of 4)
+# RecyclableMemoryStream.SafeRead method (2 of 2)
 
 Reads from the specified position into the provided buffer.
 

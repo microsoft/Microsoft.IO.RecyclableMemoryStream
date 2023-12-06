@@ -3,7 +3,7 @@
 Logged when ToArray is called on a stream.
 
 ```csharp
-public void MemoryStreamToArray(Guid guid, string tag, string stack, long size)
+public void MemoryStreamToArray(Guid guid, string? tag, string? stack, long size)
 ```
 
 | parameter | description |

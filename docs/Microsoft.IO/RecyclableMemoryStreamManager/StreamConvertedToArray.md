@@ -3,7 +3,7 @@
 Triggered when a user converts a stream to array.
 
 ```csharp
-public event EventHandler<StreamConvertedToArrayEventArgs> StreamConvertedToArray;
+public event EventHandler<StreamConvertedToArrayEventArgs>? StreamConvertedToArray;
 ```
 
 ## See Also

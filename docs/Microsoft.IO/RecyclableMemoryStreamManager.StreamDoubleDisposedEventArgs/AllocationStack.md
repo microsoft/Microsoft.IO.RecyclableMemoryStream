@@ -3,7 +3,7 @@
 Stack where the stream was allocated.
 
 ```csharp
-public string AllocationStack { get; }
+public string? AllocationStack { get; }
 ```
 
 ## See Also

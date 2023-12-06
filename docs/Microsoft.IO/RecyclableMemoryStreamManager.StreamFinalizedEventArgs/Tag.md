@@ -3,7 +3,7 @@
 Optional Tag for the event.
 
 ```csharp
-public string Tag { get; }
+public string? Tag { get; }
 ```
 
 ## See Also

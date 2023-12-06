@@ -4,11 +4,15 @@
     <RootNamespace>Microsoft.IO.UnitTests</RootNamespace>
     <TargetFramework>net7.0</TargetFramework>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+
+    <!--NUnit2045 - Use Assert.Multiple. Not interested at this time. -->
+    <NoWarn>NUnit2045</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="nunit" Version="3.14.0" />
+    <PackageReference Include="nunit" Version="4.0.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="NUnit.Analyzers" Version="3.10.0" PrivateAssets="All" />      
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\src\Microsoft.IO.RecyclableMemoryStream.csproj" />

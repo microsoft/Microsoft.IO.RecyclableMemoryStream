@@ -3,7 +3,7 @@
 Logged when a buffer is discarded (not put back in the pool, but given to GC to clean up).
 
 ```csharp
-public void MemoryStreamDiscardBuffer(Guid guid, string tag, MemoryStreamBufferType bufferType, 
+public void MemoryStreamDiscardBuffer(Guid guid, string? tag, MemoryStreamBufferType bufferType, 
     MemoryStreamDiscardReason reason, long smallBlocksFree, long smallPoolBytesFree, 
     long smallPoolBytesInUse, long largeBlocksFree, long largePoolBytesFree, 
     long largePoolBytesInUse)

@@ -409,7 +409,7 @@ namespace Microsoft.IO
                 // Buffer is too large to pool. They get a new buffer.
 
                 // We still want to track the size, though, and we've reserved a slot
-                // in the end of the inuse array for nonpooled bytes in use.
+                // in the end of the in-use array for non-pooled bytes in use.
                 poolIndex = this.largeBufferInUseSize.Length - 1;
 
                 // We still want to round up to reduce heap fragmentation.

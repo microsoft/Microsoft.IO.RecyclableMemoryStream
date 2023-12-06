@@ -3,7 +3,7 @@
 Periodically triggered to report usage statistics.
 
 ```csharp
-public event EventHandler<UsageReportEventArgs> UsageReport;
+public event EventHandler<UsageReportEventArgs>? UsageReport;
 ```
 
 ## See Also

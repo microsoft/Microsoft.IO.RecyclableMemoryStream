@@ -3,7 +3,7 @@
 Stack where ToArray was called.
 
 ```csharp
-public string Stack { get; }
+public string? Stack { get; }
 ```
 
 ## See Also

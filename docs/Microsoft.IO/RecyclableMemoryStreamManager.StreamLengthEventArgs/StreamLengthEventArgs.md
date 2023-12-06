@@ -1,6 +1,6 @@
 # RecyclableMemoryStreamManager.StreamLengthEventArgs constructor
 
-Initializes a new instance of the [`StreamLengthEventArgs`](../RecyclableMemoryStreamManager.StreamLengthEventArgs.md) class.
+Arguments for the [`StreamLength`](../RecyclableMemoryStreamManager/StreamLength.md) event.
 
 ```csharp
 public StreamLengthEventArgs(long length)
@@ -9,6 +9,10 @@ public StreamLengthEventArgs(long length)
 | parameter | description |
 | --- | --- |
 | length | Length of the strength. |
+
+## Remarks
+
+Initializes a new instance of the [`StreamLengthEventArgs`](../RecyclableMemoryStreamManager.StreamLengthEventArgs.md) class.
 
 ## See Also
 

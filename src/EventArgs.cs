@@ -7,213 +7,172 @@ namespace Microsoft.IO
         /// <summary>
         /// Arguments for the <see cref="StreamCreated"/> event.
         /// </summary>
-        public sealed class StreamCreatedEventArgs : EventArgs
+        /// <remarks>
+        /// Initializes a new instance of the <see cref="StreamCreatedEventArgs"/> class.
+        /// </remarks>
+        /// <param name="guid">Unique ID of the stream.</param>
+        /// <param name="tag">Tag of the stream.</param>
+        /// <param name="requestedSize">The requested stream size.</param>
+        /// <param name="actualSize">The actual stream size.</param>
+        public sealed class StreamCreatedEventArgs(Guid guid, string? tag, long requestedSize, long actualSize) : EventArgs
         {
             /// <summary>
             /// Unique ID for the stream.
             /// </summary>
-            public Guid Id { get; }
+            public Guid Id { get; } = guid;
 
             /// <summary>
             /// Optional Tag for the event.
             /// </summary>
-            public string? Tag { get; }
+            public string? Tag { get; } = tag;
 
             /// <summary>
             /// Requested stream size.
             /// </summary>
-            public long RequestedSize { get; }
+            public long RequestedSize { get; } = requestedSize;
 
             /// <summary>
             /// Actual stream size.
             /// </summary>
-            public long ActualSize { get; }
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="StreamCreatedEventArgs"/> class.
-            /// </summary>
-            /// <param name="guid">Unique ID of the stream.</param>
-            /// <param name="tag">Tag of the stream.</param>
-            /// <param name="requestedSize">The requested stream size.</param>
-            /// <param name="actualSize">The actual stream size.</param>
-            public StreamCreatedEventArgs(Guid guid, string? tag, long requestedSize, long actualSize)
-            {
-                this.Id = guid;
-                this.Tag = tag;
-                this.RequestedSize = requestedSize;
-                this.ActualSize = actualSize;
-            }
+            public long ActualSize { get; } = actualSize;
         }
 
         /// <summary>
         /// Arguments for the <see cref="StreamDisposed"/> event.
         /// </summary>
-        public sealed class StreamDisposedEventArgs : EventArgs
+        /// <remarks>
+        /// Initializes a new instance of the <see cref="StreamDisposedEventArgs"/> class.
+        /// </remarks>
+        /// <param name="guid">Unique ID of the stream.</param>
+        /// <param name="tag">Tag of the stream.</param>
+        /// <param name="lifetime">Lifetime of the stream</param>
+        /// <param name="allocationStack">Stack of original allocation.</param>
+        /// <param name="disposeStack">Dispose stack.</param>
+        public sealed class StreamDisposedEventArgs(Guid guid, string? tag, TimeSpan lifetime, string? allocationStack, string? disposeStack) : EventArgs
         {
             /// <summary>
             /// Unique ID for the stream.
             /// </summary>
-            public Guid Id { get; }
+            public Guid Id { get; } = guid;
 
             /// <summary>
             /// Optional Tag for the event.
             /// </summary>
-            public string? Tag { get; }
+            public string? Tag { get; } = tag;
 
             /// <summary>
             /// Stack where the stream was allocated.
             /// </summary>
-            public string? AllocationStack { get; }
+            public string? AllocationStack { get; } = allocationStack;
 
             /// <summary>
             /// Stack where stream was disposed.
             /// </summary>
-            public string? DisposeStack { get; }
+            public string? DisposeStack { get; } = disposeStack;
 
             /// <summary>
             /// Lifetime of the stream.
             /// </summary>
-            public TimeSpan Lifetime { get; }
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="StreamDisposedEventArgs"/> class.
-            /// </summary>
-            /// <param name="guid">Unique ID of the stream.</param>
-            /// <param name="tag">Tag of the stream.</param>
-            /// <param name="lifetime">Lifetime of the stream</param>
-            /// <param name="allocationStack">Stack of original allocation.</param>
-            /// <param name="disposeStack">Dispose stack.</param>
-            public StreamDisposedEventArgs(Guid guid, string? tag, TimeSpan lifetime, string? allocationStack, string? disposeStack)
-            {
-                this.Id = guid;
-                this.Tag = tag;
-                this.Lifetime = lifetime;
-                this.AllocationStack = allocationStack;
-                this.DisposeStack = disposeStack;
-            }
+            public TimeSpan Lifetime { get; } = lifetime;
         }
 
         /// <summary>
         /// Arguments for the <see cref="StreamDoubleDisposed"/> event.
         /// </summary>
-        public sealed class StreamDoubleDisposedEventArgs : EventArgs
+        /// <remarks>
+        /// Initializes a new instance of the <see cref="StreamDoubleDisposedEventArgs"/> class.
+        /// </remarks>
+        /// <param name="guid">Unique ID of the stream.</param>
+        /// <param name="tag">Tag of the stream.</param>
+        /// <param name="allocationStack">Stack of original allocation.</param>
+        /// <param name="disposeStack1">First dispose stack.</param>
+        /// <param name="disposeStack2">Second dispose stack.</param>
+        public sealed class StreamDoubleDisposedEventArgs(Guid guid, string? tag, string? allocationStack, string? disposeStack1, string? disposeStack2) : EventArgs
         {
             /// <summary>
             /// Unique ID for the stream.
             /// </summary>
-            public Guid Id { get; }
+            public Guid Id { get; } = guid;
 
             /// <summary>
             /// Optional Tag for the event.
             /// </summary>
-            public string? Tag { get; }
+            public string? Tag { get; } = tag;
 
             /// <summary>
             /// Stack where the stream was allocated.
             /// </summary>
-            public string? AllocationStack { get; }
+            public string? AllocationStack { get; } = allocationStack;
 
             /// <summary>
             /// First dispose stack.
             /// </summary>
-            public string? DisposeStack1 { get; }
+            public string? DisposeStack1 { get; } = disposeStack1;
 
             /// <summary>
             /// Second dispose stack.
             /// </summary>
-            public string? DisposeStack2 { get; }
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="StreamDoubleDisposedEventArgs"/> class.
-            /// </summary>
-            /// <param name="guid">Unique ID of the stream.</param>
-            /// <param name="tag">Tag of the stream.</param>
-            /// <param name="allocationStack">Stack of original allocation.</param>
-            /// <param name="disposeStack1">First dispose stack.</param>
-            /// <param name="disposeStack2">Second dispose stack.</param>
-            public StreamDoubleDisposedEventArgs(Guid guid, string? tag, string? allocationStack, string? disposeStack1, string? disposeStack2)
-            {
-                this.Id = guid;
-                this.Tag = tag;
-                this.AllocationStack = allocationStack;
-                this.DisposeStack1 = disposeStack1;
-                this.DisposeStack2 = disposeStack2;
-            }
+            public string? DisposeStack2 { get; } = disposeStack2;
         }
 
         /// <summary>
         /// Arguments for the <see cref="StreamFinalized"/> event.
         /// </summary>
-        public sealed class StreamFinalizedEventArgs : EventArgs
+        /// <remarks>
+        /// Initializes a new instance of the <see cref="StreamFinalizedEventArgs"/> class.
+        /// </remarks>
+        /// <param name="guid">Unique ID of the stream.</param>
+        /// <param name="tag">Tag of the stream.</param>
+        /// <param name="allocationStack">Stack of original allocation.</param>
+        public sealed class StreamFinalizedEventArgs(Guid guid, string? tag, string? allocationStack) : EventArgs
         {
             /// <summary>
             /// Unique ID for the stream.
             /// </summary>
-            public Guid Id { get; }
+            public Guid Id { get; } = guid;
 
             /// <summary>
             /// Optional Tag for the event.
             /// </summary>
-            public string? Tag { get; }
+            public string? Tag { get; } = tag;
 
             /// <summary>
             /// Stack where the stream was allocated.
             /// </summary>
-            public string? AllocationStack { get; }
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="StreamFinalizedEventArgs"/> class.
-            /// </summary>
-            /// <param name="guid">Unique ID of the stream.</param>
-            /// <param name="tag">Tag of the stream.</param>
-            /// <param name="allocationStack">Stack of original allocation.</param>
-            public StreamFinalizedEventArgs(Guid guid, string? tag, string? allocationStack)
-            {
-                this.Id = guid;
-                this.Tag = tag;
-                this.AllocationStack = allocationStack;
-            }
+            public string? AllocationStack { get; } = allocationStack;
         }
 
         /// <summary>
         /// Arguments for the <see cref="StreamConvertedToArray"/> event.
         /// </summary>
-        public sealed class StreamConvertedToArrayEventArgs : EventArgs
+        /// <remarks>
+        /// Initializes a new instance of the <see cref="StreamConvertedToArrayEventArgs"/> class.
+        /// </remarks>
+        /// <param name="guid">Unique ID of the stream.</param>
+        /// <param name="tag">Tag of the stream.</param>
+        /// <param name="stack">Stack of ToArray call.</param>
+        /// <param name="length">Length of stream.</param>
+        public sealed class StreamConvertedToArrayEventArgs(Guid guid, string? tag, string? stack, long length) : EventArgs
         {
             /// <summary>
             /// Unique ID for the stream.
             /// </summary>
-            public Guid Id { get; }
+            public Guid Id { get; } = guid;
 
             /// <summary>
             /// Optional Tag for the event.
             /// </summary>
-            public string? Tag { get; }
+            public string? Tag { get; } = tag;
 
             /// <summary>
             /// Stack where ToArray was called.
             /// </summary>
-            public string? Stack { get; }
+            public string? Stack { get; } = stack;
 
             /// <summary>
             /// Length of stack.
             /// </summary>
-            public long Length { get; }
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="StreamConvertedToArrayEventArgs"/> class.
-            /// </summary>
-            /// <param name="guid">Unique ID of the stream.</param>
-            /// <param name="tag">Tag of the stream.</param>
-            /// <param name="stack">Stack of ToArray call.</param>
-            /// <param name="length">Length of stream.</param>
-            public StreamConvertedToArrayEventArgs(Guid guid, string? tag, string? stack, long length)
-            {
-                this.Id = guid;
-                this.Tag = tag;
-                this.Stack = stack;
-                this.Length = length;
-            }
+            public long Length { get; } = length;
         }
 
         /// <summary>
@@ -384,66 +343,53 @@ namespace Microsoft.IO
         /// <summary>
         /// Arguments for the <see cref="StreamLength"/> event.
         /// </summary>
-        public sealed class StreamLengthEventArgs : EventArgs
+        /// <remarks>
+        /// Initializes a new instance of the <see cref="StreamLengthEventArgs"/> class.
+        /// </remarks>
+        /// <param name="length">Length of the strength.</param>
+        public sealed class StreamLengthEventArgs(long length) : EventArgs
         {
             /// <summary>
             /// Length of the stream.
             /// </summary>
-            public long Length { get; }
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="StreamLengthEventArgs"/> class.
-            /// </summary>
-            /// <param name="length">Length of the strength.</param>
-            public StreamLengthEventArgs(long length)
-            {
-                this.Length = length;
-            }
+            public long Length { get; } = length;
         }
 
         /// <summary>
         /// Arguments for the <see cref="UsageReport"/> event.
         /// </summary>
-        public sealed class UsageReportEventArgs : EventArgs
+        /// <remarks>
+        /// Initializes a new instance of the <see cref="UsageReportEventArgs"/> class.
+        /// </remarks>
+        /// <param name="smallPoolInUseBytes">Bytes from the small pool currently in use.</param>
+        /// <param name="smallPoolFreeBytes">Bytes from the small pool currently available.</param>
+        /// <param name="largePoolInUseBytes">Bytes from the large pool currently in use.</param>
+        /// <param name="largePoolFreeBytes">Bytes from the large pool currently available.</param>
+        public sealed class UsageReportEventArgs(
+            long smallPoolInUseBytes,
+            long smallPoolFreeBytes,
+            long largePoolInUseBytes,
+            long largePoolFreeBytes) : EventArgs
         {
             /// <summary>
             /// Bytes from the small pool currently in use.
             /// </summary>
-            public long SmallPoolInUseBytes { get; }
+            public long SmallPoolInUseBytes { get; } = smallPoolInUseBytes;
 
             /// <summary>
             /// Bytes from the small pool currently available.
             /// </summary>
-            public long SmallPoolFreeBytes { get; }
+            public long SmallPoolFreeBytes { get; } = smallPoolFreeBytes;
 
             /// <summary>
             /// Bytes from the large pool currently in use.
             /// </summary>
-            public long LargePoolInUseBytes { get; }
+            public long LargePoolInUseBytes { get; } = largePoolInUseBytes;
 
             /// <summary>
             /// Bytes from the large pool currently available.
             /// </summary>
-            public long LargePoolFreeBytes { get; }
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="UsageReportEventArgs"/> class.
-            /// </summary>
-            /// <param name="smallPoolInUseBytes">Bytes from the small pool currently in use.</param>
-            /// <param name="smallPoolFreeBytes">Bytes from the small pool currently available.</param>
-            /// <param name="largePoolInUseBytes">Bytes from the large pool currently in use.</param>
-            /// <param name="largePoolFreeBytes">Bytes from the large pool currently available.</param>
-            public UsageReportEventArgs(
-                long smallPoolInUseBytes,
-                long smallPoolFreeBytes,
-                long largePoolInUseBytes,
-                long largePoolFreeBytes)
-            {
-                this.SmallPoolInUseBytes = smallPoolInUseBytes;
-                this.SmallPoolFreeBytes = smallPoolFreeBytes;
-                this.LargePoolInUseBytes = largePoolInUseBytes;
-                this.LargePoolFreeBytes = largePoolFreeBytes;
-            }
+            public long LargePoolFreeBytes { get; } = largePoolFreeBytes;
         }
     }
 }

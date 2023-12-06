@@ -3,7 +3,7 @@
 Logged when a stream object is created.
 
 ```csharp
-public void MemoryStreamCreated(Guid guid, string tag, long requestedSize, long actualSize)
+public void MemoryStreamCreated(Guid guid, string? tag, long requestedSize, long actualSize)
 ```
 
 | parameter | description |

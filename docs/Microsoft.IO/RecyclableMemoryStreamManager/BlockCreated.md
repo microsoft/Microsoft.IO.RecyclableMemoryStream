@@ -3,7 +3,7 @@
 Triggered when a new block is created.
 
 ```csharp
-public event EventHandler<BlockCreatedEventArgs> BlockCreated;
+public event EventHandler<BlockCreatedEventArgs>? BlockCreated;
 ```
 
 ## See Also

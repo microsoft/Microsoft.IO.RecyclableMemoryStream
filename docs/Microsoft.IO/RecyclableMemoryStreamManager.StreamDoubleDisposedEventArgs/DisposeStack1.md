@@ -3,7 +3,7 @@
 First dispose stack.
 
 ```csharp
-public string DisposeStack1 { get; }
+public string? DisposeStack1 { get; }
 ```
 
 ## See Also
