@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1701277175611,
+  "lastUpdate": 1701885037089,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -792,6 +792,42 @@ window.BENCHMARK_DATA = {
             "value": 156615635.3559322,
             "unit": "ns",
             "range": "± 6924344.554362256"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "benmwatson@users.noreply.github.com",
+            "name": "Ben",
+            "username": "benmwatson"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6e154ddedb4971ac718efff86caf934beab021d5",
+          "message": "Code cleanup + NUnit4 (#317)\n\n* Fit & Finish. Use latest syntax, fix spelling, update to NUnit4 (with accompanying assert style changes)\r\n\r\n* Update documentation\r\n\r\n* Update SDK to v8.0.100\r\n\r\n* Update SDK in global.json\r\n\r\n* Remove unnecessary casts\r\n\r\n---------\r\n\r\nCo-authored-by: Ben Watson <bewatson@microsoft.com>",
+          "timestamp": "2023-12-06T09:49:29-08:00",
+          "tree_id": "23223a132da5a1bf93c24fe04facbf04f2ef884e",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/6e154ddedb4971ac718efff86caf934beab021d5"
+        },
+        "date": 1701885036329,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 88800746.16666667,
+            "unit": "ns",
+            "range": "± 172159.3138207692"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 156248364.85,
+            "unit": "ns",
+            "range": "± 6965592.667966163"
           }
         ]
       }
