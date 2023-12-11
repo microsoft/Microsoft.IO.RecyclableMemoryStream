@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1702328592429,
+  "lastUpdate": 1702338603597,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -900,6 +900,42 @@ window.BENCHMARK_DATA = {
             "value": 157237538.25,
             "unit": "ns",
             "range": "± 7259021.13706497"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "benmwatson@users.noreply.github.com",
+            "name": "Ben",
+            "username": "benmwatson"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3ce325224eee6f727beab3c3f64b03102bdb63e2",
+          "message": "Fix spurious path (#320)\n\nCo-authored-by: Ben Watson <bewatson@microsoft.com>",
+          "timestamp": "2023-12-11T15:49:09-08:00",
+          "tree_id": "e71babb71e4df7072dbefcf6a0b3645679112812",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/3ce325224eee6f727beab3c3f64b03102bdb63e2"
+        },
+        "date": 1702338602804,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 89013346.42857143,
+            "unit": "ns",
+            "range": "± 105906.93530386027"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 158951091.6625,
+            "unit": "ns",
+            "range": "± 8272666.54748404"
           }
         ]
       }
