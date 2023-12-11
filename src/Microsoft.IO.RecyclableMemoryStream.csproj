@@ -55,7 +55,7 @@
 
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="\" Visible="false" />
-    <None Include="D:\git\Microsoft.IO.RecyclableMemoryStream\src\.editorconfig" />
+    <None Include=".editorconfig" />
   </ItemGroup>
 
   <!-- Workaround for https://github.com/dotnet/sdk/issues/11105 -->
@@ -63,6 +63,6 @@
     <SourceRoot Include="$(NuGetPackageRoot)\" Condition="'$(NuGetPackageRoot)' != ''" />
   </ItemGroup>
   <ItemGroup>
-    <EditorConfigFiles Remove="D:\git\Microsoft.IO.RecyclableMemoryStream\src\.editorconfig" />
+    <EditorConfigFiles Remove=".editorconfig" />
   </ItemGroup>
 </Project>
