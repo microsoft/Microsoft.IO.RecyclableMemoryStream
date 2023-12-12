@@ -125,25 +125,27 @@ var stream = manager.GetStream("Program.Main", sourceBuffer,
 You can also change the parameters of the pool itself:
 
 ```csharp
-int blockSize = 1024;
-int largeBufferMultiple = 1024 * 1024;
-int maxBufferSize = 16 * largeBufferMultiple;
+var options = new RecyclableMemoryStreamManager.Options()
+{
+    BlockSize = 1024,
+    LargeBufferMultiple = 1024 * 1024,
+    MaximumBufferSize = 16 * 1024 * 1024,
+    GenerateCallStacks = true,
+    AggressiveBufferReturn = true,
+    MaximumLargePoolFreeBytes = 16 * 1024 * 1024 * 4,
+    MaximumSmallPoolFreeBytes = 100 * 1024,
+};
 
-var manager = new RecyclableMemoryStreamManager(blockSize, 
-                                                largeBufferMultiple, 
-                                                maxBufferSize);
-
-manager.GenerateCallStacks = true;
-manager.AggressiveBufferReturn = true;
-manager.MaximumFreeLargePoolBytes = maxBufferSize * 4;
-manager.MaximumFreeSmallPoolBytes = 100 * blockSize;
+var manager = new RecyclableMemoryStreamManager(options);
 ```
+
+You should usually set at least `BlockSize`, `LargeBufferMultiple`, `MaximumBufferSize`, `MaximumLargePoolFreeBytes`, and `MaximumSmallPoolFreeBytes` because their appropriate values are highly dependent on the application.
 
 ### Usage Guidelines
 
 While this library strives to be very general and not impose too many restraints on how you use it, its purpose is to reduce the cost of garbage collections incurred by frequent large allocations. Thus, there are some general guidelines for usage that may be useful to you:
 
-1. Set the `blockSize`, `largeBufferMultiple`, `maxBufferSize`, `MaximumFreeLargePoolBytes` and `MaximumFreeSmallPoolBytes` properties to reasonable values for your application and resource requirements. **Important!**: If you do not set `MaximumFreeLargePoolBytes` and `MaximumFreeSmallPoolBytes` there is the possibility for unbounded memory growth!
+1. Set the `BlockSize`, `LargeBufferMultiple`, `MaximumBufferSize`, `MaximumLargePoolFreeBytes` and `MaximumSmallPoolFreeBytes` properties to reasonable values for your application and resource requirements. **Important!**: If you do not set `MaximumFreeLargePoolBytes` and `MaximumFreeSmallPoolBytes` there is the possibility for unbounded memory growth!
 2. Always dispose of each stream exactly once.
 3. Most applications should not call `ToArray` and should avoid calling `GetBuffer` if possible. Instead, use `GetReadOnlySequence` for reading and the `IBufferWriter` methods `GetSpan`\\`GetMemory` with `Advance` for writing. There are also miscellaneous `CopyTo` and `WriteTo` methods that may be convenient. The point is to avoid creating unnecessary GC pressure where possible.
 4. Experiment to find the appropriate settings for your scenario.
@@ -165,7 +167,7 @@ When configuring the options, consider questions such as these:
 ```csharp
 var bigInt = BigInteger.Parse("123456789013374299100987654321");
 
-using (var stream = manager.GetStream() as RecyclableMemoryStream)
+using (var stream = manager.GetStream())
 {
     Span<byte> buffer = stream.GetSpan(bigInt.GetByteCount());
     bigInt.TryWriteBytes(buffer, out int bytesWritten);
@@ -178,7 +180,7 @@ using (var stream = manager.GetStream() as RecyclableMemoryStream)
 `GetReadOnlySequence` returns a [ReadOnlySequence<byte>](https://docs.microsoft.com/en-us/dotnet/api/system.buffers.readonlysequence-1?view=netstandard-2.1) that can be used for zero-copy stream processing. For example, hashing the contents of a stream: 
 
 ```csharp
-using (var stream = manager.GetStream() as RecyclableMemoryStream)
+using (var stream = manager.GetStream())
 using (var sha256Hasher = IncrementalHash.CreateHash(HashAlgorithmName.SHA256))
 {
     foreach (var memory in stream.GetReadOnlySequence())
