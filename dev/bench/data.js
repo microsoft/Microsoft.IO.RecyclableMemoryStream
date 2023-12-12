@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1702338603597,
+  "lastUpdate": 1702416911024,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -936,6 +936,42 @@ window.BENCHMARK_DATA = {
             "value": 158951091.6625,
             "unit": "ns",
             "range": "± 8272666.54748404"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "benmwatson@users.noreply.github.com",
+            "name": "Ben",
+            "username": "benmwatson"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8e05fcc339943bfacbfccf0a4a15505284dc838e",
+          "message": "Update readme, changes list, and add a project containing the readme examples for future updates. (#321)\n\nCo-authored-by: Ben Watson <bewatson@microsoft.com>",
+          "timestamp": "2023-12-12T13:34:10-08:00",
+          "tree_id": "b4592acadc65d7b17cbbc1a9413685a747d9ae95",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/8e05fcc339943bfacbfccf0a4a15505284dc838e"
+        },
+        "date": 1702416910158,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 89509008.57142857,
+            "unit": "ns",
+            "range": "± 110516.65973784174"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 156388377.44262296,
+            "unit": "ns",
+            "range": "± 7014375.0024385555"
           }
         ]
       }
