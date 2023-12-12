@@ -1,62 +1,100 @@
+# Version 3.0.0
+
+**Breaking Changes**
+
+* Removed `int`-based constructor and `GetStream` overloads where `long`-based methods exist.
+* Removed all methods marked with `[Obsolete]`: 
+    * `StreamDisposedEventArgs.ctor(Guid, string, string, string)`
+    * `RecyclableMemoryStreamManager.GetStream(Guid, string, Memory<byte>)`
+    * `RecyclableMemoryStreamManager.GetStream(Memory<byte>)`
+    * `RecyclableMemoryStreamManager.GetStream(string, Memory<byte>)`
+* Enable nullable annotations and warnings. i.e., added `<Nullable>enabled</Nullable>` to the project file.
+* All overloads of `RecyclableMemoryStreamManager.GetStream` now return type `RecyclableMemoryStream` instead of `MemoryStream`.
+* Removed explicit targets for net462, netcoreapp2.1, and net5.0. Supported targets are netstandard2.0, netstandard2.1, and net6.0 (there are a few net6.0-specific optimizations).
+* Moved all the configuration settings for `RecyclableMemoryStreamManager` to the new `RecyclableMemoryStreamManager.Options` class. Removed many of the constructors as a result. This class will facilitate easier dependency injection through use of the [Options pattern](https://learn.microsoft.com/en-us/dotnet/core/extensions/options), for those who need it.
+* Renamed some settings' names to be more consistent (e.g., `MaximumLargePoolFreeBytes`)
+
+**New Feature**
+
+* Added a new option for `RecyclableMemoryStreamManager`: `ZeroOutBuffer`, which will cause all buffers to be cleared on allocation and when returning to the pool. Off by default.
+
+**Other Changes**
+
+* Upgrade NUnit test library to version 4.
+* Fix some spelling issues in comments and variable names.
+* Update code to the latest recommended C# syntax.
+
 # Version 2.3.2
 
-Optimizations:
+**Optimizations**
+
 * Caculating blocks and offsets was made more efficient by using `Math.DivRem`.
 * Reading and writing to the stream was made more efficient with fewer array accesses.
 * `CopyTo` was overriden to avoid using the slower default implementation.
 
 # Version 2.3.1
 
-New Feature:
+**New Feature**
 * Stream lifetime (creation through dispose) is now tracked and reported through the `MemoryStreamDispose` `EventSource` event, as well as through the `StreamDisposed` .NET event.
 
-Changes:
+**Changes**
+
 * The pool statistics used to be reported only when blocks/buffers were returned to the pool. This could lead to lopsided reporting patterns in some cases. Now, pool statistics are reported on stream creation and disposal.
 * Added pool stats information to the `MemoryStreamDiscardBuffer` event. 
 * Changed events relating to buffer creation to be at the warning level instead of verbose. These are signals that the pool might not be large enough to handle the load.
 
-Bug Fixes:
+**Bug Fixes**
+
 * Fixed allocation/finalization bug that could cause a `NullReferenceException` in some low-memory scenarios.
 
-Internal:
+**Internal**
+
 * .NET 7 SDK used to build
 * Changed coding style to match some newer patterns (and added .editorconfig file to enforce in the future)
 * Fixed punctuation and spelling in API documentation.
 
 # Version 2.2.1
 
-API change:
+**API change**
+
 * There are now overloads that take a type `long` parameter for requestedSize.
 
-Bug Fix:
+**Bug Fix**
+
 * `ToString` will no longer throw an exception if the stream is disposed.
 
 
 # Version 2.2.0
 
-API changes:
+**API changes**
+
 * Add an override for `GetStream` that takes a `ReadOnlySpan<byte>`. This supersedes the versions of `GetStream` that take `Memory<byte>`, which were marked as `[Obsolete]`.
 
-Bug Fixes:
+**Bug Fixes**
+
 * Fixed: `GetReadOnlySequence()` throws `ArgumentOutOfRangeException`
 
-Performance Improvements:
+**Performance Improvements**
+
 * Removed enumerator allocation when returning blocks to the pool.
 * Changed default size of stream's block list to 0 because `EnsureCapacity` will always run, potentially resizing the list anyway.
 * Removed unneeded closure allocation when copying buffers.
 * Use `GC.AllocateUninitializedArray` in an additional spot, for better performance in .NET 5+.
 
-Documentation:
+**Documentation**
+
 * Improved documentation, standardized punctuation, fixed code formatting.
 
 # Version 2.1.3
 
-Bug Fixes:
+** Bug Fixes**
+
 * Fixed another integer overflow error when returning buffers to the pool.
 
 # Version 2.1.2
 
-Bug Fixes:
+**Bug Fixes**
+
 * Added `[SecurityRules(SecurityRuyleSet.Level1)]` to assembly to allow more relaxed inheritance security rules.
 * Fixed an integer overflow when calculating large buffer sizes.
 
@@ -70,21 +108,24 @@ Bug Fixes:
 
 # Version 2.0
 
-* Breaking Changes
-    * Removed 2 GB stream limit. Extremely large streams can be created by chaining together blocks. Attempts to convert a stream into a contiguous buffer longer than the runtime's limits will result in an exception.
-    * Removed build targets for net40, net45, net46, and netstandard1.4. Added net462.
-    * Changed some ETW events to provide more information.
-    * Refactored .NET events to match the information payloads of the ETW events.
-    * `GetBuffer` now throws `OutOfMemoryException` instead of `InvalidOperationException` if the needed size is too large for a contiguous array.
+**Breaking Changes**
 
-* Other Changes
-    * Removed use of `Interlocked` methods when checking whether the stream is disposed. This should improve performance. (Concurrent use of streams has never been supported.)
-    * `RecyclableMemoryStream` now implements `IBufferWriter<byte>`
-    * New method overloads of `WriteTo` that allow you write the contents of the stream directly to another `byte[]` buffer.
-    * Reformatted all code documentation to be more readable.
+* Removed 2 GB stream limit. Extremely large streams can be created by chaining together blocks. Attempts to convert a stream into a contiguous buffer longer than the runtime's limits will result in an exception.
+* Removed build targets for net40, net45, net46, and netstandard1.4. Added net462.
+* Changed some ETW events to provide more information.
+* Refactored .NET events to match the information payloads of the ETW events.
+* `GetBuffer` now throws `OutOfMemoryException` instead of `InvalidOperationException` if the needed size is too large for a contiguous array.
 
-* Development-only Changes
-    * Significantly improved unit test speed
+**Other Changes**
+
+* Removed use of `Interlocked` methods when checking whether the stream is disposed. This should improve performance. (Concurrent use of streams has never been supported.)
+* `RecyclableMemoryStream` now implements `IBufferWriter<byte>`
+* New method overloads of `WriteTo` that allow you write the contents of the stream directly to another `byte[]` buffer.
+* Reformatted all code documentation to be more readable.
+
+**Development-only Changes**
+
+* Significantly improved unit test speed
 
 # Version 1.4.0
 
@@ -94,7 +135,7 @@ Bug Fixes:
 
 # Version 1.3.6
 
-**Minor updates:**
+**Minor updates**
 
 * Override `CopyToAsync` to save some allocations.
 * Apply `AllowPartiallyTrustedCallers` attribute to assembly
@@ -108,7 +149,8 @@ Bug Fixes:
 
 # Version 1.3.4
 
-New API:
+**New API**
+
 * `void WriteTo(Stream stream, int offset, int count)` -- Allows you to write a portion of the current stream to a destination stream without first having to call `GetBuffer`.
 
 # Version 1.3.3
