@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1702416911024,
+  "lastUpdate": 1704394095038,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -972,6 +972,42 @@ window.BENCHMARK_DATA = {
             "value": 156388377.44262296,
             "unit": "ns",
             "range": "± 7014375.0024385555"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "018e5c620fe1397e95499b775b428c147053ee54",
+          "message": "Bump github/codeql-action from 2 to 3 (#322)\n\nBumps [github/codeql-action](https://github.com/github/codeql-action) from 2 to 3.\r\n- [Release notes](https://github.com/github/codeql-action/releases)\r\n- [Changelog](https://github.com/github/codeql-action/blob/main/CHANGELOG.md)\r\n- [Commits](https://github.com/github/codeql-action/compare/v2...v3)\r\n\r\n---\r\nupdated-dependencies:\r\n- dependency-name: github/codeql-action\r\n  dependency-type: direct:production\r\n  update-type: version-update:semver-major\r\n...\r\n\r\nSigned-off-by: dependabot[bot] <support@github.com>\r\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2024-01-04T10:47:14-08:00",
+          "tree_id": "c72ef9384d2f9c1c992b3528e33a87a7299be19f",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/018e5c620fe1397e95499b775b428c147053ee54"
+        },
+        "date": 1704394093353,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 89259690.53333333,
+            "unit": "ns",
+            "range": "± 321143.8086498381"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 160788535.58235294,
+            "unit": "ns",
+            "range": "± 8636400.646710357"
           }
         ]
       }
