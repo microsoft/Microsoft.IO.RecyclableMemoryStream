@@ -3236,7 +3236,7 @@ public abstract class BaseRecyclableMemoryStreamTests
     {
         if (ZeroOutBuffer)
         {
-            Assert.Ignore("Disable test due to increased memory consumption that currently does not work with the hardware limits of the gitlab runners.");
+            Assert.Ignore("Disable test due to increased memory consumption that currently does not work with the hardware limits of the GitHub runners.");
         }
         var stream = GetMultiGBStream();
         Assert.That(stream.Capacity64, Is.GreaterThanOrEqualTo(DefaultVeryLargeStreamSize));
@@ -3262,7 +3262,7 @@ public abstract class BaseRecyclableMemoryStreamTests
     {
         if (ZeroOutBuffer)
         {
-            Assert.Ignore("Disable test due to increased memory consumption that currently does not work with the hardware limits of the gitlab runners.");
+            Assert.Ignore("Disable test due to increased memory consumption that currently does not work with the hardware limits of the GitHub runners.");
         }
         var stream = GetMultiGBStream();
         Assert.That(stream.Capacity64, Is.GreaterThanOrEqualTo(DefaultVeryLargeStreamSize));
@@ -3288,7 +3288,7 @@ public abstract class BaseRecyclableMemoryStreamTests
     {
         if (ZeroOutBuffer)
         {
-            Assert.Ignore("Disable test due to increased memory consumption that currently does not work with the hardware limits of the gitlab runners.");
+            Assert.Ignore("Disable test due to increased memory consumption that currently does not work with the hardware limits of the GitHub runners.");
         }
         var stream = GetMultiGBStream();
         stream.SetLength(DefaultVeryLargeStreamSize);
@@ -3304,7 +3304,7 @@ public abstract class BaseRecyclableMemoryStreamTests
     {
         if (ZeroOutBuffer)
         {
-            Assert.Ignore("Disable test due to increased memory consumption that currently does not work with the hardware limits of the gitlab runners.");
+            Assert.Ignore("Disable test due to increased memory consumption that currently does not work with the hardware limits of the GitHub runners.");
         }
         var stream = GetDefaultStream();
         var data = GetRandomBuffer(1 << 20);
@@ -3318,7 +3318,7 @@ public abstract class BaseRecyclableMemoryStreamTests
     {
         if (ZeroOutBuffer)
         {
-            Assert.Ignore("Disable test due to increased memory consumption that currently does not work with the hardware limits of the gitlab runners.");
+            Assert.Ignore("Disable test due to increased memory consumption that currently does not work with the hardware limits of the GitHub runners.");
         }
         var stream = GetMultiGBStream();
         Assert.Throws<OutOfMemoryException>(() => stream.GetBuffer());
@@ -3329,7 +3329,7 @@ public abstract class BaseRecyclableMemoryStreamTests
     {
         if (ZeroOutBuffer)
         {
-            Assert.Ignore("Disable test due to increased memory consumption that currently does not work with the hardware limits of the gitlab runners.");
+            Assert.Ignore("Disable test due to increased memory consumption that currently does not work with the hardware limits of the GitHub runners.");
         }
         var stream = GetDefaultStream();
         stream.SetLength(1 << 20);
@@ -3342,7 +3342,7 @@ public abstract class BaseRecyclableMemoryStreamTests
     {
         if (ZeroOutBuffer)
         {
-            Assert.Ignore("Disable test due to increased memory consumption that currently does not work with the hardware limits of the gitlab runners.");
+            Assert.Ignore("Disable test due to increased memory consumption that currently does not work with the hardware limits of the GitHub runners.");
         }
         var stream = GetMultiGBStream();
         var buffer = new byte[100 << 20];
@@ -3362,7 +3362,7 @@ public abstract class BaseRecyclableMemoryStreamTests
     {
         if (ZeroOutBuffer)
         {
-            Assert.Ignore("Disable test due to increased memory consumption that currently does not work with the hardware limits of the gitlab runners.");
+            Assert.Ignore("Disable test due to increased memory consumption that currently does not work with the hardware limits of the GitHub runners.");
         }
         var stream = GetMultiGBStream();
         var buffer = new byte[100 << 20];
@@ -3384,7 +3384,7 @@ public abstract class BaseRecyclableMemoryStreamTests
     {
         if (ZeroOutBuffer)
         {
-            Assert.Ignore("Disable test due to increased memory consumption that currently does not work with the hardware limits of the gitlab runners.");
+            Assert.Ignore("Disable test due to increased memory consumption that currently does not work with the hardware limits of the GitHub runners.");
         }
         return new RecyclableMemoryStream(GetMemoryManager(), "GetMultiGBStream", DefaultVeryLargeStreamSize);
     }
