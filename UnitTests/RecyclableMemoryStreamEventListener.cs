@@ -1,4 +1,4 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 //
 // Copyright (c) 2015-2016 Microsoft
 //
@@ -20,45 +20,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace Microsoft.IO.UnitTests
+namespace Microsoft.IO.UnitTests;
+
+using System.Diagnostics.Tracing;
+using System.Threading;
+
+public class RecyclableMemoryStreamEventListener : EventListener
 {
-    using System.Diagnostics.Tracing;
-    using System.Threading;
+    private const int MemoryStreamDisposed = 2;
+    private const int MemoryStreamDoubleDispose = 3;
 
-    public class RecyclableMemoryStreamEventListener : EventListener
+    private const int NumEvents = 12;
+
+    public int[] EventCounts { get; } = new int[NumEvents];
+
+    public RecyclableMemoryStreamEventListener()
     {
-        private const int MemoryStreamDisposed = 2;
-        private const int MemoryStreamDoubleDispose = 3;
+        EnableEvents(RecyclableMemoryStreamManager.Events.Writer, EventLevel.Verbose);
+    }
 
-        private const int NumEvents = 12;
+    public bool MemoryStreamDoubleDisposeCalled { get; private set; }
 
-        public int[] EventCounts { get; } = new int[NumEvents];
+    protected override void OnEventWritten(EventWrittenEventArgs eventData)
+    {
+        EventWritten(eventData.EventId);
+    }
 
-        public RecyclableMemoryStreamEventListener()
+    public new virtual void EventWritten(int eventId)
+    {
+        EventCounts[eventId]++;
+
+        switch (eventId)
         {
-            this.EnableEvents(RecyclableMemoryStreamManager.Events.Writer, EventLevel.Verbose);
-        }
-
-        public bool MemoryStreamDoubleDisposeCalled { get; private set; }
-
-        protected override void OnEventWritten(EventWrittenEventArgs eventData)
-        {
-            this.EventWritten(eventData.EventId);
-        }
-
-        public new virtual void EventWritten(int eventId)
-        {
-            this.EventCounts[eventId]++;
-
-            switch (eventId)
-            {
             case MemoryStreamDisposed:
                 Thread.Sleep(10);
                 break;
             case MemoryStreamDoubleDispose:
                 MemoryStreamDoubleDisposeCalled = true;
                 break;
-            }
         }
     }
 }

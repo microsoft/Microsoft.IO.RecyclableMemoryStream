@@ -2,7 +2,7 @@
   <PropertyGroup>
     <AssemblyName>Microsoft.IO.RecyclableMemoryStream.UnitTests</AssemblyName>
     <RootNamespace>Microsoft.IO.UnitTests</RootNamespace>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 
     <!--NUnit2045 - Use Assert.Multiple. Not interested at this time. -->
@@ -12,12 +12,9 @@
     <PackageReference Include="nunit" Version="4.0.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="NUnit.Analyzers" Version="3.10.0" PrivateAssets="All" />      
+    <PackageReference Include="NUnit.Analyzers" Version="3.10.0" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\src\Microsoft.IO.RecyclableMemoryStream.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
 </Project>
