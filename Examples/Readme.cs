@@ -1,4 +1,3 @@
-using Microsoft.VisualBasic;
 using System.Numerics;
 using System.Security.Cryptography;
 
@@ -6,7 +5,7 @@ namespace Microsoft.IO.RecyclableMemoryStream.Examples;
 
 class Program
 {
-    private static readonly RecyclableMemoryStreamManager manager = new RecyclableMemoryStreamManager();
+    private static readonly RecyclableMemoryStreamManager manager = new();
 
     static void Main(string[] args)
     {
@@ -21,8 +20,8 @@ class Program
 
 internal class WriteExample
 {
-    RecyclableMemoryStreamManager manager = new RecyclableMemoryStreamManager();
-    byte[] sourceBuffer = new byte[100];
+    readonly RecyclableMemoryStreamManager manager = new();
+    readonly byte[] sourceBuffer = new byte[100];
     internal void Example()
     {
         // Writing an buffer to a stream
@@ -68,7 +67,7 @@ internal class PoolParameters
 
 internal class IBufferWriterExample
 {
-    RecyclableMemoryStreamManager manager = new RecyclableMemoryStreamManager();
+    readonly RecyclableMemoryStreamManager manager = new();
 
     internal void Example()
     {
@@ -87,7 +86,7 @@ internal class IBufferWriterExample
 
 internal class GetReadOnlySequenceExample
 {
-    RecyclableMemoryStreamManager manager = new RecyclableMemoryStreamManager();
+    readonly RecyclableMemoryStreamManager manager = new();
 
     internal void Example()
     {
