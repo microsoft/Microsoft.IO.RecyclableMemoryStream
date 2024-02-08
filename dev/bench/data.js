@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1707417940675,
+  "lastUpdate": 1707420010655,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -1188,6 +1188,42 @@ window.BENCHMARK_DATA = {
             "value": 156698405.52173913,
             "unit": "ns",
             "range": "± 7524410.508524775"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "benmwatson@users.noreply.github.com",
+            "name": "Ben",
+            "username": "benmwatson"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3d6b2b0907d04d6ba6e3481f74424f1e05aec64c",
+          "message": "Add correct permissions to code-ql workflow (#333)\n\n* Add read-all permissions to code-ql workflow\r\n\r\n* Set permissions to recommended values for codeql\r\n\r\n---------\r\n\r\nCo-authored-by: Ben Watson <bewatson@microsoft.com>",
+          "timestamp": "2024-02-08T11:16:45-08:00",
+          "tree_id": "fbc5d89e6ef59119a684c1ed0930d9f8968073ca",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/3d6b2b0907d04d6ba6e3481f74424f1e05aec64c"
+        },
+        "date": 1707420009924,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 88079808.33333333,
+            "unit": "ns",
+            "range": "± 136338.33031242885"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 177120669.1868687,
+            "unit": "ns",
+            "range": "± 15774303.180366345"
           }
         ]
       }
