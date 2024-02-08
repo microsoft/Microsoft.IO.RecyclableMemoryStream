@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1707415531914,
+  "lastUpdate": 1707417940675,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -1152,6 +1152,42 @@ window.BENCHMARK_DATA = {
             "value": 156584735.16101694,
             "unit": "ns",
             "range": "± 6867499.555421942"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "benmwatson@users.noreply.github.com",
+            "name": "Ben",
+            "username": "benmwatson"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "27782968eef0bd85b984e1956ff3edfb03dd3008",
+          "message": "Remove obsolete documentation (#332)\n\n* Delete obsolete docs\r\n\r\n* Update generatedocs.cmd to clean out docs folder before regenerating\r\n\r\n---------\r\n\r\nCo-authored-by: Ben Watson <bewatson@microsoft.com>",
+          "timestamp": "2024-02-08T10:44:29-08:00",
+          "tree_id": "a98c4d257f635052944e988731fc0bdf7e0a105b",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/27782968eef0bd85b984e1956ff3edfb03dd3008"
+        },
+        "date": 1707417939872,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 91723747.28571428,
+            "unit": "ns",
+            "range": "± 817334.1780675835"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 156698405.52173913,
+            "unit": "ns",
+            "range": "± 7524410.508524775"
           }
         ]
       }
