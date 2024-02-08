@@ -10,7 +10,10 @@ jobs:
   analyze:
     name: Analyze
     runs-on: ubuntu-latest
-    permissions: read-all
+    permissions:
+        contents: read
+        actions: read
+        security-events: write
     steps:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
