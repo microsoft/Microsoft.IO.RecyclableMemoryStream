@@ -20,44 +20,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace Microsoft.IO.UnitTests;
-
-using System.Diagnostics.Tracing;
-using System.Threading;
-
-public class RecyclableMemoryStreamEventListener : EventListener
+namespace Microsoft.IO.UnitTests
 {
-    private const int MemoryStreamDisposed = 2;
-    private const int MemoryStreamDoubleDispose = 3;
+    using System.Diagnostics.Tracing;
+    using System.Threading;
 
-    private const int NumEvents = 12;
-
-    public int[] EventCounts { get; } = new int[NumEvents];
-
-    public RecyclableMemoryStreamEventListener()
+    public class RecyclableMemoryStreamEventListener : EventListener
     {
-        EnableEvents(RecyclableMemoryStreamManager.Events.Writer, EventLevel.Verbose);
-    }
+        private const int MemoryStreamDisposed = 2;
+        private const int MemoryStreamDoubleDispose = 3;
 
-    public bool MemoryStreamDoubleDisposeCalled { get; private set; }
+        private const int NumEvents = 12;
 
-    protected override void OnEventWritten(EventWrittenEventArgs eventData)
-    {
-        EventWritten(eventData.EventId);
-    }
+        public int[] EventCounts { get; } = new int[NumEvents];
 
-    public new virtual void EventWritten(int eventId)
-    {
-        EventCounts[eventId]++;
-
-        switch (eventId)
+        public RecyclableMemoryStreamEventListener()
         {
-            case MemoryStreamDisposed:
-                Thread.Sleep(10);
-                break;
-            case MemoryStreamDoubleDispose:
-                MemoryStreamDoubleDisposeCalled = true;
-                break;
+            EnableEvents(RecyclableMemoryStreamManager.Events.Writer, EventLevel.Verbose);
+        }
+
+        public bool MemoryStreamDoubleDisposeCalled { get; private set; }
+
+        protected override void OnEventWritten(EventWrittenEventArgs eventData)
+        {
+            EventWritten(eventData.EventId);
+        }
+
+        public new virtual void EventWritten(int eventId)
+        {
+            EventCounts[eventId]++;
+
+            switch (eventId)
+            {
+                case MemoryStreamDisposed:
+                    Thread.Sleep(10);
+                    break;
+                case MemoryStreamDoubleDispose:
+                    MemoryStreamDoubleDisposeCalled = true;
+                    break;
+            }
         }
     }
 }

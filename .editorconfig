@@ -35,10 +35,10 @@ indent_size = 4
 csharp_prefer_simple_using_statement = true:warning
 csharp_style_prefer_switch_expression = true:warning
 
-dotnet_style_qualification_for_field = false:warning
+dotnet_style_qualification_for_field = true:warning
 dotnet_style_qualification_for_property = false:warning
 dotnet_style_qualification_for_method = false:warning
 dotnet_style_qualification_for_event = false:warning
-csharp_style_namespace_declarations = file_scoped:suggestion
+csharp_style_namespace_declarations = block_scoped:warning
 
 csharp_style_expression_bodied_properties = when_on_single_line:warning
