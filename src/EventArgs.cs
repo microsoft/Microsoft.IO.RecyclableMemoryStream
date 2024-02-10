@@ -215,11 +215,11 @@ namespace Microsoft.IO
             /// <param name="allocationStack">Original allocation stack.</param>
             internal StreamOverCapacityEventArgs(Guid guid, string? tag, long requestedCapacity, long maximumCapacity, string? allocationStack)
             {
-                Id = guid;
-                Tag = tag;
-                RequestedCapacity = requestedCapacity;
-                MaximumCapacity = maximumCapacity;
-                AllocationStack = allocationStack;
+                this.Id = guid;
+                this.Tag = tag;
+                this.RequestedCapacity = requestedCapacity;
+                this.MaximumCapacity = maximumCapacity;
+                this.AllocationStack = allocationStack;
             }
         }
 
@@ -239,7 +239,7 @@ namespace Microsoft.IO
             /// <param name="smallPoolInUse">Number of bytes currently in use from the small pool.</param>
             internal BlockCreatedEventArgs(long smallPoolInUse)
             {
-                SmallPoolInUse = smallPoolInUse;
+                this.SmallPoolInUse = smallPoolInUse;
             }
         }
 
@@ -290,12 +290,12 @@ namespace Microsoft.IO
             /// <param name="callStack">Call stack of the allocation, if it wasn't pooled.</param>
             internal LargeBufferCreatedEventArgs(Guid guid, string? tag, long requiredSize, long largePoolInUse, bool pooled, string? callStack)
             {
-                RequiredSize = requiredSize;
-                LargePoolInUse = largePoolInUse;
-                Pooled = pooled;
-                Id = guid;
-                Tag = tag;
-                CallStack = callStack;
+                this.RequiredSize = requiredSize;
+                this.LargePoolInUse = largePoolInUse;
+                this.Pooled = pooled;
+                this.Id = guid;
+                this.Tag = tag;
+                this.CallStack = callStack;
             }
         }
 
@@ -333,10 +333,10 @@ namespace Microsoft.IO
             /// <param name="reason">The reason for the discard.</param>
             internal BufferDiscardedEventArgs(Guid guid, string? tag, Events.MemoryStreamBufferType bufferType, Events.MemoryStreamDiscardReason reason)
             {
-                Id = guid;
-                Tag = tag;
-                BufferType = bufferType;
-                Reason = reason;
+                this.Id = guid;
+                this.Tag = tag;
+                this.BufferType = bufferType;
+                this.Reason = reason;
             }
         }
 

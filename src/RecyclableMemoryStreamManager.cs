@@ -259,11 +259,11 @@ namespace Microsoft.IO
             /// <param name="maximumLargePoolFreeBytes">Maximum bytes to hold in each of the large pools.</param>
             public Options(int blockSize, int largeBufferMultiple, int maximumBufferSize, long maximumSmallPoolFreeBytes, long maximumLargePoolFreeBytes)
             {
-                BlockSize = blockSize;
-                LargeBufferMultiple = largeBufferMultiple;
-                MaximumBufferSize = maximumBufferSize;
-                MaximumSmallPoolFreeBytes = maximumSmallPoolFreeBytes;
-                MaximumLargePoolFreeBytes = maximumLargePoolFreeBytes;
+                this.BlockSize = blockSize;
+                this.LargeBufferMultiple = largeBufferMultiple;
+                this.MaximumBufferSize = maximumBufferSize;
+                this.MaximumSmallPoolFreeBytes = maximumSmallPoolFreeBytes;
+                this.MaximumLargePoolFreeBytes = maximumLargePoolFreeBytes;
             }
         }
 
@@ -315,7 +315,7 @@ namespace Microsoft.IO
 
             this.options = options;
 
-            if (!IsLargeBufferSize(options.MaximumBufferSize))
+            if (!this.IsLargeBufferSize(options.MaximumBufferSize))
             {
                 throw new InvalidOperationException(
                     $"{nameof(options.MaximumBufferSize)} is not {(options.UseExponentialLargeBuffer ? "an exponential" : "a multiple")} of {nameof(options.LargeBufferMultiple)}.");
@@ -357,7 +357,7 @@ namespace Microsoft.IO
 #else
                 block = new byte[this.options.BlockSize];
 #endif
-                ReportBlockCreated();
+                this.ReportBlockCreated();
             }
             else
             {
@@ -383,9 +383,9 @@ namespace Microsoft.IO
                 throw new OutOfMemoryException($"Requested size exceeds maximum array length of {MaxArrayLength}.");
             }
 
-            requiredSize = RoundToLargeBufferSize(requiredSize);
+            requiredSize = this.RoundToLargeBufferSize(requiredSize);
 
-            var poolIndex = GetPoolIndex(requiredSize);
+            var poolIndex = this.GetPoolIndex(requiredSize);
 
             bool createdNew = false;
             bool pooled = true;
@@ -426,7 +426,7 @@ namespace Microsoft.IO
             Interlocked.Add(ref this.largeBufferInUseSize[poolIndex], buffer.Length);
             if (createdNew)
             {
-                ReportLargeBufferCreated(id, tag, requiredSize, pooled: pooled, callStack);
+                this.ReportLargeBufferCreated(id, tag, requiredSize, pooled: pooled, callStack);
             }
 
             return buffer;
@@ -460,7 +460,7 @@ namespace Microsoft.IO
         private bool IsLargeBufferSize(int value)
         {
             return (value != 0) && (this.options.UseExponentialLargeBuffer
-                                        ? (value == RoundToLargeBufferSize(value))
+                                        ? (value == this.RoundToLargeBufferSize(value))
                                         : (value % this.options.LargeBufferMultiple) == 0);
         }
 
@@ -496,14 +496,14 @@ namespace Microsoft.IO
                 throw new ArgumentNullException(nameof(buffer));
             }
 
-            if (!IsLargeBufferSize(buffer.Length))
+            if (!this.IsLargeBufferSize(buffer.Length))
             {
                 throw new ArgumentException($"{nameof(buffer)} did not originate from this memory manager. The size is not " +
                                             $"{(this.options.UseExponentialLargeBuffer ? "an exponential" : "a multiple")} of {this.options.LargeBufferMultiple}.");
             }
 
-            ZeroOutMemoryIfEnabled(buffer);
-            var poolIndex = GetPoolIndex(buffer.Length);
+            this.ZeroOutMemoryIfEnabled(buffer);
+            var poolIndex = this.GetPoolIndex(buffer.Length);
             if (poolIndex < this.largePools.Length)
             {
                 if ((this.largePools[poolIndex].Count + 1) * buffer.Length <= this.options.MaximumLargePoolFreeBytes ||
@@ -514,7 +514,7 @@ namespace Microsoft.IO
                 }
                 else
                 {
-                    ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Large, Events.MemoryStreamDiscardReason.EnoughFree);
+                    this.ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Large, Events.MemoryStreamDiscardReason.EnoughFree);
                 }
             }
             else
@@ -523,7 +523,7 @@ namespace Microsoft.IO
                 // analysis. We have space in the InUse array for this.
                 poolIndex = this.largeBufferInUseSize.Length - 1;
 
-                ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Large, Events.MemoryStreamDiscardReason.TooLarge);
+                this.ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Large, Events.MemoryStreamDiscardReason.TooLarge);
             }
 
             Interlocked.Add(ref this.largeBufferInUseSize[poolIndex], -buffer.Length);
@@ -557,15 +557,15 @@ namespace Microsoft.IO
 
             foreach (var block in blocks)
             {
-                ZeroOutMemoryIfEnabled(block);
-                if (this.options.MaximumSmallPoolFreeBytes == 0 || SmallPoolFreeSize < this.options.MaximumSmallPoolFreeBytes)
+                this.ZeroOutMemoryIfEnabled(block);
+                if (this.options.MaximumSmallPoolFreeBytes == 0 || this.SmallPoolFreeSize < this.options.MaximumSmallPoolFreeBytes)
                 {
                     Interlocked.Add(ref this.smallPoolFreeSize, this.options.BlockSize);
                     this.smallPool.Push(block);
                 }
                 else
                 {
-                    ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Small, Events.MemoryStreamDiscardReason.EnoughFree);
+                    this.ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Small, Events.MemoryStreamDiscardReason.EnoughFree);
                     break;
                 }
             }
@@ -593,15 +593,15 @@ namespace Microsoft.IO
             {
                 throw new ArgumentException($"{nameof(block)} is not not {nameof(this.options.BlockSize)} in length.");
             }
-            ZeroOutMemoryIfEnabled(block);
-            if (this.options.MaximumSmallPoolFreeBytes == 0 || SmallPoolFreeSize < this.options.MaximumSmallPoolFreeBytes)
+            this.ZeroOutMemoryIfEnabled(block);
+            if (this.options.MaximumSmallPoolFreeBytes == 0 || this.SmallPoolFreeSize < this.options.MaximumSmallPoolFreeBytes)
             {
                 Interlocked.Add(ref this.smallPoolFreeSize, this.options.BlockSize);
                 this.smallPool.Push(block);
             }
             else
             {
-                ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Small, Events.MemoryStreamDiscardReason.EnoughFree);
+                this.ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Small, Events.MemoryStreamDiscardReason.EnoughFree);
             }
         }
 
@@ -628,20 +628,20 @@ namespace Microsoft.IO
         {
             if (pooled)
             {
-                Events.Writer.MemoryStreamNewLargeBufferCreated(requiredSize, LargePoolInUseSize);
+                Events.Writer.MemoryStreamNewLargeBufferCreated(requiredSize, this.LargePoolInUseSize);
             }
             else
             {
                 Events.Writer.MemoryStreamNonPooledLargeBufferCreated(id, tag, requiredSize, callStack);
             }
-            LargeBufferCreated?.Invoke(this, new LargeBufferCreatedEventArgs(id, tag, requiredSize, LargePoolInUseSize, pooled, callStack));
+            LargeBufferCreated?.Invoke(this, new LargeBufferCreatedEventArgs(id, tag, requiredSize, this.LargePoolInUseSize, pooled, callStack));
         }
 
         internal void ReportBufferDiscarded(Guid id, string? tag, Events.MemoryStreamBufferType bufferType, Events.MemoryStreamDiscardReason reason)
         {
             Events.Writer.MemoryStreamDiscardBuffer(id, tag, bufferType, reason,
-                SmallBlocksFree, this.smallPoolFreeSize, this.smallPoolInUseSize,
-                LargeBuffersFree, LargePoolFreeSize, LargePoolInUseSize);
+                this.SmallBlocksFree, this.smallPoolFreeSize, this.smallPoolInUseSize,
+                this.LargeBuffersFree, this.LargePoolFreeSize, this.LargePoolInUseSize);
             BufferDiscarded?.Invoke(this, new BufferDiscardedEventArgs(id, tag, bufferType, reason));
         }
 
@@ -688,7 +688,7 @@ namespace Microsoft.IO
 
         internal void ReportUsageReport()
         {
-            UsageReport?.Invoke(this, new UsageReportEventArgs(this.smallPoolInUseSize, this.smallPoolFreeSize, LargePoolInUseSize, LargePoolFreeSize));
+            UsageReport?.Invoke(this, new UsageReportEventArgs(this.smallPoolInUseSize, this.smallPoolFreeSize, this.LargePoolInUseSize, this.LargePoolFreeSize));
         }
 
         /// <summary>
@@ -771,10 +771,10 @@ namespace Microsoft.IO
         {
             if (!asContiguousBuffer || requiredSize <= this.options.BlockSize)
             {
-                return GetStream(id, tag, requiredSize);
+                return this.GetStream(id, tag, requiredSize);
             }
 
-            return new RecyclableMemoryStream(this, id, tag, requiredSize, GetLargeBuffer(requiredSize, id, tag));
+            return new RecyclableMemoryStream(this, id, tag, requiredSize, this.GetLargeBuffer(requiredSize, id, tag));
         }
 
         /// <summary>
@@ -791,7 +791,7 @@ namespace Microsoft.IO
         /// <returns>A <see cref="RecyclableMemoryStream"/>.</returns>
         public RecyclableMemoryStream GetStream(string? tag, long requiredSize, bool asContiguousBuffer)
         {
-            return GetStream(Guid.NewGuid(), tag, requiredSize, asContiguousBuffer);
+            return this.GetStream(Guid.NewGuid(), tag, requiredSize, asContiguousBuffer);
         }
 
         /// <summary>
@@ -831,7 +831,7 @@ namespace Microsoft.IO
         /// <returns>A <see cref="RecyclableMemoryStream"/>.</returns>
         public RecyclableMemoryStream GetStream(byte[] buffer)
         {
-            return GetStream(null, buffer, 0, buffer.Length);
+            return this.GetStream(null, buffer, 0, buffer.Length);
         }
 
         /// <summary>
@@ -846,7 +846,7 @@ namespace Microsoft.IO
         /// <returns>A <see cref="RecyclableMemoryStream"/>.</returns>
         public RecyclableMemoryStream GetStream(string? tag, byte[] buffer, int offset, int count)
         {
-            return GetStream(Guid.NewGuid(), tag, buffer, offset, count);
+            return this.GetStream(Guid.NewGuid(), tag, buffer, offset, count);
         }
 
         /// <summary>
@@ -884,7 +884,7 @@ namespace Microsoft.IO
         /// <returns>A <see cref="RecyclableMemoryStream"/>.</returns>
         public RecyclableMemoryStream GetStream(ReadOnlySpan<byte> buffer)
         {
-            return GetStream(null, buffer);
+            return this.GetStream(null, buffer);
         }
 
         /// <summary>
@@ -897,7 +897,7 @@ namespace Microsoft.IO
         /// <returns>A <see cref="RecyclableMemoryStream"/>.</returns>
         public RecyclableMemoryStream GetStream(string? tag, ReadOnlySpan<byte> buffer)
         {
-            return GetStream(Guid.NewGuid(), tag, buffer);
+            return this.GetStream(Guid.NewGuid(), tag, buffer);
         }
 
         /// <summary>

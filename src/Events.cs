@@ -78,9 +78,9 @@ namespace Microsoft.IO
             [Event(1, Level = EventLevel.Verbose, Version = 2)]
             public void MemoryStreamCreated(Guid guid, string? tag, long requestedSize, long actualSize)
             {
-                if (IsEnabled(EventLevel.Verbose, EventKeywords.None))
+                if (this.IsEnabled(EventLevel.Verbose, EventKeywords.None))
                 {
-                    WriteEvent(1, guid, tag ?? string.Empty, requestedSize, actualSize);
+                    this.WriteEvent(1, guid, tag ?? string.Empty, requestedSize, actualSize);
                 }
             }
 
@@ -95,9 +95,9 @@ namespace Microsoft.IO
             [Event(2, Level = EventLevel.Verbose, Version = 3)]
             public void MemoryStreamDisposed(Guid guid, string? tag, long lifetimeMs, string? allocationStack, string? disposeStack)
             {
-                if (IsEnabled(EventLevel.Verbose, EventKeywords.None))
+                if (this.IsEnabled(EventLevel.Verbose, EventKeywords.None))
                 {
-                    WriteEvent(2, guid, tag ?? string.Empty, lifetimeMs, allocationStack ?? string.Empty, disposeStack ?? string.Empty);
+                    this.WriteEvent(2, guid, tag ?? string.Empty, lifetimeMs, allocationStack ?? string.Empty, disposeStack ?? string.Empty);
                 }
             }
 
@@ -114,9 +114,9 @@ namespace Microsoft.IO
             public void MemoryStreamDoubleDispose(Guid guid, string? tag, string? allocationStack, string? disposeStack1,
                                                   string? disposeStack2)
             {
-                if (IsEnabled())
+                if (this.IsEnabled())
                 {
-                    WriteEvent(3, guid, tag ?? string.Empty, allocationStack ?? string.Empty,
+                    this.WriteEvent(3, guid, tag ?? string.Empty, allocationStack ?? string.Empty,
                                     disposeStack1 ?? string.Empty, disposeStack2 ?? string.Empty);
                 }
             }
@@ -131,9 +131,9 @@ namespace Microsoft.IO
             [Event(4, Level = EventLevel.Error)]
             public void MemoryStreamFinalized(Guid guid, string? tag, string? allocationStack)
             {
-                if (IsEnabled())
+                if (this.IsEnabled())
                 {
-                    WriteEvent(4, guid, tag ?? string.Empty, allocationStack ?? string.Empty);
+                    this.WriteEvent(4, guid, tag ?? string.Empty, allocationStack ?? string.Empty);
                 }
             }
 
@@ -148,9 +148,9 @@ namespace Microsoft.IO
             [Event(5, Level = EventLevel.Verbose, Version = 2)]
             public void MemoryStreamToArray(Guid guid, string? tag, string? stack, long size)
             {
-                if (IsEnabled(EventLevel.Verbose, EventKeywords.None))
+                if (this.IsEnabled(EventLevel.Verbose, EventKeywords.None))
                 {
-                    WriteEvent(5, guid, tag ?? string.Empty, stack ?? string.Empty, size);
+                    this.WriteEvent(5, guid, tag ?? string.Empty, stack ?? string.Empty, size);
                 }
             }
 
@@ -163,9 +163,9 @@ namespace Microsoft.IO
             [Event(6, Level = EventLevel.Informational)]
             public void MemoryStreamManagerInitialized(int blockSize, int largeBufferMultiple, int maximumBufferSize)
             {
-                if (IsEnabled())
+                if (this.IsEnabled())
                 {
-                    WriteEvent(6, blockSize, largeBufferMultiple, maximumBufferSize);
+                    this.WriteEvent(6, blockSize, largeBufferMultiple, maximumBufferSize);
                 }
             }
 
@@ -176,9 +176,9 @@ namespace Microsoft.IO
             [Event(7, Level = EventLevel.Warning, Version = 2)]
             public void MemoryStreamNewBlockCreated(long smallPoolInUseBytes)
             {
-                if (IsEnabled(EventLevel.Warning, EventKeywords.None))
+                if (this.IsEnabled(EventLevel.Warning, EventKeywords.None))
                 {
-                    WriteEvent(7, smallPoolInUseBytes);
+                    this.WriteEvent(7, smallPoolInUseBytes);
                 }
             }
 
@@ -190,9 +190,9 @@ namespace Microsoft.IO
             [Event(8, Level = EventLevel.Warning, Version = 3)]
             public void MemoryStreamNewLargeBufferCreated(long requiredSize, long largePoolInUseBytes)
             {
-                if (IsEnabled(EventLevel.Warning, EventKeywords.None))
+                if (this.IsEnabled(EventLevel.Warning, EventKeywords.None))
                 {
-                    WriteEvent(8, requiredSize, largePoolInUseBytes);
+                    this.WriteEvent(8, requiredSize, largePoolInUseBytes);
                 }
             }
 
@@ -207,9 +207,9 @@ namespace Microsoft.IO
             [Event(9, Level = EventLevel.Verbose, Version = 3)]
             public void MemoryStreamNonPooledLargeBufferCreated(Guid guid, string? tag, long requiredSize, string? allocationStack)
             {
-                if (IsEnabled(EventLevel.Verbose, EventKeywords.None))
+                if (this.IsEnabled(EventLevel.Verbose, EventKeywords.None))
                 {
-                    WriteEvent(9, guid, tag ?? string.Empty, requiredSize, allocationStack ?? string.Empty);
+                    this.WriteEvent(9, guid, tag ?? string.Empty, requiredSize, allocationStack ?? string.Empty);
                 }
             }
 
@@ -230,9 +230,9 @@ namespace Microsoft.IO
             public void MemoryStreamDiscardBuffer(Guid guid, string? tag, MemoryStreamBufferType bufferType,
                                                   MemoryStreamDiscardReason reason, long smallBlocksFree, long smallPoolBytesFree, long smallPoolBytesInUse, long largeBlocksFree, long largePoolBytesFree, long largePoolBytesInUse)
             {
-                if (IsEnabled(EventLevel.Warning, EventKeywords.None))
+                if (this.IsEnabled(EventLevel.Warning, EventKeywords.None))
                 {
-                    WriteEvent(10, guid, tag ?? string.Empty, bufferType, reason, smallBlocksFree, smallPoolBytesFree, smallPoolBytesInUse, largeBlocksFree, largePoolBytesFree, largePoolBytesInUse);
+                    this.WriteEvent(10, guid, tag ?? string.Empty, bufferType, reason, smallBlocksFree, smallPoolBytesFree, smallPoolBytesInUse, largeBlocksFree, largePoolBytesFree, largePoolBytesInUse);
                 }
             }
 
@@ -248,9 +248,9 @@ namespace Microsoft.IO
             [Event(11, Level = EventLevel.Error, Version = 3)]
             public void MemoryStreamOverCapacity(Guid guid, string? tag, long requestedCapacity, long maxCapacity, string? allocationStack)
             {
-                if (IsEnabled())
+                if (this.IsEnabled())
                 {
-                    WriteEvent(11, guid, tag ?? string.Empty, requestedCapacity, maxCapacity, allocationStack ?? string.Empty);
+                    this.WriteEvent(11, guid, tag ?? string.Empty, requestedCapacity, maxCapacity, allocationStack ?? string.Empty);
                 }
             }
         }

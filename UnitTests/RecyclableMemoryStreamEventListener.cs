@@ -36,19 +36,19 @@ namespace Microsoft.IO.UnitTests
 
         public RecyclableMemoryStreamEventListener()
         {
-            EnableEvents(RecyclableMemoryStreamManager.Events.Writer, EventLevel.Verbose);
+            this.EnableEvents(RecyclableMemoryStreamManager.Events.Writer, EventLevel.Verbose);
         }
 
         public bool MemoryStreamDoubleDisposeCalled { get; private set; }
 
         protected override void OnEventWritten(EventWrittenEventArgs eventData)
         {
-            EventWritten(eventData.EventId);
+            this.EventWritten(eventData.EventId);
         }
 
         public new virtual void EventWritten(int eventId)
         {
-            EventCounts[eventId]++;
+            this.EventCounts[eventId]++;
 
             switch (eventId)
             {
@@ -56,7 +56,7 @@ namespace Microsoft.IO.UnitTests
                     Thread.Sleep(10);
                     break;
                 case MemoryStreamDoubleDispose:
-                    MemoryStreamDoubleDisposeCalled = true;
+                    this.MemoryStreamDoubleDisposeCalled = true;
                     break;
             }
         }
