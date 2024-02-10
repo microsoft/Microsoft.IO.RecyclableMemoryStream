@@ -621,7 +621,7 @@ namespace Microsoft.IO
         internal void ReportBlockCreated()
         {
             Events.Writer.MemoryStreamNewBlockCreated(this.smallPoolInUseSize);
-            BlockCreated?.Invoke(this, new BlockCreatedEventArgs(this.smallPoolInUseSize));
+            this.BlockCreated?.Invoke(this, new BlockCreatedEventArgs(this.smallPoolInUseSize));
         }
 
         internal void ReportLargeBufferCreated(Guid id, string? tag, long requiredSize, bool pooled, string? callStack)
@@ -634,7 +634,7 @@ namespace Microsoft.IO
             {
                 Events.Writer.MemoryStreamNonPooledLargeBufferCreated(id, tag, requiredSize, callStack);
             }
-            LargeBufferCreated?.Invoke(this, new LargeBufferCreatedEventArgs(id, tag, requiredSize, this.LargePoolInUseSize, pooled, callStack));
+            this.LargeBufferCreated?.Invoke(this, new LargeBufferCreatedEventArgs(id, tag, requiredSize, this.LargePoolInUseSize, pooled, callStack));
         }
 
         internal void ReportBufferDiscarded(Guid id, string? tag, Events.MemoryStreamBufferType bufferType, Events.MemoryStreamDiscardReason reason)
@@ -642,53 +642,53 @@ namespace Microsoft.IO
             Events.Writer.MemoryStreamDiscardBuffer(id, tag, bufferType, reason,
                 this.SmallBlocksFree, this.smallPoolFreeSize, this.smallPoolInUseSize,
                 this.LargeBuffersFree, this.LargePoolFreeSize, this.LargePoolInUseSize);
-            BufferDiscarded?.Invoke(this, new BufferDiscardedEventArgs(id, tag, bufferType, reason));
+            this.BufferDiscarded?.Invoke(this, new BufferDiscardedEventArgs(id, tag, bufferType, reason));
         }
 
         internal void ReportStreamCreated(Guid id, string? tag, long requestedSize, long actualSize)
         {
             Events.Writer.MemoryStreamCreated(id, tag, requestedSize, actualSize);
-            StreamCreated?.Invoke(this, new StreamCreatedEventArgs(id, tag, requestedSize, actualSize));
+            this.StreamCreated?.Invoke(this, new StreamCreatedEventArgs(id, tag, requestedSize, actualSize));
         }
 
         internal void ReportStreamDisposed(Guid id, string? tag, TimeSpan lifetime, string? allocationStack, string? disposeStack)
         {
             Events.Writer.MemoryStreamDisposed(id, tag, (long)lifetime.TotalMilliseconds, allocationStack, disposeStack);
-            StreamDisposed?.Invoke(this, new StreamDisposedEventArgs(id, tag, lifetime, allocationStack, disposeStack));
+            this.StreamDisposed?.Invoke(this, new StreamDisposedEventArgs(id, tag, lifetime, allocationStack, disposeStack));
         }
 
         internal void ReportStreamDoubleDisposed(Guid id, string? tag, string? allocationStack, string? disposeStack1, string? disposeStack2)
         {
             Events.Writer.MemoryStreamDoubleDispose(id, tag, allocationStack, disposeStack1, disposeStack2);
-            StreamDoubleDisposed?.Invoke(this, new StreamDoubleDisposedEventArgs(id, tag, allocationStack, disposeStack1, disposeStack2));
+            this.StreamDoubleDisposed?.Invoke(this, new StreamDoubleDisposedEventArgs(id, tag, allocationStack, disposeStack1, disposeStack2));
         }
 
         internal void ReportStreamFinalized(Guid id, string? tag, string? allocationStack)
         {
             Events.Writer.MemoryStreamFinalized(id, tag, allocationStack);
-            StreamFinalized?.Invoke(this, new StreamFinalizedEventArgs(id, tag, allocationStack));
+            this.StreamFinalized?.Invoke(this, new StreamFinalizedEventArgs(id, tag, allocationStack));
         }
 
         internal void ReportStreamLength(long bytes)
         {
-            StreamLength?.Invoke(this, new StreamLengthEventArgs(bytes));
+            this.StreamLength?.Invoke(this, new StreamLengthEventArgs(bytes));
         }
 
         internal void ReportStreamToArray(Guid id, string? tag, string? stack, long length)
         {
             Events.Writer.MemoryStreamToArray(id, tag, stack, length);
-            StreamConvertedToArray?.Invoke(this, new StreamConvertedToArrayEventArgs(id, tag, stack, length));
+            this.StreamConvertedToArray?.Invoke(this, new StreamConvertedToArrayEventArgs(id, tag, stack, length));
         }
 
         internal void ReportStreamOverCapacity(Guid id, string? tag, long requestedCapacity, string? allocationStack)
         {
             Events.Writer.MemoryStreamOverCapacity(id, tag, requestedCapacity, this.options.MaximumStreamCapacity, allocationStack);
-            StreamOverCapacity?.Invoke(this, new StreamOverCapacityEventArgs(id, tag, requestedCapacity, this.options.MaximumStreamCapacity, allocationStack));
+            this.StreamOverCapacity?.Invoke(this, new StreamOverCapacityEventArgs(id, tag, requestedCapacity, this.options.MaximumStreamCapacity, allocationStack));
         }
 
         internal void ReportUsageReport()
         {
-            UsageReport?.Invoke(this, new UsageReportEventArgs(this.smallPoolInUseSize, this.smallPoolFreeSize, this.LargePoolInUseSize, this.LargePoolFreeSize));
+            this.UsageReport?.Invoke(this, new UsageReportEventArgs(this.smallPoolInUseSize, this.smallPoolFreeSize, this.LargePoolInUseSize, this.LargePoolFreeSize));
         }
 
         /// <summary>
