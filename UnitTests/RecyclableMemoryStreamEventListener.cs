@@ -1,4 +1,4 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 //
 // Copyright (c) 2015-2016 Microsoft
 //
@@ -52,12 +52,12 @@ namespace Microsoft.IO.UnitTests
 
             switch (eventId)
             {
-            case MemoryStreamDisposed:
-                Thread.Sleep(10);
-                break;
-            case MemoryStreamDoubleDispose:
-                MemoryStreamDoubleDisposeCalled = true;
-                break;
+                case MemoryStreamDisposed:
+                    Thread.Sleep(10);
+                    break;
+                case MemoryStreamDoubleDispose:
+                    this.MemoryStreamDoubleDisposeCalled = true;
+                    break;
             }
         }
     }

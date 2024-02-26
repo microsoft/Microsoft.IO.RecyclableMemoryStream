@@ -1,35 +1,36 @@
 using BenchmarkDotNet.Attributes;
 using Microsoft.IO;
 
-namespace BenchmarkTests;
-
-public class WriteTest
+namespace BenchmarkTests
 {
-    private RecyclableMemoryStream? subject;
-    private readonly byte[] bytes = new byte[] { 1, 2, 3, 4, 5, 6 };
-
-    [IterationSetup]
-    public void IterationSetup()
+    public class WriteTest
     {
-        var manager = new RecyclableMemoryStreamManager();
-        this.subject = new RecyclableMemoryStream(manager);
-    }
+        private RecyclableMemoryStream? subject;
+        private readonly byte[] bytes = [1, 2, 3, 4, 5, 6];
 
-    [Benchmark]
-    public void WriteByte()
-    {
-        for (int i = 0; i < 10_000_000; i++)
+        [IterationSetup]
+        public void IterationSetup()
         {
-            this.subject!.WriteByte(1);
+            var manager = new RecyclableMemoryStreamManager();
+            this.subject = new RecyclableMemoryStream(manager);
         }
-    }
 
-    [Benchmark]
-    public void WriteSpan()
-    {
-        for (int i = 0; i < 10_000_000; i++)
+        [Benchmark]
+        public void WriteByte()
         {
-            this.subject!.Write(bytes.AsSpan());
+            for (int i = 0; i < 10_000_000; i++)
+            {
+                this.subject!.WriteByte(1);
+            }
+        }
+
+        [Benchmark]
+        public void WriteSpan()
+        {
+            for (int i = 0; i < 10_000_000; i++)
+            {
+                this.subject!.Write(this.bytes.AsSpan());
+            }
         }
     }
 }

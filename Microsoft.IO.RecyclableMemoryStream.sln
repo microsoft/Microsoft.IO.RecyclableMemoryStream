@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		CHANGES.md = CHANGES.md
+		Directory.Build.props = Directory.Build.props
 		global.json = global.json
 		LICENSE = LICENSE
 		README.md = README.md
@@ -23,6 +24,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{937E
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{0ED3EBE5-1575-4649-A1F9-3D24BFFC4A9B}"
 	ProjectSection(SolutionItems) = preProject
+		.github\workflows\benchmark.yml = .github\workflows\benchmark.yml
 		.github\workflows\ci-cd.yml = .github\workflows\ci-cd.yml
 		.github\workflows\codeql-analysis.yml = .github\workflows\codeql-analysis.yml
 	EndProjectSection

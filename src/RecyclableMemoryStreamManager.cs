@@ -85,7 +85,7 @@ namespace Microsoft.IO
         /// <summary>
         /// Settings for controlling the behavior of RecyclableMemoryStream
         /// </summary>
-        public Options Settings { get { return this.options; } }
+        public Options Settings => this.options;
 
         /// <summary>
         /// Number of bytes in small pool not currently in use.
@@ -246,7 +246,7 @@ namespace Microsoft.IO
             /// </summary>
             public Options()
             {
-                
+
             }
 
             /// <summary>
@@ -357,7 +357,7 @@ namespace Microsoft.IO
 #else
                 block = new byte[this.options.BlockSize];
 #endif
-                ReportBlockCreated();
+                this.ReportBlockCreated();
             }
             else
             {
@@ -426,7 +426,7 @@ namespace Microsoft.IO
             Interlocked.Add(ref this.largeBufferInUseSize[poolIndex], buffer.Length);
             if (createdNew)
             {
-                ReportLargeBufferCreated(id, tag, requiredSize, pooled: pooled, callStack);
+                this.ReportLargeBufferCreated(id, tag, requiredSize, pooled: pooled, callStack);
             }
 
             return buffer;
@@ -460,7 +460,7 @@ namespace Microsoft.IO
         private bool IsLargeBufferSize(int value)
         {
             return (value != 0) && (this.options.UseExponentialLargeBuffer
-                                        ? (value == RoundToLargeBufferSize(value))
+                                        ? (value == this.RoundToLargeBufferSize(value))
                                         : (value % this.options.LargeBufferMultiple) == 0);
         }
 
@@ -514,7 +514,7 @@ namespace Microsoft.IO
                 }
                 else
                 {
-                    ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Large, Events.MemoryStreamDiscardReason.EnoughFree);
+                    this.ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Large, Events.MemoryStreamDiscardReason.EnoughFree);
                 }
             }
             else
@@ -523,7 +523,7 @@ namespace Microsoft.IO
                 // analysis. We have space in the InUse array for this.
                 poolIndex = this.largeBufferInUseSize.Length - 1;
 
-                ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Large, Events.MemoryStreamDiscardReason.TooLarge);
+                this.ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Large, Events.MemoryStreamDiscardReason.TooLarge);
             }
 
             Interlocked.Add(ref this.largeBufferInUseSize[poolIndex], -buffer.Length);
@@ -565,7 +565,7 @@ namespace Microsoft.IO
                 }
                 else
                 {
-                    ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Small, Events.MemoryStreamDiscardReason.EnoughFree);
+                    this.ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Small, Events.MemoryStreamDiscardReason.EnoughFree);
                     break;
                 }
             }
@@ -601,13 +601,15 @@ namespace Microsoft.IO
             }
             else
             {
-                ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Small, Events.MemoryStreamDiscardReason.EnoughFree);
+                this.ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Small, Events.MemoryStreamDiscardReason.EnoughFree);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ZeroOutMemoryIfEnabled(byte[] buffer) {
-            if (this.options.ZeroOutBuffer) {
+        private void ZeroOutMemoryIfEnabled(byte[] buffer)
+        {
+            if (this.options.ZeroOutBuffer)
+            {
 #if NET6_0_OR_GREATER
                 Array.Clear(buffer);
 #else
@@ -658,7 +660,7 @@ namespace Microsoft.IO
         internal void ReportStreamDoubleDisposed(Guid id, string? tag, string? allocationStack, string? disposeStack1, string? disposeStack2)
         {
             Events.Writer.MemoryStreamDoubleDispose(id, tag, allocationStack, disposeStack1, disposeStack2);
-            this.StreamDoubleDisposed?.Invoke(this, new StreamDoubleDisposedEventArgs(id, tag, allocationStack,disposeStack1, disposeStack2));
+            this.StreamDoubleDisposed?.Invoke(this, new StreamDoubleDisposedEventArgs(id, tag, allocationStack, disposeStack1, disposeStack2));
         }
 
         internal void ReportStreamFinalized(Guid id, string? tag, string? allocationStack)
@@ -789,7 +791,7 @@ namespace Microsoft.IO
         /// <returns>A <see cref="RecyclableMemoryStream"/>.</returns>
         public RecyclableMemoryStream GetStream(string? tag, long requiredSize, bool asContiguousBuffer)
         {
-            return GetStream(Guid.NewGuid(), tag, requiredSize, asContiguousBuffer);
+            return this.GetStream(Guid.NewGuid(), tag, requiredSize, asContiguousBuffer);
         }
 
         /// <summary>
@@ -829,7 +831,7 @@ namespace Microsoft.IO
         /// <returns>A <see cref="RecyclableMemoryStream"/>.</returns>
         public RecyclableMemoryStream GetStream(byte[] buffer)
         {
-            return GetStream(null, buffer, 0, buffer.Length);
+            return this.GetStream(null, buffer, 0, buffer.Length);
         }
 
         /// <summary>
@@ -844,7 +846,7 @@ namespace Microsoft.IO
         /// <returns>A <see cref="RecyclableMemoryStream"/>.</returns>
         public RecyclableMemoryStream GetStream(string? tag, byte[] buffer, int offset, int count)
         {
-            return GetStream(Guid.NewGuid(), tag, buffer, offset, count);
+            return this.GetStream(Guid.NewGuid(), tag, buffer, offset, count);
         }
 
         /// <summary>
@@ -882,7 +884,7 @@ namespace Microsoft.IO
         /// <returns>A <see cref="RecyclableMemoryStream"/>.</returns>
         public RecyclableMemoryStream GetStream(ReadOnlySpan<byte> buffer)
         {
-            return GetStream(null, buffer);
+            return this.GetStream(null, buffer);
         }
 
         /// <summary>
@@ -895,7 +897,7 @@ namespace Microsoft.IO
         /// <returns>A <see cref="RecyclableMemoryStream"/>.</returns>
         public RecyclableMemoryStream GetStream(string? tag, ReadOnlySpan<byte> buffer)
         {
-            return GetStream(Guid.NewGuid(), tag, buffer);
+            return this.GetStream(Guid.NewGuid(), tag, buffer);
         }
 
         /// <summary>

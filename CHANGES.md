@@ -28,9 +28,9 @@
 
 **Optimizations**
 
-* Caculating blocks and offsets was made more efficient by using `Math.DivRem`.
+* Calculating blocks and offsets was made more efficient by using `Math.DivRem`.
 * Reading and writing to the stream was made more efficient with fewer array accesses.
-* `CopyTo` was overriden to avoid using the slower default implementation.
+* `CopyTo` was overridden to avoid using the slower default implementation.
 
 # Version 2.3.1
 

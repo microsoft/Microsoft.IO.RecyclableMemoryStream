@@ -1,4 +1,3 @@
-using Microsoft.VisualBasic;
 using System.Numerics;
 using System.Security.Cryptography;
 
@@ -6,7 +5,7 @@ namespace Microsoft.IO.RecyclableMemoryStream.Examples
 {
     class Program
     {
-        private static readonly RecyclableMemoryStreamManager manager = new RecyclableMemoryStreamManager();
+        private static readonly RecyclableMemoryStreamManager manager = new();
 
         static void Main(string[] args)
         {
@@ -21,25 +20,25 @@ namespace Microsoft.IO.RecyclableMemoryStream.Examples
 
     internal class WriteExample
     {
-        RecyclableMemoryStreamManager manager = new RecyclableMemoryStreamManager();
-        byte[] sourceBuffer = new byte[100];
+        readonly RecyclableMemoryStreamManager manager = new();
+        readonly byte[] sourceBuffer = new byte[100];
         internal void Example()
         {
             // Writing an buffer to a stream
             // START EXAMPLE
-            using (var stream = manager.GetStream("Program.Main"))
+            using (var stream = this.manager.GetStream("Program.Main"))
             {
-                stream.Write(sourceBuffer, 0, sourceBuffer.Length);
+                stream.Write(this.sourceBuffer, 0, this.sourceBuffer.Length);
             }
             // END EXAMPLE
 
             // Provide buffer in GetStream
 
             // START EXAMPLE
-            using (var stream = manager.GetStream("Program.Main", sourceBuffer,
-                                 0, sourceBuffer.Length))
+            using (var stream = this.manager.GetStream("Program.Main", this.sourceBuffer,
+                                 0, this.sourceBuffer.Length))
             {
-                
+
             }
             // END EXAMPLE
         }
@@ -68,14 +67,14 @@ namespace Microsoft.IO.RecyclableMemoryStream.Examples
 
     internal class IBufferWriterExample
     {
-        RecyclableMemoryStreamManager manager = new RecyclableMemoryStreamManager();
+        readonly RecyclableMemoryStreamManager manager = new();
 
         internal void Example()
         {
             // START EXAMPLE
             var bigInt = BigInteger.Parse("123456789013374299100987654321");
 
-            using (var stream = manager.GetStream())
+            using (var stream = this.manager.GetStream())
             {
                 Span<byte> buffer = stream.GetSpan(bigInt.GetByteCount());
                 bigInt.TryWriteBytes(buffer, out int bytesWritten);
@@ -87,12 +86,12 @@ namespace Microsoft.IO.RecyclableMemoryStream.Examples
 
     internal class GetReadOnlySequenceExample
     {
-        RecyclableMemoryStreamManager manager = new RecyclableMemoryStreamManager();
+        readonly RecyclableMemoryStreamManager manager = new();
 
         internal void Example()
         {
             // START EXAMPLE
-            using (var stream = manager.GetStream())
+            using (var stream = this.manager.GetStream())
             using (var sha256Hasher = IncrementalHash.CreateHash(HashAlgorithmName.SHA256))
             {
                 foreach (var memory in stream.GetReadOnlySequence())
@@ -105,5 +104,4 @@ namespace Microsoft.IO.RecyclableMemoryStream.Examples
             //END EXAMPLE
         }
     }
-
 }

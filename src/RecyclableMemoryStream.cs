@@ -291,7 +291,7 @@ namespace Microsoft.IO
 
             this.disposed = true;
             var lifetime = TimeSpan.FromTicks((Stopwatch.GetTimestamp() - this.creationTimestamp) * TimeSpan.TicksPerSecond / Stopwatch.Frequency);
-            
+
             if (this.memoryManager.options.GenerateCallStacks)
             {
                 this.DisposeStack = Environment.StackTrace;
@@ -384,7 +384,7 @@ namespace Microsoft.IO
                 long size = (long)this.blocks.Count * this.memoryManager.options.BlockSize;
                 if (size > int.MaxValue)
                 {
-                    throw new InvalidOperationException($"{nameof(Capacity)} is larger than int.MaxValue. Use {nameof(Capacity64)} instead.");
+                    throw new InvalidOperationException($"{nameof(this.Capacity)} is larger than int.MaxValue. Use {nameof(this.Capacity64)} instead.");
                 }
                 return (int)size;
             }
@@ -534,7 +534,7 @@ namespace Microsoft.IO
         /// <inheritdoc/>
         public override void CopyTo(Stream destination, int bufferSize)
         {
-            WriteTo(destination, this.position, this.length - this.position);
+            this.WriteTo(destination, this.position, this.length - this.position);
         }
 #endif
 
@@ -577,7 +577,7 @@ namespace Microsoft.IO
                 {
                     if (this.blocks.Count == 1)
                     {
-                        AssertLengthIsSmall();
+                        this.AssertLengthIsSmall();
                         return destination.WriteAsync(this.blocks[0], (int)startPos, (int)count, cancellationToken);
                     }
                     else
@@ -587,7 +587,7 @@ namespace Microsoft.IO
                 }
                 else
                 {
-                    AssertLengthIsSmall();
+                    this.AssertLengthIsSmall();
                     return destination.WriteAsync(this.largeBuffer, (int)startPos, (int)count, cancellationToken);
                 }
             }
@@ -736,13 +736,13 @@ namespace Microsoft.IO
 
             if (this.largeBuffer != null)
             {
-                AssertLengthIsSmall();
+                this.AssertLengthIsSmall();
                 return new ReadOnlySequence<byte>(this.largeBuffer, 0, (int)this.length);
             }
 
             if (this.blocks.Count == 1)
             {
-                AssertLengthIsSmall();
+                this.AssertLengthIsSmall();
                 return new ReadOnlySequence<byte>(this.blocks[0], 0, (int)this.length);
             }
 
@@ -759,12 +759,12 @@ namespace Microsoft.IO
 
         private sealed class BlockSegment : ReadOnlySequenceSegment<byte>
         {
-            public BlockSegment(Memory<byte> memory) => Memory = memory;
+            public BlockSegment(Memory<byte> memory) => this.Memory = memory;
 
             public BlockSegment Append(Memory<byte> memory)
             {
-                var nextSegment = new BlockSegment(memory) { RunningIndex = RunningIndex + Memory.Length };
-                Next = nextSegment;
+                var nextSegment = new BlockSegment(memory) { RunningIndex = this.RunningIndex + this.Memory.Length };
+                this.Next = nextSegment;
                 return nextSegment;
             }
         }
@@ -951,7 +951,7 @@ namespace Microsoft.IO
             }
 
             int blockSize = this.memoryManager.options.BlockSize;
-            long end = position + count;
+            long end = this.position + count;
 
             this.EnsureCapacity(end);
 
@@ -1001,7 +1001,7 @@ namespace Microsoft.IO
             this.CheckDisposed();
 
             int blockSize = this.memoryManager.options.BlockSize;
-            long end = position + source.Length;
+            long end = this.position + source.Length;
 
             this.EnsureCapacity(end);
 
@@ -1057,7 +1057,7 @@ namespace Microsoft.IO
         {
             this.CheckDisposed();
 
-            long end = position + 1;
+            long end = this.position + 1;
 
             if (this.largeBuffer == null)
             {
@@ -1307,7 +1307,7 @@ namespace Microsoft.IO
 
             if (this.largeBuffer == null)
             {
-                var blockAndOffset = GetBlockAndRelativeOffset(offset);
+                var blockAndOffset = this.GetBlockAndRelativeOffset(offset);
                 long bytesRemaining = count;
                 int currentBlock = blockAndOffset.Block;
                 int currentOffset = blockAndOffset.Offset;
@@ -1328,7 +1328,7 @@ namespace Microsoft.IO
             }
             else
             {
-                AssertLengthIsSmall();
+                this.AssertLengthIsSmall();
                 Buffer.BlockCopy(this.largeBuffer, (int)offset, buffer, targetOffset, (int)count);
             }
         }
@@ -1499,6 +1499,6 @@ namespace Microsoft.IO
         {
             Debug.Assert(this.length <= Int32.MaxValue, "this.length was assumed to be <= Int32.MaxValue, but was larger.");
         }
-#endregion
+        #endregion
     }
 }

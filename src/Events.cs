@@ -80,7 +80,7 @@ namespace Microsoft.IO
             {
                 if (this.IsEnabled(EventLevel.Verbose, EventKeywords.None))
                 {
-                    WriteEvent(1, guid, tag ?? string.Empty, requestedSize, actualSize);
+                    this.WriteEvent(1, guid, tag ?? string.Empty, requestedSize, actualSize);
                 }
             }
 
@@ -97,7 +97,7 @@ namespace Microsoft.IO
             {
                 if (this.IsEnabled(EventLevel.Verbose, EventKeywords.None))
                 {
-                    WriteEvent(2, guid, tag ?? string.Empty, lifetimeMs, allocationStack ?? string.Empty, disposeStack ?? string.Empty);
+                    this.WriteEvent(2, guid, tag ?? string.Empty, lifetimeMs, allocationStack ?? string.Empty, disposeStack ?? string.Empty);
                 }
             }
 
@@ -133,7 +133,7 @@ namespace Microsoft.IO
             {
                 if (this.IsEnabled())
                 {
-                    WriteEvent(4, guid, tag ?? string.Empty, allocationStack ?? string.Empty);
+                    this.WriteEvent(4, guid, tag ?? string.Empty, allocationStack ?? string.Empty);
                 }
             }
 
@@ -150,7 +150,7 @@ namespace Microsoft.IO
             {
                 if (this.IsEnabled(EventLevel.Verbose, EventKeywords.None))
                 {
-                    WriteEvent(5, guid, tag ?? string.Empty, stack ?? string.Empty, size);
+                    this.WriteEvent(5, guid, tag ?? string.Empty, stack ?? string.Empty, size);
                 }
             }
 
@@ -165,7 +165,7 @@ namespace Microsoft.IO
             {
                 if (this.IsEnabled())
                 {
-                    WriteEvent(6, blockSize, largeBufferMultiple, maximumBufferSize);
+                    this.WriteEvent(6, blockSize, largeBufferMultiple, maximumBufferSize);
                 }
             }
 
@@ -178,7 +178,7 @@ namespace Microsoft.IO
             {
                 if (this.IsEnabled(EventLevel.Warning, EventKeywords.None))
                 {
-                    WriteEvent(7, smallPoolInUseBytes);
+                    this.WriteEvent(7, smallPoolInUseBytes);
                 }
             }
 
@@ -192,7 +192,7 @@ namespace Microsoft.IO
             {
                 if (this.IsEnabled(EventLevel.Warning, EventKeywords.None))
                 {
-                    WriteEvent(8, requiredSize, largePoolInUseBytes);
+                    this.WriteEvent(8, requiredSize, largePoolInUseBytes);
                 }
             }
 
@@ -209,7 +209,7 @@ namespace Microsoft.IO
             {
                 if (this.IsEnabled(EventLevel.Verbose, EventKeywords.None))
                 {
-                    WriteEvent(9, guid, tag ?? string.Empty, requiredSize, allocationStack ?? string.Empty);
+                    this.WriteEvent(9, guid, tag ?? string.Empty, requiredSize, allocationStack ?? string.Empty);
                 }
             }
 
@@ -232,7 +232,7 @@ namespace Microsoft.IO
             {
                 if (this.IsEnabled(EventLevel.Warning, EventKeywords.None))
                 {
-                    WriteEvent(10, guid, tag ?? string.Empty, bufferType, reason, smallBlocksFree, smallPoolBytesFree, smallPoolBytesInUse, largeBlocksFree, largePoolBytesFree, largePoolBytesInUse);
+                    this.WriteEvent(10, guid, tag ?? string.Empty, bufferType, reason, smallBlocksFree, smallPoolBytesFree, smallPoolBytesInUse, largeBlocksFree, largePoolBytesFree, largePoolBytesInUse);
                 }
             }
 
@@ -250,7 +250,7 @@ namespace Microsoft.IO
             {
                 if (this.IsEnabled())
                 {
-                    WriteEvent(11, guid, tag ?? string.Empty, requestedCapacity, maxCapacity, allocationStack ?? string.Empty);
+                    this.WriteEvent(11, guid, tag ?? string.Empty, requestedCapacity, maxCapacity, allocationStack ?? string.Empty);
                 }
             }
         }
