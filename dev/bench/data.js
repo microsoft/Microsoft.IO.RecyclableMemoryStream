@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1708970308311,
+  "lastUpdate": 1708970567774,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -1260,6 +1260,42 @@ window.BENCHMARK_DATA = {
             "value": 163178667.9939759,
             "unit": "ns",
             "range": "± 8684346.789279925"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "sungam3r@yandex.ru",
+            "name": "Ivan Maximov",
+            "username": "sungam3r"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "93628852a6b5775d812e986c613e3840e824ae58",
+          "message": "Code cleanup (#325)\n\n* Code cleanup\r\n\r\n* spelling\r\n\r\n* codeql format\r\n\r\n* change conventions\r\n\r\n* spaces\r\n\r\n* Add this\r\n\r\n* events",
+          "timestamp": "2024-02-26T10:01:52-08:00",
+          "tree_id": "ce59b68d99a7f311348e2477d71ea469358aa676",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/93628852a6b5775d812e986c613e3840e824ae58"
+        },
+        "date": 1708970567023,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 58139735.7,
+            "unit": "ns",
+            "range": "± 284451.6809430281"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 125358369.75581396,
+            "unit": "ns",
+            "range": "± 6810126.755832794"
           }
         ]
       }
