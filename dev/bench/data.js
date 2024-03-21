@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1710791172548,
+  "lastUpdate": 1711044385293,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -1332,6 +1332,42 @@ window.BENCHMARK_DATA = {
             "value": 126715097.98888889,
             "unit": "ns",
             "range": "± 7042617.027032123"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "andre.postiga@msn.com",
+            "name": "Andre Felipe Brasil Postiga",
+            "username": "AndrePostiga"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "fe17175ce894f5974a90990b64d14fe6f6ac5734",
+          "message": "Add important note to avoid memory leak by wrong usage of the lib (#338)\n\n* Add important note to avoid memory leak by wrong usage of the lib\r\n\r\n* fix: sentence with double dots",
+          "timestamp": "2024-03-21T11:04:56-07:00",
+          "tree_id": "b66d657b1b02e3e896015cc3f9ff094107177e66",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/fe17175ce894f5974a90990b64d14fe6f6ac5734"
+        },
+        "date": 1711044384454,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 58234810.307692304,
+            "unit": "ns",
+            "range": "± 217469.46626227195"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 127991506.86170213,
+            "unit": "ns",
+            "range": "± 7270319.787490661"
           }
         ]
       }
