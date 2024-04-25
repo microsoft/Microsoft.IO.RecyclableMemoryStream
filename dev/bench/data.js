@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1711044385293,
+  "lastUpdate": 1714080907663,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -1368,6 +1368,42 @@ window.BENCHMARK_DATA = {
             "value": 127991506.86170213,
             "unit": "ns",
             "range": "± 7270319.787490661"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "31978c7ee7701424ecbbcc9fa52a1bc88185ee74",
+          "message": "Bump NUnit.Analyzers from 4.1.0 to 4.2.0 in /UnitTests (#341)\n\nBumps [NUnit.Analyzers](https://github.com/nunit/nunit.analyzers) from 4.1.0 to 4.2.0.\r\n- [Release notes](https://github.com/nunit/nunit.analyzers/releases)\r\n- [Changelog](https://github.com/nunit/nunit.analyzers/blob/master/CHANGES.md)\r\n- [Commits](https://github.com/nunit/nunit.analyzers/compare/4.1.0...4.2.0)\r\n\r\n---\r\nupdated-dependencies:\r\n- dependency-name: NUnit.Analyzers\r\n  dependency-type: direct:production\r\n  update-type: version-update:semver-minor\r\n...\r\n\r\nSigned-off-by: dependabot[bot] <support@github.com>\r\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2024-04-25T14:34:06-07:00",
+          "tree_id": "331c3dff678903208e71965550487a3306d71520",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/31978c7ee7701424ecbbcc9fa52a1bc88185ee74"
+        },
+        "date": 1714080905892,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 58160066.461538464,
+            "unit": "ns",
+            "range": "± 293620.5699931504"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 126700756.65,
+            "unit": "ns",
+            "range": "± 7646708.945075561"
           }
         ]
       }
