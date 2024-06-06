@@ -494,7 +494,6 @@ namespace Microsoft.IO
         /// until <see cref="Dispose(bool)"/> is called, but the next time <c>GetBuffer</c> is called, a new buffer from the pool will be required.</remarks>
         /// <exception cref="ObjectDisposedException">Object has been disposed.</exception>
         /// <exception cref="OutOfMemoryException">stream is too large for a contiguous buffer.</exception>
-        /// <exception cref="OverflowException">stream is too long for a contiguous buffer.</exception>
         public override byte[] GetBuffer()
         {
             this.CheckDisposed();
