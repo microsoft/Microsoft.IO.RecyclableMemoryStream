@@ -378,12 +378,12 @@ namespace Microsoft.IO
         /// <exception cref="OutOfMemoryException">Requested array size is larger than the maximum allowed.</exception>
         internal byte[] GetLargeBuffer(long requiredSize, Guid id, string? tag)
         {
+            requiredSize = this.RoundToLargeBufferSize(requiredSize);
+
             if (requiredSize > MaxArrayLength)
             {
-                throw new OutOfMemoryException($"Requested size exceeds maximum array length of {MaxArrayLength}.");
+                throw new OutOfMemoryException($"Required buffer size exceeds maximum array length of {MaxArrayLength}.");
             }
-
-            requiredSize = this.RoundToLargeBufferSize(requiredSize);
 
             var poolIndex = this.GetPoolIndex(requiredSize);
 

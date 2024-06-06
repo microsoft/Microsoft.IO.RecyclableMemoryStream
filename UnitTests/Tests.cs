@@ -4057,7 +4057,25 @@ namespace Microsoft.IO.UnitTests
                 }
             }
         }
+#pragma warning disable 618 // Timeout is obsolete because it kills the thread, which isn't allowed, but it's still handy
+                            // for tests that are expected to run indefinitely in the failure case.
+        [Test, Timeout(10000)]
+        public void TryGetBuffer_InfiniteLoop_Issue344()
+        {
+            // see https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/issues/344
+            var memMgr = this.GetMemoryManager();
+            var size = 1073741825; // this will cause infinite loop in TryGetBuffer below, 1073741824 works.
+            var bytes = new byte[size];
+            using (var ms = memMgr.GetStream())
+            {
+                ms.Write(bytes, 0, size);
+                bool result = ms.TryGetBuffer(out var segment);
+                Assert.That(result, Is.False);
+                Assert.That(segment, Is.Empty);
+            }
+        }
     }
+#pragma warning restore 618
 
     [TestFixture]
     public sealed class RecyclableMemoryStreamTestsWithPassiveBufferReleaseUsingExponentialLargeBuffer : BaseRecyclableMemoryStreamTestsUsingExponentialLargeBuffer
