@@ -7,7 +7,7 @@
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Microsoft.IO.RecyclableMemoryStream.xml</DocumentationFile>
     <!-- NuGet properties -->
     <PackageId>Microsoft.IO.RecyclableMemoryStream</PackageId>
-    <PackageVersion>3.0.0</PackageVersion>
+    <PackageVersion>3.0.1</PackageVersion>
     <Title>Microsoft.IO.RecyclableMemoryStream</Title>
     <Authors>Microsoft</Authors>
     <Description>A pooled MemoryStream allocator to decrease GC load and improve performance on highly scalable systems.</Description>
