@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1716478654593,
+  "lastUpdate": 1718121536116,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -1440,6 +1440,42 @@ window.BENCHMARK_DATA = {
             "value": 126301809.98314607,
             "unit": "ns",
             "range": "± 6990232.713537535"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "benmwatson@users.noreply.github.com",
+            "name": "Ben",
+            "username": "benmwatson"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7a74201d071e5ea993e0379ba8885615fe8c0850",
+          "message": "Resolving infinite loop with buffers longer than MaxArrayLength (#345)\n\n* Fix Issue 344 by resolving infinite loop with buffers longer than MaxArrayLength.\r\n\r\n* Remove unnecessary documentation (design changed)\r\n\r\n---------\r\n\r\nCo-authored-by: Ben Watson <bewatson@microsoft.com>",
+          "timestamp": "2024-06-11T08:57:53-07:00",
+          "tree_id": "d52a6f7098cf4c97b62be627a9c1dd5277d4f159",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/7a74201d071e5ea993e0379ba8885615fe8c0850"
+        },
+        "date": 1718121535424,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 57904438.928571425,
+            "unit": "ns",
+            "range": "± 825435.3787321493"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 126582095.74157304,
+            "unit": "ns",
+            "range": "± 7011895.511010465"
           }
         ]
       }
