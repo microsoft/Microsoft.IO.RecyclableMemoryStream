@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1718136872285,
+  "lastUpdate": 1718137020746,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -1510,6 +1510,40 @@ window.BENCHMARK_DATA = {
             "value": 128352730.44680852,
             "unit": "ns",
             "range": "± 7320737.3470066665"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "bewatson@microsoft.com",
+            "name": "Ben Watson"
+          },
+          "committer": {
+            "email": "bewatson@microsoft.com",
+            "name": "Ben Watson"
+          },
+          "distinct": true,
+          "id": "e29a28387da9018fa9605a1dcb3f7a0435aa9974",
+          "message": "fix typo in CHANGES.md",
+          "timestamp": "2024-06-11T13:15:47-07:00",
+          "tree_id": "f1a61796d194d85ed646abafd8cbe5f0cbc97577",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/e29a28387da9018fa9605a1dcb3f7a0435aa9974"
+        },
+        "date": 1718137020025,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 58211118.928571425,
+            "unit": "ns",
+            "range": "± 216132.30492934512"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 126922585.33333333,
+            "unit": "ns",
+            "range": "± 7038710.898951693"
           }
         ]
       }
