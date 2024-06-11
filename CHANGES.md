@@ -1,6 +1,6 @@
 # Version 3.0.1
 
-** Bug Fix**
+**Bug Fix**
 
 * Fix infinite loop bug when calling (Try)GetBuffer on a stream longer than 1 GB when using the `UseExponentialLargeBuffer` option. (Issue #344)
 
