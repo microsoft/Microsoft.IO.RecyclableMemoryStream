@@ -23,6 +23,7 @@
 namespace Microsoft.IO
 {
     using System;
+    using System.Buffers;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
@@ -75,10 +76,7 @@ namespace Microsoft.IO
 
         private readonly ConcurrentStack<byte[]>[] largePools;
 
-        private readonly ConcurrentStack<byte[]> smallPool;
-
-        private long smallPoolFreeSize;
-        private long smallPoolInUseSize;
+        private readonly ArrayPool<byte> arrayPool;
 
         internal readonly Options options;
 
@@ -86,16 +84,6 @@ namespace Microsoft.IO
         /// Settings for controlling the behavior of RecyclableMemoryStream
         /// </summary>
         public Options Settings => this.options;
-
-        /// <summary>
-        /// Number of bytes in small pool not currently in use.
-        /// </summary>
-        public long SmallPoolFreeSize => this.smallPoolFreeSize;
-
-        /// <summary>
-        /// Number of bytes currently in use by stream from the small pool.
-        /// </summary>
-        public long SmallPoolInUseSize => this.smallPoolInUseSize;
 
         /// <summary>
         /// Number of bytes in large pool not currently in use.
@@ -130,11 +118,6 @@ namespace Microsoft.IO
                 return sum;
             }
         }
-
-        /// <summary>
-        /// How many blocks are in the small pool.
-        /// </summary>
-        public long SmallBlocksFree => this.smallPool.Count;
 
         /// <summary>
         /// How many buffers are in the large pool.
@@ -241,6 +224,8 @@ namespace Microsoft.IO
             /// <remarks>Setting this to true causes a performance hit and should only be set if one wants to avoid accidental data leaks.</remarks>
             public bool ZeroOutBuffer { get; set; } = false;
 
+            public ArrayPool<byte> ArrayPool { get; set; } = ArrayPool<byte>.Shared;
+
             /// <summary>
             /// Creates a new <see cref="Options"/> object.
             /// </summary>
@@ -321,7 +306,8 @@ namespace Microsoft.IO
                     $"{nameof(options.MaximumBufferSize)} is not {(options.UseExponentialLargeBuffer ? "an exponential" : "a multiple")} of {nameof(options.LargeBufferMultiple)}.");
             }
 
-            this.smallPool = new ConcurrentStack<byte[]>();
+            this.arrayPool = options.ArrayPool;
+
             var numLargePools = options.UseExponentialLargeBuffer
                                     ? ((int)Math.Log(options.MaximumBufferSize / options.LargeBufferMultiple, 2) + 1)
                                     : (options.MaximumBufferSize / options.LargeBufferMultiple);
@@ -346,22 +332,11 @@ namespace Microsoft.IO
         /// <returns>A <c>byte[]</c> array.</returns>
         internal byte[] GetBlock()
         {
-            Interlocked.Add(ref this.smallPoolInUseSize, this.options.BlockSize);
+            var block = this.arrayPool.Rent(this.options.BlockSize);
 
-            if (!this.smallPool.TryPop(out byte[]? block))
+            if (block.Length > this.options.BlockSize)
             {
-                // We'll add this back to the pool when the stream is disposed
-                // (unless our free pool is too large)
-#if NET6_0_OR_GREATER
-                block = this.options.ZeroOutBuffer ? GC.AllocateArray<byte>(this.options.BlockSize) : GC.AllocateUninitializedArray<byte>(this.options.BlockSize);
-#else
-                block = new byte[this.options.BlockSize];
-#endif
-                this.ReportBlockCreated();
-            }
-            else
-            {
-                Interlocked.Add(ref this.smallPoolFreeSize, -this.options.BlockSize);
+                this.options.BlockSize = block.Length;
             }
 
             return block;
@@ -545,7 +520,6 @@ namespace Microsoft.IO
             }
 
             long bytesToReturn = (long)blocks.Count * (long)this.options.BlockSize;
-            Interlocked.Add(ref this.smallPoolInUseSize, -bytesToReturn);
 
             foreach (var block in blocks)
             {
@@ -557,17 +531,7 @@ namespace Microsoft.IO
 
             foreach (var block in blocks)
             {
-                this.ZeroOutMemoryIfEnabled(block);
-                if (this.options.MaximumSmallPoolFreeBytes == 0 || this.SmallPoolFreeSize < this.options.MaximumSmallPoolFreeBytes)
-                {
-                    Interlocked.Add(ref this.smallPoolFreeSize, this.options.BlockSize);
-                    this.smallPool.Push(block);
-                }
-                else
-                {
-                    this.ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Small, Events.MemoryStreamDiscardReason.EnoughFree);
-                    break;
-                }
+                this.arrayPool.Return(block, this.options.ZeroOutBuffer);
             }
         }
 
@@ -582,27 +546,13 @@ namespace Microsoft.IO
         internal void ReturnBlock(byte[] block, Guid id, string? tag)
         {
             var bytesToReturn = this.options.BlockSize;
-            Interlocked.Add(ref this.smallPoolInUseSize, -bytesToReturn);
 
             if (block == null)
             {
                 throw new ArgumentNullException(nameof(block));
             }
 
-            if (block.Length != this.options.BlockSize)
-            {
-                throw new ArgumentException($"{nameof(block)} is not not {nameof(this.options.BlockSize)} in length.");
-            }
-            this.ZeroOutMemoryIfEnabled(block);
-            if (this.options.MaximumSmallPoolFreeBytes == 0 || this.SmallPoolFreeSize < this.options.MaximumSmallPoolFreeBytes)
-            {
-                Interlocked.Add(ref this.smallPoolFreeSize, this.options.BlockSize);
-                this.smallPool.Push(block);
-            }
-            else
-            {
-                this.ReportBufferDiscarded(id, tag, Events.MemoryStreamBufferType.Small, Events.MemoryStreamDiscardReason.EnoughFree);
-            }
+            this.arrayPool.Return(block, this.options.ZeroOutBuffer);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -620,8 +570,6 @@ namespace Microsoft.IO
 
         internal void ReportBlockCreated()
         {
-            Events.Writer.MemoryStreamNewBlockCreated(this.smallPoolInUseSize);
-            this.BlockCreated?.Invoke(this, new BlockCreatedEventArgs(this.smallPoolInUseSize));
         }
 
         internal void ReportLargeBufferCreated(Guid id, string? tag, long requiredSize, bool pooled, string? callStack)
@@ -640,7 +588,7 @@ namespace Microsoft.IO
         internal void ReportBufferDiscarded(Guid id, string? tag, Events.MemoryStreamBufferType bufferType, Events.MemoryStreamDiscardReason reason)
         {
             Events.Writer.MemoryStreamDiscardBuffer(id, tag, bufferType, reason,
-                this.SmallBlocksFree, this.smallPoolFreeSize, this.smallPoolInUseSize,
+                0, 0, 0,
                 this.LargeBuffersFree, this.LargePoolFreeSize, this.LargePoolInUseSize);
             this.BufferDiscarded?.Invoke(this, new BufferDiscardedEventArgs(id, tag, bufferType, reason));
         }
@@ -688,7 +636,7 @@ namespace Microsoft.IO
 
         internal void ReportUsageReport()
         {
-            this.UsageReport?.Invoke(this, new UsageReportEventArgs(this.smallPoolInUseSize, this.smallPoolFreeSize, this.LargePoolInUseSize, this.LargePoolFreeSize));
+            this.UsageReport?.Invoke(this, new UsageReportEventArgs(0, 0, this.LargePoolInUseSize, this.LargePoolFreeSize));
         }
 
         /// <summary>
