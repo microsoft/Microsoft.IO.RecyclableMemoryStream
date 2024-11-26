@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1732645287806,
+  "lastUpdate": 1732645288782,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -1796,6 +1796,42 @@ window.BENCHMARK_DATA = {
             "value": 128255935.47959183,
             "unit": "ns",
             "range": "± 7450007.127300789"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "98206fc7de217c6ee46eb210500b372c8d8b97d2",
+          "message": "Bump System.Memory from 4.5.5 to 4.6.0 in /src (#361)\n\nBumps [System.Memory](https://github.com/dotnet/maintenance-packages) from 4.5.5 to 4.6.0.\r\n- [Commits](https://github.com/dotnet/maintenance-packages/commits)\r\n\r\n---\r\nupdated-dependencies:\r\n- dependency-name: System.Memory\r\n  dependency-type: direct:production\r\n  update-type: version-update:semver-minor\r\n...\r\n\r\nSigned-off-by: dependabot[bot] <support@github.com>\r\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2024-11-26T10:20:28-08:00",
+          "tree_id": "4e655daf6d7b41a33c8bc9f34ec5bd6ab5fada1f",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/98206fc7de217c6ee46eb210500b372c8d8b97d2"
+        },
+        "date": 1732645287916,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 58442442.78571428,
+            "unit": "ns",
+            "range": "± 701543.7388644229"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 130683073.34,
+            "unit": "ns",
+            "range": "± 8499682.440979993"
           }
         ]
       }
