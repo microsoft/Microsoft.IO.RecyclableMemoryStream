@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1737050308173,
+  "lastUpdate": 1737131959213,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -2048,6 +2048,42 @@ window.BENCHMARK_DATA = {
             "value": 131884677.18,
             "unit": "ns",
             "range": "± 9113073.390842406"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "campbell.reid@displayr.com",
+            "name": "Campbell Reid",
+            "username": "campbell-reid-displayr"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7df2ef7c95979774f783d4870cb959f03c38aade",
+          "message": "Add clarity for the large pool of buffers and the GetBuffer method pertaining to the .NET max array length (#370)",
+          "timestamp": "2025-01-17T08:38:17-08:00",
+          "tree_id": "f27d16cd37abadc4c22fb0df0df67e0ce2c04603",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/7df2ef7c95979774f783d4870cb959f03c38aade"
+        },
+        "date": 1737131958337,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 56237154.84615385,
+            "unit": "ns",
+            "range": "± 275779.33820443176"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 130605724.56,
+            "unit": "ns",
+            "range": "± 7768795.482279487"
           }
         ]
       }
