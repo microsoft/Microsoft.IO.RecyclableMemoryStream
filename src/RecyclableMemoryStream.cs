@@ -433,7 +433,7 @@ namespace Microsoft.IO
             }
         }
 
-        private long position;
+        private BlockAndOffset blockAndOffset;
 
         /// <summary>
         /// Gets the current position in the stream.
@@ -447,7 +447,7 @@ namespace Microsoft.IO
             get
             {
                 this.CheckDisposed();
-                return this.position;
+                return this.GetPosition();
             }
             set
             {
@@ -461,7 +461,7 @@ namespace Microsoft.IO
                 {
                     throw new InvalidOperationException($"Once the stream is converted to a single large buffer, position cannot be set past {RecyclableMemoryStreamManager.MaxArrayLength}.");
                 }
-                this.position = value;
+                this.blockAndOffset = this.GetBlockAndRelativeOffset(value);
             }
         }
 
@@ -534,7 +534,8 @@ namespace Microsoft.IO
         /// <inheritdoc/>
         public override void CopyTo(Stream destination, int bufferSize)
         {
-            this.WriteTo(destination, this.position, this.length - this.position);
+            long position = this.GetPosition();
+            this.WriteTo(destination, position, this.length - position);
         }
 #endif
 
@@ -562,9 +563,10 @@ namespace Microsoft.IO
                 return Task.CompletedTask;
             }
 
-            long startPos = this.position;
+            var startBlockAndOffset = this.blockAndOffset;
+            long startPos = this.GetPosition();
             var count = this.length - startPos;
-            this.position += count;
+            this.blockAndOffset = this.GetBlockAndRelativeOffset(startPos + count);
 
             if (destination is MemoryStream destinationRMS)
             {
@@ -578,17 +580,17 @@ namespace Microsoft.IO
                     if (this.blocks.Count == 1)
                     {
                         this.AssertLengthIsSmall();
-                        return destination.WriteAsync(this.blocks[0], (int)startPos, (int)count, cancellationToken);
+                        return destination.WriteAsync(this.blocks[0], startBlockAndOffset.Offset, (int)count, cancellationToken);
                     }
                     else
                     {
-                        return CopyToAsyncImpl(destination, this.GetBlockAndRelativeOffset(startPos), count, this.blocks, cancellationToken);
+                        return CopyToAsyncImpl(destination, startBlockAndOffset, count, this.blocks, cancellationToken);
                     }
                 }
                 else
                 {
                     this.AssertLengthIsSmall();
-                    return destination.WriteAsync(this.largeBuffer, (int)startPos, (int)count, cancellationToken);
+                    return destination.WriteAsync(this.largeBuffer, startBlockAndOffset.Offset, (int)count, cancellationToken);
                 }
             }
 
@@ -645,16 +647,16 @@ namespace Microsoft.IO
             else
             {
                 long bufferSize = this.largeBuffer == null
-                    ? this.memoryManager.options.BlockSize - this.GetBlockAndRelativeOffset(this.position).Offset
-                    : this.largeBuffer.Length - this.position;
+                    ? this.memoryManager.options.BlockSize - this.blockAndOffset.Offset
+                    : this.largeBuffer.Length - this.blockAndOffset.Offset;
 
                 if (count > bufferSize)
                 {
                     throw new InvalidOperationException($"Cannot advance past the end of the buffer, which has a size of {bufferSize}.");
                 }
 
-                this.position += count;
-                this.length = Math.Max(this.position, this.length);
+                this.AdvancePosition(count);
+                this.length = Math.Max(this.GetPosition(), this.length);
             }
         }
 
@@ -698,7 +700,7 @@ namespace Microsoft.IO
 
             var minimumBufferSize = Math.Max(sizeHint, 1);
 
-            this.EnsureCapacity(this.position + minimumBufferSize);
+            this.EnsureCapacity(this.GetPosition() + minimumBufferSize);
             if (this.bufferWriterTempBuffer != null)
             {
                 this.ReturnTempBuffer(this.bufferWriterTempBuffer);
@@ -707,14 +709,13 @@ namespace Microsoft.IO
 
             if (this.largeBuffer != null)
             {
-                return new ArraySegment<byte>(this.largeBuffer, (int)this.position, this.largeBuffer.Length - (int)this.position);
+                return new ArraySegment<byte>(this.largeBuffer, (int)this.blockAndOffset.Offset, this.largeBuffer.Length - (int)this.blockAndOffset.Offset);
             }
 
-            BlockAndOffset blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
-            int remainingBytesInBlock = this.MemoryManager.options.BlockSize - blockAndOffset.Offset;
+            int remainingBytesInBlock = this.MemoryManager.options.BlockSize - this.blockAndOffset.Offset;
             if (remainingBytesInBlock >= minimumBufferSize)
             {
-                return new ArraySegment<byte>(this.blocks[blockAndOffset.Block], blockAndOffset.Offset, this.MemoryManager.options.BlockSize - blockAndOffset.Offset);
+                return new ArraySegment<byte>(this.blocks[this.blockAndOffset.Block], this.blockAndOffset.Offset, this.MemoryManager.options.BlockSize - this.blockAndOffset.Offset);
             }
 
             this.bufferWriterTempBuffer = minimumBufferSize > this.memoryManager.options.BlockSize ?
@@ -842,7 +843,10 @@ namespace Microsoft.IO
         /// <exception cref="ObjectDisposedException">Object has been disposed.</exception>
         public override int Read(byte[] buffer, int offset, int count)
         {
-            return this.SafeRead(buffer, offset, count, ref this.position);
+            long newPosition = this.GetPosition();
+            var ret = this.SafeRead(buffer, offset, count, ref newPosition);
+            this.Position = newPosition;
+            return ret;
         }
 
         /// <summary>
@@ -897,7 +901,10 @@ namespace Microsoft.IO
         public override int Read(Span<byte> buffer)
 #endif
         {
-            return this.SafeRead(buffer, ref this.position);
+            long position = this.GetPosition();
+            var ret = this.SafeRead(buffer, ref position);
+            this.Position = position;
+            return ret;
         }
 
         /// <summary>
@@ -951,7 +958,8 @@ namespace Microsoft.IO
             }
 
             int blockSize = this.memoryManager.options.BlockSize;
-            long end = this.position + count;
+            long startPos = this.GetPosition();
+            long end = startPos + count;
 
             this.EnsureCapacity(end);
 
@@ -959,30 +967,34 @@ namespace Microsoft.IO
             {
                 int bytesRemaining = count;
                 int bytesWritten = 0;
-                var blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
 
                 while (bytesRemaining > 0)
                 {
-                    byte[] currentBlock = this.blocks[blockAndOffset.Block];
-                    int remainingInBlock = blockSize - blockAndOffset.Offset;
+                    byte[] currentBlock = this.blocks[this.blockAndOffset.Block];
+                    int remainingInBlock = blockSize - this.blockAndOffset.Offset;
                     int amountToWriteInBlock = Math.Min(remainingInBlock, bytesRemaining);
 
-                    Buffer.BlockCopy(buffer, offset + bytesWritten, currentBlock, blockAndOffset.Offset,
+                    Buffer.BlockCopy(buffer, offset + bytesWritten, currentBlock, this.blockAndOffset.Offset,
                                      amountToWriteInBlock);
 
                     bytesRemaining -= amountToWriteInBlock;
                     bytesWritten += amountToWriteInBlock;
 
-                    ++blockAndOffset.Block;
-                    blockAndOffset.Offset = 0;
+                    this.blockAndOffset.Offset += amountToWriteInBlock;
+                    if (this.blockAndOffset.Offset >= blockSize)
+                    {
+                        ++this.blockAndOffset.Block;
+                        this.blockAndOffset.Offset = 0;
+                    }
                 }
             }
             else
             {
-                Buffer.BlockCopy(buffer, offset, this.largeBuffer, (int)this.position, count);
+                Buffer.BlockCopy(buffer, offset, this.largeBuffer, (int)this.blockAndOffset.Offset, count);
+                this.AdvancePosition(count);
             }
-            this.position = end;
-            this.length = Math.Max(this.position, this.length);
+            
+            this.length = Math.Max(this.GetPosition(), this.length);
         }
 
         /// <summary>
@@ -1001,35 +1013,38 @@ namespace Microsoft.IO
             this.CheckDisposed();
 
             int blockSize = this.memoryManager.options.BlockSize;
-            long end = this.position + source.Length;
+            long end = this.GetPosition() + source.Length;
 
             this.EnsureCapacity(end);
 
             if (this.largeBuffer == null)
             {
-                var blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
-
                 while (source.Length > 0)
                 {
-                    byte[] currentBlock = this.blocks[blockAndOffset.Block];
-                    int remainingInBlock = blockSize - blockAndOffset.Offset;
+                    byte[] currentBlock = this.blocks[this.blockAndOffset.Block];
+                    int remainingInBlock = blockSize - this.blockAndOffset.Offset;
                     int amountToWriteInBlock = Math.Min(remainingInBlock, source.Length);
 
                     source.Slice(0, amountToWriteInBlock)
-                        .CopyTo(currentBlock.AsSpan(blockAndOffset.Offset));
+                        .CopyTo(currentBlock.AsSpan(this.blockAndOffset.Offset));
 
                     source = source.Slice(amountToWriteInBlock);
 
-                    ++blockAndOffset.Block;
-                    blockAndOffset.Offset = 0;
+                    this.blockAndOffset.Offset += amountToWriteInBlock;
+                    if (this.blockAndOffset.Offset >= blockSize)
+                    {
+                        ++this.blockAndOffset.Block;
+                        this.blockAndOffset.Offset = 0;
+                    }
                 }
             }
             else
             {
-                source.CopyTo(this.largeBuffer.AsSpan((int)this.position));
+                source.CopyTo(this.largeBuffer.AsSpan((int)this.blockAndOffset.Offset));
+                this.AdvancePosition(source.Length);
             }
-            this.position = end;
-            this.length = Math.Max(this.position, this.length);
+            
+            this.length = Math.Max(this.GetPosition(), this.length);
         }
 
         /// <summary>
@@ -1057,36 +1072,39 @@ namespace Microsoft.IO
         {
             this.CheckDisposed();
 
-            long end = this.position + 1;
-
             if (this.largeBuffer == null)
             {
                 var blockSize = this.memoryManager.options.BlockSize;
 
-                var block = (int)Math.DivRem(this.position, blockSize, out var index);
-
-                if (block >= this.blocks.Count)
+                if (this.blockAndOffset.Block >= this.blocks.Count)
                 {
-                    this.EnsureCapacity(end);
+                    this.EnsureCapacity(this.GetPosition() + 1);
                 }
 
-                this.blocks[block][index] = value;
+                this.blocks[this.blockAndOffset.Block][this.blockAndOffset.Offset] = value;
             }
             else
             {
-                if (this.position >= this.largeBuffer.Length)
+                long position = this.GetPosition();
+                if (position >= this.largeBuffer.Length)
                 {
-                    this.EnsureCapacity(end);
+                    this.EnsureCapacity(position + 1);
                 }
 
-                this.largeBuffer[this.position] = value;
+                this.largeBuffer[position] = value;
             }
 
-            this.position = end;
-
-            if (this.position > this.length)
+            this.blockAndOffset.Offset++;
+            if (this.blockAndOffset.Offset >= this.memoryManager.options.BlockSize)
             {
-                this.length = this.position;
+                this.blockAndOffset.Block++;
+                this.blockAndOffset.Offset = 0;
+            }
+
+            long newPos = this.GetPosition();
+            if (newPos > this.length)
+            {
+                this.length = newPos;
             }
         }
 
@@ -1097,7 +1115,10 @@ namespace Microsoft.IO
         /// <exception cref="ObjectDisposedException">Object has been disposed.</exception>
         public override int ReadByte()
         {
-            return this.SafeReadByte(ref this.position);
+            long position = this.GetPosition();
+            var ret = this.SafeReadByte(ref position);
+            this.Position = position;
+            return ret;
         }
 
         /// <summary>
@@ -1143,9 +1164,9 @@ namespace Microsoft.IO
             this.EnsureCapacity(value);
 
             this.length = value;
-            if (this.position > value)
+            if (this.GetPosition() > value)
             {
-                this.position = value;
+                this.Position = value;
             }
         }
 
@@ -1165,7 +1186,7 @@ namespace Microsoft.IO
             long newPosition = loc switch
             {
                 SeekOrigin.Begin => offset,
-                SeekOrigin.Current => offset + this.position,
+                SeekOrigin.Current => offset + this.GetPosition(),
                 SeekOrigin.End => offset + this.length,
                 _ => throw new ArgumentException("Invalid seek origin.", nameof(loc)),
             };
@@ -1173,8 +1194,8 @@ namespace Microsoft.IO
             {
                 throw new IOException("Seek before beginning.");
             }
-            this.position = newPosition;
-            return this.position;
+            this.Position = newPosition;
+            return newPosition;
         }
 
         /// <summary>
@@ -1436,6 +1457,33 @@ namespace Microsoft.IO
             var blockSize = this.memoryManager.options.BlockSize;
             int blockIndex = (int)Math.DivRem(offset, blockSize, out long offsetIndex);
             return new BlockAndOffset(blockIndex, (int)offsetIndex);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private long GetPosition()
+        {
+            return ((long)this.blockAndOffset.Block * (long)this.memoryManager.options.BlockSize) + (long)this.blockAndOffset.Offset;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AdvancePosition(int count)
+        {
+            int remaining = count;
+            while (remaining > 0)
+            {
+                int remainingInBlock = this.memoryManager.options.BlockSize - this.blockAndOffset.Offset;
+                if (remainingInBlock < remaining)
+                {
+                    this.blockAndOffset.Block++;
+                    this.blockAndOffset.Offset = 0;
+                    remaining -= remainingInBlock;
+                }
+                else
+                {
+                    this.blockAndOffset.Offset += remaining;
+                    remaining = 0;
+                }
+            }
         }
 
         private void EnsureCapacity(long newCapacity)
