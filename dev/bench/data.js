@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1750116072435,
+  "lastUpdate": 1752164513627,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -2372,6 +2372,42 @@ window.BENCHMARK_DATA = {
             "value": 127158031.40449437,
             "unit": "ns",
             "range": "± 7034000.198991256"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cf1f31363cd8188f2e6c02f81b3e542c711d78c7",
+          "message": "Bump NUnit.Analyzers from 4.9.1 to 4.9.2 (#384)\n\n---\nupdated-dependencies:\n- dependency-name: NUnit.Analyzers\n  dependency-version: 4.9.2\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2025-07-10T09:20:55-07:00",
+          "tree_id": "b0ee65869bf46fce89c5ab400ff92ac132cfc4ca",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/cf1f31363cd8188f2e6c02f81b3e542c711d78c7"
+        },
+        "date": 1752164512063,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 58688619.538461536,
+            "unit": "ns",
+            "range": "± 284517.3310089139"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 129404977.48958333,
+            "unit": "ns",
+            "range": "± 7445811.616675333"
           }
         ]
       }
