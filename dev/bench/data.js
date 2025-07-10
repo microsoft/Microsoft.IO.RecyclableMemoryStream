@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1752164513627,
+  "lastUpdate": 1752164645606,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -2408,6 +2408,42 @@ window.BENCHMARK_DATA = {
             "value": 129404977.48958333,
             "unit": "ns",
             "range": "± 7445811.616675333"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jamie.magee@gmail.com",
+            "name": "Jamie Magee",
+            "username": "JamieMagee"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "716850741c3f22355e09b5fd193b1edfac782731",
+          "message": "Add Dependabot configuration for .NET SDK updates (#385)",
+          "timestamp": "2025-07-10T09:23:06-07:00",
+          "tree_id": "e6d4cbc18099f6a5ddc44417f4082b455b62dcbb",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/716850741c3f22355e09b5fd193b1edfac782731"
+        },
+        "date": 1752164644710,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 58376720.071428575,
+            "unit": "ns",
+            "range": "± 295067.7458625038"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 126715310.47727273,
+            "unit": "ns",
+            "range": "± 6945023.178618077"
           }
         ]
       }
