@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1752164645606,
+  "lastUpdate": 1764867786623,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -2444,6 +2444,42 @@ window.BENCHMARK_DATA = {
             "value": 126715310.47727273,
             "unit": "ns",
             "range": "± 6945023.178618077"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "83aef8dd0d07ad04a81dc79bec058d4e31dd5082",
+          "message": "Bump NUnit from 4.3.2 to 4.4.0 (#388)\n\n---\nupdated-dependencies:\n- dependency-name: NUnit\n  dependency-version: 4.4.0\n  dependency-type: direct:production\n  update-type: version-update:semver-minor\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2025-12-04T09:01:56-08:00",
+          "tree_id": "262591239c9065dd48135079f92bb5aec6afdee9",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/83aef8dd0d07ad04a81dc79bec058d4e31dd5082"
+        },
+        "date": 1764867785713,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 58324904.928571425,
+            "unit": "ns",
+            "range": "± 228680.2724045801"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 126569864.65882353,
+            "unit": "ns",
+            "range": "± 6827475.158908853"
           }
         ]
       }
