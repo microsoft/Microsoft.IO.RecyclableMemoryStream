@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1764867786623,
+  "lastUpdate": 1764867862132,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -2480,6 +2480,42 @@ window.BENCHMARK_DATA = {
             "value": 126569864.65882353,
             "unit": "ns",
             "range": "± 6827475.158908853"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "df01f6595dded7947755f2748bc89083976e9e79",
+          "message": "Bump actions/setup-dotnet from 4 to 5 (#392)\n\nBumps [actions/setup-dotnet](https://github.com/actions/setup-dotnet) from 4 to 5.\n- [Release notes](https://github.com/actions/setup-dotnet/releases)\n- [Commits](https://github.com/actions/setup-dotnet/compare/v4...v5)\n\n---\nupdated-dependencies:\n- dependency-name: actions/setup-dotnet\n  dependency-version: '5'\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2025-12-04T09:03:03-08:00",
+          "tree_id": "668237cdd56ebb96489df77452045f00b10be0df",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/df01f6595dded7947755f2748bc89083976e9e79"
+        },
+        "date": 1764867860691,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 58488346.14285714,
+            "unit": "ns",
+            "range": "± 263171.201935709"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 127592904.72580644,
+            "unit": "ns",
+            "range": "± 7200655.006644743"
           }
         ]
       }
