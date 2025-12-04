@@ -110,7 +110,7 @@ namespace Microsoft.IO
             /// <param name="disposeStack1">Call stack of the first dispose.</param>
             /// <param name="disposeStack2">Call stack of the second dispose.</param>
             /// <remarks>Note: Stacks will only be populated if RecyclableMemoryStreamManager.GenerateCallStacks is true.</remarks>
-            [Event(3, Level = EventLevel.Critical)]
+            [Event(3, Level = EventLevel.Verbose)]
             public void MemoryStreamDoubleDispose(Guid guid, string? tag, string? allocationStack, string? disposeStack1,
                                                   string? disposeStack2)
             {
