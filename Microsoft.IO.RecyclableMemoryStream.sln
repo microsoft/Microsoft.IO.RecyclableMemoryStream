@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.4.33213.308
+# Visual Studio Version 18
+VisualStudioVersion = 18.1.11304.174 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.IO.RecyclableMemoryStream", "src\Microsoft.IO.RecyclableMemoryStream.csproj", "{4B52F0CE-5F4C-43E7-A054-50CA0A502CF3}"
 EndProject
@@ -33,6 +33,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BenchmarkTests", "Benchmark
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Examples", "Examples\Examples.csproj", "{9CFCED9A-7439-491A-8F24-827241280DA6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrimVerifier", "TrimVerifier\TrimVerifier.csproj", "{399C0C32-5091-4827-ADFC-2FEBBEDA90ED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,10 @@ Global
 		{9CFCED9A-7439-491A-8F24-827241280DA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9CFCED9A-7439-491A-8F24-827241280DA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9CFCED9A-7439-491A-8F24-827241280DA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{399C0C32-5091-4827-ADFC-2FEBBEDA90ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{399C0C32-5091-4827-ADFC-2FEBBEDA90ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{399C0C32-5091-4827-ADFC-2FEBBEDA90ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{399C0C32-5091-4827-ADFC-2FEBBEDA90ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

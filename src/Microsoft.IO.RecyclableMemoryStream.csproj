@@ -5,6 +5,9 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <RootNamespace>Microsoft.IO</RootNamespace>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Microsoft.IO.RecyclableMemoryStream.xml</DocumentationFile>
+    <CheckForOverflowUnderflow Condition="'$(Configuration)' == 'Debug'">true</CheckForOverflowUnderflow>
+    <IsTrimmable>true</IsTrimmable>
+    <VerifyReferenceTrimCompatibility>true</VerifyReferenceTrimCompatibility>
     <!-- NuGet properties -->
     <PackageId>Microsoft.IO.RecyclableMemoryStream</PackageId>
     <PackageVersion>3.0.1</PackageVersion>
@@ -20,7 +23,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/Microsoft/Microsoft.IO.RecyclableMemoryStream</PackageProjectUrl>
     <IncludeBuildOutput>true</IncludeBuildOutput>
-    <CheckForOverflowUnderflow Condition="'$(Configuration)' == 'Debug'">true</CheckForOverflowUnderflow>
+    
   </PropertyGroup>
 
   <!-- for assembly signing we use a magic variable coupled with a special build definition which skips UTs -->
