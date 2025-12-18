@@ -25,6 +25,7 @@ namespace Microsoft.IO
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Diagnostics.Tracing;
     using System.Runtime.CompilerServices;
     using System.Threading;
 
@@ -81,6 +82,13 @@ namespace Microsoft.IO
         private long smallPoolInUseSize;
 
         internal readonly Options options;
+
+        internal bool GenerateDoubleDisposedStackTrace =>
+            this.options.GenerateCallStacks &&
+            (
+                this.StreamDoubleDisposed != null ||
+                Events.Writer.IsEnabled(EventLevel.Verbose, EventKeywords.None)
+            );
 
         /// <summary>
         /// Settings for controlling the behavior of RecyclableMemoryStream
