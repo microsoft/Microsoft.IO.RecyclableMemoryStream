@@ -26,6 +26,7 @@ namespace Microsoft.IO
     using System.Buffers;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Diagnostics.Tracing;
     using System.IO;
     using System.Runtime.CompilerServices;
     using System.Threading;
@@ -280,7 +281,7 @@ namespace Microsoft.IO
             if (this.disposed)
             {
                 string? doubleDisposeStack = null;
-                if (this.memoryManager.options.GenerateCallStacks)
+                if (this.memoryManager.GenerateDoubleDisposedStackTrace)
                 {
                     doubleDisposeStack = Environment.StackTrace;
                 }
