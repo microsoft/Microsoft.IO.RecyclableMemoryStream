@@ -990,7 +990,7 @@ namespace Microsoft.IO
             }
             else
             {
-                Buffer.BlockCopy(buffer, offset, this.largeBuffer, (int)this.blockAndOffset.Offset, count);
+                Buffer.BlockCopy(buffer, offset, this.largeBuffer, (int)startPos, count);
                 this.AdvancePosition(count);
             }
             
@@ -1013,7 +1013,8 @@ namespace Microsoft.IO
             this.CheckDisposed();
 
             int blockSize = this.memoryManager.options.BlockSize;
-            long end = this.GetPosition() + source.Length;
+            long startPos = this.GetPosition();
+            long end = startPos + source.Length;
 
             this.EnsureCapacity(end);
 
@@ -1040,7 +1041,7 @@ namespace Microsoft.IO
             }
             else
             {
-                source.CopyTo(this.largeBuffer.AsSpan((int)this.blockAndOffset.Offset));
+                source.CopyTo(this.largeBuffer.AsSpan((int)startPos));
                 this.AdvancePosition(source.Length);
             }
             

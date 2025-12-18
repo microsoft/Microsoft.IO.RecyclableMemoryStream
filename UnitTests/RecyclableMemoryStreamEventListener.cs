@@ -48,7 +48,10 @@ namespace Microsoft.IO.UnitTests
 
         public new virtual void EventWritten(int eventId)
         {
-            this.EventCounts[eventId]++;
+            if (eventId > 0)
+            {
+                this.EventCounts[eventId]++;
+            }
 
             switch (eventId)
             {
