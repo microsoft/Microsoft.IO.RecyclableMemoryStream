@@ -7,28 +7,34 @@ namespace BenchmarkTests
     {
         private RecyclableMemoryStream? stream;
         private RecyclableMemoryStream? streamLargeBuffer;
-        const int BufferSize = 100_000_000;
+        const int BufferSize = RecyclableMemoryStreamManager.DefaultBlockSize * 10;
         private byte[] buffer = new byte[BufferSize];
+
+        [GlobalSetup]
+        public void GlobalSetup()
+        {
+            Random.Shared.NextBytes(this.buffer);
+
+            var manager = new RecyclableMemoryStreamManager();
+
+            this.stream = new RecyclableMemoryStream(manager);
+            this.stream.Write(this.buffer);
+
+            this.streamLargeBuffer = new RecyclableMemoryStream(manager);
+            this.streamLargeBuffer.Write(this.buffer);
+
+            _ = this.streamLargeBuffer.GetBuffer();            
+        }
 
         [IterationSetup]
         public void IterationSetup()
         {
-            var manager = new RecyclableMemoryStreamManager();
-
-            this.stream = new RecyclableMemoryStream(manager);
-
-            this.streamLargeBuffer = new RecyclableMemoryStream(manager);
-            this.streamLargeBuffer.GetBuffer();
-
-            this.stream.Write(this.buffer);
-            this.stream.Position = 0;
-
-            this.streamLargeBuffer.Write(this.buffer);
-            this.streamLargeBuffer.Position = 0;
+            this.stream!.Position = 0;
+            this.streamLargeBuffer!.Position = 0;
         }
 
         [Benchmark]
-        public void UpdatePositions_Blocks()
+        public void UpdatePosition_Blocks()
         {
             for (int i=0;i < this.stream!.Length;i++)
             {
@@ -37,7 +43,7 @@ namespace BenchmarkTests
         }
 
         [Benchmark]
-        public void UpdatePositions_LargeBuffer()
+        public void UpdatePosition_LargeBuffer()
         {
             for (int i = 0; i < this.streamLargeBuffer!.Length; i++)
             {
