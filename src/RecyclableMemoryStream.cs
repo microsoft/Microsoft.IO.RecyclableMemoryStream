@@ -280,7 +280,7 @@ namespace Microsoft.IO
             if (this.disposed)
             {
                 string? doubleDisposeStack = null;
-                if (this.memoryManager.options.GenerateCallStacks)
+                if (this.memoryManager.GenerateDoubleDisposedStackTrace)
                 {
                     doubleDisposeStack = Environment.StackTrace;
                 }
