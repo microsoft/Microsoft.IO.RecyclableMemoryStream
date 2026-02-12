@@ -660,7 +660,7 @@ namespace Microsoft.IO
 
         private void ReturnTempBuffer(byte[] buffer)
         {
-            if (buffer.Length == this.memoryManager.options.BlockSize)
+            if (buffer.Length <= 1 * 1024 * 1024 * 1024)
             {
                 this.memoryManager.ReturnBlock(buffer, this.id, this.tag);
             }
