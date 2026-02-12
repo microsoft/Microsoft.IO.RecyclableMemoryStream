@@ -211,7 +211,7 @@ You can optionally configure the `RecyclableStreamManager.ThrowExceptionOnToArra
 | -----|-------|-------------|
 | MemoryStreamCreated | Verbose | Logged every time a stream object is allocated. Fields: `guid`, `tag`, `requestedSize`, `actualSize`. |
 | MemoryStreamDisposed | Verbose | Logged every time a stream object is disposed. Fields: `guid`, `tag`, `allocationStack`, `disposeStack`. |
-| MemoryStreamDoubleDispose | Critical | Logged if a stream is disposed more than once. This indicates a logic error by the user of the stream. Dispose should happen exactly once per stream to avoid resource usage bugs. Fields: `guid`, `tag`, `allocationStack`, `disposeStack1`, `disposeStack2`. |
+| MemoryStreamDoubleDispose | Verbose | Logged if a stream is disposed more than once. This indicates a logic error by the user of the stream. Dispose should happen exactly once per stream to avoid resource usage bugs. Fields: `guid`, `tag`, `allocationStack`, `disposeStack1`, `disposeStack2`. |
 | MemoryStreamFinalized | Error | Logged if a stream has gone out of scope without being disposed. This indicates a resource leak. Fields: `guid`, `tag`, `allocationStack`.|
 | MemoryStreamToArray | Verbose | Logged whenever `ToArray` is called. This indicates a potential problem, as calling `ToArray` goes against the concepts of good memory practice which `RecyclableMemoryStream` is trying to solve. Fields: `guid`, `tag`, `stack`, `size`.|
 | MemoryStreamManagerInitialized| Informational | Logged when the `RecyclableMemoryStreamManager` is initialized. Fields: `blockSize`, `largeBufferMultiple`, `maximumBufferSize`.|
