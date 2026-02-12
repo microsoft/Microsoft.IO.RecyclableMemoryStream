@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1770938775852,
+  "lastUpdate": 1770938834692,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -2912,6 +2912,42 @@ window.BENCHMARK_DATA = {
             "value": 132845578.63,
             "unit": "ns",
             "range": "± 9776892.446996065"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "inklesspen@yandex.ru",
+            "name": "inklesspen_rus",
+            "username": "inklesspen1rus"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "784c38443f3ee13c7c181c47a6ca18a761668d88",
+          "message": "Switch MemoryStreamDoubleDispose event level from Critical to Verbose (#406)\n\n* Switch MemoryStreamDoubleDispose event level from Critical to Verbose\n\n* Avoided unnecessary stacktrace allocation on double dispose\n\n* Removed unnecessary using",
+          "timestamp": "2026-02-12T15:25:57-08:00",
+          "tree_id": "602b03e1e71aa0e3dbfb814c3a3643d4b1f663e5",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/784c38443f3ee13c7c181c47a6ca18a761668d88"
+        },
+        "date": 1770938833111,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 58545954.928571425,
+            "unit": "ns",
+            "range": "± 216599.25829245275"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 130486719.6,
+            "unit": "ns",
+            "range": "± 8739340.783552226"
           }
         ]
       }
