@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1768242067550,
+  "lastUpdate": 1770938775852,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -2876,6 +2876,42 @@ window.BENCHMARK_DATA = {
             "value": 128941626.53,
             "unit": "ns",
             "range": "± 8037499.700859655"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6c9654a4341e459894317d1cf181886891084440",
+          "message": "Bump Microsoft.SourceLink.GitHub from 8.0.0 to 10.0.103 (#414)\n\n---\nupdated-dependencies:\n- dependency-name: Microsoft.SourceLink.GitHub\n  dependency-version: 10.0.103\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-02-12T15:24:50-08:00",
+          "tree_id": "354194b4eb8c23f2121d0b395d935d1b85f59dee",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/6c9654a4341e459894317d1cf181886891084440"
+        },
+        "date": 1770938775030,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 40934609.333333336,
+            "unit": "ns",
+            "range": "± 166069.07448480013"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 132845578.63,
+            "unit": "ns",
+            "range": "± 9776892.446996065"
           }
         ]
       }
