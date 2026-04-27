@@ -1,3 +1,8 @@
+# Version 4.x (Draft)
+Breaking Changes
+* Drop direct support of net6.0. Supported target frameworks are now netstandard2.0, netstandard2.1, and net8.0.
+* The library is now trimmable.
+
 # Version 3.0.1
 
 **Bug Fix**
