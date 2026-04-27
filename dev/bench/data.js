@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1777304963989,
+  "lastUpdate": 1777305009429,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -3128,6 +3128,42 @@ window.BENCHMARK_DATA = {
             "value": 127009905.8902439,
             "unit": "ns",
             "range": "± 6686082.1426490145"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "22f2f7648a23b8b6868aef4d888a8efe864c0617",
+          "message": "Bump Microsoft.SourceLink.GitHub from 10.0.103 to 10.0.203 (#429)\n\n---\nupdated-dependencies:\n- dependency-name: Microsoft.SourceLink.GitHub\n  dependency-version: 10.0.203\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-04-27T08:48:40-07:00",
+          "tree_id": "327e492e0c02e8930a4504f9a9d9cd1abc28640d",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/22f2f7648a23b8b6868aef4d888a8efe864c0617"
+        },
+        "date": 1777305007945,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 41167102.23076923,
+            "unit": "ns",
+            "range": "± 417832.2867876444"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 131858191.36082475,
+            "unit": "ns",
+            "range": "± 8706523.516152078"
           }
         ]
       }
