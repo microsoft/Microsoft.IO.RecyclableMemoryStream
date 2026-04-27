@@ -80,7 +80,11 @@ namespace Microsoft.IO
             {
                 if (this.IsEnabled(EventLevel.Verbose, EventKeywords.None))
                 {
+#if NET8_0_OR_GREATER
+                    this.WriteEvent(1, new EventSource.EventSourcePrimitive[] { guid, tag ?? string.Empty, requestedSize, actualSize });
+#else
                     this.WriteEvent(1, guid, tag ?? string.Empty, requestedSize, actualSize);
+#endif
                 }
             }
 
@@ -97,7 +101,11 @@ namespace Microsoft.IO
             {
                 if (this.IsEnabled(EventLevel.Verbose, EventKeywords.None))
                 {
+#if NET8_0_OR_GREATER
+                    this.WriteEvent(2, new EventSource.EventSourcePrimitive[] { guid, tag ?? string.Empty, lifetimeMs, allocationStack ?? string.Empty, disposeStack ?? string.Empty });
+#else
                     this.WriteEvent(2, guid, tag ?? string.Empty, lifetimeMs, allocationStack ?? string.Empty, disposeStack ?? string.Empty);
+#endif
                 }
             }
 
@@ -116,8 +124,13 @@ namespace Microsoft.IO
             {
                 if (this.IsEnabled())
                 {
+#if NET8_0_OR_GREATER
+                    this.WriteEvent(3, new EventSource.EventSourcePrimitive[] { guid, tag ?? string.Empty, allocationStack ?? string.Empty,
+                                    disposeStack1 ?? string.Empty, disposeStack2 ?? string.Empty });
+#else
                     this.WriteEvent(3, guid, tag ?? string.Empty, allocationStack ?? string.Empty,
                                     disposeStack1 ?? string.Empty, disposeStack2 ?? string.Empty);
+#endif
                 }
             }
 
@@ -133,7 +146,11 @@ namespace Microsoft.IO
             {
                 if (this.IsEnabled())
                 {
+#if NET8_0_OR_GREATER
+                    this.WriteEvent(4, new EventSource.EventSourcePrimitive[] { guid, tag ?? string.Empty, allocationStack ?? string.Empty });
+#else
                     this.WriteEvent(4, guid, tag ?? string.Empty, allocationStack ?? string.Empty);
+#endif
                 }
             }
 
@@ -150,7 +167,11 @@ namespace Microsoft.IO
             {
                 if (this.IsEnabled(EventLevel.Verbose, EventKeywords.None))
                 {
+#if NET8_0_OR_GREATER
+                    this.WriteEvent(5, new EventSource.EventSourcePrimitive[] { guid, tag ?? string.Empty, stack ?? string.Empty, size });
+#else
                     this.WriteEvent(5, guid, tag ?? string.Empty, stack ?? string.Empty, size);
+#endif
                 }
             }
 
@@ -209,7 +230,11 @@ namespace Microsoft.IO
             {
                 if (this.IsEnabled(EventLevel.Verbose, EventKeywords.None))
                 {
+#if NET8_0_OR_GREATER
+                    this.WriteEvent(9, new EventSource.EventSourcePrimitive[] { guid, tag ?? string.Empty, requiredSize, allocationStack ?? string.Empty });
+#else
                     this.WriteEvent(9, guid, tag ?? string.Empty, requiredSize, allocationStack ?? string.Empty);
+#endif
                 }
             }
 
@@ -232,7 +257,11 @@ namespace Microsoft.IO
             {
                 if (this.IsEnabled(EventLevel.Warning, EventKeywords.None))
                 {
+#if NET8_0_OR_GREATER
+                    this.WriteEvent(10, new EventSource.EventSourcePrimitive[] { guid, tag ?? string.Empty, bufferType, reason, smallBlocksFree, smallPoolBytesFree, smallPoolBytesInUse, largeBlocksFree, largePoolBytesFree, largePoolBytesInUse });
+#else
                     this.WriteEvent(10, guid, tag ?? string.Empty, bufferType, reason, smallBlocksFree, smallPoolBytesFree, smallPoolBytesInUse, largeBlocksFree, largePoolBytesFree, largePoolBytesInUse);
+#endif
                 }
             }
 
@@ -250,7 +279,11 @@ namespace Microsoft.IO
             {
                 if (this.IsEnabled())
                 {
+#if NET8_0_OR_GREATER
+                    this.WriteEvent(11, new EventSource.EventSourcePrimitive[] { guid, tag ?? string.Empty, requestedCapacity, maxCapacity, allocationStack ?? string.Empty });
+#else
                     this.WriteEvent(11, guid, tag ?? string.Empty, requestedCapacity, maxCapacity, allocationStack ?? string.Empty);
+#endif
                 }
             }
         }
