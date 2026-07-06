@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783368349590,
+  "lastUpdate": 1783368422322,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -3272,6 +3272,42 @@ window.BENCHMARK_DATA = {
             "value": 129136183.2159091,
             "unit": "ns",
             "range": "± 7082848.7747996515"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "fb7a6a863e8d0f6dbb3fb38e3263b5eef3973870",
+          "message": "Bump Microsoft.NET.Test.Sdk from 18.5.1 to 18.6.0 (#435)\n\n---\nupdated-dependencies:\n- dependency-name: Microsoft.NET.Test.Sdk\n  dependency-version: 18.6.0\n  dependency-type: direct:production\n  update-type: version-update:semver-minor\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-07-06T13:05:50-07:00",
+          "tree_id": "a84fd57c4f62653f971913f9729ac7667f67b163",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/fb7a6a863e8d0f6dbb3fb38e3263b5eef3973870"
+        },
+        "date": 1783368420564,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 58624292.92307692,
+            "unit": "ns",
+            "range": "± 252862.80491387076"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 127327860.86666666,
+            "unit": "ns",
+            "range": "± 7086888.760075094"
           }
         ]
       }
