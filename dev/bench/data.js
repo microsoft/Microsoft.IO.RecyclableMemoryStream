@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783368288738,
+  "lastUpdate": 1783368349590,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -3236,6 +3236,42 @@ window.BENCHMARK_DATA = {
             "value": 129176781.72727273,
             "unit": "ns",
             "range": "± 7600323.8277840195"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "fd061e655ab1efaf9c96d7dd6f6b79f4439303db",
+          "message": "Bump actions/checkout from 6 to 7 (#439)\n\nBumps [actions/checkout](https://github.com/actions/checkout) from 6 to 7.\n- [Release notes](https://github.com/actions/checkout/releases)\n- [Changelog](https://github.com/actions/checkout/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/actions/checkout/compare/v6...v7)\n\n---\nupdated-dependencies:\n- dependency-name: actions/checkout\n  dependency-version: '7'\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-07-06T13:04:39-07:00",
+          "tree_id": "c087c6d043f93a2fc5d8897413263caa1288933c",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/fd061e655ab1efaf9c96d7dd6f6b79f4439303db"
+        },
+        "date": 1783368348930,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 58673407.071428575,
+            "unit": "ns",
+            "range": "± 245734.97730199073"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 129136183.2159091,
+            "unit": "ns",
+            "range": "± 7082848.7747996515"
           }
         ]
       }
