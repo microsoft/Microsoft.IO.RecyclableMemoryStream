@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1777479695531,
+  "lastUpdate": 1783368288738,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -3200,6 +3200,42 @@ window.BENCHMARK_DATA = {
             "value": 118093756.87804878,
             "unit": "ns",
             "range": "± 4183511.3276006924"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "870f9200248270e1834acbf0fac504485ca5ee33",
+          "message": "Bump Microsoft.SourceLink.GitHub from 10.0.203 to 10.0.300 (#433)\n\n---\nupdated-dependencies:\n- dependency-name: Microsoft.SourceLink.GitHub\n  dependency-version: 10.0.300\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-07-06T13:03:46-07:00",
+          "tree_id": "838a9acc19205ee82b94070f8c96d03dbaa2909a",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/870f9200248270e1834acbf0fac504485ca5ee33"
+        },
+        "date": 1783368288076,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 58477741.35714286,
+            "unit": "ns",
+            "range": "± 171920.9433644551"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 129176781.72727273,
+            "unit": "ns",
+            "range": "± 7600323.8277840195"
           }
         ]
       }
