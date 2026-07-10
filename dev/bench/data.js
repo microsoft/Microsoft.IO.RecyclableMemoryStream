@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783722937479,
+  "lastUpdate": 1783723255717,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -3344,6 +3344,42 @@ window.BENCHMARK_DATA = {
             "value": 95455029.62121212,
             "unit": "ns",
             "range": "± 5771146.432415477"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "151d4ddbd8da6ed0d0c4b5871a0fe56dffa96aa7",
+          "message": "Bump NUnit from 4.4.0 to 4.5.1 (#419)\n\n---\nupdated-dependencies:\n- dependency-name: NUnit\n  dependency-version: 4.5.1\n  dependency-type: direct:production\n  update-type: version-update:semver-minor\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\nCo-authored-by: copilot-swe-agent[bot] <198982749+Copilot@users.noreply.github.com>\nCo-authored-by: benmwatson <9598598+benmwatson@users.noreply.github.com>",
+          "timestamp": "2026-07-10T15:38:56-07:00",
+          "tree_id": "facfbcc3413fdbaf8e90f9d5c2c944e394febb67",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/151d4ddbd8da6ed0d0c4b5871a0fe56dffa96aa7"
+        },
+        "date": 1783723254382,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 58499323.75,
+            "unit": "ns",
+            "range": "± 156568.76031091087"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 127855790.34831461,
+            "unit": "ns",
+            "range": "± 7059847.947766364"
           }
         ]
       }
