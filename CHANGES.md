@@ -1,6 +1,11 @@
-# Version 4.x (Draft)
+# Version 4.0.0
+
 **Breaking Changes**
-* Drop direct support of net6.0. Supported target frameworks are now netstandard2.0, netstandard2.1, and net8.0.
+* Dropping net6.0 will more easily support trimming [PR #409](https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/pull/409)
+* Switch `MemoryStreamDoubleDispose` event level from Critical to Verbose [PR #406](https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/pull/406)
+
+**Other Changes**
+* Readme: Add clarity for the large pool of buffers and the GetBuffer method pertaining to the .NET max array length [PR #370](https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/pull/370)
 
 # Version 3.0.1
 
