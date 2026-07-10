@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783368422322,
+  "lastUpdate": 1783722937479,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -3308,6 +3308,42 @@ window.BENCHMARK_DATA = {
             "value": 127327860.86666666,
             "unit": "ns",
             "range": "± 7086888.760075094"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "benmwatson@users.noreply.github.com",
+            "name": "Ben",
+            "username": "benmwatson"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c67eaaac0fda4afd21398dfaf385f1aa2bd8d692",
+          "message": "Update workflows to use flexible .NET versions. (#431)\n\nCo-authored-by: Ben Watson <bewatson@microsoft.com>",
+          "timestamp": "2026-07-10T15:34:35-07:00",
+          "tree_id": "c48ef649f6e63aac97c8ca098e144036c11f2ebc",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/c67eaaac0fda4afd21398dfaf385f1aa2bd8d692"
+        },
+        "date": 1783722936294,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 60291114.15,
+            "unit": "ns",
+            "range": "± 4254312.55591737"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 95455029.62121212,
+            "unit": "ns",
+            "range": "± 5771146.432415477"
           }
         ]
       }
