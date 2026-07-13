@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783723255717,
+  "lastUpdate": 1783957639637,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -3380,6 +3380,42 @@ window.BENCHMARK_DATA = {
             "value": 127855790.34831461,
             "unit": "ns",
             "range": "± 7059847.947766364"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0fbca21ab4e0ad38d212ce785e4109a370a5f1c1",
+          "message": "Bump NUnit.Analyzers from 4.12.0 to 4.14.0 (#436)\n\n* Bump NUnit.Analyzers from 4.12.0 to 4.14.0\n\n---\nupdated-dependencies:\n- dependency-name: NUnit.Analyzers\n  dependency-version: 4.14.0\n  dependency-type: direct:production\n  update-type: version-update:semver-minor\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\n\n* Remove obsolete use of Timeout attribute.\n\n---------\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\nCo-authored-by: Ben Watson <bewatson@microsoft.com>",
+          "timestamp": "2026-07-13T08:42:51-07:00",
+          "tree_id": "eb0ec30e81c7d7f7fdf5e9167652090c3a51dc7e",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/0fbca21ab4e0ad38d212ce785e4109a370a5f1c1"
+        },
+        "date": 1783957638183,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 58816431.71428572,
+            "unit": "ns",
+            "range": "± 241199.49489205264"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 130644441.43,
+            "unit": "ns",
+            "range": "± 8533413.777138844"
           }
         ]
       }
