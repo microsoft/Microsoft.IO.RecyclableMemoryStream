@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783966150578,
+  "lastUpdate": 1783975794531,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -3452,6 +3452,42 @@ window.BENCHMARK_DATA = {
             "value": 129111845.59,
             "unit": "ns",
             "range": "± 7547871.826130074"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "benmwatson@users.noreply.github.com",
+            "name": "Ben",
+            "username": "benmwatson"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7aef035e282d955f3c442c5af6fa16010ecd07ca",
+          "message": "Remove  net6.0 target in favor of net8.0 (#440)\n\nCo-authored-by: Ben Watson <bewatson@microsoft.com>",
+          "timestamp": "2026-07-13T13:49:00-07:00",
+          "tree_id": "b0ecf287baae7f24423ca0d88133fd4a9c1d21c1",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/7aef035e282d955f3c442c5af6fa16010ecd07ca"
+        },
+        "date": 1783975792730,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 59195431.95698924,
+            "unit": "ns",
+            "range": "± 3346892.7078515287"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 93149738.27835052,
+            "unit": "ns",
+            "range": "± 5351182.942304482"
           }
         ]
       }
