@@ -63,7 +63,7 @@ Read the change log [here](https://github.com/microsoft/Microsoft.IO.RecyclableM
 The `RecyclableMemoryStreamManager` class maintains two separate pools of objects:
 
 1. **Small Pool** - Holds small buffers (of configurable size). Used by default for all normal read/write operations. Multiple small buffers are chained together in the `RecyclableMemoryStream` class and abstracted into a single stream.
-2. **Large Pool** - Holds large buffers, which are only used when you must have a single, contiguous buffer, such as when you plan to call `GetBuffer()`. It is possible to create streams larger than is possible to be represented by a single buffer because of .NET's array size limits.
+2. **Large Pool** - Holds large buffers, which are only used when you must have a single, contiguous buffer, such as when you plan to call `GetBuffer()`. The `GetBuffer()` method is still bounded by .NET array size limits. If you need a larger stream than this, do not use this method.
 
 A `RecyclableMemoryStream` starts out by using a small buffer, chaining additional ones as the stream capacity grows. Should you ever call `GetBuffer()` and the length is greater than a single small buffer's capacity, then the small buffers are converted to a single large buffer. You can also request a stream with an initial capacity; if that capacity is larger than the small pool block size, multiple blocks will be chained unless you call an overload with `asContiguousBuffer` set to true, in which case a single large buffer will be assigned from the start. If you request a capacity larger than the maximum poolable size, you will still get a stream back, but the buffers will not be pooled. (Note: This is not referring to the maximum array size. You can limit the poolable buffer sizes in `RecyclableMemoryStreamManager`)
 
@@ -211,7 +211,7 @@ You can optionally configure the `RecyclableStreamManager.ThrowExceptionOnToArra
 | -----|-------|-------------|
 | MemoryStreamCreated | Verbose | Logged every time a stream object is allocated. Fields: `guid`, `tag`, `requestedSize`, `actualSize`. |
 | MemoryStreamDisposed | Verbose | Logged every time a stream object is disposed. Fields: `guid`, `tag`, `allocationStack`, `disposeStack`. |
-| MemoryStreamDoubleDispose | Critical | Logged if a stream is disposed more than once. This indicates a logic error by the user of the stream. Dispose should happen exactly once per stream to avoid resource usage bugs. Fields: `guid`, `tag`, `allocationStack`, `disposeStack1`, `disposeStack2`. |
+| MemoryStreamDoubleDispose | Verbose | Logged if a stream is disposed more than once. This indicates a logic error by the user of the stream. Dispose should happen exactly once per stream to avoid resource usage bugs. Fields: `guid`, `tag`, `allocationStack`, `disposeStack1`, `disposeStack2`. |
 | MemoryStreamFinalized | Error | Logged if a stream has gone out of scope without being disposed. This indicates a resource leak. Fields: `guid`, `tag`, `allocationStack`.|
 | MemoryStreamToArray | Verbose | Logged whenever `ToArray` is called. This indicates a potential problem, as calling `ToArray` goes against the concepts of good memory practice which `RecyclableMemoryStream` is trying to solve. Fields: `guid`, `tag`, `stack`, `size`.|
 | MemoryStreamManagerInitialized| Informational | Logged when the `RecyclableMemoryStreamManager` is initialized. Fields: `blockSize`, `largeBufferMultiple`, `maximumBufferSize`.|

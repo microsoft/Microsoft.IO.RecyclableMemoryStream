@@ -4057,9 +4057,8 @@ namespace Microsoft.IO.UnitTests
                 }
             }
         }
-#pragma warning disable 618 // Timeout is obsolete because it kills the thread, which isn't allowed, but it's still handy
-                            // for tests that are expected to run indefinitely in the failure case.
-        [Test, Timeout(10000)]
+
+        [Test, MaxTime(10000)]
         public void TryGetBuffer_InfiniteLoop_Issue344()
         {
             // see https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/issues/344
