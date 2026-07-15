@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783975794531,
+  "lastUpdate": 1784138143633,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -3488,6 +3488,42 @@ window.BENCHMARK_DATA = {
             "value": 93149738.27835052,
             "unit": "ns",
             "range": "± 5351182.942304482"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5520b0193c4df4022ea68290522e2540925c4a86",
+          "message": "Bump Microsoft.SourceLink.GitHub from 10.0.300 to 10.0.301 (#442)\n\n---\nupdated-dependencies:\n- dependency-name: Microsoft.SourceLink.GitHub\n  dependency-version: 10.0.301\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-07-15T10:54:38-07:00",
+          "tree_id": "230733bd876d2a8a4aaa282034fd295025e9880e",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/5520b0193c4df4022ea68290522e2540925c4a86"
+        },
+        "date": 1784138142555,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 41020058.4,
+            "unit": "ns",
+            "range": "± 247109.64691286333"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 130570144.07,
+            "unit": "ns",
+            "range": "± 8199447.757277715"
           }
         ]
       }
