@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784219868907,
+  "lastUpdate": 1784219956762,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -3596,6 +3596,42 @@ window.BENCHMARK_DATA = {
             "value": 118799308.51219513,
             "unit": "ns",
             "range": "± 4241582.600924937"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "benmwatson@users.noreply.github.com",
+            "name": "Ben",
+            "username": "benmwatson"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4b8b973c1b2e96e3dbee21f23a0eb9d46e37f3af",
+          "message": "Use trimming-safe EventSourcePrimitives for logging (#443)\n\n* Utilize .NET 8.0 trimming-safe EventSourcePrimitives for logging\n\n* Add IsTrimmable to csproj\n\n---------\n\nCo-authored-by: Simon Mattes <simon@skyseract.com>\nCo-authored-by: Ben Watson <bewatson@microsoft.com>",
+          "timestamp": "2026-07-16T09:37:29-07:00",
+          "tree_id": "f0d64b8a168021d1d0b6e4d05d07daba20913ad5",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/4b8b973c1b2e96e3dbee21f23a0eb9d46e37f3af"
+        },
+        "date": 1784219955167,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 56439615.692307696,
+            "unit": "ns",
+            "range": "± 116309.05559140313"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 130317588.12,
+            "unit": "ns",
+            "range": "± 8487501.337893005"
           }
         ]
       }
