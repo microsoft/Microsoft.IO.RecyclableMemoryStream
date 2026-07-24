@@ -56,10 +56,6 @@
     <None Include=".editorconfig" />
   </ItemGroup>
 
-  <!-- Workaround for https://github.com/dotnet/sdk/issues/11105 -->
-  <ItemGroup>
-    <SourceRoot Include="$(NuGetPackageRoot)\" Condition="'$(NuGetPackageRoot)' != ''" />
-  </ItemGroup>
   <ItemGroup>
     <EditorConfigFiles Remove=".editorconfig" />
   </ItemGroup>
