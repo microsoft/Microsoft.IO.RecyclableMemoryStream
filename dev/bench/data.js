@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784219956762,
+  "lastUpdate": 1785173796657,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -3632,6 +3632,42 @@ window.BENCHMARK_DATA = {
             "value": 130317588.12,
             "unit": "ns",
             "range": "± 8487501.337893005"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "benmwatson@users.noreply.github.com",
+            "name": "Ben",
+            "username": "benmwatson"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4b23f6e5acdbe982fc80efeda6c738f11dd29781",
+          "message": "Update version to 4.0.0-preview, update docs, remove NuGet bug workaround (#445)\n\n* Update CHANGES.md, change version to -preview. Update generatedocs.cmd to isntall tool if not found.\n\n* Remove nuget bug workaround. Mention in changes.md.\n\n* Add another PR link.\n\n---------\n\nCo-authored-by: Ben Watson <bewatson@microsoft.com>",
+          "timestamp": "2026-07-27T10:35:32-07:00",
+          "tree_id": "9c948155aeaf99a7a92a8bcfa0e04bfd020bf141",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/4b23f6e5acdbe982fc80efeda6c738f11dd29781"
+        },
+        "date": 1785173795625,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 61501755.39726027,
+            "unit": "ns",
+            "range": "± 3050206.2584102526"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 106558953.27272727,
+            "unit": "ns",
+            "range": "± 5021766.93315365"
           }
         ]
       }
