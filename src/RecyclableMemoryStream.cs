@@ -277,6 +277,11 @@ namespace Microsoft.IO
         /// <param name="disposing">Whether we're disposing (true), or being called by the finalizer (false).</param>
         protected override void Dispose(bool disposing)
         {
+            if (this.memoryManager == null || this.blocks == null)
+            {
+                return;
+            }
+
             if (this.disposed)
             {
                 string? doubleDisposeStack = null;
