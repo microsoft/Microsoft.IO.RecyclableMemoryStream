@@ -27,6 +27,8 @@ namespace Microsoft.IO.UnitTests
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
+    using System.Reflection;
+    using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using System.Threading;
     using System.Threading.Tasks;
@@ -2481,6 +2483,33 @@ namespace Microsoft.IO.UnitTests
         #endregion
 
         #region Dispose and Pooling Tests
+        [TestCase(false, false)]
+        [TestCase(true, false)]
+        [TestCase(false, true)]
+        public void Dispose_PartiallyConstructedStream_DoesNotThrow(bool assignMemoryManager, bool assignBlocks)
+        {
+            var stream = (RecyclableMemoryStream)RuntimeHelpers.GetUninitializedObject(typeof(RecyclableMemoryStream));
+            try
+            {
+                if (assignMemoryManager)
+                {
+                    typeof(RecyclableMemoryStream).GetField("memoryManager", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(stream, this.GetMemoryManager());
+                }
+
+                if (assignBlocks)
+                {
+                    typeof(RecyclableMemoryStream).GetField("blocks", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(stream, new List<byte[]>());
+                }
+
+                var dispose = typeof(RecyclableMemoryStream).GetMethod("Dispose", BindingFlags.Instance | BindingFlags.NonPublic, null, [typeof(bool)], null)!;
+                Assert.DoesNotThrow(() => dispose.Invoke(stream, [false]));
+            }
+            finally
+            {
+                GC.SuppressFinalize(stream);
+            }
+        }
+
         [Test]
         public void Pooling_NewMemoryManagerHasZeroFreeAndInUseBytes()
         {
