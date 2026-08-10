@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1785173796657,
+  "lastUpdate": 1786379433960,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -3668,6 +3668,42 @@ window.BENCHMARK_DATA = {
             "value": 106558953.27272727,
             "unit": "ns",
             "range": "± 5021766.93315365"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "scottlerch@gmail.com",
+            "name": "Scott Lerch",
+            "username": "scottlerch"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6436162dcbe224ca884f1402a08e8df4a9fbd5e9",
+          "message": "Guard finalizer against partial construction (#446) (#447)\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+          "timestamp": "2026-08-10T09:29:29-07:00",
+          "tree_id": "3f0939a1e6968732bb8b12a1be1ab622bb056bf7",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/6436162dcbe224ca884f1402a08e8df4a9fbd5e9"
+        },
+        "date": 1786379431628,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 40920013.36666667,
+            "unit": "ns",
+            "range": "± 234157.97886862216"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 127704437.69,
+            "unit": "ns",
+            "range": "± 7990162.3853704175"
           }
         ]
       }
