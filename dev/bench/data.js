@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1786379433960,
+  "lastUpdate": 1786640731206,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -3704,6 +3704,42 @@ window.BENCHMARK_DATA = {
             "value": 127704437.69,
             "unit": "ns",
             "range": "± 7990162.3853704175"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6fb4a901e1d01b1a8989bbc5abc9d256ed275d95",
+          "message": "Bump Microsoft.SourceLink.GitHub from 10.0.301 to 10.0.400 (#448)\n\n---\nupdated-dependencies:\n- dependency-name: Microsoft.SourceLink.GitHub\n  dependency-version: 10.0.400\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-08-13T10:04:27-07:00",
+          "tree_id": "1a478c359f47b8bff49d4378d044e7b0480f1b1c",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/6fb4a901e1d01b1a8989bbc5abc9d256ed275d95"
+        },
+        "date": 1786640729848,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 25646964.05263158,
+            "unit": "ns",
+            "range": "± 566451.1721198407"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 80420068.19,
+            "unit": "ns",
+            "range": "± 4788994.523906554"
           }
         ]
       }
