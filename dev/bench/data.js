@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1786640731206,
+  "lastUpdate": 1787244735777,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -3740,6 +3740,42 @@ window.BENCHMARK_DATA = {
             "value": 80420068.19,
             "unit": "ns",
             "range": "± 4788994.523906554"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "151573964+danfiedler-msft@users.noreply.github.com",
+            "name": "Dan Fiedler",
+            "username": "danfiedler-msft"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4bf7fd79a12612462e9052680ad3b77051a12d9e",
+          "message": "Pin GitHub Actions to full-length commit SHAs (#449)",
+          "timestamp": "2026-08-20T09:46:49-07:00",
+          "tree_id": "64a292829bf2fdb10ea0d370d62474ebd75068d8",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/4bf7fd79a12612462e9052680ad3b77051a12d9e"
+        },
+        "date": 1787244734207,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 21776285.307692308,
+            "unit": "ns",
+            "range": "± 156544.74933406134"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 68067306.31,
+            "unit": "ns",
+            "range": "± 5032732.088667122"
           }
         ]
       }
