@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787248904324,
+  "lastUpdate": 1788278013709,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -3848,6 +3848,42 @@ window.BENCHMARK_DATA = {
             "value": 101073539.73,
             "unit": "ns",
             "range": "± 6690706.452140639"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "benmwatson@users.noreply.github.com",
+            "name": "Ben",
+            "username": "benmwatson"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8d693defb54eab84b0bd67f7e179d4c4b8052cb0",
+          "message": "Update Nuget.config and DependaBot to use safe Microsoft NuGet proxy (#454)\n\n* Update Nuget.config and DependaBot to use safe Microsoft proxy for NuGet feed.\n\n* Revert NUnitTestAdaptor back to 6.2.0\n\n---------\n\nCo-authored-by: Ben Watson <bewatson@microsoft.com>",
+          "timestamp": "2026-09-01T08:52:21-07:00",
+          "tree_id": "b2abfb66f7fbebf414ac3971995e3bd42d9f16f1",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/8d693defb54eab84b0bd67f7e179d4c4b8052cb0"
+        },
+        "date": 1788278012273,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 55344019.73076923,
+            "unit": "ns",
+            "range": "± 1933515.8669422918"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 90901872.33098592,
+            "unit": "ns",
+            "range": "± 4427769.335787207"
           }
         ]
       }
