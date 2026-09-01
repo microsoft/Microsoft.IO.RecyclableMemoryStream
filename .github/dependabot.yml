@@ -23,6 +23,8 @@ updates:
     #   - assignee_one
     # reviewers:
     #   - reviewer_one
+    registries:
+      - nuget-proxy
   - package-ecosystem: 'nuget'
     directory: 'UnitTests'
     open-pull-requests-limit: 10
@@ -43,4 +45,8 @@ updates:
         update-types:
           - version-update:semver-major
           - version-update:semver-minor
+registries:
+  nuget-proxy:
+    type: nuget-feed
+    url: "https://packagefeedproxy.microsoft.io/nuget/v3/index.json"
 # Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)
