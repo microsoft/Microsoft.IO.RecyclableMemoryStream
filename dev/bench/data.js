@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1788382019811,
+  "lastUpdate": 1788382742115,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -3920,6 +3920,42 @@ window.BENCHMARK_DATA = {
             "value": 128492324.06122449,
             "unit": "ns",
             "range": "± 7495400.944333878"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a616f83ce1c9f14113d47751718d39bf440301db",
+          "message": "Bump NUnit3TestAdapter from 6.2.0 to 6.3.0 (#456)\n\n---\nupdated-dependencies:\n- dependency-name: NUnit3TestAdapter\n  dependency-version: 6.3.0\n  dependency-type: direct:production\n  update-type: version-update:semver-minor\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-09-02T13:56:38-07:00",
+          "tree_id": "5b0877b78b85f8b8144da28a6a85f90839065f98",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/a616f83ce1c9f14113d47751718d39bf440301db"
+        },
+        "date": 1788382740751,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 64104231.925925925,
+            "unit": "ns",
+            "range": "± 2553200.694667987"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 106297782.7,
+            "unit": "ns",
+            "range": "± 5168266.561247354"
           }
         ]
       }
