@@ -102,41 +102,41 @@ namespace Microsoft.IO.UnitTests
         [Test]
         public void RecyclableMemoryManagerThrowsExceptionOnZeroBlockSize()
         {
-            Assert.Throws<InvalidOperationException>(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 0, LargeBufferMultiple = 100, MaximumBufferSize = 200, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer }));
-            Assert.Throws<InvalidOperationException>(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = -1, LargeBufferMultiple = 100, MaximumBufferSize = 200, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer }));
-            Assert.DoesNotThrow(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 1, LargeBufferMultiple = 100, MaximumBufferSize = 200, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer }));
+            Assert.Throws<InvalidOperationException>((Action)(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 0, LargeBufferMultiple = 100, MaximumBufferSize = 200, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer })));
+            Assert.Throws<InvalidOperationException>((Action)(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = -1, LargeBufferMultiple = 100, MaximumBufferSize = 200, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer })));
+            Assert.DoesNotThrow((Action)(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 1, LargeBufferMultiple = 100, MaximumBufferSize = 200, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer })));
         }
 
         [Test]
         public void RecyclableMemoryManagerThrowsExceptionOnZeroLargeBufferMultipleSize()
         {
-            Assert.Throws<InvalidOperationException>(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 0, MaximumBufferSize = 200, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer }));
-            Assert.Throws<InvalidOperationException>(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = -1, MaximumBufferSize = 200, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer }));
-            Assert.DoesNotThrow(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 100, MaximumBufferSize = 200, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer }));
+            Assert.Throws<InvalidOperationException>((Action)(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 0, MaximumBufferSize = 200, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer })));
+            Assert.Throws<InvalidOperationException>((Action)(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = -1, MaximumBufferSize = 200, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer })));
+            Assert.DoesNotThrow((Action)(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 100, MaximumBufferSize = 200, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer })));
         }
 
         [Test]
         public void RecyclableMemoryManagerThrowsExceptionOnMaximumBufferSizeLessThanBlockSize()
         {
-            Assert.Throws<InvalidOperationException>(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 100, MaximumBufferSize = 99, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer }));
-            Assert.DoesNotThrow(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 100, MaximumBufferSize = 100, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer }));
+            Assert.Throws<InvalidOperationException>((Action)(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 100, MaximumBufferSize = 99, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer })));
+            Assert.DoesNotThrow((Action)(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 100, MaximumBufferSize = 100, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer })));
         }
 
         [Test]
         public virtual void RecyclableMemoryManagerThrowsExceptionOnMaximumBufferNotMultipleOrExponentialOfLargeBufferMultiple()
         {
-            Assert.Throws<InvalidOperationException>(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 1024, MaximumBufferSize = 2025, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer }));
-            Assert.Throws<InvalidOperationException>(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 1024, MaximumBufferSize = 2023, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer }));
-            Assert.DoesNotThrow(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 1024, MaximumBufferSize = 2048, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer }));
+            Assert.Throws<InvalidOperationException>((Action)(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 1024, MaximumBufferSize = 2025, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer })));
+            Assert.Throws<InvalidOperationException>((Action)(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 1024, MaximumBufferSize = 2023, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer })));
+            Assert.DoesNotThrow((Action)(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 1024, MaximumBufferSize = 2048, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer })));
         }
 
         [Test]
         public void RecyclableMemoryManagerThrowsExceptionOnNegativeMaxFreeSizes()
         {
-            Assert.Throws<InvalidOperationException>(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 1, LargeBufferMultiple = 100, MaximumBufferSize = 200, UseExponentialLargeBuffer = false, MaximumSmallPoolFreeBytes = -1, MaximumLargePoolFreeBytes = 1000 }));
-            Assert.Throws<InvalidOperationException>(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 1, LargeBufferMultiple = 100, MaximumBufferSize = 200, UseExponentialLargeBuffer = false, MaximumSmallPoolFreeBytes = 1000, MaximumLargePoolFreeBytes = -1 }));
-            Assert.DoesNotThrow(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 1, LargeBufferMultiple = 100, MaximumBufferSize = 200, UseExponentialLargeBuffer = false, MaximumSmallPoolFreeBytes = 1000, MaximumLargePoolFreeBytes = 1000 }));
-            Assert.DoesNotThrow(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 1, LargeBufferMultiple = 100, MaximumBufferSize = 200, UseExponentialLargeBuffer = false, MaximumSmallPoolFreeBytes = 0, MaximumLargePoolFreeBytes = 0 }));
+            Assert.Throws<InvalidOperationException>((Action)(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 1, LargeBufferMultiple = 100, MaximumBufferSize = 200, UseExponentialLargeBuffer = false, MaximumSmallPoolFreeBytes = -1, MaximumLargePoolFreeBytes = 1000 })));
+            Assert.Throws<InvalidOperationException>((Action)(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 1, LargeBufferMultiple = 100, MaximumBufferSize = 200, UseExponentialLargeBuffer = false, MaximumSmallPoolFreeBytes = 1000, MaximumLargePoolFreeBytes = -1 })));
+            Assert.DoesNotThrow((Action)(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 1, LargeBufferMultiple = 100, MaximumBufferSize = 200, UseExponentialLargeBuffer = false, MaximumSmallPoolFreeBytes = 1000, MaximumLargePoolFreeBytes = 1000 })));
+            Assert.DoesNotThrow((Action)(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 1, LargeBufferMultiple = 100, MaximumBufferSize = 200, UseExponentialLargeBuffer = false, MaximumSmallPoolFreeBytes = 0, MaximumLargePoolFreeBytes = 0 })));
         }
 
         [Test]
@@ -211,7 +211,7 @@ namespace Microsoft.IO.UnitTests
         public void ReturnLargerBufferWithNullBufferThrowsException()
         {
             var memMgr = this.GetMemoryManager();
-            Assert.Throws<ArgumentNullException>(() => memMgr.ReturnLargeBuffer(null!, DefaultId, DefaultTag));
+            Assert.Throws<ArgumentNullException>((Action)(() => memMgr.ReturnLargeBuffer(null!, DefaultId, DefaultTag)));
         }
 
         [Test]
@@ -219,21 +219,21 @@ namespace Microsoft.IO.UnitTests
         {
             var memMgr = this.GetMemoryManager();
             var buffer = new byte[100];
-            Assert.Throws<ArgumentException>(() => memMgr.ReturnLargeBuffer(buffer, DefaultId, DefaultTag));
+            Assert.Throws<ArgumentException>((Action)(() => memMgr.ReturnLargeBuffer(buffer, DefaultId, DefaultTag)));
         }
 
         [Test]
         public void ReturnNullBlockThrowsException()
         {
             var memMgr = this.GetMemoryManager();
-            Assert.Throws<ArgumentNullException>(() => memMgr.ReturnBlock(null!, Guid.Empty, string.Empty));
+            Assert.Throws<ArgumentNullException>((Action)(() => memMgr.ReturnBlock(null!, Guid.Empty, string.Empty)));
         }
 
         [Test]
         public void ReturnNullBlocksThrowsException()
         {
             var memMgr = this.GetMemoryManager();
-            Assert.Throws<ArgumentNullException>(() => memMgr.ReturnBlocks(null!, Guid.Empty, string.Empty));
+            Assert.Throws<ArgumentNullException>((Action)(() => memMgr.ReturnBlocks(null!, Guid.Empty, string.Empty)));
         }
 
         [Test]
@@ -241,7 +241,7 @@ namespace Microsoft.IO.UnitTests
         {
             var memMgr = this.GetMemoryManager();
             var buffer = new byte[memMgr.options.BlockSize + 1];
-            Assert.Throws<ArgumentException>(() => memMgr.ReturnBlock(buffer, Guid.Empty, string.Empty));
+            Assert.Throws<ArgumentException>((Action)(() => memMgr.ReturnBlock(buffer, Guid.Empty, string.Empty)));
         }
 
         [Test]
@@ -252,7 +252,7 @@ namespace Microsoft.IO.UnitTests
             buffers.Add(memMgr.GetBlock());
             buffers.Add(new byte[memMgr.options.BlockSize + 1]);
             buffers.Add(memMgr.GetBlock());
-            Assert.Throws<ArgumentException>(() => memMgr.ReturnBlocks(buffers, Guid.Empty, string.Empty));
+            Assert.Throws<ArgumentException>((Action)(() => memMgr.ReturnBlocks(buffers, Guid.Empty, string.Empty)));
         }
 
         [Test]
@@ -263,7 +263,7 @@ namespace Microsoft.IO.UnitTests
             buffers.Add(memMgr.GetBlock());
             buffers.Add(null!);
             buffers.Add(memMgr.GetBlock());
-            Assert.Throws<ArgumentException>(() => memMgr.ReturnBlocks(buffers, Guid.Empty, string.Empty));
+            Assert.Throws<ArgumentException>((Action)(() => memMgr.ReturnBlocks(buffers, Guid.Empty, string.Empty)));
         }
 
         [Test]
@@ -291,7 +291,7 @@ namespace Microsoft.IO.UnitTests
         {
             var memMgr = this.GetMemoryManager();
             var emptyBuffer = Array.Empty<byte>();
-            Assert.Throws<ArgumentException>(() => memMgr.ReturnLargeBuffer(emptyBuffer, DefaultId, DefaultTag));
+            Assert.Throws<ArgumentException>((Action)(() => memMgr.ReturnLargeBuffer(emptyBuffer, DefaultId, DefaultTag)));
         }
 
         [Test]
@@ -608,8 +608,8 @@ namespace Microsoft.IO.UnitTests
         public void GetSpanMemoryWithNegativeHintFails()
         {
             var stream = this.GetDefaultStream();
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.GetSpan(-1));
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.GetMemory(-1));
+            Assert.Throws<ArgumentOutOfRangeException>((Action)(() => stream.GetSpan(-1)));
+            Assert.Throws<ArgumentOutOfRangeException>((Action)(() => stream.GetMemory(-1)));
         }
 
         [Test]
@@ -617,8 +617,8 @@ namespace Microsoft.IO.UnitTests
         {
             var stream = this.GetDefaultStream();
             stream.Position = 1;
-            Assert.Throws<OutOfMemoryException>(() => stream.GetSpan(int.MaxValue));
-            Assert.Throws<OutOfMemoryException>(() => stream.GetMemory(int.MaxValue));
+            Assert.Throws<OutOfMemoryException>((Action)(() => stream.GetSpan(int.MaxValue)));
+            Assert.Throws<OutOfMemoryException>((Action)(() => stream.GetMemory(int.MaxValue)));
         }
 
         [Test]
@@ -627,8 +627,8 @@ namespace Microsoft.IO.UnitTests
             var memoryManager = this.GetMemoryManager();
             memoryManager.options.MaximumStreamCapacity = short.MaxValue;
             var stream = new RecyclableMemoryStream(memoryManager, string.Empty, 0);
-            Assert.Throws<OutOfMemoryException>(() => stream.GetSpan(short.MaxValue + 1));
-            Assert.Throws<OutOfMemoryException>(() => stream.GetMemory(short.MaxValue + 1));
+            Assert.Throws<OutOfMemoryException>((Action)(() => stream.GetSpan(short.MaxValue + 1)));
+            Assert.Throws<OutOfMemoryException>((Action)(() => stream.GetMemory(short.MaxValue + 1)));
         }
 
         [Test]
@@ -1004,35 +1004,35 @@ namespace Microsoft.IO.UnitTests
         public void WriteNullBufferThrowsException()
         {
             var stream = this.GetDefaultStream();
-            Assert.Throws<ArgumentNullException>(() => stream.Write(null!, 0, 0));
+            Assert.Throws<ArgumentNullException>((Action)(() => stream.Write(null!, 0, 0)));
         }
 
         [Test]
         public void WriteStartPastBufferThrowsException()
         {
             var stream = this.GetDefaultStream();
-            Assert.Throws<ArgumentException>(() => stream.Write([0, 1], 2, 1));
+            Assert.Throws<ArgumentException>((Action)(() => stream.Write([0, 1], 2, 1)));
         }
 
         [Test]
         public void WriteStartBeforeBufferThrowsException()
         {
             var stream = this.GetDefaultStream();
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.Write([0, 1], -1, 0));
+            Assert.Throws<ArgumentOutOfRangeException>((Action)(() => stream.Write([0, 1], -1, 0)));
         }
 
         [Test]
         public void WriteNegativeCountThrowsException()
         {
             var stream = this.GetDefaultStream();
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.Write([0, 1], 0, -1));
+            Assert.Throws<ArgumentOutOfRangeException>((Action)(() => stream.Write([0, 1], 0, -1)));
         }
 
         [Test]
         public void WriteCountOutOfRangeThrowsException()
         {
             var stream = this.GetDefaultStream();
-            Assert.Throws<ArgumentException>(() => stream.Write([0, 1], 0, 3));
+            Assert.Throws<ArgumentException>((Action)(() => stream.Write([0, 1], 0, 3)));
         }
 
         // This is a valid test, but it's too resource-intensive to run on a regular basis.
@@ -1702,7 +1702,7 @@ namespace Microsoft.IO.UnitTests
         public void ReadNullBufferThrowsException()
         {
             var stream = this.GetDefaultStream();
-            Assert.Throws<ArgumentNullException>(() => stream.Read(null!, 0, 1));
+            Assert.Throws<ArgumentNullException>((Action)(() => stream.Read(null!, 0, 1)));
         }
 
         [Test]
@@ -1710,7 +1710,7 @@ namespace Microsoft.IO.UnitTests
         {
             var bufferLength = 100;
             var stream = this.GetDefaultStream();
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.Read(new byte[bufferLength], -1, 1));
+            Assert.Throws<ArgumentOutOfRangeException>((Action)(() => stream.Read(new byte[bufferLength], -1, 1)));
         }
 
         [Test]
@@ -1718,7 +1718,7 @@ namespace Microsoft.IO.UnitTests
         {
             var bufferLength = 100;
             var stream = this.GetDefaultStream();
-            Assert.Throws<ArgumentException>(() => stream.Read(new byte[bufferLength], bufferLength, 1));
+            Assert.Throws<ArgumentException>((Action)(() => stream.Read(new byte[bufferLength], bufferLength, 1)));
         }
 
         [Test]
@@ -1726,7 +1726,7 @@ namespace Microsoft.IO.UnitTests
         {
             var bufferLength = 100;
             var stream = this.GetDefaultStream();
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.Read(new byte[bufferLength], 0, -1));
+            Assert.Throws<ArgumentOutOfRangeException>((Action)(() => stream.Read(new byte[bufferLength], 0, -1)));
         }
 
         [Test]
@@ -1734,7 +1734,7 @@ namespace Microsoft.IO.UnitTests
         {
             var bufferLength = 100;
             var stream = this.GetDefaultStream();
-            Assert.Throws<ArgumentException>(() => stream.Read(new byte[bufferLength], 0, bufferLength + 1));
+            Assert.Throws<ArgumentException>((Action)(() => stream.Read(new byte[bufferLength], 0, bufferLength + 1)));
         }
 
         [Test]
@@ -1742,9 +1742,9 @@ namespace Microsoft.IO.UnitTests
         {
             var bufferLength = 100;
             var stream1 = this.GetDefaultStream();
-            Assert.Throws<ArgumentException>(() => stream1.Read(new byte[bufferLength], bufferLength / 2, bufferLength / 2 + 1));
+            Assert.Throws<ArgumentException>((Action)(() => stream1.Read(new byte[bufferLength], bufferLength / 2, bufferLength / 2 + 1)));
             var stream2 = this.GetDefaultStream();
-            Assert.Throws<ArgumentException>(() => stream2.Read(new byte[bufferLength], bufferLength / 2 + 1, bufferLength / 2));
+            Assert.Throws<ArgumentException>((Action)(() => stream2.Read(new byte[bufferLength], bufferLength / 2 + 1, bufferLength / 2)));
         }
 
         [Test]
@@ -2098,7 +2098,7 @@ namespace Microsoft.IO.UnitTests
             var stream = this.GetDefaultStream();
             stream.Capacity64 = (long)Int32.MaxValue + 1;
             Assert.That(stream.Capacity64, Is.EqualTo((long)Int32.MaxValue + 1));
-            Assert.Throws<InvalidOperationException>(() => { var cap = stream.Capacity; });
+            Assert.Throws<InvalidOperationException>((Action)(() => { var cap = stream.Capacity; }));
         }
         #endregion
 
@@ -2107,7 +2107,7 @@ namespace Microsoft.IO.UnitTests
         public void SetLengthThrowsExceptionOnNegativeValue()
         {
             var stream = this.GetDefaultStream();
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.SetLength(-1));
+            Assert.Throws<ArgumentOutOfRangeException>((Action)(() => stream.SetLength(-1)));
         }
 
         [Test]
@@ -2244,13 +2244,13 @@ namespace Microsoft.IO.UnitTests
             stream.Write(buffer, 0, bufferLength);
 
             // Ensure default is false
-            Assert.DoesNotThrow(() => stream.ToArray());
+            Assert.DoesNotThrow((Action)(() => stream.ToArray()));
 
             stream.MemoryManager.options.ThrowExceptionOnToArray = true;
-            Assert.Throws<NotSupportedException>(() => stream.ToArray());
+            Assert.Throws<NotSupportedException>((Action)(() => stream.ToArray()));
 
             stream.MemoryManager.options.ThrowExceptionOnToArray = false;
-            Assert.DoesNotThrow(() => stream.ToArray());
+            Assert.DoesNotThrow((Action)(() => stream.ToArray()));
         }
         #endregion
 
@@ -2285,28 +2285,28 @@ namespace Microsoft.IO.UnitTests
         public void SeekFromBeginToBeforeBeginThrowsException()
         {
             var stream = this.GetDefaultStream();
-            Assert.Throws<IOException>(() => stream.Seek(-1, SeekOrigin.Begin));
+            Assert.Throws<IOException>((Action)(() => stream.Seek(-1, SeekOrigin.Begin)));
         }
 
         [Test]
         public void SeekFromCurrentToBeforeBeginThrowsException()
         {
             var stream = this.GetDefaultStream();
-            Assert.Throws<IOException>(() => stream.Seek(-1, SeekOrigin.Current));
+            Assert.Throws<IOException>((Action)(() => stream.Seek(-1, SeekOrigin.Current)));
         }
 
         [Test]
         public void SeekFromEndToBeforeBeginThrowsException()
         {
             var stream = this.GetDefaultStream();
-            Assert.Throws<IOException>(() => stream.Seek(-1, SeekOrigin.End));
+            Assert.Throws<IOException>((Action)(() => stream.Seek(-1, SeekOrigin.End)));
         }
 
         [Test]
         public void SeekWithBadOriginThrowsException()
         {
             var stream = this.GetDefaultStream();
-            Assert.Throws<ArgumentException>(() => stream.Seek(1, (SeekOrigin)99));
+            Assert.Throws<ArgumentException>((Action)(() => stream.Seek(1, (SeekOrigin)99)));
         }
 
         [Test]
@@ -2370,7 +2370,7 @@ namespace Microsoft.IO.UnitTests
         public void PositionSetToNegativeThrowsException()
         {
             var stream = this.GetDefaultStream();
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.Position = -1);
+            Assert.Throws<ArgumentOutOfRangeException>((Action)(() => stream.Position = -1));
         }
 
         [Test]
@@ -2393,7 +2393,7 @@ namespace Microsoft.IO.UnitTests
         {
             var stream = this.GetDefaultStream();
             stream.Position = 10;
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.Advance(-1));
+            Assert.Throws<ArgumentOutOfRangeException>((Action)(() => stream.Advance(-1)));
         }
 
         [Test]
@@ -2401,7 +2401,7 @@ namespace Microsoft.IO.UnitTests
         {
             var stream = this.GetDefaultStream();
             stream.Advance(1);
-            Assert.Throws<InvalidOperationException>(() => stream.Advance(Int32.MaxValue));
+            Assert.Throws<InvalidOperationException>((Action)(() => stream.Advance(Int32.MaxValue)));
         }
 
         [Test]
@@ -2409,7 +2409,7 @@ namespace Microsoft.IO.UnitTests
         {
             var stream = this.GetDefaultStream();
             var memory = stream.GetMemory(stream.MemoryManager.options.BlockSize + 1);
-            Assert.Throws<InvalidOperationException>(() => stream.Advance(memory.Length + 1));
+            Assert.Throws<InvalidOperationException>((Action)(() => stream.Advance(memory.Length + 1)));
         }
 
         [Test]
@@ -2417,7 +2417,7 @@ namespace Microsoft.IO.UnitTests
         {
             var stream = this.GetDefaultStream();
             var memory = stream.GetMemory();
-            Assert.Throws<InvalidOperationException>(() => stream.Advance(memory.Length + 1));
+            Assert.Throws<InvalidOperationException>((Action)(() => stream.Advance(memory.Length + 1)));
         }
 
         [Test]
@@ -2427,7 +2427,7 @@ namespace Microsoft.IO.UnitTests
             stream.Position = stream.MemoryManager.options.BlockSize + 1;
             stream.GetBuffer();
             var memory = stream.GetMemory();
-            Assert.Throws<InvalidOperationException>(() => stream.Advance(memory.Length + 1));
+            Assert.Throws<InvalidOperationException>((Action)(() => stream.Advance(memory.Length + 1)));
         }
 
         [Test]
@@ -2502,7 +2502,7 @@ namespace Microsoft.IO.UnitTests
                 }
 
                 var dispose = typeof(RecyclableMemoryStream).GetMethod("Dispose", BindingFlags.Instance | BindingFlags.NonPublic, null, [typeof(bool)], null)!;
-                Assert.DoesNotThrow(() => dispose.Invoke(stream, [false]));
+                Assert.DoesNotThrow((Action)(() => dispose.Invoke(stream, [false])));
             }
             finally
             {
@@ -2632,20 +2632,20 @@ namespace Microsoft.IO.UnitTests
             Assert.That(stream.CanSeek, Is.False);
             Assert.That(stream.CanWrite, Is.False);
 
-            Assert.Throws<ObjectDisposedException>(() => { var x = stream.Capacity; });
-            Assert.Throws<ObjectDisposedException>(() => { var x = stream.Length; });
-            Assert.Throws<ObjectDisposedException>(() => { var x = stream.MemoryManager; });
-            Assert.Throws<ObjectDisposedException>(() => { var x = stream.Id; });
-            Assert.Throws<ObjectDisposedException>(() => { var x = stream.Tag; });
-            Assert.Throws<ObjectDisposedException>(() => { var x = stream.Position; });
-            Assert.Throws<ObjectDisposedException>(() => { var x = stream.ReadByte(); });
-            Assert.Throws<ObjectDisposedException>(() => { var x = stream.Read(buffer, 0, buffer.Length); });
-            Assert.Throws<ObjectDisposedException>(() => { stream.WriteByte(255); });
-            Assert.Throws<ObjectDisposedException>(() => { stream.Write(buffer, 0, buffer.Length); });
-            Assert.Throws<ObjectDisposedException>(() => { stream.SetLength(100); });
-            Assert.Throws<ObjectDisposedException>(() => { stream.Seek(0, SeekOrigin.Begin); });
-            Assert.Throws<ObjectDisposedException>(() => { var x = stream.ToArray(); });
-            Assert.Throws<ObjectDisposedException>(() => { var x = stream.GetBuffer(); });
+            Assert.Throws<ObjectDisposedException>((Action)(() => { var x = stream.Capacity; }));
+            Assert.Throws<ObjectDisposedException>((Action)(() => { var x = stream.Length; }));
+            Assert.Throws<ObjectDisposedException>((Action)(() => { var x = stream.MemoryManager; }));
+            Assert.Throws<ObjectDisposedException>((Action)(() => { var x = stream.Id; }));
+            Assert.Throws<ObjectDisposedException>((Action)(() => { var x = stream.Tag; }));
+            Assert.Throws<ObjectDisposedException>((Action)(() => { var x = stream.Position; }));
+            Assert.Throws<ObjectDisposedException>((Action)(() => { var x = stream.ReadByte(); }));
+            Assert.Throws<ObjectDisposedException>((Action)(() => { var x = stream.Read(buffer, 0, buffer.Length); }));
+            Assert.Throws<ObjectDisposedException>((Action)(() => { stream.WriteByte(255); }));
+            Assert.Throws<ObjectDisposedException>((Action)(() => { stream.Write(buffer, 0, buffer.Length); }));
+            Assert.Throws<ObjectDisposedException>((Action)(() => { stream.SetLength(100); }));
+            Assert.Throws<ObjectDisposedException>((Action)(() => { stream.Seek(0, SeekOrigin.Begin); }));
+            Assert.Throws<ObjectDisposedException>((Action)(() => { var x = stream.ToArray(); }));
+            Assert.Throws<ObjectDisposedException>((Action)(() => { var x = stream.GetBuffer(); }));
         }
 
         [Test]
@@ -2805,7 +2805,7 @@ namespace Microsoft.IO.UnitTests
         public void WriteToNullStreamThrowsException()
         {
             var stream = this.GetDefaultStream();
-            Assert.Throws<ArgumentNullException>(() => stream.WriteTo(null!));
+            Assert.Throws<ArgumentNullException>((Action)(() => stream.WriteTo(null!)));
         }
 
         [Test]
@@ -2884,17 +2884,17 @@ namespace Microsoft.IO.UnitTests
         public void WriteToOtherStreamOffsetCountThrowException()
         {
             var stream = this.GetDefaultStream();
-            Assert.Throws<ArgumentNullException>(() => stream.WriteTo((Stream)null!, 0, (int)stream.Length));
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(stream, -1, (int)stream.Length));
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(stream, 1, (int)stream.Length));
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(stream, 0, (int)stream.Length + 1));
+            Assert.Throws<ArgumentNullException>((Action)(() => stream.WriteTo((Stream)null!, 0, (int)stream.Length)));
+            Assert.Throws<ArgumentOutOfRangeException>((Action)(() => stream.WriteTo(stream, -1, (int)stream.Length)));
+            Assert.Throws<ArgumentOutOfRangeException>((Action)(() => stream.WriteTo(stream, 1, (int)stream.Length)));
+            Assert.Throws<ArgumentOutOfRangeException>((Action)(() => stream.WriteTo(stream, 0, (int)stream.Length + 1)));
         }
 
         [Test]
         public void WriteToByteArray_NullTarget()
         {
             using var stream = this.GetDefaultStream();
-            Assert.Throws<ArgumentNullException>(() => stream.WriteTo(null!));
+            Assert.Throws<ArgumentNullException>((Action)(() => stream.WriteTo(null!)));
         }
 
         [Test]
@@ -2951,7 +2951,7 @@ namespace Microsoft.IO.UnitTests
             using var stream = this.GetDefaultStream();
             stream.Write(sourceBuffer);
             byte[] targetBuffer = new byte[sourceBuffer.Length];
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, 0, sourceBuffer.Length + 1));
+            Assert.Throws<ArgumentOutOfRangeException>((Action)(() => stream.WriteTo(targetBuffer, 0, sourceBuffer.Length + 1)));
         }
 
         [Test]
@@ -2961,7 +2961,7 @@ namespace Microsoft.IO.UnitTests
             using var stream = this.GetDefaultStream();
             stream.Write(sourceBuffer);
             byte[] targetBuffer = new byte[sourceBuffer.Length];
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, 1, sourceBuffer.Length));
+            Assert.Throws<ArgumentOutOfRangeException>((Action)(() => stream.WriteTo(targetBuffer, 1, sourceBuffer.Length)));
         }
 
         [Test]
@@ -2971,7 +2971,7 @@ namespace Microsoft.IO.UnitTests
             using var stream = this.GetDefaultStream();
             stream.Write(sourceBuffer);
             byte[] targetBuffer = new byte[sourceBuffer.Length];
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, 0, sourceBuffer.Length, 1));
+            Assert.Throws<ArgumentOutOfRangeException>((Action)(() => stream.WriteTo(targetBuffer, 0, sourceBuffer.Length, 1)));
         }
 
         [Test]
@@ -2981,7 +2981,7 @@ namespace Microsoft.IO.UnitTests
             using var stream = this.GetDefaultStream();
             stream.Write(sourceBuffer);
             byte[] targetBuffer = new byte[sourceBuffer.Length];
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, 1, sourceBuffer.Length - 1, 2));
+            Assert.Throws<ArgumentOutOfRangeException>((Action)(() => stream.WriteTo(targetBuffer, 1, sourceBuffer.Length - 1, 2)));
         }
 
         [Test]
@@ -2991,7 +2991,7 @@ namespace Microsoft.IO.UnitTests
             using var stream = this.GetDefaultStream();
             stream.Write(sourceBuffer);
             byte[] targetBuffer = new byte[sourceBuffer.Length];
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, 0, 1, sourceBuffer.Length));
+            Assert.Throws<ArgumentOutOfRangeException>((Action)(() => stream.WriteTo(targetBuffer, 0, 1, sourceBuffer.Length)));
         }
 
         [Test]
@@ -3001,7 +3001,7 @@ namespace Microsoft.IO.UnitTests
             using var stream = this.GetDefaultStream();
             stream.Write(sourceBuffer);
             byte[] targetBuffer = new byte[sourceBuffer.Length];
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, -1, sourceBuffer.Length));
+            Assert.Throws<ArgumentOutOfRangeException>((Action)(() => stream.WriteTo(targetBuffer, -1, sourceBuffer.Length)));
         }
 
 
@@ -3012,7 +3012,7 @@ namespace Microsoft.IO.UnitTests
             using var stream = this.GetDefaultStream();
             stream.Write(sourceBuffer);
             byte[] targetBuffer = new byte[sourceBuffer.Length];
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.WriteTo(targetBuffer, 0, sourceBuffer.Length, -1));
+            Assert.Throws<ArgumentOutOfRangeException>((Action)(() => stream.WriteTo(targetBuffer, 0, sourceBuffer.Length, -1)));
         }
 
 
@@ -3034,8 +3034,8 @@ namespace Microsoft.IO.UnitTests
             var stream = this.GetDefaultStream();
             var maxCapacity = DefaultMaximumBufferSize * 2;
             stream.MemoryManager.options.MaximumStreamCapacity = maxCapacity;
-            Assert.DoesNotThrow(() => stream.Capacity = maxCapacity);
-            Assert.Throws<OutOfMemoryException>(() => stream.Capacity = maxCapacity + 1);
+            Assert.DoesNotThrow((Action)(() => stream.Capacity = maxCapacity));
+            Assert.Throws<OutOfMemoryException>((Action)(() => stream.Capacity = maxCapacity + 1));
         }
 
         [Test]
@@ -3044,9 +3044,9 @@ namespace Microsoft.IO.UnitTests
             var stream = this.GetDefaultStream();
             var maxCapacity = DefaultMaximumBufferSize * 2;
             stream.MemoryManager.options.MaximumStreamCapacity = maxCapacity;
-            Assert.DoesNotThrow(() => stream.Capacity = maxCapacity);
+            Assert.DoesNotThrow((Action)(() => stream.Capacity = maxCapacity));
             var oldCapacity = stream.Capacity;
-            Assert.Throws<OutOfMemoryException>(() => stream.Capacity = maxCapacity + 1);
+            Assert.Throws<OutOfMemoryException>((Action)(() => stream.Capacity = maxCapacity + 1));
             Assert.That(stream.Capacity, Is.EqualTo(oldCapacity));
         }
 
@@ -3062,7 +3062,7 @@ namespace Microsoft.IO.UnitTests
             var oldCapacity = stream.Capacity;
             var oldPosition = stream.Position;
             var buffer2 = this.GetRandomBuffer(maxCapacity);
-            Assert.Throws<OutOfMemoryException>(() => stream.Write(buffer2, 0, buffer2.Length));
+            Assert.Throws<OutOfMemoryException>((Action)(() => stream.Write(buffer2, 0, buffer2.Length)));
             Assert.That(stream.Length, Is.EqualTo(oldLength));
             Assert.That(stream.Capacity, Is.EqualTo(oldCapacity));
             Assert.That(stream.Position, Is.EqualTo(oldPosition));
@@ -3094,7 +3094,7 @@ namespace Microsoft.IO.UnitTests
         public void CopyToAsyncThrowsOnNullDestination()
         {
             using var stream = this.GetDefaultStream();
-            Assert.Throws<ArgumentNullException>(() => stream.CopyToAsync(null!, DefaultBlockSize, CancellationToken.None));
+            Assert.Throws<ArgumentNullException>((Action)(() => stream.CopyToAsync(null!, DefaultBlockSize, CancellationToken.None)));
         }
 
         [Test]
@@ -3103,7 +3103,7 @@ namespace Microsoft.IO.UnitTests
             var stream = this.GetDefaultStream();
             using var otherStream = this.GetDefaultStream();
             stream.Dispose();
-            Assert.Throws<ObjectDisposedException>(() => stream.CopyToAsync(otherStream, DefaultBlockSize, CancellationToken.None));
+            Assert.Throws<ObjectDisposedException>((Action)(() => stream.CopyToAsync(otherStream, DefaultBlockSize, CancellationToken.None)));
         }
 
         [TestCase(0)]
@@ -3339,7 +3339,7 @@ namespace Microsoft.IO.UnitTests
             var data = this.GetRandomBuffer(1 << 20);
             stream.Write(data);
             var buffer = stream.GetBuffer();
-            Assert.Throws<OutOfMemoryException>(() => stream.SetLength(DefaultVeryLargeStreamSize));
+            Assert.Throws<OutOfMemoryException>((Action)(() => stream.SetLength(DefaultVeryLargeStreamSize)));
         }
 
         [Test]
@@ -3350,7 +3350,7 @@ namespace Microsoft.IO.UnitTests
                 Assert.Ignore("Disable test due to increased memory consumption that currently does not work with the hardware limits of the GitHub runners.");
             }
             var stream = this.GetMultiGBStream();
-            Assert.Throws<OutOfMemoryException>(() => stream.GetBuffer());
+            Assert.Throws<OutOfMemoryException>((Action)(() => stream.GetBuffer()));
         }
 
         [Test]
@@ -3363,7 +3363,7 @@ namespace Microsoft.IO.UnitTests
             var stream = this.GetDefaultStream();
             stream.SetLength(1 << 20);
             var buffer = stream.GetBuffer();
-            Assert.Throws<InvalidOperationException>(() => stream.Position = DefaultVeryLargeStreamSize);
+            Assert.Throws<InvalidOperationException>((Action)(() => stream.Position = DefaultVeryLargeStreamSize));
         }
 
         [Test]
@@ -3518,7 +3518,7 @@ namespace Microsoft.IO.UnitTests
             };
             var stream = mgr.GetStream("UnitTest", 13);
 
-            Assert.Throws<OutOfMemoryException>(() => stream.Capacity = mgr.options.BlockSize * 2);
+            Assert.Throws<OutOfMemoryException>((Action)(() => stream.Capacity = mgr.options.BlockSize * 2));
             Assert.That(raised, Is.True);
         }
 
@@ -3960,11 +3960,11 @@ namespace Microsoft.IO.UnitTests
         [Test]
         public override void RecyclableMemoryManagerThrowsExceptionOnMaximumBufferNotMultipleOrExponentialOfLargeBufferMultiple()
         {
-            Assert.Throws<InvalidOperationException>(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 1024, MaximumBufferSize = 2025, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer }));
-            Assert.Throws<InvalidOperationException>(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 1024, MaximumBufferSize = 2023, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer }));
-            Assert.Throws<InvalidOperationException>(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 1024, MaximumBufferSize = 3072, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer }));
-            Assert.DoesNotThrow(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 1024, MaximumBufferSize = 2048, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer }));
-            Assert.DoesNotThrow(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 1024, MaximumBufferSize = 4096, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer }));
+            Assert.Throws<InvalidOperationException>((Action)(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 1024, MaximumBufferSize = 2025, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer })));
+            Assert.Throws<InvalidOperationException>((Action)(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 1024, MaximumBufferSize = 2023, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer })));
+            Assert.Throws<InvalidOperationException>((Action)(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 1024, MaximumBufferSize = 3072, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer })));
+            Assert.DoesNotThrow((Action)(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 1024, MaximumBufferSize = 2048, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer })));
+            Assert.DoesNotThrow((Action)(() => new RecyclableMemoryStreamManager(new RecyclableMemoryStreamManager.Options { BlockSize = 100, LargeBufferMultiple = 1024, MaximumBufferSize = 4096, UseExponentialLargeBuffer = this.UseExponentialLargeBuffer })));
         }
 
         [Test]
@@ -4023,7 +4023,7 @@ namespace Microsoft.IO.UnitTests
             const int LargeBufferMultiple = 1024;
             const int MaxBufferSize = int.MaxValue;
 
-            Assert.Throws<InvalidOperationException>(() => new RecyclableMemoryStreamManager(
+            Assert.Throws<InvalidOperationException>((Action)(() => new RecyclableMemoryStreamManager(
                 new RecyclableMemoryStreamManager.Options
                 {
                     BlockSize = BlockSize,
@@ -4031,7 +4031,7 @@ namespace Microsoft.IO.UnitTests
                     MaximumBufferSize = MaxBufferSize,
                     UseExponentialLargeBuffer = this.UseExponentialLargeBuffer,
                     AggressiveBufferReturn = this.AggressiveBufferRelease
-                }));
+                })));
         }
 
         [Test]
