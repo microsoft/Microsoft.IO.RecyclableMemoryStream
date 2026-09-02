@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1788278013709,
+  "lastUpdate": 1788382019811,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -3884,6 +3884,42 @@ window.BENCHMARK_DATA = {
             "value": 90901872.33098592,
             "unit": "ns",
             "range": "± 4427769.335787207"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "fad680daba5bd01469587a841407f8310c994253",
+          "message": "Bump NUnit from 4.5.1 to 4.6.1 (#452)\n\n* Bump NUnit from 4.5.1 to 4.6.1\n\n---\nupdated-dependencies:\n- dependency-name: NUnit\n  dependency-version: 4.6.1\n  dependency-type: direct:production\n  update-type: version-update:semver-minor\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\n\n* Bump NUnit from 4.5.1 to 4.6.1\n\n---\nupdated-dependencies:\n- dependency-name: NUnit\n  dependency-version: 4.6.1\n  dependency-type: direct:production\n  update-type: version-update:semver-minor\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\n\n* Fix build errors\n\n---------\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\nCo-authored-by: Ben Watson <bewatson@microsoft.com>",
+          "timestamp": "2026-09-02T13:45:41-07:00",
+          "tree_id": "c7b78a5953cce7eab0eb1d827f51150e1b622dd8",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/fad680daba5bd01469587a841407f8310c994253"
+        },
+        "date": 1788382017950,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 56279069.083333336,
+            "unit": "ns",
+            "range": "± 51482.74529915706"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 128492324.06122449,
+            "unit": "ns",
+            "range": "± 7495400.944333878"
           }
         ]
       }
