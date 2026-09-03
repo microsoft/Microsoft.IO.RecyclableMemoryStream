@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1788390733159,
+  "lastUpdate": 1788465561038,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -3992,6 +3992,42 @@ window.BENCHMARK_DATA = {
             "value": 131583139.87,
             "unit": "ns",
             "range": "± 8751918.813851412"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "778074d58b847c6abc61619226a1f64c7f543f3f",
+          "message": "Bump github/codeql-action/init from 4.37.8 to 4.37.9 (#459)\n\n* Bump github/codeql-action/init from 4.37.8 to 4.37.9\n\nBumps [github/codeql-action/init](https://github.com/github/codeql-action) from 4.37.8 to 4.37.9.\n- [Release notes](https://github.com/github/codeql-action/releases)\n- [Changelog](https://github.com/github/codeql-action/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/github/codeql-action/compare/db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28...cdf488f595d80d6e07e03d4674febd5ab45fa938)\n\n---\nupdated-dependencies:\n- dependency-name: github/codeql-action/init\n  dependency-version: 4.37.9\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\n\n* Upgrade CodeQL action versions\n\nUpdated CodeQL action versions from v4.37.8 to v4.37.9.\n\n---------\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\nCo-authored-by: Ben <benmwatson@users.noreply.github.com>",
+          "timestamp": "2026-09-03T12:58:01-07:00",
+          "tree_id": "17234236516653811ff334cbb5b1214e4927291a",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/778074d58b847c6abc61619226a1f64c7f543f3f"
+        },
+        "date": 1788465560211,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 40973181.14285714,
+            "unit": "ns",
+            "range": "± 189848.49687655078"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 137384612.72,
+            "unit": "ns",
+            "range": "± 11136946.376999456"
           }
         ]
       }
