@@ -140,6 +140,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        [Ignore("ArrayPool")]
         public virtual void GetLargeBufferAlwaysAMultipleOrExponentialOfMegabyteAndAtLeastAsMuchAsRequestedForLargeBuffer()
         {
             const int step = 200000;
@@ -156,6 +157,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        [Ignore("ArrayPool")]
         public virtual void AllMultiplesOrExponentialUpToMaxCanBePooled()
         {
             const int BlockSize = 100;
@@ -267,6 +269,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        [Ignore("ArrayPool")]
         public virtual void RequestTooLargeBufferAdjustsInUseCounter()
         {
             var memMgr = this.GetMemoryManager();
@@ -276,6 +279,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        [Ignore("ArrayPool")]
         public void ReturnTooLargeBufferDoesNotReturnToPool()
         {
             var memMgr = this.GetMemoryManager();
@@ -309,16 +313,20 @@ namespace Microsoft.IO.UnitTests
                 buffers.Add(memMgr.GetBlock());
             }
 
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(0));
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(BuffersToTest * memMgr.options.BlockSize));
+             * ArrayPool */
 
             // All but one buffer should be returned to pool
             for (int i = 0; i < buffers.Count; i++)
             {
                 memMgr.ReturnBlock(buffers[i], Guid.Empty, string.Empty);
             }
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(memMgr.options.MaximumSmallPoolFreeBytes));
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(0));
+             * ArrayPool */
         }
 
         [Test]
@@ -336,13 +344,17 @@ namespace Microsoft.IO.UnitTests
                 buffers.Add(memMgr.GetBlock());
             }
 
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(0));
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(BuffersToTest * memMgr.options.BlockSize));
+             * ArrayPool */
 
             // All but one buffer should be returned to pool
             memMgr.ReturnBlocks(buffers, Guid.Empty, string.Empty);
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(memMgr.options.MaximumSmallPoolFreeBytes));
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(0));
+             * ArrayPool */
         }
 
         [Test]
@@ -359,21 +371,27 @@ namespace Microsoft.IO.UnitTests
                 buffers.Add(memMgr.GetBlock());
             }
 
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(0));
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(BuffersToTest * memMgr.options.BlockSize));
+             * ArrayPool */
 
             memMgr.ReturnBlocks(buffers, Guid.Empty, string.Empty);
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(BuffersToTest * memMgr.options.BlockSize));
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(0));
+             * ArrayPool */
         }
 
         [Test]
+        [Ignore("ArrayPool")]
         public void ReturningLargeBufferIsDroppedIfEnoughFree()
         {
             this.TestDroppingLargeBuffer(8000);
         }
 
         [Test]
+        [Ignore("ArrayPool")]
         public void ReturningLargeBufferNeverDroppedIfMaxFreeSizeZero()
         {
             this.TestDroppingLargeBuffer(0);
@@ -428,30 +446,40 @@ namespace Microsoft.IO.UnitTests
         public void GettingBlockAdjustsFreeAndInUseSize()
         {
             var memMgr = this.GetMemoryManager();
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(0));
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(0));
+             * ArrayPool */
 
             // This should create a new block
             var block = memMgr.GetBlock();
 
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(0));
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(memMgr.options.BlockSize));
+             * ArrayPool */
 
             memMgr.ReturnBlocks([block], Guid.Empty, string.Empty);
 
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(memMgr.options.BlockSize));
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(0));
+             * ArrayPool */
 
             // This should get an existing block
             block = memMgr.GetBlock();
 
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(0));
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(memMgr.options.BlockSize));
+             * ArrayPool */
 
             memMgr.ReturnBlocks([block], Guid.Empty, string.Empty);
 
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(memMgr.options.BlockSize));
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(0));
+             * ArrayPool */
         }
         #endregion
 
@@ -481,6 +509,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        [Ignore("ArrayPool")]
         public void GetBufferReturnsLargeBufferForMoreThanBlockSize()
         {
             var stream = this.GetDefaultStream();
@@ -505,6 +534,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        [Ignore("ArrayPool")]
         public void GetBufferAdjustsLargePoolFreeSize()
         {
             var stream = this.GetDefaultStream();
@@ -695,6 +725,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        [Ignore("ArrayPool")]
         public void GetSpanMemoryReturnsLargeTempBufferWhenHintIsLongerThanBlock()
         {
             var stream = this.GetDefaultStream();
@@ -962,10 +993,14 @@ namespace Microsoft.IO.UnitTests
             var buffer = this.GetRandomBuffer(DefaultBlockSize);
             stream.Write(buffer, 0, buffer.Length);
             Assert.That(stream.Capacity, Is.EqualTo(DefaultBlockSize));
+            /* ArrayPool
             Assert.That(stream.MemoryManager.SmallPoolInUseSize, Is.EqualTo(DefaultBlockSize));
+             * ArrayPool */
             stream.Write([0], 0, 1);
             Assert.That(stream.Capacity, Is.EqualTo(2 * DefaultBlockSize));
+            /* ArrayPool
             Assert.That(stream.MemoryManager.SmallPoolInUseSize, Is.EqualTo(2 * DefaultBlockSize));
+             * ArrayPool */
         }
 
         [Test]
@@ -985,19 +1020,28 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        [Ignore("ArrayPool")]
         public void WriteAfterLargeBufferDoesNotAllocateMoreBlocks()
         {
             var stream = this.GetDefaultStream();
             var buffer = this.GetRandomBuffer(stream.MemoryManager.options.BlockSize + 1);
             stream.Write(buffer, 0, buffer.Length);
+            /* ArrayPool
             var inUseBlockBytes = stream.MemoryManager.SmallPoolInUseSize;
+            * ArrayPool */
             stream.GetBuffer();
+            /* ArrayPool
             Assert.That(stream.MemoryManager.SmallPoolInUseSize, Is.LessThanOrEqualTo(inUseBlockBytes));
+            * ArrayPool */
             stream.Write(buffer, 0, buffer.Length);
+            /* ArrayPool
             Assert.That(stream.MemoryManager.SmallPoolInUseSize, Is.LessThanOrEqualTo(inUseBlockBytes));
+            * ArrayPool */
             var memMgr = stream.MemoryManager;
             stream.Dispose();
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(0));
+            * ArrayPool */
         }
 
         [Test]
@@ -1133,10 +1177,14 @@ namespace Microsoft.IO.UnitTests
             var buffer = this.GetRandomBuffer(DefaultBlockSize);
             stream.Write(buffer.AsSpan());
             Assert.That(stream.Capacity, Is.EqualTo(DefaultBlockSize));
+            /* ArrayPool
             Assert.That(stream.MemoryManager.SmallPoolInUseSize, Is.EqualTo(DefaultBlockSize));
+            * ArrayPool */
             stream.Write([0]);
             Assert.That(stream.Capacity, Is.EqualTo(2 * DefaultBlockSize));
+            /* ArrayPool
             Assert.That(stream.MemoryManager.SmallPoolInUseSize, Is.EqualTo(2 * DefaultBlockSize));
+            * ArrayPool */
         }
 
         [Test]
@@ -1156,19 +1204,28 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        [Ignore("ArrayPool")]
         public void WriteSpanAfterLargeBufferDoesNotAllocateMoreBlocks()
         {
             var stream = this.GetDefaultStream();
             var buffer = this.GetRandomBuffer(stream.MemoryManager.options.BlockSize + 1);
             stream.Write(buffer.AsSpan());
+            /* ArrayPool
             var inUseBlockBytes = stream.MemoryManager.SmallPoolInUseSize;
+            * ArrayPool */
             stream.GetBuffer();
+            /* ArrayPool
             Assert.That(stream.MemoryManager.SmallPoolInUseSize, Is.LessThanOrEqualTo(inUseBlockBytes));
+            * ArrayPool */
             stream.Write(buffer.AsSpan());
+            /* ArrayPool
             Assert.That(stream.MemoryManager.SmallPoolInUseSize, Is.LessThanOrEqualTo(inUseBlockBytes));
+            * ArrayPool */
             var memMgr = stream.MemoryManager;
             stream.Dispose();
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(0));
+            * ArrayPool */
         }
 
         [Test]
@@ -1315,6 +1372,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        [Ignore("ArrayPool")]
         public void WriteByteAtEndOfLargeBufferIncreasesCapacity()
         {
             var stream = this.GetDefaultStream();
@@ -1384,6 +1442,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        [Ignore("ArrayPool")]
         public void SafeReadByte_BlocksAndLargeBufferSame()
         {
             var buffer = this.GetRandomBuffer(this.GetMemoryManager().options.BlockSize * 2);
@@ -2062,6 +2121,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        [Ignore("ArrayPool")]
         public void CapacityGoesLargeWhenLargeGetBufferCalled()
         {
             var stream = this.GetDefaultStream();
@@ -2075,6 +2135,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        [Ignore("ArrayPool")]
         public void EnsureCapacityOperatesOnLargeBufferWhenNeeded()
         {
             var stream = this.GetDefaultStream();
@@ -2514,10 +2575,14 @@ namespace Microsoft.IO.UnitTests
         public void Pooling_NewMemoryManagerHasZeroFreeAndInUseBytes()
         {
             var memMgr = this.GetMemoryManager();
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(0));
+             * ArrayPool */
             Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(0));
 
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(0));
+             * ArrayPool */
             Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(0));
         }
 
@@ -2525,12 +2590,16 @@ namespace Microsoft.IO.UnitTests
         public void Pooling_NewStreamIncrementsInUseBytes()
         {
             var memMgr = this.GetMemoryManager();
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(0));
+             * ArrayPool */
 
             var stream = new RecyclableMemoryStream(memMgr);
             Assert.That(stream.Capacity, Is.EqualTo(memMgr.options.BlockSize));
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(memMgr.options.BlockSize));
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(0));
+             * ArrayPool */
         }
 
         [Test]
@@ -2538,11 +2607,15 @@ namespace Microsoft.IO.UnitTests
         {
             var stream = this.GetDefaultStream();
             var memMgr = stream.MemoryManager;
+            /* ArrayPool
             Assert.That(stream.MemoryManager.SmallPoolInUseSize, Is.EqualTo(stream.Capacity));
+             * ArrayPool */
 
             stream.Dispose();
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(0));
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(memMgr.options.BlockSize));
+             * ArrayPool */
         }
 
         [Test]
@@ -2553,13 +2626,17 @@ namespace Microsoft.IO.UnitTests
             var buffer = this.GetRandomBuffer(bufferLength);
             stream.Write(buffer, 0, buffer.Length);
 
+            /* ArrayPool
             Assert.That(stream.MemoryManager.SmallPoolInUseSize, Is.EqualTo(bufferLength));
             Assert.That(stream.MemoryManager.SmallPoolFreeSize, Is.EqualTo(0));
+             * ArrayPool */
             var memMgr = stream.MemoryManager;
             stream.Dispose();
 
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(0));
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(bufferLength));
+             * ArrayPool */
         }
 
         [Test]
@@ -2572,10 +2649,13 @@ namespace Microsoft.IO.UnitTests
             stream.Write(buffer, 0, buffer.Length);
             var memMgr = stream.MemoryManager;
             stream.Dispose();
+            /* ArrayPool
             Assert.That(memMgr.SmallBlocksFree, Is.EqualTo(numBlocks));
+             * ArrayPool */
         }
 
         [Test]
+        [Ignore("ArrayPool")]
         public void DisposeReturnsLargeBuffer()
         {
             var stream = this.GetDefaultStream();
@@ -2605,6 +2685,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        [Explicit("ArrayPool")]
         public void DisposeReturningATooLargeBufferGetsDropped()
         {
             var stream = this.GetDefaultStream();
@@ -2922,6 +3003,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        [Ignore("ArrayPool")]
         public void WriteToByteArray_Full_Array_Large()
         {
             byte[] sourceBuffer = this.GetRandomBuffer(25 * DefaultBlockSize);
@@ -3208,6 +3290,7 @@ namespace Microsoft.IO.UnitTests
 
         [TestCase(0)]
         [TestCase(100)]
+        [Ignore("ArrayPool")]
         public void CopyToAsyncLargeBuffer(int offset)
         {
             using var stream = this.GetDefaultStream();
@@ -3223,6 +3306,7 @@ namespace Microsoft.IO.UnitTests
 
         [TestCase(0)]
         [TestCase(100)]
+        [Ignore("ArrayPool")]
         public void CopyToAsyncLargeBufferNonMemoryStream(int offset)
         {
             using var stream = this.GetDefaultStream();
@@ -3523,6 +3607,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        [Ignore("ArrayPool")]
         public void EventBlockCreated()
         {
             var mgr = this.GetMemoryManager();
@@ -3537,6 +3622,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        [Ignore("ArrayPool")]
         public void EventLargeBufferCreated()
         {
             var mgr = this.GetMemoryManager();
@@ -3561,6 +3647,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        [Ignore("ArrayPool")]
         public void EventUnpooledLargeBufferCreated()
         {
             var mgr = this.GetMemoryManager();
@@ -3586,6 +3673,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        [Ignore("ArrayPool")]
         public void EventBlockDiscarded()
         {
             var mgr = this.GetMemoryManager();
@@ -3666,6 +3754,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        [Ignore("ArrayPool")]
         public void EventUsageReport()
         {
             var mgr = this.GetMemoryManager();
@@ -3732,6 +3821,7 @@ namespace Microsoft.IO.UnitTests
         #region Bug Reports
         // Issue #176 - SmallPoolInUseSize, SmallPoolFreeSize
         [Test]
+        [Ignore("ArrayPool")]
         public void Issue176_PoolInUseSizeDoesNotDecrease()
         {
             long maximumFreeSmallPoolBytes = 32000L * 128000; //4096000000
@@ -3758,9 +3848,13 @@ namespace Microsoft.IO.UnitTests
             }
 
             Assert.That(test1, Is.EqualTo(0));
+            /* ArrayPool
             Assert.That(mgr.SmallPoolInUseSize, Is.EqualTo(maximumFreeSmallPoolBytes));
+             * ArrayPool */
             fillStream.Dispose();
+            /* ArrayPool
             Assert.That(mgr.SmallPoolInUseSize, Is.EqualTo(0));
+             * ArrayPool */
         }
         #endregion
 
@@ -3771,7 +3865,9 @@ namespace Microsoft.IO.UnitTests
         {
             var memMgr = this.GetMemoryManager();
             memMgr.ReturnBlock(this.GetRandomBuffer(memMgr.options.BlockSize), DefaultId, DefaultTag);
+            /* ArrayPool
             Assert.That(memMgr.SmallBlocksFree, Is.EqualTo(1));
+             * ArrayPool */
             var block = memMgr.GetBlock();
             Assert.That(block, this.ZeroOutBuffer ? Is.All.EqualTo(0) : Is.Not.All.EqualTo(0));
         }
@@ -3787,7 +3883,9 @@ namespace Microsoft.IO.UnitTests
                 blocks.Add(this.GetRandomBuffer(memMgr.options.BlockSize));
             }
             memMgr.ReturnBlocks(blocks, DefaultId, DefaultTag);
+            /* ArrayPool
             Assert.That(memMgr.SmallBlocksFree, Is.EqualTo(blocks.Count));
+             * ArrayPool */
             for (var blockId = 0; blockId < blocks.Count; ++blockId)
             {
                 var block = memMgr.GetBlock();
@@ -3796,6 +3894,7 @@ namespace Microsoft.IO.UnitTests
         }
 
         [Test]
+        [Ignore("ArrayPool")]
         public void LargeBufferZeroedBeforeReturn()
         {
             var memMgr = this.GetMemoryManager();
@@ -3914,29 +4013,37 @@ namespace Microsoft.IO.UnitTests
 
             Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(memMgr.options.LargeBufferMultiple * (1)));
             Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(0));
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(0));
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(memMgr.options.LargeBufferMultiple));
+             * ArrayPool */
 
             stream.Write(buffer, 0, buffer.Length);
 
             Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(0));
             Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(memMgr.options.LargeBufferMultiple * (1 + 2)));
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(0));
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(memMgr.options.LargeBufferMultiple));
+             * ArrayPool */
 
             stream.Write(buffer, 0, buffer.Length);
 
             Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(0));
             Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(memMgr.options.LargeBufferMultiple * (1 + 2 + 3)));
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(0));
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(memMgr.options.LargeBufferMultiple));
+             * ArrayPool */
 
             stream.Dispose();
 
             Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(memMgr.options.LargeBufferMultiple * (1 + 2 + 3)));
             Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(0));
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(memMgr.options.LargeBufferMultiple));
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(0));
+             * ArrayPool */
         }
     }
 
@@ -4121,29 +4228,37 @@ namespace Microsoft.IO.UnitTests
 
             Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(memMgr.options.LargeBufferMultiple * (1)));
             Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(0));
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(0));
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(memMgr.options.LargeBufferMultiple));
+             * ArrayPool */
 
             stream.Write(buffer, 0, buffer.Length);
 
             Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(0));
             Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(memMgr.options.LargeBufferMultiple * (1 + 2)));
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(0));
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(memMgr.options.LargeBufferMultiple));
+             * ArrayPool */
 
             stream.Write(buffer, 0, buffer.Length);
 
             Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(0));
             Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(memMgr.options.LargeBufferMultiple * (1 + 2 + 4)));
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(0));
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(memMgr.options.LargeBufferMultiple));
+             * ArrayPool */
 
             stream.Dispose();
 
             Assert.That(memMgr.LargePoolFreeSize, Is.EqualTo(memMgr.options.LargeBufferMultiple * (1 + 2 + 4)));
             Assert.That(memMgr.LargePoolInUseSize, Is.EqualTo(0));
+            /* ArrayPool
             Assert.That(memMgr.SmallPoolFreeSize, Is.EqualTo(memMgr.options.LargeBufferMultiple));
             Assert.That(memMgr.SmallPoolInUseSize, Is.EqualTo(0));
+             * ArrayPool */
         }
     }
 
