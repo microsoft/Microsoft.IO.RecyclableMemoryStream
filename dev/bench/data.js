@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1788465561038,
+  "lastUpdate": 1789081505156,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -4028,6 +4028,42 @@ window.BENCHMARK_DATA = {
             "value": 137384612.72,
             "unit": "ns",
             "range": "± 11136946.376999456"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "adbb61658f6e6ac5407629b855f6acfa3837fa96",
+          "message": "Bump Microsoft.SourceLink.GitHub from 10.0.400 to 10.0.401 (#464)\n\n---\nupdated-dependencies:\n- dependency-name: Microsoft.SourceLink.GitHub\n  dependency-version: 10.0.401\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-09-10T16:03:56-07:00",
+          "tree_id": "7a67e5b2348124151ac4ceaa62ca9109a19b7f8d",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/adbb61658f6e6ac5407629b855f6acfa3837fa96"
+        },
+        "date": 1789081503982,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 56172624.71428572,
+            "unit": "ns",
+            "range": "± 346347.2031461245"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 136054159.72,
+            "unit": "ns",
+            "range": "± 12580763.908130733"
           }
         ]
       }
