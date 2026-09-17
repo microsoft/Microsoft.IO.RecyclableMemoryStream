@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1789663589954,
+  "lastUpdate": 1789663613829,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -4244,6 +4244,42 @@ window.BENCHMARK_DATA = {
             "value": 104839131.06,
             "unit": "ns",
             "range": "± 6808246.755717076"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "aaa28bb8bf6f636efb902e7a0514c18179ad7d43",
+          "message": "Bump dotnet-sdk from 8.0.424 to 8.0.425 (#466)\n\nBumps [dotnet-sdk](https://github.com/dotnet/sdk) from 8.0.424 to 8.0.425.\n- [Release notes](https://github.com/dotnet/sdk/releases)\n- [Commits](https://github.com/dotnet/sdk/compare/v8.0.424...v8.0.425)\n\n---\nupdated-dependencies:\n- dependency-name: dotnet-sdk\n  dependency-version: 8.0.425\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-09-17T09:45:45-07:00",
+          "tree_id": "438f738469bd1bf0ff0fd5d71352eea502e69b04",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/aaa28bb8bf6f636efb902e7a0514c18179ad7d43"
+        },
+        "date": 1789663611355,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 31824865.92857143,
+            "unit": "ns",
+            "range": "± 229277.17556954586"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 101124731.02,
+            "unit": "ns",
+            "range": "± 6548211.940817607"
           }
         ]
       }
