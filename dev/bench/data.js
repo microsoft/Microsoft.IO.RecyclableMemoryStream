@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1790264594746,
+  "lastUpdate": 1790267068619,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -4316,6 +4316,42 @@ window.BENCHMARK_DATA = {
             "value": 103084935.85,
             "unit": "ns",
             "range": "± 6888056.646973789"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "49341101c92adab14a56df4952c0990b8f4e390d",
+          "message": "Bump rhysd/github-action-benchmark from 1.22.1 to 1.22.2 (#472)\n\nBumps [rhysd/github-action-benchmark](https://github.com/rhysd/github-action-benchmark) from 1.22.1 to 1.22.2.\n- [Release notes](https://github.com/rhysd/github-action-benchmark/releases)\n- [Changelog](https://github.com/benchmark-action/github-action-benchmark/blob/master/CHANGELOG.md)\n- [Commits](https://github.com/rhysd/github-action-benchmark/compare/52576c92bccf6ac60c8223ec7eb2565637cae9ba...4322e5726e6334590d251fc4f92bec0efafc45dc)\n\n---\nupdated-dependencies:\n- dependency-name: rhysd/github-action-benchmark\n  dependency-version: 1.22.2\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-09-24T09:22:53-07:00",
+          "tree_id": "44904465b3c934e7f9835875e56d514f553b5f34",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/49341101c92adab14a56df4952c0990b8f4e390d"
+        },
+        "date": 1790267067645,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 56458603.78571428,
+            "unit": "ns",
+            "range": "± 252757.5695386874"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 126555918.88607594,
+            "unit": "ns",
+            "range": "± 6576487.317023206"
           }
         ]
       }
