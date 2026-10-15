@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792082550677,
+  "lastUpdate": 1792082557019,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -4424,6 +4424,42 @@ window.BENCHMARK_DATA = {
             "value": 130361466.17,
             "unit": "ns",
             "range": "± 8201013.80028477"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "609ff832daf9569a844e3c41038a5d933c90a0f5",
+          "message": "Bump actions/upload-artifact from 7.0.1 to 7.0.2 (#479)\n\nBumps [actions/upload-artifact](https://github.com/actions/upload-artifact) from 7.0.1 to 7.0.2.\n- [Release notes](https://github.com/actions/upload-artifact/releases)\n- [Commits](https://github.com/actions/upload-artifact/compare/043fb46d1a93c77aae656e7c1c64a875d1fc6a0a...cf430e030ddbb5b0abf93d22962f4752f3646cd9)\n\n---\nupdated-dependencies:\n- dependency-name: actions/upload-artifact\n  dependency-version: 7.0.2\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-10-15T09:41:39-07:00",
+          "tree_id": "6361e16ac91eef8503924b92f12e8c2a6a9043b3",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/609ff832daf9569a844e3c41038a5d933c90a0f5"
+        },
+        "date": 1792082555845,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 21614093.846153848,
+            "unit": "ns",
+            "range": "± 176326.98488548966"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 68193058.99,
+            "unit": "ns",
+            "range": "± 5115694.3958987845"
           }
         ]
       }
