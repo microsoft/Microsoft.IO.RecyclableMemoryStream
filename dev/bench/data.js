@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792082557019,
+  "lastUpdate": 1792082597091,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -4460,6 +4460,42 @@ window.BENCHMARK_DATA = {
             "value": 68193058.99,
             "unit": "ns",
             "range": "± 5115694.3958987845"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "bfe2a38d3a49583f136b04ad3ded49f1eb7b0e2b",
+          "message": "Bump github/codeql-action/autobuild from 4.38.0 to 4.38.3 (#476)\n\nBumps [github/codeql-action/autobuild](https://github.com/github/codeql-action) from 4.38.0 to 4.38.3.\n- [Release notes](https://github.com/github/codeql-action/releases)\n- [Changelog](https://github.com/github/codeql-action/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/github/codeql-action/compare/b96794f015dfd88f77b49b1c93e0fa7110f94c63...24c54180a607b1449ed407dd24f251e4e9147c8d)\n\n---\nupdated-dependencies:\n- dependency-name: github/codeql-action/autobuild\n  dependency-version: 4.38.3\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-10-15T09:42:04-07:00",
+          "tree_id": "9e5a8b43a3d626c8752a994e1a4805dc6c39dd29",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/bfe2a38d3a49583f136b04ad3ded49f1eb7b0e2b"
+        },
+        "date": 1792082595851,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 56052087.35714286,
+            "unit": "ns",
+            "range": "± 551414.9136583655"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 126788574.89772727,
+            "unit": "ns",
+            "range": "± 6972130.9583350895"
           }
         ]
       }
