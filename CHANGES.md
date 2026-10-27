@@ -1,8 +1,11 @@
-# Version 4.0.0
+# Version 4.0.1
 
 **Breaking Changes**
 * Switch `MemoryStreamDoubleDispose` event level from `Critical` to `Verbose` [PR #406](https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/pull/406)
 * Drop net6.0 to simplify support for trimming [PR #409](https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/pull/409)
+
+**Bug Fixes**
+* Guard finalizer against partial construction [PR #447](https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/pull/447)
 
 **New Features**
 
@@ -11,6 +14,7 @@
 **Other Changes**
 * Readme: Add clarity for the large pool of buffers and the GetBuffer method pertaining to the .NET max array length [PR #370](https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/pull/370)
 * Removed workaround for [Nuget packing bug](https://github.com/dotnet/sdk/issues/11105). [PR #445](https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/pull/445)
+
 
 # Version 3.0.1
 
