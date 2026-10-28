@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793126225968,
+  "lastUpdate": 1793202308153,
   "repoUrl": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream",
   "entries": {
     "Benchmark.Net Benchmark": [
@@ -4640,6 +4640,42 @@ window.BENCHMARK_DATA = {
             "value": 65101880.27,
             "unit": "ns",
             "range": "± 4685033.454544506"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "benmwatson@users.noreply.github.com",
+            "name": "Ben",
+            "username": "benmwatson"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e4f9a2594930e2fdc877d20e9e81c2caf60706f3",
+          "message": "Finalize RMS 4.0.1; remove preview tag; update CHANGES.md (#484)\n\nCo-authored-by: Ben Watson <bewatson@microsoft.com>",
+          "timestamp": "2026-10-28T08:44:12-07:00",
+          "tree_id": "a5769617ca528ac1f61c126c966a1fb6dce59b80",
+          "url": "https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream/commit/e4f9a2594930e2fdc877d20e9e81c2caf60706f3"
+        },
+        "date": 1793202306597,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "BenchmarkTests.WriteTest.WriteByte",
+            "value": 22553475.4,
+            "unit": "ns",
+            "range": "± 288083.63582493586"
+          },
+          {
+            "name": "BenchmarkTests.WriteTest.WriteSpan",
+            "value": 71756402.2020202,
+            "unit": "ns",
+            "range": "± 6317127.957194848"
           }
         ]
       }
